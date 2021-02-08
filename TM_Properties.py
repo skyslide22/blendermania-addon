@@ -106,7 +106,7 @@ def getExportObjTypes(self, context) -> list:
 
 
 def updateGridAndLevi(self, context) -> None:
-    tm_props = bpy.context.scene.mp_props
+    tm_props = bpy.context.scene.tm_props
     syncX = tm_props.NU_xml_gridAndLeviX
     syncY = tm_props.NU_xml_gridAndLeviY
     tm_props.NU_xml_gridX = syncX
