@@ -1,0 +1,79 @@
+*,
+*::before,
+*::after {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+html {
+  background: #1b1b1b;
+  color: #c8c8c8;
+  font-family: sans-serif;
+}
+
+html,
+body {
+  margin: auto;
+  word-break: break-all;
+  padding: 0;
+}
+
+body {
+  padding: 100px;
+  max-width: 1200px;
+}
+
+header {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+}
+
+#result-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#result-list > li {
+  padding: 0;
+  margin: 0;
+}
+
+.result-object {
+  list-style: none;
+  margin: 5px 0 0 0;
+  padding: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  justify-items: stretch;
+}
+
+.result-object > li {
+  padding: 1rem;
+}
+
+.item,
+.mesh-error,
+.item-error {
+  width: 100%;
+}
+
+.success {
+  background: rgba(0, 128, 0, 0.33);
+}
+
+.success .result-object {
+  opacity: .3;
+}
+
+.success .mesh-error,
+.success .item-error {
+  display: none;
+}
+
+.error {
+  background: rgba(255, 0, 0, 0.33);
+}
