@@ -1,6 +1,6 @@
-# blender-addon-for-trackmania-and-maniaplanet
-This addon is for Blender 2.91+, it will help you with:
-- creating icons from different perspectives (not recreated yet)
+# Blender Addon for Trackmania and ManiapPlanet
+This addon is for Blender 2.91+, it will simplify all necessary steps and help you with:
+- creating icons from different perspectives (in dev...)
 - creating materials which have the game textures applied in blender automatically
 - download and install the game textures(zip/dds) and the nadeoimporter.exe with one click
 - export your blocks with one click in the right folders (collections are exported, not the objects!)
