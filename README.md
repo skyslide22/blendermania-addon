@@ -1,4 +1,4 @@
-# Blender Addon for Trackmania and ManiapPlanet
+# Blender Addon for Trackmania and ManiaPlanet
 This addon is for Blender 2.91+, it will simplify all necessary steps and help you with:
 - creating icons from different perspectives (in dev...)
 - creating materials which have the game textures applied in blender automatically
