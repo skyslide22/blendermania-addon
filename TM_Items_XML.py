@@ -268,6 +268,7 @@ def generateItemXML(fbxfilepath, col) -> str:
     NOT_ON_ITEM         = tm_props.CB_xml_notOnItem
     ONE_AXIS_ROTATION   = tm_props.CB_xml_oneAxisRot
     PIVOTS              = tm_props.CB_xml_pivots
+    GHOST_MODE          = tm_props.CB_xml_ghostMode
 
     WAYPOINT     = ""
     WAYPOINT_XML = ""
@@ -328,9 +329,9 @@ def generateItemXML(fbxfilepath, col) -> str:
             </Vis>
             {TM_MESH_XML}
             <GridSnap   HOffset="{ GRID_H_OFFSET }" HStep="{ GRID_H_STEP }" VOffset="{ GRID_V_OFFSET }" VStep="{ GRID_V_STEP }"/>
-            <Levitation HOffset="{ LEVI_H_OFFSET }" HStep="{ LEVI_H_STEP }" VOffset="{ LEVI_V_OFFSET }" VStep="{ LEVI_V_STEP }"/>
-            <Options AutoRotation="{ AUTO_ROTATION }" ManualPivotSwitch="{ MANUAL_PIVOT_SWITCH }" NotOnItem="{ NOT_ON_ITEM }" OneAxisRotation="{ ONE_AXIS_ROTATION }"/>
-            <PivotSnap Distance="{ PIVOT_SNAP_DISTANCE }"/>
+            <Levitation HOffset="{ LEVI_H_OFFSET }" HStep="{ LEVI_H_STEP }" VOffset="{ LEVI_V_OFFSET }" VStep="{ LEVI_V_STEP }" GhostMode="{ GHOST_MODE}"/>
+            <Options    AutoRotation="{ AUTO_ROTATION }" ManualPivotSwitch="{ MANUAL_PIVOT_SWITCH }" NotOnItem="{ NOT_ON_ITEM }" OneAxisRotation="{ ONE_AXIS_ROTATION }"/>
+            <PivotSnap  Distance="{ PIVOT_SNAP_DISTANCE }"/>
             {PIVOTS_XML}
         </Item>
     """

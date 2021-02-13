@@ -25,8 +25,8 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
     bl_options = {"UNDO"} #without, ctrl+Z == crash
         
     def execute(self, context):
+        bpy.ops.wm.save_as_mainfile()
         exportAndOrConvert()
-        # test()
         return {"FINISHED"}
     
     
@@ -154,7 +154,6 @@ def exportAndOrConvert()->None:
     tm_props            = bpy.context.scene.tm_props
     validObjTypes       = tm_props.LI_exportValidTypes #mesh, light, empty
     useSelectedOnly     = tm_props.LI_exportWhichObjs == "SELECTED"  #only selected objects?
-    invalidColNames     = ["master collection", "collection", "scene"]
     allObjs             = bpy.context.scene.collection.all_objects
     cols                = bpy.context.scene.collection.children
     action              = tm_props.LI_exportType
@@ -183,6 +182,9 @@ def exportAndOrConvert()->None:
         #generate list of collections to export
         for obj in allObjs:
             
+            if useSelectedOnly:
+                if not obj.select_get(): continue
+
             selectObj(obj)
             objnameLower = obj.name.lower()
 
@@ -216,14 +218,9 @@ def exportAndOrConvert()->None:
                 elif    col.color_tag == FINISH_COLOR:       col["WAYPOINT"] = "Finish"
                 elif    col.color_tag == STARTFINISH_COLOR:  col["WAYPOINT"] = "StartFinish"
 
-                if col.name.lower() not in invalidColNames:
+                if col.name.lower() not in notAllowedColnames:
                     if col not in colsToExport:
-                        
-                        if useSelectedOnly:
-                            if obj.select_get() is True:
-                                colsToExport.append( col )
-                        else:
-                            colsToExport.append( col )
+                        colsToExport.append( col )
         
         #remove doubles
         colsToExportSet = set(colsToExport)

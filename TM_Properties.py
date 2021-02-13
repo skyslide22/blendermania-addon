@@ -356,13 +356,13 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     NU_xml_leviXoffset      : FloatProperty(name="X Offset",        default=0.0,  min=0, max=256, step=100)
     NU_xml_leviY            : FloatProperty(name="Y Levitation",    default=8.0,  min=0, max=256, step=100)
     NU_xml_leviYoffset      : FloatProperty(name="Y Offset",        default=0.0,  min=0, max=256, step=100)
-    CB_xml_ghostMode        : BoolProperty(name="Ghostmode",        default=False)
+    CB_xml_ghostMode        : BoolProperty(name="Ghostmode",        default=True)
     CB_xml_autoRot          : BoolProperty(name="Autorot",          default=False)
     CB_xml_oneAxisRot       : BoolProperty(name="OneAxisRot",       default=False)
-    CB_xml_notOnItem        : BoolProperty(name="Not on Item",      default=False)
+    CB_xml_notOnItem        : BoolProperty(name="Not on Item",      default=True)
     CB_xml_pivots           : BoolProperty(name="Pivots (ingame Q Key)",default=False)
     CB_xml_pivotSwitch      : BoolProperty(name="Pivot switch",     default=False)
-    NU_xml_pivotSnapDis     : FloatProperty(name="Pivot snap distance", default=8.0,  min=0, max=256, step=100)
+    NU_xml_pivotSnapDis     : FloatProperty(name="Pivot snap distance", default=0.0,  min=0, max=256, step=100)
 
     #materials
     LI_materials:               EnumProperty(name="Material",       items=getMaterials, update=updateMaterialSettings)

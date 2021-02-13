@@ -75,7 +75,7 @@ def generateLightmap(col) -> None:
             if "LightMap" in obj.data.uv_layers.keys():
                 deselectAll()
                 setActiveObj(obj)
-                obj.data.uv_layers["LightMap"].active = True
+                obj.data.uv_layers.active_index = 1
                 bpy.ops.object.mode_set(mode='EDIT')
                 
                 ANGLE = tm_props.NU_uv_angleLimitLM
@@ -83,6 +83,9 @@ def generateLightmap(col) -> None:
                 AREA  = tm_props.NU_uv_areaWeightLM
                 ASPECT= tm_props.CB_uv_correctAspectLM
                 BOUNDS= tm_props.CB_uv_scaleToBoundsLM
+
+                debug(f"create lm for {obj.name}")
+                bpy.ops.mesh.select_all(action='SELECT')
 
                 bpy.ops.uv.smart_project(
                     angle_limit     = ANGLE, 
