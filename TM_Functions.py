@@ -569,7 +569,7 @@ def deleteObj(obj) -> None:
 
 def selectObj(obj)->bool:
     """selects object, no error during view_layer=scene.view_layers[0]"""
-    if obj.name in bpy.context.view_layer.objects:
+    if obj.name in bpy.context.view_layer.objects and not obj.hide_get():
         obj.select_set(True)
         return True
     

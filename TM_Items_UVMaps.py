@@ -71,34 +71,36 @@ def generateLightmap(col) -> None:
     objs     = col.all_objects
     
     for obj in objs:
-        if obj.type == "MESH" and len(obj.material_slots.keys()) > 0:
-            if "LightMap" in obj.data.uv_layers.keys():
-                deselectAll()
-                setActiveObj(obj)
-                obj.data.uv_layers.active_index = 1
-                bpy.ops.object.mode_set(mode='EDIT')
-                
-                ANGLE = tm_props.NU_uv_angleLimitLM
-                MARGIN= tm_props.NU_uv_islandMarginLM
-                AREA  = tm_props.NU_uv_areaWeightLM
-                ASPECT= tm_props.CB_uv_correctAspectLM
-                BOUNDS= tm_props.CB_uv_scaleToBoundsLM
-
-                debug(f"create lm for {obj.name}")
-                bpy.ops.mesh.select_all(action='SELECT')
-
-                bpy.ops.uv.smart_project(
-                    angle_limit     = ANGLE, 
-                    island_margin   = MARGIN,
-                    area_weight     = AREA,
-                    correct_aspect  = ASPECT,
-                    scale_to_bounds = BOUNDS
-                )
-
-                bpy.ops.object.mode_set(mode='OBJECT')
-
-                if "BaseMaterial" in obj.data.uv_layers.keys():
-                    obj.data.uv_layers["BaseMaterial"].active = True
+        if selectObj(obj):
+            debug(obj.name)
+            if obj.type == "MESH" and len(obj.material_slots.keys()) > 0:
+                if "LightMap" in obj.data.uv_layers.keys():
+                    deselectAll()
+                    setActiveObj(obj)
+                    obj.data.uv_layers.active_index = 1
+                    bpy.ops.object.mode_set(mode='EDIT')
                     
+                    ANGLE = tm_props.NU_uv_angleLimitLM
+                    MARGIN= tm_props.NU_uv_islandMarginLM
+                    AREA  = tm_props.NU_uv_areaWeightLM
+                    ASPECT= tm_props.CB_uv_correctAspectLM
+                    BOUNDS= tm_props.CB_uv_scaleToBoundsLM
+
+                    debug(f"create lm for {obj.name}")
+                    bpy.ops.mesh.select_all(action='SELECT')
+
+                    bpy.ops.uv.smart_project(
+                        angle_limit     = ANGLE, 
+                        island_margin   = MARGIN,
+                        area_weight     = AREA,
+                        correct_aspect  = ASPECT,
+                        scale_to_bounds = BOUNDS
+                    )
+
+                    bpy.ops.object.mode_set(mode='OBJECT')
+
+                    if "BaseMaterial" in obj.data.uv_layers.keys():
+                        obj.data.uv_layers["BaseMaterial"].active = True
+                        
 
 
