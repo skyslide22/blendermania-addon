@@ -1,3 +1,4 @@
+from datetime import datetime
 from os.path import abspath
 import string
 import urllib.request
@@ -428,7 +429,77 @@ class DownloadTMFile(Thread):
                     callback = callback[0]
                     callback(**kwargs) 
 
-                    
+
+
+def saveBlendFile() -> bool:
+    """overwrite/save opened blend file, returns bool if saving was successfull"""
+    if bpy.data.is_saved:
+        bpy.ops.wm.save_as_mainfile()
+        return True
+    return False
+
+
+
+def createOriginFixer(col, createAt=None)->object:
+    """creates an empty, parent all objs in the collection to it"""
+    originObject = None
+    
+    for obj in col.all_objects:
+        if str(obj.name).startswith("origin"):
+            originObject = obj
+            break
+
+    #create if none is defined
+    if not originObject:
+
+        if not createAt:
+            createAt = col.objects[0].location
+            for obj in col.objects:
+                if obj.type == "MESH":
+                    createAt = obj.location
+                    break
+
+        bpy.ops.object.empty_add(type='ARROWS', align='WORLD', location=createAt)
+        newOrigin = bpy.context.active_object
+        newOrigin.name = "origin_delete"
+
+        if newOrigin.name not in col.all_objects:
+            col.objects.link(newOrigin)
+
+        originObject = newOrigin
+
+    # parent all objects to the origin
+    for obj in col.all_objects:
+        if obj is not originObject:
+            deselectAll()
+
+            selectObj(obj)
+            selectObj(originObject)
+
+            setActiveObj(originObject)
+            
+            try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
+            except: pass #RuntimeError: Error: Loop in parents
+    
+    return originObject
+
+
+
+
+def deleteOriginFixer(col)->None:
+    """unparent all objects of a origin object"""
+    for obj in col.all_objects:
+        if not str(obj.name).startswith("origin"):
+            deselectAll()
+            setActiveObj(obj)
+            bpy.ops.object.parent_clear(type='CLEAR')
+    
+    deselectAll()
+    for obj in col.all_objects:
+        if "delete" in str(obj.name).lower():
+            setActiveObj(obj)
+            deleteObj(obj)
+
 
 
 def getDocPath() -> str:
@@ -476,6 +547,9 @@ def r(v) -> float:
     """return math.radians, example: some_blender_object.rotation_euler=(radian, radian, radian)"""
     return math.radians(v)
 
+def rList(*rads) -> list:
+    """return math.radians as list"""
+    return [r(rad) for rad in rads]
 
 
 def fixUvLayerNamesOfObject(obj) -> None:
@@ -534,6 +608,7 @@ def getFilenameOfPath(filepath)->str:
 def isCollectionExcluded(col) -> bool:
     """check if collection is disabled in outliner (UI)"""
     hir = getCollectionHierachy(colname=col.name, hierachystart=[col.name])
+
     vl  = bpy.context.view_layer
     excluded = False
     currentCol = ""
@@ -552,6 +627,49 @@ def isCollectionExcluded(col) -> bool:
     return excluded
 
     
+
+def createCollection(name) -> object:
+    """return created or existing collection"""
+    all_cols = bpy.data.collections
+    new_col  = None
+
+    if not name in all_cols:
+        new_col = bpy.data.collections.new(name)
+    else:
+        new_col = bpy.data.collections[name]
+    
+    return new_col
+
+
+def linkCollection(col, parentcol) -> None:
+    """link collection to parentcollection"""
+    all_cols = bpy.data.collections
+    try:    parentcol.children.link(col)
+    except: ...#RuntimeError: Collection 'col' already in collection 'parentcol'
+
+
+def createUNDOstep(override) -> None:
+    """create a step which can be used in script to go back(icons etc)"""
+    bpy.ops.ed.undo_push(override)
+
+def undo() -> None:
+    """do not use in a bpy.ops.execute() (ex: UI operator button)"""
+    bpy.ops.ed.undo()
+
+def joinObjects() -> None:
+    bpy.ops.object.join()
+
+def duplicateObjects(linked=False) -> None:
+    bpy.ops.object.duplicate(linked=linked)
+
+
+def objectmode() -> None:
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+def editmode() -> None:
+    bpy.ops.object.mode_set(mode='EDIT')
+
+
 def deleteObj(obj) -> None:
     unsetActiveObj()
     objname = str(obj.name)
@@ -589,6 +707,23 @@ def selectAll() -> None:
     """selects all objects in the scene, works only for visible ones"""
     for obj in bpy.context.scene.objects:
         selectObj(obj)
+
+
+def selectAllGeometry() -> None:
+    bpy.ops.mesh.select_all(action='SELECT')
+
+def deselectAllGeometry() -> None:
+    bpy.ops.mesh.select_all(action='DESELECT')
+
+def cursorToSelected() -> None:
+    bpy.ops.view3d.snap_cursor_to_selected()
+
+def cursorLocation() -> list:
+    return bpy.context.scene.cursor.location
+
+def originToCenterOfMass() -> None:
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
+
 
 
 
@@ -693,6 +828,8 @@ def checkMatValidity(matname: str) -> str("missing prop as str or True"):
 
 def clearProperty(prop, value):
     bpy.context.scene.tm_props[prop] = value
+
+
 
 
 def nadeoLibParser(refresh=False) -> dict:
@@ -839,11 +976,21 @@ def fileNameOfPath(path: str) -> str:
 
 
 
+def getIconPathOfFBXpath(filepath) -> str:
+    icon_path = getFilenameOfPath(filepath)
+    icon_path = filepath.replace(icon_path, f"/Icon/{icon_path}")
+    icon_path = re.sub("fbx", "tga", icon_path, re.IGNORECASE)
+    return fixSlash(icon_path)
+
+
+
+
 def debug(*args) -> None:
     """better printer, adds line and filename as prefix"""
     frameinfo = getframeinfo(currentframe().f_back)
     line = str(frameinfo.lineno)
     name = str(frameinfo.filename).split("\\")[-1]
+    time = datetime.now().strftime("%H:%M:%S")
     
     line = line if int(line) > 10       else line + " " 
     line = line if int(line) > 100      else line + " " 
@@ -851,9 +998,9 @@ def debug(*args) -> None:
     line = line if int(line) > 10000    else line + " " 
     # line = line if int(line) > 100000   else line + " " 
     
-    print(f"{line}, {name} --", end="")
+    print(f"{line}, {time}, {name} --", end="")
     for arg in args:
-        print(", " + str(arg), end="")
+        print(" " + str(arg), end="")
     print()
 
 
@@ -897,7 +1044,8 @@ def makeReportPopup(title= str("some error occured"), infos: list=[], icon: str=
     def draw(self, context):
         # self.layout.label(text=f"This report is saved at: {desktopPath} as {fileName}.txt", icon="FILE_TEXT")
         for info in infos:
-            self.layout.label(text=info)       
+            self.layout.label(text=info)
+        
               
     bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
     

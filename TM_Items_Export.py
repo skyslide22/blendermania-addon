@@ -13,7 +13,7 @@ from .TM_Items_Convert  import *
 from .TM_Items_XML      import *
 from .TM_Items_UVMaps   import *
 from .TM_Settings       import *
-
+from .TM_Items_Icon     import *
 
 
 class TM_OT_Items_Export_ExportAndOrConvert(Operator):
@@ -22,11 +22,16 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
     bl_description = "Execute Order 66"
     bl_icon = 'MATERIAL'
     bl_label = "Export or/and Convert"
-    bl_options = {"UNDO"} #without, ctrl+Z == crash
+    bl_options = {"REGISTER", "UNDO"} #without, ctrl+Z == crash
         
     def execute(self, context):
-        bpy.ops.wm.save_as_mainfile()
-        exportAndOrConvert()
+        
+        if saveBlendFile():
+            exportAndOrConvert()
+        
+        else:
+            makeReportPopup("FILE NOT SAVED!", "Save your blend file!", "ERROR")
+
         return {"FINISHED"}
     
     
@@ -50,7 +55,8 @@ class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
     bl_label = "Close Convert Sub Panel"
         
     def execute(self, context):
-        context.scene.tm_props.CB_showConvertPanel = False
+        context.scene.tm_props.CB_showConvertPanel      = False
+        context.scene.tm_props.CB_stopAllNextConverts   = False
         return {"FINISHED"}
 
 
@@ -77,6 +83,8 @@ class TM_PT_Items_Export(Panel):
         converted               = tm_props.NU_convertedRaw
         convertCount            = tm_props.NU_convertCount
         converting              = tm_props.CB_converting
+        convertDone             = not converting
+        stopConverting          = tm_props.CB_stopAllNextConverts
         exportTypeIsConvertOnly = str(exportType).lower() == "convert"
 
         if not isNadeoIniValid():
@@ -114,20 +122,27 @@ class TM_PT_Items_Export(Panel):
             row.operator("view3d.tm_export", text=exportType if enableExportButton else "0 objects selected")
 
         else:
-            row = layout.row()
-            row.label(text="Converting in progress..." if converting else "Converting done")
-        
-            row=layout.row()
-            row.enabled = False
+            row=layout.row(align=True)
+            row.enabled = not (stopConverting or convertDone)
+            row.alert   = atlestOneConvertFailed
             row.prop(tm_props, "NU_converted", text=f"{converted} of {convertCount}")
+            row.prop(tm_props, "CB_stopAllNextConverts", icon_only=True, text="", icon="CANCEL")
+
+            # print( dir (row ))
             
             row = layout.row()
-            row.alert = atlestOneConvertFailed
-            row.operator("view3d.tm_closeconvertsubpanel", text="OK")
-            row.operator("view3d.tm_openconvertreport",    text="Open Report")
+            row.alert = atlestOneConvertFailed or stopConverting
+            row.label(text="Convert status: " + ("converting" if converting else "done" if not stopConverting else "stopped") )
+            
 
             failed    = str(tm_props.ST_convertedErrorList).split("%%%")
             failed    = [f for f in failed if f!=""]
+            
+            row = layout.row(align=True)
+            row.alert = atlestOneConvertFailed
+            row.enabled = True if any([convertDone, stopConverting]) else False
+            row.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="CHECKMARK")
+            row.operator("view3d.tm_openconvertreport",    text="Open Report",  icon="HELP")
 
             row = layout.row()
             row.alert = True if failed else False
@@ -158,6 +173,7 @@ def exportAndOrConvert()->None:
     cols                = bpy.context.scene.collection.children
     action              = tm_props.LI_exportType
     generateLightmaps   = tm_props.CB_uv_genLightMap
+    generateIcons       = tm_props.CB_icon_genIcons
     colsToExport        = []
     exportedFBXs        = []
 
@@ -176,8 +192,9 @@ def exportAndOrConvert()->None:
     fixAllColNames() #[a-zA-Z0-9_-#] only
 
 
-
-    if action == "EXPORT" or action == "EXPORT_CONVERT":
+    if action == "EXPORT" \
+    or action == "EXPORT_CONVERT"\
+    or action == "ICON":
         
         #generate list of collections to export
         for obj in allObjs:
@@ -235,33 +252,46 @@ def exportAndOrConvert()->None:
                             break
                         
         #export each collection ...
+
+        
+
+
         for col in colsToExport:
-            
+
             if isCollectionExcluded(col):
                 continue #col is disabled by user in outliner
-            
+
+
             deselectAll()
-
-            if generateLightmaps:
-                generateLightmap(col=col)
-
-            newOrigin           = createExportOriginFixer(col=col)
-            newOrigin_oldPos    = tuple(newOrigin.location)     #old pos of origin
-            newOrigin.location  = (0,0,0)  #center of world
 
             exportFilePath = f"{exportFilePathBase}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}.fbx"
             exportFilePath = fixSlash(exportFilePath)
 
-            selectAllObjectsInACollection(col=col)
+            if not action == "ICON":
+                newOrigin           = createOriginFixer(col=col)
+                newOrigin_oldPos    = tuple(newOrigin.location)     #old pos of origin
+                newOrigin.location  = (0,0,0)  #center of world
 
-            debug(exportFilePath)
-            exportFBX(fbxfilepath=exportFilePath)
-            exportedFBXs.append(    (exportFilePath, col)  )
+                selectAllObjectsInACollection(col=col)
 
-            newOrigin.location = newOrigin_oldPos
-            unparentOriginObjects(col=col)
+                debug(exportFilePath)
+                exportFBX(fbxfilepath=exportFilePath)
+                exportedFBXs.append(    (exportFilePath, col)  )
+
+                newOrigin.location = newOrigin_oldPos
+                deleteOriginFixer(col=col)
+
+                if generateLightmaps:
+                    generateLightmap(col=col)
+            
+            if generateIcons or action == "ICON":
+                generateIcon(col=col, filepath=exportFilePath)
+
 
     
+
+
+
 
     if action == "EXPORT_CONVERT":
         
@@ -280,75 +310,20 @@ def exportAndOrConvert()->None:
 
     # generate xmls
     for fbxinfo in exportedFBXs:
-        ItemXML = tm_props.CB_xml_genItemXML
-        MeshXML = tm_props.CB_xml_genMeshXML
-
-        col = fbxinfo[1]
-        fbx = fbxinfo[0]
-
-        if ItemXML: generateItemXML(fbxfilepath=fbx, col=col)
-        if MeshXML: generateMeshXML(fbxfilepath=fbx, col=col)
+        genItemXML = tm_props.CB_xml_genItemXML
+        genMeshXML = tm_props.CB_xml_genMeshXML
+        genIcon    = tm_props.CB_icon_genIcons
 
 
+        fbx, col = fbxinfo
 
-def createExportOriginFixer(col)->object:
-    """create an empty which is used as origin for export"""
-    originObject = None
-    
-    for obj in col.all_objects:
-        if str(obj.name).startswith("origin"):
-            originObject = obj
-            break
-
-    #create if none is defined
-    if not originObject:
-        createAt = col.objects[0].location
-
-        for obj in col.objects:
-            if obj.type == "MESH":
-                createAt = obj.location
-                break
-
-        bpy.ops.object.empty_add(type='ARROWS', align='WORLD', location=createAt)
-        newOrigin = bpy.context.active_object
-        newOrigin.name = "origin_delete"
-
-        if newOrigin.name not in col.all_objects:
-            col.objects.link(newOrigin)
-
-        originObject = newOrigin
-
-    # parent all objects to the origin
-    for obj in col.all_objects:
-        if obj is not originObject:
-            deselectAll()
-
-            selectObj(obj)
-            selectObj(originObject)
-
-            setActiveObj(originObject)
-            
-            try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
-            except: pass #RuntimeError: Error: Loop in parents
-    
-    return originObject
+        if genItemXML: generateItemXML(fbxfilepath=fbx, col=col)
+        if genMeshXML: generateMeshXML(fbxfilepath=fbx, col=col)
+        # if genIcon:    generateIcon(col=col)
 
 
 
 
-def unparentOriginObjects(col)->None:
-    """clear parent of all objects of the given collection"""
-    for obj in col.all_objects:
-        if not str(obj.name).startswith("origin"):
-            deselectAll()
-            setActiveObj(obj)
-            bpy.ops.object.parent_clear(type='CLEAR')
-    
-    deselectAll()
-    for obj in col.all_objects:
-        if "delete" in str(obj.name).lower():
-            setActiveObj(obj)
-            deleteObj(obj)
 
 
 

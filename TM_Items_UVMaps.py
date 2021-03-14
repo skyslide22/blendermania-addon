@@ -18,7 +18,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
     bl_category = 'ManiaPlanetAddon'
-    bl_label = " Generate Lightmap by exporting"
+    bl_label = "LightMap UVlayer"
     bl_idname = "TM_PT_Items_UVMaps_LightMap"
     bl_parent_id = "TM_PT_Items_Export"
     bl_space_type = 'VIEW_3D'
@@ -37,9 +37,10 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
     def draw_header(self, context):
         layout = self.layout
         tm_props = context.scene.tm_props
-        row = layout.row()
+        row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_uv_genLightMap", text="")
+        row.prop(tm_props, "CB_uv_genLightMap",         text="",    icon_only=True, icon="CHECKMARK",)
+        row.prop(tm_props, "CB_uv_fixLightMap",         text="",    icon_only=True, icon="FILE_REFRESH")
         row=layout.row()
     
     def draw(self, context):
@@ -69,16 +70,23 @@ def generateLightmap(col) -> None:
     """generate lightmap of all mesh objects from given collection"""
     tm_props = bpy.context.scene.tm_props
     objs     = col.all_objects
-    
+    fixLM    = tm_props.CB_uv_fixLightMap
+
     for obj in objs:
         if selectObj(obj):
             debug(obj.name)
             if obj.type == "MESH" and len(obj.material_slots.keys()) > 0:
                 if "LightMap" in obj.data.uv_layers.keys():
+
                     deselectAll()
                     setActiveObj(obj)
+
+                    isBrokenLM = hasUVLayerOverlaps(obj, "LightMap") 
+                    
+                    if fixLM and not isBrokenLM: continue
+                    
                     obj.data.uv_layers.active_index = 1
-                    bpy.ops.object.mode_set(mode='EDIT')
+                    editmode()
                     
                     ANGLE = tm_props.NU_uv_angleLimitLM
                     MARGIN= tm_props.NU_uv_islandMarginLM
@@ -97,10 +105,27 @@ def generateLightmap(col) -> None:
                         scale_to_bounds = BOUNDS
                     )
 
-                    bpy.ops.object.mode_set(mode='OBJECT')
+                    objectmode()
 
                     if "BaseMaterial" in obj.data.uv_layers.keys():
                         obj.data.uv_layers["BaseMaterial"].active = True
                         
 
+
+def hasUVLayerOverlaps(obj, uvName)-> bool:
+    """checks if uvlayer has overlapping islands, return bool"""
+    loops = obj.data.loops
+    
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.uv.select_all(action='DESELECT')
+    bpy.ops.uv.select_overlap()
+    
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    for loop in loops:
+        uvs = obj.data.uv_layers[ uvName ].data[loop.index]
+        pos = uvs.uv #<vector>
+        if uvs.select: return True
+    
+    return False
 

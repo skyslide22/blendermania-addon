@@ -5,13 +5,14 @@ import re
 import bpy.utils.previews
 from bpy.props import *
 from bpy.types import (
-    Panel,
+    EnumPropertyItem, Panel,
     Operator,
     AddonPreferences,
     PropertyGroup
 )
 
-from .TM_Functions import * 
+from .TM_Functions  import * 
+from .TM_Items_Icon import generateWorldNode
 
 
 
@@ -70,18 +71,19 @@ def getExportTypes()->list:
         ("EXPORT",          "Export only",          "Export only",                      "EXPORT", 0),
         ("EXPORT_CONVERT",  "Export and Convert",   "Export fbx and convert to gbx",    "CON_FOLLOWPATH", 1),
         ("CONVERT",         "Convert only",         "Convert only",                     "FILE_REFRESH", 2),
+        ("ICON",            "Icon only",            "Icon only",                        "FILE_IMAGE", 3),
     ]
 
 
 def getExportFolderTypes(self,context)->list:
     return[
-        ("Base",       "Base",         "Base folder(/Items",           "HOME",                  0),
-        ("Stadium",    "Stadium",      "Base folder(/Items/Stadium",   getIcon("ENVI_STADIUM"), 1),
-        ("Valley",     "Valley",       "Base folder(/Items/Valley",    getIcon("ENVI_VALLEY"),  2),
-        ("Canyon",     "Canyon",       "Base folder(/Items/Canyon",    getIcon("ENVI_CANYON"),  3),
-        ("Lagoon",     "Lagoon",       "Base folder(/Items/Lagoon",    getIcon("ENVI_LAGOON"),  4),
-        ("Shootmania", "Shootmania",   "Base folder(/Items/Storm",     getIcon("ENVI_STORM"),   5),
-        ("Custom",     "Custom",       "Custom folder",                "FILE_FOLDER",           6),
+        ("Base",       "/",             "Base folder(/Items",           "HOME",                  0),
+        ("Stadium",    "Stadium/",      "Base folder(/Items/Stadium",   getIcon("ENVI_STADIUM"), 1),
+        ("Valley",     "Valley/",       "Base folder(/Items/Valley",    getIcon("ENVI_VALLEY"),  2),
+        ("Canyon",     "Canyon/",       "Base folder(/Items/Canyon",    getIcon("ENVI_CANYON"),  3),
+        ("Lagoon",     "Lagoon/",       "Base folder(/Items/Lagoon",    getIcon("ENVI_LAGOON"),  4),
+        ("Shootmania", "Shootmania/",   "Base folder(/Items/Storm",     getIcon("ENVI_STORM"),   5),
+        ("Custom",     "???/",          "Custom folder",                "FILE_FOLDER",           6),
     ]
 
 
@@ -148,6 +150,38 @@ def getMeshXMLType() -> list:
         ("Static",  "Static",   "Static",   "KEYFRAME",     0), 
         ("Dynamic", "Dynamic",  "Dynamic",  "KEYFRAME_HLT", 1) 
     ]
+
+
+
+
+
+
+def getIconPerspectives() -> list:
+    return [
+        ("CLASSIC",     "Classic",  "Bird View",    "HIDE_OFF", 0),
+        ("TOP",         "Top",      "From Top",     "HIDE_OFF", 1),
+        ("FRONT",       "Front",    "From Front",   "HIDE_OFF", 2),
+        ("BACK",        "Back",     "From Back",    "HIDE_OFF", 3),
+        ("LEFT",        "Left",     "From Left",    "HIDE_OFF", 4),
+        ("RIGHT",       "Right",    "From Right",   "HIDE_OFF", 5),
+        ("BOTTOM",      "Bottom",   "From Bottom",  "HIDE_OFF", 6),
+    ]
+
+def getIconPXdimensions() -> list:
+    return[
+        ("128", "128 px", "Icon size in pixel"),
+        ("256", "256 px", "Icon size in pixel"),
+    ]
+
+def updateWorldBG(s,c) -> None:
+    tm_props    = c.scene.tm_props
+    worlds      = bpy.data.worlds
+    tm_world    = "tm_icon_world"
+    color       = tm_props.NU_icon_bgColor
+
+    if not tm_world in worlds: generateWorldNode() 
+
+    worlds[tm_world].node_tree.nodes["Background"].inputs[0].default_value = color
 
 
 
@@ -320,17 +354,28 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_stopAllNextConverts: BoolProperty(default=False, update=redrawPanel)
     CB_converting:          BoolProperty(default=False, update=redrawPanel)
 
+    #icons
+    CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redrawPanel)
+    CB_icon_overwiteIcons   : BoolProperty(name="Overwrite Icons",        default=True, update=redrawPanel)
+    LI_icon_perspective     : EnumProperty(items=getIconPerspectives(),   name="Perspective")
+    LI_icon_pxDimension     : EnumProperty(items=getIconPXdimensions(),   name="Size")
+    NU_icon_padding         : IntProperty(min=0, max=100,     default=80, subtype="PERCENTAGE", update=redrawPanel) 
+    NU_icon_bgColor         : FloatVectorProperty(name='BG Color',        subtype='COLOR', min=0, max=1, size=4, default=(1,1,1,1), update=updateWorldBG)
+
+
     #uvmaps
-    CB_uv_genLightMap       : BoolProperty(name="Generate Lightmap",        default=True, update=redrawPanel)
+    CB_uv_genLightMap       : BoolProperty(name="Generate LightMap",        default=True, update=redrawPanel)
+    CB_uv_fixLightMap       : BoolProperty(name="Only if LM has overlaps",  default=True, update=redrawPanel)
     NU_uv_angleLimitLM      : FloatProperty(name="Angle Limit",             default=r(89.0), min=0, max=r(89.0), subtype="ANGLE")
     NU_uv_islandMarginLM    : FloatProperty(name="Island Margin",           default=0.1, min=0, max=1)
     NU_uv_areaWeightLM      : FloatProperty(name="Area Weight",             default=0.0, min=0, max=1)
     CB_uv_correctAspectLM   : BoolProperty(name="Correct Aspect",           default=True, update=redrawPanel)
-    CB_uv_scaleToBoundsLM   : BoolProperty(name="Scale To Bounds",          default=True, update=redrawPanel)
+    CB_uv_scaleToBoundsLM   : BoolProperty(name="Scale To Bounds",          default=False, update=redrawPanel)
     
     #xml
     CB_xml_syncGridLevi     : BoolProperty(name="Sync Grid & Levi steps",   default=True)
-    CB_xml_itemXMLNew       : BoolProperty(name="Use Custom",               default=True)
+    CB_xml_overwriteMeshXML : BoolProperty(name="Overwrite Mesh XML",       default=True, update=redrawPanel)
+    CB_xml_overwriteItemXML : BoolProperty(name="Overwrite Item XML",       default=True, update=redrawPanel)
     CB_xml_genItemXML       : BoolProperty(name="Generate Item XML",        default=True, update=redrawPanel)
     CB_xml_genMeshXML       : BoolProperty(name="Generate Mesh XML",        default=True, update=redrawPanel)
     LI_xml_meshtype         : EnumProperty( name="Type",                    items=getMeshXMLType())
@@ -379,11 +424,13 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     NU_materialColor:           FloatVectorProperty(name='Surface Color ',  subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
     LI_materialIsFromLib:       BoolProperty(name="BaseTexture",    default=True)
 
-    #tetxtures
+    #textures
     LI_DL_TextureEnvi:      EnumProperty(items=getGameTextureZipFileNames(), update=redrawPanel)
     CB_DL_TexturesRunning:  BoolProperty(name="Downloading...", default=False)
     NU_DL_Textures:         FloatProperty(min=0, max=100,   default=0, subtype="PERCENTAGE", update=redrawPanel)
     ST_DL_TexturesErrors:   StringProperty(name="Status",   default="")
+
+    # LI_ICONS:               EnumProperty(items=[ (i,i,i) for i in ["LAGOON", "MANIAPLANET"] ] )
 
 
 

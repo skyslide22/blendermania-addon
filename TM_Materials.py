@@ -87,6 +87,33 @@ class TM_PT_Materials(Panel):
         actionIsUpdate = str(action).lower() == "update"
         actionIsCreate = str(action).lower() == "create"
 
+
+
+
+
+
+
+        # layout.row().label(text="aaa")
+
+
+        # tex = bpy.data.textures["hello"]
+        # # tex = bpy.context.object.active_material
+        
+
+        # row = layout.row()
+        # # row.template_preview(tex, show_buttons=False)
+        # row.template_icon_view(tm_props, "LI_ICONS", show_labels=True, scale=6, )
+
+
+
+        # return
+
+
+
+
+
+
+
         layout.row().prop(tm_props, "LI_materialAction", expand=True)
         
         layout.row().prop(tm_props, "LI_materials") if actionIsUpdate else None
@@ -267,7 +294,7 @@ def createMaterialNodes(mat)->None:
     debug(f"start creating material nodes for {mat.name}")
     usesColorOnly   = mat.link.lower().startswith("custom")
     mat.use_nodes   = not usesColorOnly
-    mat.blend_method= "BLEND"
+    mat.blend_method= "HASHED" #BLEND
     mat.show_transparent_back = False #backface culling
     mat.use_backface_culling  = False #backface culling
 

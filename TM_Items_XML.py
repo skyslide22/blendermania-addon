@@ -50,7 +50,7 @@ class TM_PT_Items_ItemXML(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
     bl_category = 'ManiaPlanetAddon'
-    bl_label = " Generate Item XML"
+    bl_label = "Item XML file"
     bl_idname = "TM_PT_Items_Export_ItemXML"
     bl_parent_id = "TM_PT_Items_Export"
     bl_space_type = 'VIEW_3D'
@@ -69,9 +69,10 @@ class TM_PT_Items_ItemXML(Panel):
     def draw_header(self, context):
         layout = self.layout
         tm_props = context.scene.tm_props
-        row = layout.row()
+        row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_xml_genItemXML", text="")
+        row.prop(tm_props, "CB_xml_genItemXML",         text="",    icon_only=True, icon="CHECKMARK",)
+        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="",            icon_only=True, icon="FILE_REFRESH")
         row=layout.row()
     
     def draw(self, context):
@@ -153,7 +154,7 @@ class TM_PT_Items_MeshXML(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
     bl_category = 'ManiaPlanetAddon'
-    bl_label = " Generate Mesh XML"
+    bl_label = "Mesh XML file"
     bl_idname = "TM_PT_Items_Export_MeshXML"
     bl_parent_id = "TM_PT_Items_Export"
     bl_space_type = 'VIEW_3D'
@@ -172,9 +173,10 @@ class TM_PT_Items_MeshXML(Panel):
     def draw_header(self, context):
         layout = self.layout
         tm_props = context.scene.tm_props
-        row = layout.row()
+        row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_xml_genMeshXML", text="")
+        row.prop(tm_props, "CB_xml_genMeshXML",         text="",            icon_only=True, icon="CHECKMARK")
+        row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="",            icon_only=True, icon="FILE_REFRESH")
         row=layout.row()
 
     
@@ -250,6 +252,11 @@ def generateItemXML(fbxfilepath, col) -> str:
     tm_props        = bpy.context.scene.tm_props
     tm_props_pivots = bpy.context.scene.tm_props_pivots
     xmlfilepath     = fbxfilepath.replace(".fbx", ".Item.xml")
+    overwrite       = tm_props.CB_xml_overwriteItemXML
+
+    if not overwrite:
+        if doesFileExist(filepath=xmlfilepath): return
+
     FILENAME_NO_EXT = re.sub(r"\..*$", "", fileNameOfPath(fbxfilepath), flags=re.IGNORECASE)
 
     AUTHOR              = tm_props.ST_author
@@ -346,9 +353,15 @@ def generateItemXML(fbxfilepath, col) -> str:
 
 def generateMeshXML(fbxfilepath: str, col: object) -> str:
     """generate meshparams.xml"""
-    tm_props = bpy.context.scene.tm_props
+    tm_props  = bpy.context.scene.tm_props
+    overwrite = tm_props.CB_xml_overwriteMeshXML
 
     xmlfilepath = fbxfilepath.replace(".fbx", ".MeshParams.xml")
+
+    if not overwrite:
+        if doesFileExist(filepath=xmlfilepath): return
+
+    
     
     GLOBAL_LIGHT_RADIUS= tm_props.NU_xml_lightGlobDistance  if tm_props.CB_xml_lightGlobDistance    else None
     GLOBAL_LIGHT_POWER = tm_props.NU_xml_lightPower         if tm_props.CB_xml_lightPower           else None

@@ -10,6 +10,7 @@ from .TM_Items_Export   import *
 from .TM_Materials      import *
 from .TM_Items_XML      import *
 from .TM_Items_UVMaps   import *
+from .TM_Items_Icon     import *
 
 
 bl_info = {
@@ -58,6 +59,10 @@ classes = (
 
     #uvs
     TM_PT_Items_UVmaps_LightMap,
+
+    #icons,
+    TM_PT_Items_Icon,
+    TM_OT_Items_Icon_Test,
 
     #materials
     TM_PT_Materials,
