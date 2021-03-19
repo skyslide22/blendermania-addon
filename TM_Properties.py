@@ -181,7 +181,7 @@ def updateWorldBG(s,c) -> None:
 
     if not tm_world in worlds: generateWorldNode() 
 
-    worlds[tm_world].node_tree.nodes["Background"].inputs[0].default_value = color
+    worlds[tm_world].node_tree.nodes["TM_BACKGROUND"].inputs[0].default_value = color
 
 
 

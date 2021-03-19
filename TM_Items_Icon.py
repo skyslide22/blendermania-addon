@@ -234,6 +234,8 @@ def generateIcon(col, filepath, save=True) -> None:
     scene.render.resolution_y = int(tm_props.LI_icon_pxDimension)
     scene.eevee.taa_render_samples = 16
 
+    generateWorldNode()
+
     bpy.ops.render.render(write_still=save)
     if not save:
         bpy.ops.render.view_show("INVOKE_DEFAULT")
@@ -273,33 +275,52 @@ def generateWorldNode():
     worlds   = bpy.data.worlds
     tm_world = "tm_icon_world"
     white    = (1,1,1,1)
+    scene    = bpy.context.scene
     
     if not tm_world in worlds:
         worlds.new( tm_world )
     
-    tm_world = bpy.data.worlds[ tm_world ]
+    tm_world = worlds[ tm_world ]
     tm_world.use_nodes = True
     nodes = tm_world.node_tree.nodes
     links = tm_world.node_tree.links
-    
-    rgb_node    = "RGB"
-    bg_node     = "Background"
-    output_node = "World Output"
-    mix_node    = "Mix Shader"
-    camera_node = "Light Path"
+
+    scene.world = tm_world
+
+    rgb_node    = "TM_RGB"
+    bg_node     = "TM_BACKGROUND"
+    output_node = "TM_OUTPUT"
+    mix_node    = "TM_MIX_SHADER"
+    camera_node = "TM_LIGHT_NODE"
     
     reqNodes = [
-        rgb_node, 
-        output_node,
+        rgb_node,
         bg_node,
+        output_node,
         mix_node,
         camera_node
     ]
+
+    allFine = True
     
-    for nodeName in reqNodes:
-        if not nodeName in nodes:
-            nodes.new(nodeName)
+    for required_node in reqNodes:
+        if required_node not in nodes:
+
+            allFine = False
+            debug("generate world node, atleast one was missing")
+            for node in nodes: nodes.remove(node) #clear all
+
+            nodes.new("ShaderNodeRGB" )         .name = rgb_node
+            nodes.new("ShaderNodeBackground")   .name = bg_node
+            nodes.new("ShaderNodeOutputWorld")  .name = output_node
+            nodes.new("ShaderNodeMixShader")    .name = mix_node
+            nodes.new("ShaderNodeLightPath")    .name = camera_node
+            break
     
+    
+
+    if allFine: return
+
     xy = lambda x,y:  ((150*x), -(200*y))
     
     camera_node = nodes[camera_node]
@@ -323,7 +344,7 @@ def generateWorldNode():
     links.new( bg_node.outputs[0],      mix_node.inputs[2])
     links.new( mix_node.outputs[0],     output_node.inputs[0])
     
-    bpy.context.scene.world = tm_world
+    
     
     
     
