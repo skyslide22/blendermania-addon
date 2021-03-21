@@ -181,9 +181,14 @@ def updateWorldBG(s,c) -> None:
 
     if not tm_world in worlds: generateWorldNode() 
 
-    worlds[tm_world].node_tree.nodes["TM_BACKGROUND"].inputs[0].default_value = color
+    def changeColor(color):
+        bpy.data.worlds[tm_world].node_tree.nodes["TM_BACKGROUND"].inputs[0].default_value = color
 
+    try: changeColor(color)
 
+    except KeyError: 
+        generateWorldNode()
+        changeColor(color)
 
 
 
@@ -319,6 +324,12 @@ def getMaterialGameplayIds(self, context)->None:
 
 
 
+
+
+
+
+
+
 #? CB = CheckBox => BoolProperty
 #? LI = List     => EnumProperty
 #? NU = Number   => IntProperty, FloatProperty
@@ -430,8 +441,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     NU_DL_Textures:         FloatProperty(min=0, max=100,   default=0, subtype="PERCENTAGE", update=redrawPanel)
     ST_DL_TexturesErrors:   StringProperty(name="Status",   default="")
 
-    # LI_ICONS:               EnumProperty(items=[ (i,i,i) for i in ["LAGOON", "MANIAPLANET"] ] )
-
+    #cars
 
 
 

@@ -718,7 +718,7 @@ def deselectAllGeometry() -> None:
 def cursorToSelected() -> None:
     bpy.ops.view3d.snap_cursor_to_selected()
 
-def cursorLocation() -> list:
+def getCursorLocation() -> list:
     return bpy.context.scene.cursor.location
 
 def originToCenterOfMass() -> None:

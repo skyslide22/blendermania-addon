@@ -205,15 +205,13 @@ def exportAndOrConvert()->None:
             selectObj(obj)
             objnameLower = obj.name.lower()
 
-            if "socket" in objnameLower:
-                if "_socket_" not in objnameLower:
-                    obj.name = objnameLower
-                    obj.name = obj.name.replace("socket", "_socket_")
+            if "socket" in objnameLower\
+            and objnameLower.startswith("_") is False:
+                obj.name = "_socket_"
             
-            if "trigger" in objnameLower:
-                if "_trigger_" not in objnameLower:
-                    obj.name = objnameLower
-                    obj.name = obj.name.replace("trigger", "_trigger_")
+            if "trigger" in objnameLower\
+            and objnameLower.startswith("_") is False:
+                obj.name = "_trigger_"
 
             if obj.type == "MESH" \
                 and not "trigger" in obj.name \
@@ -223,18 +221,6 @@ def exportAndOrConvert()->None:
 
             #run through collections, select and add to exportlist if visible(=selectable)
             for col in obj.users_collection:
-
-                col["waypoint"]  = None
-                CHECKPOINT_COLOR = "COLOR_05" 
-                START_COLOR      = "COLOR_04" 
-                FINISH_COLOR     = "COLOR_01" 
-                STARTFINISH_COLOR= "COLOR_03" 
-                
-                if      col.color_tag == CHECKPOINT_COLOR:   col["WAYPOINT"] = "Checkpoint"
-                elif    col.color_tag == START_COLOR:        col["WAYPOINT"] = "Start"
-                elif    col.color_tag == FINISH_COLOR:       col["WAYPOINT"] = "Finish"
-                elif    col.color_tag == STARTFINISH_COLOR:  col["WAYPOINT"] = "StartFinish"
-
                 if col.name.lower() not in notAllowedColnames:
                     if col not in colsToExport:
                         colsToExport.append( col )

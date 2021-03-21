@@ -204,7 +204,7 @@ def autoFindNadeoIni()->None:
         if os.path.isfile(path):
             ini = path
             debug("Found!")
-            # break
+            break
             
     if ini == "": 
         ini="NOT FOUND, help?"

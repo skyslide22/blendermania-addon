@@ -144,8 +144,10 @@ def generateIcon(col, filepath, save=True) -> None:
     deselectAll()
 
     for obj in col_objs:
-        if selectObj(obj):
-            setActiveObj(obj)
+        if  obj.type == "MESH"\
+        and obj.name.startswith("_") is False:
+            if selectObj(obj):
+                setActiveObj(obj)
 
     duplicateObjects()
     joinObjects()
@@ -293,6 +295,8 @@ def generateWorldNode():
     mix_node    = "TM_MIX_SHADER"
     camera_node = "TM_LIGHT_NODE"
     
+    # walrus here? print(a) //ref err ... print(a:=5) //5 ... print(a) //5
+    # blender >=2.93 with python 3.9
     reqNodes = [
         rgb_node,
         bg_node,

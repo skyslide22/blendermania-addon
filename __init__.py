@@ -11,6 +11,7 @@ from .TM_Materials      import *
 from .TM_Items_XML      import *
 from .TM_Items_UVMaps   import *
 from .TM_Items_Icon     import *
+from .TM_Items_Cars     import *
 
 
 bl_info = {
@@ -68,8 +69,13 @@ classes = (
     TM_PT_Materials,
     TM_OT_Materials_Create,
     TM_OT_Materials_Update,
-    TM_OT_Materials_ClearBaseMaterial
+    TM_OT_Materials_ClearBaseMaterial,
+
+    #cars
+    TM_OT_Items_Cars_Import,
 )
+
+
 
 
 
@@ -84,6 +90,8 @@ def register():
 
     bpy.types.DATA_PT_EEVEE_light.append(extendObjectPropertiesPanel_LIGHT)
     bpy.types.Light.night_only          = BoolProperty(default=False)
+
+    bpy.types.VIEW3D_MT_add.prepend(addMenuPoint_CAR_SPAWN)
 
     bpy.types.Material.gameType         = EnumProperty(  name="Game",           default=0, items=getGameTypes())
     bpy.types.Material.baseTexture      = StringProperty(name="BaseTexture",    default="")
@@ -110,7 +118,8 @@ def unregister():
 
     bpy.types.DATA_PT_EEVEE_light.remove(extendObjectPropertiesPanel_LIGHT)
 
-    
+    bpy.types.VIEW3D_MT_add.remove(addMenuPoint_CAR_SPAWN)
+
     for pcoll in preview_collections.values():
         bpy.utils.previews.remove(pcoll)
     
