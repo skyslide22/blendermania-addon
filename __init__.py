@@ -17,7 +17,7 @@ from .TM_Items_Cars     import *
 bl_info = {
     "name"          : "Trackmania Export & Convert fbx>gbx Addon",
     "author"        : "skyslide",
-    "description"   : "Export collections, generate XMLs, import mats from xmls, convert items, all u nedd boi",
+    "description"   : "Export collections, generate XMLs, convert items, all u nedd boi",
     "blender"       : (2, 91, 0),
     "version"       : (0, 1, 0),
     "location"      : "View3D",

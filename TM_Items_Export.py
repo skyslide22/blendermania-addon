@@ -173,6 +173,7 @@ def exportAndOrConvert()->None:
     cols                = bpy.context.scene.collection.children
     action              = tm_props.LI_exportType
     generateLightmaps   = tm_props.CB_uv_genLightMap
+    fixLightmap         = tm_props.CB_uv_fixLightMap
     generateIcons       = tm_props.CB_icon_genIcons
     colsToExport        = []
     exportedFBXs        = []
@@ -260,17 +261,18 @@ def exportAndOrConvert()->None:
 
                 selectAllObjectsInACollection(col=col)
 
+                if generateLightmaps:
+                    generateLightmap(col=col, fix=fixLightmap)
+
                 debug(exportFilePath)
                 exportFBX(fbxfilepath=exportFilePath)
                 exportedFBXs.append(    (exportFilePath, col)  )
 
                 newOrigin.location = newOrigin_oldPos
                 deleteOriginFixer(col=col)
-
-                if generateLightmaps:
-                    generateLightmap(col=col)
             
-            if generateIcons or action == "ICON":
+            if generateIcons\
+            or action == "ICON":
                 generateIcon(col=col, filepath=exportFilePath)
 
 

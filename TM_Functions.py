@@ -81,7 +81,7 @@ tm2020GameplayIds = [
     "None",             "NoSteering",
 ]
 
-notAllowedColnames      = ["master collection", "collection", "scene", "ignore"]
+notAllowedColnames      = ["master collection", "scene", "ignore"]
 notDefaultUVLayerNames  = ["Decal","NormalSpec","MulInside"]
 defaultUVLayerNames     = ["BaseMaterial", "LightMap"]
 

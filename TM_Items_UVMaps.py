@@ -66,24 +66,24 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
 
 
 
-def generateLightmap(col) -> None:
+def generateLightmap(col, fix=False) -> None:
     """generate lightmap of all mesh objects from given collection"""
     tm_props = bpy.context.scene.tm_props
     objs     = col.all_objects
-    fixLM    = tm_props.CB_uv_fixLightMap
 
     for obj in objs:
         if selectObj(obj):
-            debug(obj.name)
             if obj.type == "MESH" and len(obj.material_slots.keys()) > 0:
-                if "LightMap" in obj.data.uv_layers.keys():
+                if "lightmap" in [key.lower() for key in obj.data.uv_layers.keys()]:
 
                     deselectAll()
                     setActiveObj(obj)
 
+                    debug("check if lm has overlaps")
                     isBrokenLM = hasUVLayerOverlaps(obj, "LightMap") 
+                    debug("overlaps:", isBrokenLM)
                     
-                    if fixLM and not isBrokenLM: continue
+                    if fix and not isBrokenLM: continue
                     
                     obj.data.uv_layers.active_index = 1
                     editmode()
@@ -104,6 +104,8 @@ def generateLightmap(col) -> None:
                         correct_aspect  = ASPECT,
                         scale_to_bounds = BOUNDS
                     )
+
+                    debug("lm creation successfully")
 
                     objectmode()
 
