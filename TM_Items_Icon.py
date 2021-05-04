@@ -56,7 +56,7 @@ class TM_PT_Items_Icon(Panel):
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
                 and isNadeoIniValid()
-        return (show)
+        return show
     
     def draw_header(self, context):
         layout = self.layout
@@ -106,7 +106,7 @@ class TM_PT_Items_Icon(Panel):
         row2 = row.row(align=True)
         row2.prop(tm_props, "LI_icon_pxDimension", expand=True)
 
-        layout.separator(factor=spacerFac)
+        layout.separator(factor=UI_SPACER_FACTOR)
 
         row = layout.row()
         row.scale_y = 1
@@ -145,7 +145,8 @@ def generateIcon(col, filepath, save=True) -> None:
 
     for obj in col_objs:
         if  obj.type == "MESH"\
-        and obj.name.startswith("_") is False:
+        and obj.name.startswith("_") is False\
+        and not "lod1" in obj.name.lower():
             if selectObj(obj):
                 setActiveObj(obj)
 
