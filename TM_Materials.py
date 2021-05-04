@@ -1,5 +1,6 @@
-# region imports
-from sys import flags
+# region imports#
+from inspect import getargs
+import json
 import bpy
 import os.path
 import re
@@ -72,11 +73,7 @@ class TM_PT_Materials(Panel):
         layout   = self.layout
         tm_props = context.scene.tm_props
         
-        if not isNadeoIniValid():
-            row = layout.row()
-            row.alert = True
-            row.label(text=errorMsg_NADEOINI)
-            return
+        if requireValidNadeoINI(self) is False: return
 
         mats        = bpy.data.materials
         action      = tm_props.LI_materialAction
@@ -349,25 +346,30 @@ def createMaterialNodes(mat)->None:
 
     isLinkedMat = mat.baseTexture == ""
     
-    debug(f"material link is : {mat.link}")
+    debug(f"material link is :  {mat.link}")
     debug(f"material is a link: {isLinkedMat}")
 
     if isLinkedMat: tex = getDocPathItemsAssetsTextures() + mat.environment + "/" + re.sub(r"_.*", "", mat.link, flags=re.IGNORECASE)
     else:           tex = re.sub(r"_?(i|d)\.dds$", "", mat.baseTexture, flags=re.IGNORECASE)
 
-    debug(f"try to find file with suffix like _D.dds: {tex}")
-    if      doesFileExist(tex + "D.dds"):   DTexture = tex + "D.dds"    ; debug(f"Texture to load: {DTexture}")
-    elif    doesFileExist(tex + "_D.dds"):  DTexture = tex + "_D.dds"   ; debug(f"Texture to load: {DTexture}")
-    elif    doesFileExist(tex + ".dds"):    DTexture = tex + ".dds"     ; debug(f"Texture to load: {DTexture}")
-    if      doesFileExist(tex + "I.dds"):   ITexture = tex + "I.dds"    ; debug(f"Texture to load: {DTexture}")
-    elif    doesFileExist(tex + "_I.dds"):  ITexture = tex + "_I.dds"   ; debug(f"Texture to load: {DTexture}")
+    tex = bpy.path.abspath(tex)
 
-    debug(f"_I texture is: {ITexture}")
-    debug(f"_D texture is: {DTexture}")
+    # D
+    debug(f"try to find:   {tex.split('/')[-1]}_D.dds")
+    if      doesFileExist(tex + "D.dds"):   DTexture = tex + "D.dds"    #; debug(f"Texture to load: {DTexture}")
+    elif    doesFileExist(tex + "_D.dds"):  DTexture = tex + "_D.dds"   #; debug(f"Texture to load: {DTexture}")
+    elif    doesFileExist(tex + ".dds"):    DTexture = tex + ".dds"     #; debug(f"Texture to load: {DTexture}")
+    debug(f"_D found in: {DTexture}") if DTexture else debug("_D texture not found")
+    
+    # I
+    debug(f"try to find:   {tex.split('/')[-1]}_I.dds")
+    if      doesFileExist(tex + "I.dds"):   ITexture = tex + "I.dds"    #; debug(f"Texture to load: {DTexture}")
+    elif    doesFileExist(tex + "_I.dds"):  ITexture = tex + "_I.dds"   #; debug(f"Texture to load: {DTexture}")
+    debug(f"_I found in: {ITexture}") if ITexture else debug("_I texture not found")
+
     
     DTexture = loadDDSTextureIntoBlender(texpath=DTexture)
     ITexture = loadDDSTextureIntoBlender(texpath=ITexture)
-
 
     DTextureSuccess = DTexture[0]
     DTextureName    = DTexture[1]
@@ -405,18 +407,26 @@ def loadDDSTextureIntoBlender(texpath: str) -> tuple:
     texpath = fixSlash(texpath)
     texName = fileNameOfPath(texpath)
 
+    if not texpath: return False, "" 
+
     debug(f"try to load texture into blender: {texpath}")
 
     if doesFileExist(filepath=texpath):
     
         if texName not in imgs:
             imgs.load(texpath)
-            debug(f"texture loaded: { getFilenameOfPath(texpath) }")
-        return True, getFilenameOfPath(texpath)
+            debug(f"texture loaded: { texName }")
+        
+        else:
+            debug(f"texture already loaded: { texName }")
+            bpy.ops.file.find_missing_files( directory=getDocPathItemsAssetsTextures() )
+
+        return True, texName
     
     else: 
-        debug(f"failed to find file: {texpath}")
-        return False, getFilenameOfPath(texpath)
+        debug(f"failed to find file: {texName}")
+        return False, texName
+
 
 
 
@@ -435,3 +445,212 @@ def assignTextureToImageNode(texname, node) -> bool:
     else:
         node.mute = True
         return False
+
+
+
+
+
+# only type int|bool|str can be saved as custom prop in fbx,
+# so save all props as JSON in a str prop
+
+
+
+def saveMatPropsAsJSONinMat(mat) -> None:
+    """save mat.prop, mat.prop123 as json string in mat["TM_PROPS_AS_JSON] for export"""
+    DICT = {}
+    
+    #tm_props
+    for prop_name in mat_props:
+        prop = getattr(mat, prop_name)
+        if prop.__class__.__name__ == "Color":
+            prop = [prop[0], prop[1], prop[2]]
+
+        if isinstance(prop, str):
+            if prop.startswith("//"):
+                prop = bpy.path.abspath(prop)
+                prop = getAbspath(prop)
+
+        DICT[prop_name] = prop
+    
+    
+    #mat node texture abspaths
+    nodes = mat.node_tree.nodes
+    tex_d = nodes["tex_D"].image
+    tex_i = nodes["tex_I"].image
+    
+    tex_d_path = tex_d.filepath if tex_d else ""
+    tex_i_path = tex_i.filepath if tex_i else ""
+
+
+    DICT["tex_d_path"] = getAbspath(tex_d_path)
+    DICT["tex_i_path"] = getAbspath(tex_i_path)
+
+    JSON = json.dumps(DICT)
+    mat[ MAT_PROPS_AS_JSON ] = JSON
+
+    debug(DICT, pp=True)
+
+
+
+
+
+# custom properties of type int|bool|str can be saved in fbx.materials,
+# so convert all custom props to JSON and save them as str prop
+def assignMatJSONpropsToMat(mat) -> bool:
+    """used for mats of imported objs, take saved props in JSON and assign to the mat"""
+    try:
+        matJSON = mat.get( MAT_PROPS_AS_JSON )
+        if matJSON == "": raise KeyError
+    
+    except KeyError: #empty or not found
+        return False
+
+    if matJSON is None: return False
+
+    try:    DICT = json.loads(matJSON)
+    except: return False
+    
+    
+    #assign mat tm_props to mat
+    for prop in DICT:
+        if prop.startswith("tex_"): continue
+        try:    setattr(mat, prop, DICT[prop])
+        except: return False
+    
+
+    #assign textures
+    createMaterialNodes(mat)
+    imgs  = bpy.data.images
+    nodes = mat.node_tree.nodes
+    tex_d = nodes["tex_D"]
+    tex_i = nodes["tex_I"]
+
+    link  = DICT["link"]
+    btex  = DICT["baseTexture"]
+    envi  = DICT["environment"]
+    root  = getDocPathItemsAssetsTextures()
+    root  = root + envi + "/"
+
+    tex_d_path = DICT["tex_d_path"] or getDocPath() + btex + "_D.dds"
+    tex_i_path = DICT["tex_i_path"] or getDocPath() + btex + "_I.dds"
+
+    test_d_path_as_link = root + tex_d_path.split("/")[-1]
+    test_i_path_as_link = root + tex_d_path.split("/")[-1]
+
+    if doesFileExist( test_d_path_as_link ): tex_d_path = test_d_path_as_link
+    if doesFileExist( test_i_path_as_link ): tex_d_path = test_i_path_as_link
+
+    debug(tex_d_path)
+    debug(test_d_path_as_link)
+
+    success, name = loadDDSTextureIntoBlender(tex_d_path)
+    if success and name in imgs:
+        tex_d.image = bpy.data.images[ name ]
+
+    success, name = loadDDSTextureIntoBlender(tex_i_path)
+    if success and name in imgs:
+        tex_i.image = bpy.data.images[ name ]
+            
+        
+    debug(matJSON, pp=True)
+    del matJSON
+    return True
+
+
+
+
+
+def fixMaterialNames(obj) -> None:
+    """MyMaterial.001 => MyMaterial, join materials."""
+    slots = obj.material_slots
+    mats  = bpy.data.materials
+    regex = r"\.\d+$"
+    
+    for slot in slots:
+        mat     = slot.material
+        if mat is None: continue
+
+        if re.search(regex, mat.name):
+            
+            try:
+                matNameNoCountSuffix = re.sub(regex, "", mat.name)
+                newmat = mats[matNameNoCountSuffix]
+                slot.material = newmat 
+            
+            except KeyError: #mat.001 exists, mat not
+                pass
+            
+        #delete now unused .001 mat
+        if re.search(regex, mat.name):
+            bpy.data.materials.remove(mat)
+
+
+
+
+#! not in use
+def importMaterialsFromJSON(filepath) -> None:
+    """import materials from json file"""
+    filepath  = filepath.replace("fbx", "json")
+    mats_dict = None
+    mats = bpy.data.materials
+
+    with open(filepath, "r") as f:
+        content = f.read()
+        mats_dict = json.loads(content)
+    
+    for mat in mats_dict:
+        mat = mats_dict[mat]
+        
+        if mat["name"] not in mats:
+            newMat = bpy.data.materials.new(mat["name"])
+            for prop in mat_props:
+                debug(prop)
+                exec(f"""{newMat}.{prop}={mat[prop]}""")
+    
+
+
+
+
+#! not in use
+def exportMaterialsAsJSON(col, filepath) -> None:
+    """fbx export custom properties does not export material custom properties, create json..."""
+    # filename = fileNameOfPath(filepath) 
+    # filepath = filepath.replace( filename, f".{filename}" ) #dot does not hide files in windows...
+    filepath = filepath.replace("json", "Materials.json")
+    mats_dict = {}
+    objs = col.all_objects
+
+    for obj in objs:
+        if obj.type != "MESH": continue
+
+        for mat in obj.data.materials:
+            
+            # generate dict for each material
+            try:
+                if mat.name in mats_dict: continue
+
+                debug(mat.name)
+
+                mat_dict = {}
+                for prop_name in mat_props:
+                    
+                    prop = getattr(mat, prop_name)
+                    if prop.__class__.__name__ == "Color":
+                        prop = [prop.r, prop.g, prop.b]
+
+                    mat_dict[prop_name] = prop
+                
+                mats_dict[mat.name] = mat_dict
+            
+            except KeyError: raise
+
+
+
+    JSON = json.dumps(mats_dict, indent=4, sort_keys=True)
+
+    debug(f"write material JSON file for {col.name}")
+    debug(filepath)
+    with open(filepath, "w") as f:
+        f.write(JSON)
+
+
