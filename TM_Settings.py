@@ -1,6 +1,7 @@
 import bpy
 import os.path
 import string
+import webbrowser
 from pprint import pprint
 from bpy.types import (
     Panel,
@@ -61,6 +62,15 @@ class TM_OT_Settings_InstallGameTextures(Operator):
         installGameTextures()
         return {"FINISHED"}
 
+class TM_OT_Settings_DebugALL(Operator):
+    bl_idname = "view3d.tm_debugall"
+    bl_description = "debug print all addon python variable values"
+    bl_label = "Debug print"
+        
+    def execute(self, context):
+        debugALL()
+        return {"FINISHED"}
+
 
 
 
@@ -96,14 +106,15 @@ class TM_PT_Settings(Panel):
         row = layout.row(align=True)
         row.scale_y = 1.5
         row.operator("view3d.tm_opendoc",      text="Help",         icon="URL")
-        row.operator("view3d.tm_opengithub",   text="Github/Bug",   icon="FILE_SCRIPT")
+        row.operator("view3d.tm_opengithub",   text="Github",       icon="FILE_SCRIPT")
+        row.operator("view3d.tm_debugall",     text="Debug",        icon="FILE_TEXT")
 
-        layout.row().separator(factor=spacerFac)
+        layout.row().separator(factor=UI_SPACER_FACTOR)
 
         if not isNadeoIniValid():
             row = layout.row()
             row.alert = True
-            row.label(text=errorMsg_NADEOINI)
+            row.label(text=MSG_ERROR_NADEO_INI)
             return
 
         if isNadeoIniValid():
@@ -129,7 +140,7 @@ class TM_PT_Settings(Panel):
 
             
 
-        layout.separator(factor=spacerFac)
+        layout.separator(factor=UI_SPACER_FACTOR)
 
 
 
@@ -171,7 +182,7 @@ class TM_PT_Settings(Panel):
 
 def autoFindNadeoIni()->None:
     game    = str(bpy.context.scene.tm_props.LI_gameType).lower()
-    base    = os.environ["ProgramFiles(x86)"]
+    base    = fixSlash(PATH_PROGRAM_FILES_X86)
     mp_envis= ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
     alphabet= list(string.ascii_lowercase) #[a-z]
     paths   = []
@@ -188,10 +199,10 @@ def autoFindNadeoIni()->None:
         for envi in mp_envis:
             paths.append(f"{base}/Steam/steamapps/common/ManiaPlanet_{envi}/Nadeo.ini".replace("/", "\\"))
 
-
     if isGameTypeTrackmania2020():
         paths.append(f"{base}/Ubisoft/Ubisoft Game Launcher/games/Trackmania/Nadeo.ini".replace("/", "\\"))
         paths.append(f"{base}/Epic Games/TrackmaniaNext/Nadeo.ini".replace("/", "\\"))
+        paths.append(f"{PATH_PROGRAM_FILES_X86}/Trackmania/Nadeo.ini".replace("/", "\\"))
         for char in alphabet:
             paths.append(fr"{char}:\Trackmania\Nadeo.ini")
             paths.append(fr"{char}:\Games\Trackmania\Nadeo.ini")
@@ -228,10 +239,10 @@ def openHelp(helptype: str) -> None:
     elif helptype == "itemsfolder":     cmd += getDocPathItems()
     elif helptype == "assetfolder":     cmd += getDocPathItemsAssets()
     
-    elif helptype == "documentation": webbrowser.open(website_documentation)
-    elif helptype == "github":        webbrowser.open(website_github)
-    elif helptype == "checkregex":    webbrowser.open(website_regex)
-    elif helptype == "convertreport": subprocess.Popen(['start', fixSlash(website_convertreport)], shell=True)
+    elif helptype == "documentation": webbrowser.open(URL_DOCUMENTATION)
+    elif helptype == "github":        webbrowser.open(URL_GITHUB)
+    elif helptype == "checkregex":    webbrowser.open(URL_REGEX)
+    elif helptype == "convertreport": subprocess.Popen(['start', fixSlash(PATH_CONVERT_REPORT)], shell=True)
     
         
     if cmd != "":
