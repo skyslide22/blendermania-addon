@@ -20,7 +20,7 @@ body {
 
 body {
   padding: 100px;
-  max-width: 1200px;
+  max-width: 1400px;
 }
 
 header {
@@ -39,10 +39,15 @@ header {
   margin: 0;
 }
 
+#result-list .progress-steps {
+  font-size: 12px;
+  font-family: "Lucida Console", monospace;
+}
+
 .result-object {
   list-style: none;
   margin: 5px 0 0 0;
-  padding: 0;
+  padding: 1rem;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -52,7 +57,7 @@ header {
 }
 
 .result-object > li {
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 .item,
@@ -77,3 +82,14 @@ header {
 .error {
   background: rgba(255, 0, 0, 0.33);
 }
+
+.error * {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.error i {
+  color: white;
+  font-style: normal;
+  font-weight: 700;
+}
+/*# sourceMappingURL=report.css.map */

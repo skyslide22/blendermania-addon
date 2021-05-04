@@ -21,7 +21,7 @@ body {
 body {
     padding: 100px;
     // background: rgba(black, .5);
-    max-width: 1200px;
+    max-width: 1400px;
 }
 
 header {
@@ -38,17 +38,21 @@ header {
         padding: 0;
         margin: 0;
     }
+    .progress-steps {
+        font-size: 12px;
+        font-family: "Lucida Console", monospace;
+    }
 }
 
 .result-object {
     list-style: none;
     margin: 5px 0 0 0;
-    padding: 0;
+    padding: 1rem;
     display: flex;
     flex-wrap: wrap;
     justify-items: stretch;
     > li {
-        padding: 1rem;
+        padding: 1rem 0;
     }
 }
 
@@ -69,6 +73,14 @@ header {
     }
 }
 .error {
-    background: rgba(red, .33)
+    background: rgba(red, .33);
+    * {
+        color: rgba(white, .5)
+    }
+    i {
+        color: white;
+        font-style: normal;
+        font-weight: 700;
+    }
 }
 
