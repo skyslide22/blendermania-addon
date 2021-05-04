@@ -17,17 +17,36 @@ from .TM_Items_Icon import generateWorldNode
 
 
 
-errorEnumProps      = [("ERROR", "ERROR", "ERROR", "ERROR", 0)]
-matPhysics          = errorEnumProps
-matLinks            = errorEnumProps
+ERROR_ENUM_PROPS      = [("ERROR", "Nothing found", "ERROR", "ERROR", 0)]
+matPhysics          = ERROR_ENUM_PROPS
+matLinks            = ERROR_ENUM_PROPS
 
 
-
-
-def isNadeoIniValid()->bool:
-    if isGameTypeManiaPlanet():     return bpy.context.scene.tm_props.ST_nadeoIniFile_MP
-    if isGameTypeTrackmania2020():  return bpy.context.scene.tm_props.ST_nadeoIniFile_TM
+def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
+    #func has to return tuple with tuples: ( (3x str or 4x str and unique index), )
+    def wrapper(self, context):
+        return func(self, context) if isNadeoIniValid() else ERROR_ENUM_PROPS
+        return errorEnumProps
         
+    return wrapper
+
+
+def updateINI(prop) -> None:
+    isNadeoImporterInstalled(prop)
+    global nadeoIniSettings
+    global nadeoLibMaterials
+    nadeoIniSettings.clear() #reset when changed
+    nadeoLibMaterials.clear()
+
+def defaultINI(prop) -> str:
+    """return nadeo.ini path from envi variable, or empty string"""
+    ini = ""
+    if   prop.lower().endswith("TM"): ini = os.getenv("NADEO_INI_PATH_TM") or ""
+    elif prop.lower().endswith("MP"): ini = os.getenv("NADEO_INI_PATH_MP") or ""
+    
+    return ini
+
+    
 
 def getGameTypes()->list:
     return [
@@ -42,8 +61,8 @@ def gameTypeGotUpdated()->None:
     resetNadeoIniSettings()
 
     global matLinks, matPhysics, nadeoLibMaterials
-    matLinks   = errorEnumProps
-    matPhysics = errorEnumProps
+    matLinks   = ERROR_ENUM_PROPS
+    matPhysics = ERROR_ENUM_PROPS
     nadeoLibParser(refresh=True)
 
     tm_props     = bpy.context.scene.tm_props
@@ -83,7 +102,7 @@ def getExportFolderTypes(self,context)->list:
         ("Canyon",     "Canyon/",       "Base folder(/Items/Canyon",    getIcon("ENVI_CANYON"),  3),
         ("Lagoon",     "Lagoon/",       "Base folder(/Items/Lagoon",    getIcon("ENVI_LAGOON"),  4),
         ("Shootmania", "Shootmania/",   "Base folder(/Items/Storm",     getIcon("ENVI_STORM"),   5),
-        ("Custom",     "???/",          "Custom folder",                "FILE_FOLDER",           6),
+        ("Custom",     "???/",          "Custom folder",                "HELP",                  6),
     ]
 
 
@@ -154,6 +173,41 @@ def getMeshXMLType() -> list:
 
 
 
+def getImportTypes() -> list:
+    return [
+        ("FILES",            "Files",              "Files",             "FILE",             0),
+        ("FOLDER",           "Folder",             "Folder",            "FILE_FOLDER",      1),
+    ]
+
+
+def getImportVariants() -> list:
+    return[
+        ("FILE", "File",  "Single file",    "FILE", 0),
+        ("FILES","Files", "Multiple files", "FILE", 1),
+        ("Folder","Files", "Multiple files", "FILE", 1),
+    ]
+
+
+
+
+@errorEnumPropsIfNadeoINIisNotValid
+def getWorkItemsRootFolderNames(s,c) -> list:
+    """return all root folders of ../Work/Items/foldernames[]"""
+    rootFolderNames = []
+    try: workItemsPath = getDocPathWorkItems()
+    except AttributeError: return ERROR_ENUM_PROPS
+    
+    for folder in os.listdir( getDocPathWorkItems() ):
+        if os.path.isdir( getDocPathWorkItems() + folder ):
+            rootFolderNames.append(3*(folder,))    
+    
+    return rootFolderNames
+
+
+
+
+
+
 
 
 def getIconPerspectives() -> list:
@@ -196,6 +250,8 @@ def updateWorldBG(s,c) -> None:
 
 def getMaterials(self, context):
     mats = bpy.data.materials
+    if len(mats) == 0: 
+        return ERROR_ENUM_PROPS
     return [(mat.name, mat.name, mat.name) for mat in mats if mat.name.lower() != "dots stroke"]
 
 
@@ -211,7 +267,6 @@ def updateMaterialSettings(self, context):
         ("tm_props.LI_materialLink"         , "matToUpdate.link"),
         ("tm_props.ST_materialBaseTexture"  , "matToUpdate.baseTexture"),
         ("tm_props.NU_materialColor"        , "matToUpdate.surfaceColor"),
-        # ("tm_props.LI_materialIsFromLib"    , "matToUpdate.isFromLib"),
     ]
 
     for assignment in assignments:
@@ -222,6 +277,8 @@ def updateMaterialSettings(self, context):
             exec(assignment)
         except TypeError:
             pass
+
+    redrawPanel(self,context)
 
 
 
@@ -290,7 +347,7 @@ def getMaterialPhysicIds(self=None, context=None)->list:
 def getMaterialLinks(self, context)->List:
     global matLinks
 
-    if matLinks is not errorEnumProps:
+    if matLinks is not ERROR_ENUM_PROPS:
         return matLinks
 
 
@@ -338,8 +395,8 @@ def getMaterialGameplayIds(self, context)->None:
 class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     """general trackmania properties"""
     LI_gameType:            EnumProperty(items=getGameTypes(), name="Game", update=lambda s, c: gameTypeGotUpdated())
-    ST_nadeoIniFile_MP:     StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: isNadeoImporterInstalled("ST_nadeoIniFile_MP"))
-    ST_nadeoIniFile_TM:     StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: isNadeoImporterInstalled("ST_nadeoIniFile_TM"))
+    ST_nadeoIniFile_MP:     StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
+    ST_nadeoIniFile_TM:     StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
     ST_author:              StringProperty(name="Author", default="skyslide")
     CB_nadeoImporter:       BoolProperty("NadeoImporter installed", default=False)
     NU_nadeoImporterDL:     FloatProperty(min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
@@ -364,6 +421,12 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_showConvertPanel:    BoolProperty(default=False, update=redrawPanel)
     CB_stopAllNextConverts: BoolProperty(default=False, update=redrawPanel)
     CB_converting:          BoolProperty(default=False, update=redrawPanel)
+    CB_notifyPopupWhenDone: BoolProperty(default=False)
+
+    #import
+    LI_importMatFailed:         StringProperty()
+    LI_importType:              EnumProperty(items=getImportTypes())
+    CB_importFolderRecursive:   BoolProperty(name="Recursive", default=False)
 
     #icons
     CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redrawPanel)
@@ -401,7 +464,6 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_xml_itemtype         : EnumProperty( name="Type",            items=getItemXMLType())
     LI_xml_waypointtype     : EnumProperty( name="Waypoint",        items=getWayPointVariations())
     LI_xml_enviType         : EnumProperty( name="Envi",            items=getItemXMLCollections())
-    ST_xml_author           : StringProperty(name="Author",         default="skyslide")
     NU_xml_gridAndLeviX     : FloatProperty(name="Sync X",          default=8.0, min=0, max=256, step=100, update=updateGridAndLevi)
     NU_xml_gridAndLeviY     : FloatProperty(name="Synx Y",          default=8.0, min=0, max=256, step=100, update=updateGridAndLevi)
     NU_xml_gridX            : FloatProperty(name="X Grid",          default=8.0, min=0, max=256, step=100)
