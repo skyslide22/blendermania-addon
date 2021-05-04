@@ -14,6 +14,7 @@ from .TM_Items_XML      import *
 from .TM_Items_UVMaps   import *
 from .TM_Settings       import *
 from .TM_Items_Icon     import *
+from .TM_Materials      import *
 
 
 class TM_OT_Items_Export_ExportAndOrConvert(Operator):
@@ -25,12 +26,12 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
     bl_options = {"REGISTER", "UNDO"} #without, ctrl+Z == crash
         
     def execute(self, context):
-        
+
         if saveBlendFile():
             exportAndOrConvert()
         
         else:
-            makeReportPopup("FILE NOT SAVED!", "Save your blend file!", "ERROR")
+            makeReportPopup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
 
         return {"FINISHED"}
     
@@ -73,7 +74,10 @@ class TM_PT_Items_Export(Panel):
         layout = self.layout
         tm_props = context.scene.tm_props
 
+        if requireValidNadeoINI(self) is False: return
+
         enableExportButton      = True
+        exportSelectedOrVisible = tm_props.LI_exportWhichObjs
         exportFolderType        = tm_props.LI_exportFolderType
         exportCustomFolder      = True if str(exportFolderType).lower() == "custom" else False
         exportCustomFolderProp  = "ST_exportFolder_MP" if isGameTypeManiaPlanet() else "ST_exportFolder_TM"
@@ -87,11 +91,6 @@ class TM_PT_Items_Export(Panel):
         stopConverting          = tm_props.CB_stopAllNextConverts
         exportTypeIsConvertOnly = str(exportType).lower() == "convert"
 
-        if not isNadeoIniValid():
-            row = layout.row()
-            row.alert = True
-            row.label(text=errorMsg_NADEOINI)
-            return
 
         if not showConvertPanel:
             layout.row().prop(tm_props, "LI_exportType")
@@ -99,11 +98,21 @@ class TM_PT_Items_Export(Panel):
         if not exportTypeIsConvertOnly and not showConvertPanel:
             layout.row().prop(tm_props, "LI_gameType")
             layout.row().prop(tm_props, "LI_exportFolderType")
-            layout.row().prop(tm_props, exportCustomFolderProp) if exportCustomFolder else None
-            layout.row().prop(tm_props, "LI_exportValidTypes",)
+            
+            if exportCustomFolder:
+                row_path = layout.row()
+                if "/Work/" not in fixSlash( getattr(tm_props, exportCustomFolderProp) ):
+                    row_error= layout.row()
+                    row_error.alert = True
+                    row_error.label(text="Folder has to be in /Work/Items/ ...", icon="ERROR")
+                    row_path.alert=True
+                row_path.prop(tm_props, exportCustomFolderProp)
+
+
+            # layout.row().prop(tm_props, "LI_exportValidTypes",)
             layout.row().prop(tm_props, "LI_exportWhichObjs", expand=True)
 
-            if bpy.context.selected_objects == [] and tm_props.LI_exportWhichObjs == "SELECTED":
+            if bpy.context.selected_objects == [] and exportSelectedOrVisible == "SELECTED":
                 enableExportButton = False
         
         if exportTypeIsConvertOnly:
@@ -112,38 +121,63 @@ class TM_PT_Items_Export(Panel):
             row.label(text="work in progress, soon ...")
             return
 
-        layout.separator(factor=spacerFac)
+        layout.separator(factor=UI_SPACER_FACTOR)
         
-        if not showConvertPanel:
+        if showConvertPanel is False:
             row = layout.row()
             row.scale_y = 1.5
             row.enabled = enableExportButton
             row.alert   = not enableExportButton #red button, 0 selected
-            row.operator("view3d.tm_export", text=exportType if enableExportButton else "0 objects selected")
 
+            text = exportType
+            icon = "EXPORT"
+
+            if exportType == "EXPORT":            
+                icon="EXPORT";          
+                text=f"Export {exportSelectedOrVisible.lower()}"
+
+            elif exportType == "EXPORT_CONVERT":    
+                icon="CON_FOLLOWPATH";  
+                text=f"Export {exportSelectedOrVisible.lower()} & convert"
+
+            elif exportType == "CONVERT":           
+                icon="FILE_REFRESH";    
+                text=f"Convert folder..."
+                
+            elif exportType == "ICON":              
+                icon="FILE_IMAGE";      
+                text=f"Create icons for {exportSelectedOrVisible.lower()}"
+            
+            row.operator("view3d.tm_export", text=text, icon=icon)
+
+
+        #*show panel
         else:
+
+            #progress bar
             row=layout.row(align=True)
-            row.enabled = not (stopConverting or convertDone)
+            # row.enabled = not (stopConverting or convertDone)
             row.alert   = atlestOneConvertFailed
             row.prop(tm_props, "NU_converted", text=f"{converted} of {convertCount}")
             row.prop(tm_props, "CB_stopAllNextConverts", icon_only=True, text="", icon="CANCEL")
-
-            # print( dir (row ))
-            
-            row = layout.row()
-            row.alert = atlestOneConvertFailed or stopConverting
-            row.label(text="Convert status: " + ("converting" if converting else "done" if not stopConverting else "stopped") )
-            
+            # row.prop(tm_props, "CB_notifyPopupWhenDone", icon_only=True, text="", icon="INFO")
 
             failed    = str(tm_props.ST_convertedErrorList).split("%%%")
             failed    = [f for f in failed if f!=""]
             
+            #buttons OK, REPORT
             row = layout.row(align=True)
             row.alert = atlestOneConvertFailed
             row.enabled = True if any([convertDone, stopConverting]) else False
             row.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="CHECKMARK")
-            row.operator("view3d.tm_openconvertreport",    text="Open Report",  icon="HELP")
+            row.operator("view3d.tm_openconvertreport",    text="Open Report",  icon="HELP")    
 
+            #label convert status
+            row = layout.row()
+            row.alert = atlestOneConvertFailed or stopConverting
+            row.label(text="Convert status: " + ("converting" if converting else "done" if not stopConverting else "stopped") )
+            
+            #result of fails
             row = layout.row()
             row.alert = True if failed else False
             row.label(text=f"Failed converts: {len(failed)}")
@@ -167,16 +201,17 @@ class TM_PT_Items_Export(Panel):
 def exportAndOrConvert()->None:
     """export&convert fbx main function, call all other functions on conditions set in UI"""
     tm_props            = bpy.context.scene.tm_props
-    validObjTypes       = tm_props.LI_exportValidTypes #mesh, light, empty
+    # validObjTypes       = tm_props.LI_exportValidTypes #mesh, light, empty
     useSelectedOnly     = tm_props.LI_exportWhichObjs == "SELECTED"  #only selected objects?
     allObjs             = bpy.context.scene.collection.all_objects
-    cols                = bpy.context.scene.collection.children
     action              = tm_props.LI_exportType
     generateLightmaps   = tm_props.CB_uv_genLightMap
     fixLightmap         = tm_props.CB_uv_fixLightMap
     generateIcons       = tm_props.CB_icon_genIcons
     colsToExport        = []
     exportedFBXs        = []
+    invalidCollections  = []
+    embeddedMaterials   = []
 
     exportFilePathBase  = ""
     exportPathType      = tm_props.LI_exportFolderType
@@ -203,6 +238,8 @@ def exportAndOrConvert()->None:
             if useSelectedOnly:
                 if not obj.select_get(): continue
 
+            debug(f"try action <{action}> for <{obj.name}>")
+
             selectObj(obj)
             objnameLower = obj.name.lower()
 
@@ -214,11 +251,6 @@ def exportAndOrConvert()->None:
             and objnameLower.startswith("_") is False:
                 obj.name = "_trigger_"
 
-            if obj.type == "MESH" \
-                and not "trigger" in obj.name \
-                and not "socket"  in obj.name:
-                    fixUvLayerNamesOfObject(obj)
-
 
             #run through collections, select and add to exportlist if visible(=selectable)
             for col in obj.users_collection:
@@ -229,21 +261,23 @@ def exportAndOrConvert()->None:
         #remove doubles
         colsToExportSet = set(colsToExport)
         colsToExport = [] #sort collections which are not disabled
-
+        
         for col in colsToExportSet:
             if not isCollectionExcluded(col):
                 for obj in col.all_objects:
                     if obj.type == "MESH":
                         if selectObj(obj):
+                            for slot in obj.material_slots:
+                                mat = slot.material
+                                if not mat in embeddedMaterials:
+                                    saveMatPropsAsJSONinMat(mat=mat) #only string/bool/num custom props are saved in fbx...
+                                    embeddedMaterials.append(mat)
                             colsToExport.append(col)
-                            break
                         
         #export each collection ...
 
-        
 
-
-        for col in colsToExport:
+        for col in set(colsToExport):
 
             if isCollectionExcluded(col):
                 continue #col is disabled by user in outliner
@@ -251,31 +285,61 @@ def exportAndOrConvert()->None:
 
             deselectAll()
 
-            exportFilePath = f"{exportFilePathBase}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}.fbx"
-            exportFilePath = fixSlash(exportFilePath)
+            exportFilePath = f"{exportFilePathBase}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
+            FBX_exportFilePath = fixSlash(exportFilePath + ".fbx")
 
             if not action == "ICON":
-                newOrigin           = createOriginFixer(col=col)
-                newOrigin_oldPos    = tuple(newOrigin.location)     #old pos of origin
-                newOrigin.location  = (0,0,0)  #center of world
 
-                selectAllObjectsInACollection(col=col)
+                fixUvLayerNamesOfObjects(col=col)
 
-                if generateLightmaps:
-                    generateLightmap(col=col, fix=fixLightmap)
+                has_lod_0 = False
+                has_lod_1 = False
+                for obj in col.all_objects: 
+                    if   "_lod0" in obj.name.lower(): has_lod_0 = True
+                    elif "_lod1" in obj.name.lower(): has_lod_1 = True
+                
+                if  not has_lod_0\
+                and not has_lod_1: #if obj uses lods, auto lightmap is not good.
+                    if generateLightmaps:
+                        generateLightmap(col=col, fix=fixLightmap)
 
-                debug(exportFilePath)
-                exportFBX(fbxfilepath=exportFilePath)
-                exportedFBXs.append(    (exportFilePath, col)  )
+                if has_lod_1 and not has_lod_0:
+                    invalidCollections.append(f"<{col.name}> has Lod1, but not Lod0, collection skipped")
+                    continue
+                
+                # all col objs parenting to an empty obj
+                # move to center, unparent, export,
+                # parent again, back to old origin, unparent
+                ORIGIN = createExportOriginFixer(col=col)
+                debug(f"origin for collection <{col.name}> is <{ORIGIN.name}>")
 
-                newOrigin.location = newOrigin_oldPos
-                deleteOriginFixer(col=col)
+                origin_oldPos    = tuple(ORIGIN.location) #old pos of origin
+                ORIGIN.location  = (0,0,0)  #center of world
+
+                # Lod0, Lod1 can't be childrens
+                # so unparent and keep all transforms at 0,0,0
+                unparentObjsAndKeepTransform(col=col) 
+
+                deselectAll()
+                selectAllObjectsInACollection(col=col, exclude_infixes="_ignore, delete")
+                debug(f"selected objects: {bpy.context.selected_objects}")
+
+                exportFBX(fbxfilepath=FBX_exportFilePath)
+                exportedFBXs.append(    (FBX_exportFilePath, col)  )
+                debug(f"exported collection <{col.name}>")
+
+                parentObjsToObj(col=col, obj=ORIGIN)
+                ORIGIN.location = origin_oldPos
+
+                deleteExportOriginFixer(col=col)
             
             if generateIcons\
             or action == "ICON":
-                generateIcon(col=col, filepath=exportFilePath)
+                generateIcon(col=col, filepath=FBX_exportFilePath)
 
-
+        #end for col in colsToExport
+        if invalidCollections:
+            makeReportPopup("Invalid collections", invalidCollections)
     
 
 
@@ -336,3 +400,8 @@ def exportFBX(fbxfilepath) -> None:
 
 
     bpy.ops.export_scene.fbx(**exportArgs) #one argument is optional, so give a modified dict and **unpack
+
+
+
+
+
