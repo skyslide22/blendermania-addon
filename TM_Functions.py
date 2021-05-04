@@ -1,6 +1,8 @@
 from datetime import datetime
-from os.path import abspath
+from os.path import abspath, relpath
 import string
+import subprocess
+import threading
 import urllib.request
 import urllib.error
 import bpy
@@ -11,14 +13,12 @@ import configparser
 import json
 import uuid
 import pprint
+import ctypes
 from zipfile import ZipFile
 from threading import Thread
-from sys import platform
-import webbrowser
 from inspect import currentframe, getframeinfo
-from bpy.props import BoolProperty
 import bpy.utils.previews
-from bpy.types import UIList 
+from bpy.types import Key, UIList 
 
 
 
@@ -26,28 +26,38 @@ from bpy.types import UIList
 def getAddonPath() -> str:
     return os.path.dirname(__file__) + "/"
 
-errorMsgAbsolutePath = "Absolute path only!"
-errorMsg_NADEOINI    = "Select the Nadeo.ini file first!"
-spacerFac            = 1.0
+MSG_ERROR_ABSOLUTE_PATH = "Absolute path only!"
+MSG_ERROR_NADEO_INI     = "Select the Nadeo.ini file first!"
+UI_SPACER_FACTOR        = 1.0
 
-website_documentation   = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
-website_bugreports      = "https://github.com/skyslide22/maniaplanet-blender-addon/issues"
-website_github          = "https://github.com/skyslide22/maniaplanet-blender-addon"
-website_regex           = "https://regex101.com/"
-desktopPath             = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
-documentsPath           = os.path.expanduser("~/Documents/").replace("\\", "/")
-programDataPath         = os.environ['ALLUSERSPROFILE']
-website_convertreport   = desktopPath + "convert_report.html"
+URL_DOCUMENTATION       = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
+URL_BUG_REPORT          = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
+URL_GITHUB              = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
+URL_REGEX               = "https://regex101.com/"
+PATH_DESKTOP            = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
+PATH_HOME               = os.path.expanduser("~")
+PATH_DOCUMENTS          = os.path.expanduser("~/Documents/").replace("\\", "/")
+PATH_PROGRAM_DATA       = os.environ.get("ALLUSERSPROFILE").replace("\\", "/")   + "/"
+PATH_PROGRAM_FILES      = os.environ.get("PROGRAMFILES").replace("\\", "/")      + "/"
+PATH_PROGRAM_FILES_X86  = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
+PATH_CONVERT_REPORT     = PATH_DESKTOP + "convert_report.html"
 
-webspaceBaseUrl                 = "https://images.mania.exchange/com/skyslide/"
-webspaceTextures_MP_stadium     = webspaceBaseUrl + "_DTextures_ManiaPlanet_Stadium.zip"
-webspaceTextures_MP_valley      = webspaceBaseUrl + "_DTextures_ManiaPlanet_Valley.zip"
-webspaceTextures_MP_storm       = webspaceBaseUrl + "_DTextures_ManiaPlanet_Shootmania.zip"
-webspaceTextures_MP_lagoon      = webspaceBaseUrl + "_DTextures_ManiaPlanet_Lagoon.zip"
-webspaceTextures_MP_canyon      = webspaceBaseUrl + "_DTextures_ManiaPlanet_Canyon.zip"
-webspaceTextures_TM_stadium     = webspaceBaseUrl + "_DTextures_TrackMania2020.zip"
-webspaceNadeoImporter_TM        = webspaceBaseUrl + "NadeoImporter_TrackMania2020.zip"
-webspaceNadeoImporter_MP        = webspaceBaseUrl + "NadeoImporter_ManiaPlanet.zip"
+WEBSPACE_BASE_URL                 = "https://images.mania.exchange/com/skyslide/"
+WEBSPACE_TEXTURES_MP_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Stadium.zip"
+WEBSPACE_TEXTURES_MP_VALLEY      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Valley.zip"
+WEBSPACE_TEXTURES_MP_STORM       = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Shootmania.zip"
+WEBSPACE_TEXTURES_MP_LAGOON      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Lagoon.zip"
+WEBSPACE_TEXTURES_MP_CANYON      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Canyon.zip"
+WEBSPACE_TEXTURES_TM_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_TrackMania2020.zip"
+WEBSPACE_NADEOIMPORTER_MP        = WEBSPACE_BASE_URL + "NadeoImporter_ManiaPlanet.zip"
+WEBSPACE_NADEOIMPORTER_TM        = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania2020.zip"
+
+MAT_PROPS_AS_JSON = "MAT_PROPS_AS_JSON"
+
+COLOR_CHECKPOINT = "COLOR_05" 
+COLOR_START      = "COLOR_04" 
+COLOR_FINISH     = "COLOR_01" 
+COLOR_STARTFINISH= "COLOR_03" 
 
 missingPhysicsInLib = ["TechSuperMagnetic", "Offzone"]
 favPhysicIds = [
@@ -91,6 +101,20 @@ panelClassDefaultProps = {
     "bl_region_type":    "UI",
     "bl_context":        "objectmode",
 }
+
+mat_props = [
+        "name",
+        "gameType",
+        "baseTexture",
+        "link",
+        "physicsId",
+        "usePhysicsId",
+        "gameplayId",
+        "useGameplayId",
+        "model",
+        "environment",
+        "surfaceColor",
+    ]
 # -----
 
 """NADEO.INI DATA"""
@@ -134,44 +158,71 @@ def getNadeoIniData(setting: str) -> str:
     possibleSettings = ["WindowTitle", "Distro", "UserDir", "CommonDir"]
     
     try:
-        return nadeoIniSettings[setting]
+        setting = nadeoIniSettings[wantedSetting]
+        if "{userdocs}"in setting.lower()\
+        or "{userdir}" in setting.lower():
+            debug(f"requested Ini key <{setting}> value has a variable in it, raise KEYERROR")
+            raise KeyError
+
+        else: 
+            return setting
     
     except KeyError: #if setting does not exist, add.
+        nadeoIniFilepath = getNadeoIniFilePath()
         iniData = configparser.ConfigParser()
-        iniData.read(getNadeoIniFilePath())
+        iniData.read(nadeoIniFilepath)
         category = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania"
         
         for setting in possibleSettings:
             if setting not in nadeoIniSettings.keys():
-                nadeoIniSettings[setting] = iniData.get(category, setting)
+                nadeoIniSettings[setting] = iniData.get(category, setting) #ex: ManiaPlanet, UserDir
         
-        for key, value in nadeoIniSettings.items():
-            if value.startswith("{exe}"):
-                nadeoIniSettings[key] = fixSlash( value.replace("{exe}", getNadeoIniFilePath().replace("Nadeo.ini", "")) + "/" )
+        for ini_key, ini_value in nadeoIniSettings.items():
+            
+            #maniaplanet.exe path
+            if ini_value.startswith("{exe}"):
+                nadeoIniSettings[ini_key] = fixSlash( ini_value.replace("{exe}", getNadeoIniFilePath().replace("Nadeo.ini", "")) + "/" )
                 continue
-
-            variableDocPath = ""
-            if   value.startswith("{userdocs}"): variableDocPath = "{userdocs}" #maniaplanet
-            elif value.startswith("{userdir}"):  variableDocPath = "{userdir}" #tm2020
 
             # /Documents/Trackmania is used by TMUF, 
             # if TMUF is installed, /Trackmania2020 is created and used by tm2020.exe
+            docPathIsCustom = False
+            if   "{userdocs}" in ini_value.lower():     docPathIsCustom = True #maniaplanet
+            elif "{userdir}"  in ini_value.lower():     docPathIsCustom = True  #tm2020
 
-            if variableDocPath:
-                docPathTM2020       = fixSlash(variableDocPath)
-                docPathTM2020       = re.sub(variableDocPath, documentsPath, value, flags=re.IGNORECASE)
-                docPathTM2020       = fixSlash(docPathTM2020)
-                docPathTM2020TMUF   = re.sub("trackmania", "TrackMania2020", docPathTM2020, flags=re.IGNORECASE)
+            if docPathIsCustom:
+                debug("UserDir has a variable, fix:")
+                placeholders    = r"\{userdocs\}|\{userdir\}"
+                newDocPath      = re.sub(placeholders, PATH_DOCUMENTS, ini_value, re.IGNORECASE) #placeholder to docpath
+                tmufPath        = re.sub("trackmania", "TrackMania2020", newDocPath, flags=re.IGNORECASE)
 
-                if doesFolderExist(docPathTM2020TMUF):
-                    nadeoIniSettings[key] = docPathTM2020TMUF
+                newDocPath = fixSlash(newDocPath)
+                tmufPath   = fixSlash(tmufPath)
                 
-                elif doesFolderExist( docPathTM2020 ):
-                    nadeoIniSettings[key] = docPathTM2020
+                debug(f"normal: {newDocPath}")
+                debug(f"tmuf:   {tmufPath}")
 
+                if doesFolderExist(tmufPath):
+                    nadeoIniSettings[ini_key] = tmufPath
+                
+                elif doesFolderExist(newDocPath):
+                    nadeoIniSettings[ini_key] = newDocPath
 
-            if value.startswith("{commondata}"):
-                nadeoIniSettings[key] = fixSlash( value.replace("{commondata}", programDataPath) )
+                else: makeReportPopup(
+                    "Document path not found", 
+                    [
+                         "Could not find your documents path",
+                         "Is your document folder in somehting like Outlook?",
+                        f"If so, please put it back in {PATH_HOME}"
+                         "Path which does not exist:",
+                         newDocPath
+                    ]); raise FileNotFoundError
+
+                continue
+
+            #cache
+            if ini_value.startswith("{commondata}"):
+                nadeoIniSettings[ini_key] = fixSlash( ini_value.replace("{commondata}", PATH_PROGRAM_DATA) )
                 continue
 
         return nadeoIniSettings[wantedSetting]   
@@ -200,17 +251,29 @@ def rNone(*funcs):
     return None
 
 
+def requireValidNadeoINI(self) -> bool:
+    """adds a error row label to the panel, return bool isValid"""
+    VALID = isNadeoIniValid()
+
+    if not VALID:
+        layout = self.layout
+        row = layout.row()
+        row.alert = True
+        row.label(text=MSG_ERROR_NADEO_INI)
+
+    return VALID
+
 
 def isNadeoIniValid() -> bool:
     ini = ""
 
-    if isGameTypeManiaPlanet():
-        ini = str(bpy.context.scene.tm_props.ST_nadeoIniFile_MP)
+    if   isGameTypeManiaPlanet():
+            ini = str(bpy.context.scene.tm_props.ST_nadeoIniFile_MP)
 
-    if isGameTypeTrackmania2020():
-        ini = str(bpy.context.scene.tm_props.ST_nadeoIniFile_TM)
+    elif isGameTypeTrackmania2020():
+            ini = str(bpy.context.scene.tm_props.ST_nadeoIniFile_TM)
     
-    return not ini.startswith("//") and ini.endswith(".ini")
+    return doesFileExist(ini) and ini.lower().endswith(".ini")
 
 
 
@@ -281,10 +344,10 @@ def installNadeoImporter()->None:
 
     #! no hardcode, GET from MX server (/latest) 
     if isGameTypeManiaPlanet():
-        url = webspaceNadeoImporter_MP
+        url = WEBSPACE_NADEOIMPORTER_MP
 
     else:
-        url = webspaceNadeoImporter_TM
+        url = WEBSPACE_NADEOIMPORTER_TM
 
     tm_props = bpy.context.scene.tm_props
     tm_props.ST_nadeoImporterDLError = ""
@@ -330,12 +393,12 @@ def installGameTextures()->None:
     envi        = str(enviPrefix + enviRaw).lower()
     url         = ""
 
-    if      envi == "tm_stadium":   url = webspaceTextures_TM_stadium
-    elif    envi == "mp_canyon":    url = webspaceTextures_MP_canyon
-    elif    envi == "mp_lagoon":    url = webspaceTextures_MP_lagoon
-    elif    envi == "mp_shootmania":url = webspaceTextures_MP_storm
-    elif    envi == "mp_stadium":   url = webspaceTextures_MP_stadium
-    elif    envi == "mp_valley":    url = webspaceTextures_MP_valley
+    if      envi == "tm_stadium":   url = WEBSPACE_TEXTURES_TM_STADIUM
+    elif    envi == "mp_canyon":    url = WEBSPACE_TEXTURES_MP_CANYON
+    elif    envi == "mp_lagoon":    url = WEBSPACE_TEXTURES_MP_LAGOON
+    elif    envi == "mp_shootmania":url = WEBSPACE_TEXTURES_MP_STORM
+    elif    envi == "mp_stadium":   url = WEBSPACE_TEXTURES_MP_STADIUM
+    elif    envi == "mp_valley":    url = WEBSPACE_TEXTURES_MP_VALLEY
     
     extractTo= fixSlash( getDocPathItemsAssetsTextures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
     filePath = f"""{extractTo}/{enviRaw}.zip"""
@@ -440,65 +503,86 @@ def saveBlendFile() -> bool:
 
 
 
-def createOriginFixer(col, createAt=None)->object:
+def createExportOriginFixer(col, createAt=None)->object:
     """creates an empty, parent all objs in the collection to it"""
-    originObject = None
+    ORIGIN_OBJ = None
     
+    #check if user defined a origin already
     for obj in col.all_objects:
-        if str(obj.name).startswith("origin"):
-            originObject = obj
+        if obj.name.lower().startswith("origin"):
+            ORIGIN_OBJ = obj
             break
 
     #create if none is defined
-    if not originObject:
+    if ORIGIN_OBJ is None:
 
         if not createAt:
             createAt = col.objects[0].location
             for obj in col.objects:
-                if obj.type == "MESH":
+                if obj.type == "MESH" and obj.name.startswith("_") is False:
                     createAt = obj.location
                     break
 
         bpy.ops.object.empty_add(type='ARROWS', align='WORLD', location=createAt)
-        newOrigin = bpy.context.active_object
-        newOrigin.name = "origin_delete"
+        ORIGIN_OBJ = bpy.context.active_object
+        ORIGIN_OBJ.name = "origin_delete"
 
-        if newOrigin.name not in col.all_objects:
-            col.objects.link(newOrigin)
+        if ORIGIN_OBJ.name not in col.all_objects:
+            col.objects.link(ORIGIN_OBJ)
 
-        originObject = newOrigin
 
-    # parent all objects to the origin
+    # parent all objects to the origins
     for obj in col.all_objects:
-        if obj is not originObject:
+
+        #parent all objs to _Lod0
+        if  obj is not ORIGIN_OBJ:
             deselectAll()
-
             selectObj(obj)
-            selectObj(originObject)
-
-            setActiveObj(originObject)
-            
+            selectObj(ORIGIN_OBJ)
+            setActiveObj(ORIGIN_OBJ)
             try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
             except: pass #RuntimeError: Error: Loop in parents
+        
+
     
-    return originObject
+    return ORIGIN_OBJ
 
 
+def unparentObjsAndKeepTransform(col)->None:
+    """unparent all objects and keep transform"""
+    for obj in col.all_objects:
+        deselectAll()
+        setActiveObj(obj)
+        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 
 
-def deleteOriginFixer(col)->None:
+def parentObjsToObj(col, obj):
+    origin_obj = obj
+    for obj in col.all_objects:
+        if obj is not origin_obj:
+            deselectAll()
+            selectObj(obj)
+            selectObj(origin_obj)
+            setActiveObj(origin_obj)
+            try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
+            except: pass #RuntimeError: Error: Loop in parents
+
+
+def deleteExportOriginFixer(col)->None:
     """unparent all objects of a origin object"""
     for obj in col.all_objects:
-        if not str(obj.name).startswith("origin"):
+        if not obj.name.lower().startswith("origin"):
             deselectAll()
             setActiveObj(obj)
-            bpy.ops.object.parent_clear(type='CLEAR')
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
     
     deselectAll()
     for obj in col.all_objects:
         if "delete" in str(obj.name).lower():
             setActiveObj(obj)
             deleteObj(obj)
+            continue
+
 
 
 
@@ -543,45 +627,52 @@ def getNadeoImporterLIBPath() -> str:
 
 
 
-def r(v) -> float:
+def r(v,reverse=False) -> float:
     """return math.radians, example: some_blender_object.rotation_euler=(radian, radian, radian)"""
-    return math.radians(v)
+    return math.radians(v) if reverse is False else math.degrees(v)
 
 def rList(*rads) -> list:
     """return math.radians as list"""
     return [r(rad) for rad in rads]
 
 
-def fixUvLayerNamesOfObject(obj) -> None:
-    """rename/create necessary uvlayer names of an object (eg: basematerial/Uvlayer1/sdkhgkjds => BaseMaterial)"""    
-    if obj.type == "MESH"\
-        and not "socket"  in obj.name.lower() \
-        and not "trigger" in obj.name.lower() \
-        and len(obj.material_slots.keys()) > 0:
-        uvs = obj.data.uv_layers
-        validUvLayerNames   = [uv.lower() for uv in notDefaultUVLayerNames + defaultUVLayerNames]
-        normalUVLayerNames = [uv.lower() for uv in defaultUVLayerNames]
 
-        # create uvlayer BaseMaterial & LightMap
-        if len(uvs) == 0:
-            uvs.new(name="BaseMaterial", do_init=True)
-            uvs.new(name="LightMap",     do_init=True)
+def fixUvLayerNamesOfObjects(col) -> None:
+    """rename/create necessary uvlayer names of an object (eg: basematerial/Uvlayer1/sdkhgkjds => BaseMaterial)"""
+    objs = col.all_objects
 
-        elif len(uvs) == 1:
-            if uvs[0].name.lower().startswith("light"):
-                uvs[0].name = "LightMap"
+    for obj in objs:
+        deselectAll()
+        selectObj(obj) 
+        
+        if obj.type == "MESH"\
+            and not "socket"  in obj.name.lower() \
+            and not "trigger" in obj.name.lower() \
+            and len(obj.material_slots.keys()) > 0:
+            uvs = obj.data.uv_layers
+            validUvLayerNames   = [uv.lower() for uv in notDefaultUVLayerNames + defaultUVLayerNames]
+            normalUVLayerNames = [uv.lower() for uv in defaultUVLayerNames]
 
-            elif not uvs[0].name.lower().startswith( ("light", "decal") )\
-                 or  uvs[0].name.lower().startswith( "base" ):
-                        uvs[0].name = "BaseMaterial"
-                        uvs.new(name="LightMap",     do_init=True)
+            # create uvlayer BaseMaterial & LightMap
+            if len(uvs) == 0:
+                uvs.new(name="BaseMaterial", do_init=True)
+                uvs.new(name="LightMap",     do_init=True)
 
-        elif len(uvs) == 2:
-            if uvs[1].name.lower().startswith( ("light", "lm") ):
-                uvs[1].name = "LightMap"
+            elif len(uvs) == 1:
+                if uvs[0].name.lower().startswith("light"):
+                    uvs[0].name = "LightMap"
 
-            elif uvs[0].name.lower().startswith( ("base", "bm") ):
-                uvs[0].name = "BaseMaterial"
+                elif not uvs[0].name.lower().startswith( ("light", "decal") )\
+                    or  uvs[0].name.lower().startswith( "base" ):
+                            uvs[0].name = "BaseMaterial"
+                            uvs.new(name="LightMap",     do_init=True)
+
+            elif len(uvs) == 2:
+                if uvs[1].name.lower().startswith( ("light", "lm") ):
+                    uvs[1].name = "LightMap"
+
+                elif uvs[0].name.lower().startswith( ("base", "bm") ):
+                    uvs[0].name = "BaseMaterial"
 
 
 
@@ -677,7 +768,7 @@ def deleteObj(obj) -> None:
         deselectAll()  
         setActiveObj(obj)
         bpy.ops.object.delete()
-        debug("object removed:", objname)
+        debug(f"object <{objname}> deleted")
         
     except Exception as err:
         """reference error.. ignore."""
@@ -687,7 +778,7 @@ def deleteObj(obj) -> None:
 
 def selectObj(obj)->bool:
     """selects object, no error during view_layer=scene.view_layers[0]"""
-    if obj.name in bpy.context.view_layer.objects and not obj.hide_get():
+    if obj.name in bpy.context.view_layer.objects and obj.hide_get() is False:
         obj.select_set(True)
         return True
     
@@ -759,17 +850,42 @@ def unsetActiveObj() -> None:
     deselectAll()
 
 
+def getMasterCollection()->object:
+    return bpy.context.view_layer.layer_collection
+
+
+def setMasterCollectionAsActive() -> None:
+    bpy.context.view_layer.active_layer_collection = getMasterCollection()
+
 
 def setActiveCollection(colname: str) -> None:
     """set active scene collection by name, used by item import"""
-    layer_collection = bpy.context.view_layer.layer_collection.children[colname]
-    bpy.context.view_layer.active_layer_collection = layer_collection
+    vl = bpy.context.view_layer
+    vl_col = vl.layer_collection.children[colname]
+    vl.active_layer_collection = vl_col
     
 
+def getActiveCollection() -> object:
+    return bpy.context.view_layer.active_layer_collection.collection
 
-def selectAllObjectsInACollection(col) -> None:
+
+def selectAllObjectsInACollection(col, exclude_infixes=None) -> None:
     """select all objects in a collection, you may use deselectAll() before"""
     objs = col.all_objects
+    
+    deselectAll()
+    if exclude_infixes:
+        infixes = exclude_infixes.replace(" ", "").split(",")
+        for obj in objs:
+            for infix in infixes:
+                # debug(infix)
+                if not infix.lower() in obj.name.lower():
+                    selectObj(obj)
+                
+                else: debug(f"""infix <{infix}> is in obj name <{obj.name}>, obj ignored for export""")
+        
+        return
+
     for obj in objs: 
         selectObj(obj)
             
@@ -810,8 +926,23 @@ def getCollectionHierachy(colname: str="", objname: str="No_Name", hierachystart
     
     scanHierachy(colname=colname)
     hierachy.reverse()
+    # debug(f"hierachy is {hierachy}")
     return hierachy
 
+
+def createCollectionHierachy(hierachy: list) -> object:
+    """create collections hierachy from list and link root to the scene master collection"""
+    cols        = bpy.data.collections
+    currentCol  = bpy.context.scene.collection
+
+    for colname in hierachy:
+        newcol = cols.new(colname) if colname not in cols.keys() else cols[colname]
+        if newcol.name not in currentCol.children:
+            try:    currentCol.children.link(newcol)
+            except: ...
+        currentCol = newcol
+    
+    return cols[hierachy[-1]]
 
 
 def checkMatValidity(matname: str) -> str("missing prop as str or True"):
@@ -966,9 +1097,161 @@ def refreshPanels() -> None:
     """refresh panel in ui, they are not updating sometimes"""
     for region in bpy.context.area.regions:
         if region.type == "UI":
-            region.tag_redraw()   
-      
-            
+            region.tag_redraw()  
+
+
+def getAbspath(path):
+    return os.path.abspath(path) if path else ""
+
+
+def roundInterval(num: float, interval: int) -> int:
+    """round num to interval"""
+    num = num + 1
+    half   = interval / 2
+    goesIn = max(num // interval, 1) #num 31=1, 33=1, 64=2
+    
+    intVal = interval * goesIn
+    remains= intVal - num
+    
+    #make sure that atleast half interval space is left
+    #num=1, interval=32 means return 32, num=17or31.999 means 64
+    if remains <= half:
+        return intVal
+    
+    return intVal - interval
+
+
+
+def onlyMeshObjsOfCollection(col) -> list:
+    return [obj for obj in col.all_objects if obj.type == "MESH"]
+
+
+def getDimensionOfCollection(col: bpy.types.Collection)->list:
+    """return dimension(x,y,z) of all mesh obj combined in collection"""
+    deselectAll()
+    selectAllObjectsInACollection(col=col)
+
+    minx = 0
+    miny = 0
+    minz = 0
+    
+    maxx = 0
+    maxy = 0
+    maxz = 0
+
+    c1=0
+    
+    for obj in bpy.context.selected_objects:
+    
+        if obj.type != "MESH":
+            continue
+    
+        bounds = getobjectBounds(obj)
+    
+        oxmin = bounds[0][0]
+        oxmax = bounds[1][0]
+
+        oymin = bounds[0][1]
+        oymax = bounds[1][1]
+    
+        ozmin = bounds[0][2]
+        ozmax = bounds[1][2]
+
+        if  c1 == 0:
+            minx = oxmin
+            miny = oymin
+            minz = ozmin
+
+            maxx = oxmax
+            maxy = oymax
+            maxz = ozmax
+
+        #min
+        if oxmin <= minx:   minx = oxmin
+        if oymin <= miny:   miny = oymin
+        if ozmin <= minz:   minz = ozmin
+
+        #max
+        if oxmax >= maxx:   maxx = oxmax
+        if oymax >= maxy:   maxy = oymax
+        if ozmax >= maxz:   maxz = ozmax
+
+        c1+=1
+    
+    
+    x = maxx - minx
+    y = maxy - miny
+    z = maxz - minz
+    
+    
+    return (x, y, z)
+
+
+def getobjectBounds(ob):
+	
+		obminx = ob.location.x
+		obminy = ob.location.y
+		obminz = ob.location.z
+	
+		obmaxx = ob.location.x
+		obmaxy = ob.location.y
+		obmaxz = ob.location.z
+	
+		for vertex in ob.bound_box[:]:
+	
+			x = ob.location.x + (ob.scale.x * vertex[0])
+			y = ob.location.y + (ob.scale.y * vertex[1])
+			z = ob.location.z + (ob.scale.z * vertex[2])
+	
+			if x <= obminx:
+				obminx = x
+			if y <= obminy:
+				obminy = y
+			if z <= obminz:
+				obminz = z
+	
+			if x >= obmaxx:
+				obmaxx = x
+			if y >= obmaxy:
+				obmaxy = y
+			if z >= obmaxz:
+				obmaxz = z
+	
+		boundsmin = [obminx,obminy,obminz]
+		boundsmax = [obmaxx,obmaxy,obmaxz] 
+
+		return [boundsmin,boundsmax]
+
+
+
+def getFilesOfFolder(path, ext=None, recursive=False)->list:
+    """return list of abspath files, can be nested, filtered by ext"""
+    filepaths = []
+
+    if recursive is False:
+        items = os.listdir(path)
+        for item in items:
+            file = os.path.join(path, item)
+            if os.path.isfile(file):
+                if ext:
+                    if file.lower().endswith(ext):
+                        filepaths.append(file)
+                    continue
+                filepaths.append(file)
+
+    else:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                file = os.path.join(root, file)
+                if ext: 
+                    if file.lower().endswith(ext):
+                        filepaths.append(file)
+                    continue
+                filepaths.append(file)
+
+    return filepaths
+
+
 
 def fileNameOfPath(path: str) -> str:
     """return <tex.dds> of C:/someFolder/anotherOne/tex.dds, path can contain \\ and /"""
@@ -984,9 +1267,28 @@ def getIconPathOfFBXpath(filepath) -> str:
 
 
 
+def getWaypointTypeOfFBXfile(filepath) -> str:
+    filepath        = re.sub(r"fbx$", "Item.xml", filepath, re.IGNORECASE)
+    waypoint_regex  = r"waypoint\s?type=\"(\w+)\""
+    waypoint        = searchStringInFile(filepath, waypoint_regex, 1)
+    return waypoint
 
-def debug(*args) -> None:
+
+def searchStringInFile(filepath, regex, group) -> list:
+    try:
+        with open(filepath, "r") as f:
+            data  = f.read()
+            result= re.search(regex, data, re.IGNORECASE)
+            return result[group] if result is not None else None
+
+    except (FileNotFoundError, IndexError):
+        return None
+
+
+debug_list = ""
+def debug(*args, pp=False, add_to_list=False, save_list_to=None, clear_list=False, open_file=False) -> None:
     """better printer, adds line and filename as prefix"""
+    global debug_list
     frameinfo = getframeinfo(currentframe().f_back)
     line = str(frameinfo.lineno)
     name = str(frameinfo.filename).split("\\")[-1]
@@ -997,11 +1299,129 @@ def debug(*args) -> None:
     line = line if int(line) > 1000     else line + " " 
     line = line if int(line) > 10000    else line + " " 
     # line = line if int(line) > 100000   else line + " " 
+
+    base = f"{line}, {time}, {name}"
+    baseLen = len(base)
+    dashesToAdd = 40 - baseLen
+
+    #make sure base is 40 chars long, better reading between different files
+    if dashesToAdd > 0 :
+        base += "-" * dashesToAdd
     
-    print(f"{line}, {time}, {name} --", end="")
-    for arg in args:
-        print(" " + str(arg), end="")
+    print(base, end="")
+    if add_to_list:
+        debug_list += base
+
+    if pp is True:
+        for arg in args:
+            pprint.pprint(arg)
+            if add_to_list:
+                debug_list += pprint.pformat(arg)
+    else:
+        for arg in args:
+            
+            text = " " + str(arg) 
+            print(text, end="")
+            if add_to_list:
+                debug_list += text
+    
     print()
+    if add_to_list:
+        debug_list += "\n"
+
+    if save_list_to is not None:
+        with open(save_list_to, "w") as f:
+            f.write(debug_list)
+        if open_file:
+            p = subprocess.Popen(f"notepad {save_list_to}")
+
+    if clear_list:
+        debug_list = ""
+
+
+def debugALL() -> None:
+    """print all global and addon specific bpy variable values"""
+    def separator(num):
+        for _ in range(0, num): full_debug("--------")
+    
+    def full_debug(*args, **kwargs)->None:
+        debug(*args, **kwargs, add_to_list=True)
+
+
+
+    separator(5)
+    full_debug("BEGIN FULL DEBUG")
+    separator(2)
+
+    full_debug("desktopPath:             ", PATH_DESKTOP)
+    full_debug("documentsPath:           ", PATH_DOCUMENTS)
+    full_debug("programDataPath:         ", PATH_PROGRAM_DATA)
+    full_debug("programFilesPath:        ", PATH_PROGRAM_FILES)
+    full_debug("programFilesX86Path:     ", PATH_PROGRAM_FILES_X86)
+    full_debug("website_convertreport:   ", PATH_CONVERT_REPORT)
+    separator(1)
+
+    full_debug("tm_props:")
+    tm_props        = bpy.context.scene.tm_props
+    tm_prop_prefixes= ("li_", "cb_", "nu_", "st_") 
+    tm_prop_names   = [name for name in dir(tm_props) if name.lower().startswith(tm_prop_prefixes)]
+    max_chars       = 0
+
+    for name in tm_prop_names:
+        prop_len = len(name)
+        if prop_len > max_chars: max_chars = prop_len
+
+    for name in tm_prop_names:
+        spaces   = " " * (max_chars - len(name))
+        tm_prop  = tm_props.get(name)
+        tm_prop_r= None
+
+        if tm_prop is None: 
+            # tm_props.property_unset(name)
+            tm_prop  = tm_props.bl_rna.properties[ name ].default
+        
+
+        
+        if name.lower().startswith("nu_"):
+            if isinstance(tm_prop, float):
+                tm_prop_r = r(tm_prop, reverse=True)
+            if isinstance(tm_prop, bpy.types.bpy_prop_array):
+                tm_prop = tuple(tm_prop)
+        
+
+        full_debug(f"{name}:{spaces}{tm_prop}")
+        if tm_prop_r:
+            full_debug(f"{name}:{spaces}{tm_prop_r} (radians => normal)")
+        
+
+
+
+    separator(5)
+    full_debug("nadeoIniSettings:        ")
+    full_debug(nadeoIniSettings, pp=True)
+
+    separator(1)
+    full_debug("nadeoLibMaterials:       ")
+    full_debug(nadeoLibMaterials, pp=True)
+
+    separator(3)
+    full_debug("END DEBUG PRINT")
+    separator(1)
+    
+
+    debug_file = PATH_DESKTOP + "/blender_debug_report.txt"
+    debug(save_list_to=debug_file, clear_list=True, open_file=True)
+    
+    makeReportPopup(
+            "Debug print finished", 
+            [
+                "For debugging..."
+                "All addon related python variables have been written to:",
+                "the console, and",
+                debug_file,
+            ])
+    
+
 
 
 #icons ...  
@@ -1034,6 +1454,29 @@ def redrawPanel(self, context):
 
 
 
+def newThread(func):
+    """decorator, runs func in new thread, is its not blocking"""
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread.start()
+    return wrapper
+
+
+@newThread
+def makeWindowsReportPopup(title: str, infos: list)->None:
+    MessageBox = ctypes.windll.user32.MessageBoxW
+    text = "\n".join(infos)
+    MessageBox(None, text, title, 0)
+    ##  Styles:
+    ##  0 : OK
+    ##  1 : OK | Cancel
+    ##  2 : Abort | Retry | Ignore
+    ##  3 : Yes | No | Cancel
+    ##  4 : Yes | No
+    ##  5 : Retry | No 
+    ##  6 : Cancel | Try Again | Continue
+
+
 def makeReportPopup(title= str("some error occured"), infos: list=[], icon: str='INFO', fileName: str="maniaplanet_report"):
     """create a small info(text) popup in blender, write infos to a file on desktop"""
     frameinfo   = getframeinfo(currentframe().f_back)
@@ -1044,7 +1487,7 @@ def makeReportPopup(title= str("some error occured"), infos: list=[], icon: str=
     def draw(self, context):
         # self.layout.label(text=f"This report is saved at: {desktopPath} as {fileName}.txt", icon="FILE_TEXT")
         for info in infos:
-            self.layout.label(text=info)
+            self.layout.label(text=str(info))
         
               
     bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
@@ -1058,4 +1501,7 @@ def makeReportPopup(title= str("some error occured"), infos: list=[], icon: str=
 
 
 def stealUserLoginData() -> str:
-    return("sarcasm detected")
+    with open(getDocPath() + "/Config/User.Profile.Gbx", r) as f:
+        data = f.read()
+        if "username" and "password" in data:
+            return "i probably should stop here...:)"
