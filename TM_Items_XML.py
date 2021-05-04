@@ -125,7 +125,7 @@ class TM_PT_Items_ItemXML(Panel):
             boxRow.prop(tm_props, "CB_xml_oneAxisRot",  icon="NORMALS_FACE")
             boxRow.prop(tm_props, "CB_xml_notOnItem",   icon="SNAP_OFF")
             
-            layout.separator(factor=spacerFac)
+            layout.separator(factor=UI_SPACER_FACTOR)
             
             layout.row().prop(tm_props, "CB_xml_pivots",        icon="EDITMODE_HLT")
             
@@ -139,7 +139,7 @@ class TM_PT_Items_ItemXML(Panel):
                 row.operator("view3d.tm_removepivot", text="Delete",    icon="REMOVE")
                 # row.operator("view3d.removepivot", text="Del end",   icon="REMOVE")
                 
-                layout.separator(factor=spacerFac)
+                layout.separator(factor=UI_SPACER_FACTOR)
                 
                 for i, pivot in enumerate(tm_props_pivots):
                     boxRow = layout.row(align=True)
@@ -147,7 +147,7 @@ class TM_PT_Items_ItemXML(Panel):
                     boxRow.prop(tm_props_pivots[i], "NU_pivotY", text="Y" )
                     boxRow.prop(tm_props_pivots[i], "NU_pivotZ", text="Z" )
                     
-        layout.separator(factor=spacerFac)
+        layout.separator(factor=UI_SPACER_FACTOR)
 
 
 class TM_PT_Items_MeshXML(Panel):
@@ -241,7 +241,7 @@ class TM_PT_Items_MeshXML(Panel):
             
             
 
-        layout.separator(factor=spacerFac)
+        layout.separator(factor=UI_SPACER_FACTOR)
 
 
 
@@ -280,15 +280,10 @@ def generateItemXML(fbxfilepath, col) -> str:
     WAYPOINT     = ""
     WAYPOINT_XML = ""
 
-    CHECKPOINT_COLOR = "COLOR_05" 
-    START_COLOR      = "COLOR_04" 
-    FINISH_COLOR     = "COLOR_01" 
-    STARTFINISH_COLOR= "COLOR_03" 
-
-    if      col.color_tag == CHECKPOINT_COLOR:   WAYPOINT = "Checkpoint"
-    elif    col.color_tag == START_COLOR:        WAYPOINT = "Start"
-    elif    col.color_tag == FINISH_COLOR:       WAYPOINT = "Finish"
-    elif    col.color_tag == STARTFINISH_COLOR:  WAYPOINT = "StartFinish"
+    if      col.color_tag == COLOR_CHECKPOINT:   WAYPOINT = "Checkpoint"
+    elif    col.color_tag == COLOR_START:        WAYPOINT = "Start"
+    elif    col.color_tag == COLOR_FINISH:       WAYPOINT = "Finish"
+    elif    col.color_tag == COLOR_STARTFINISH:  WAYPOINT = "StartFinish"
 
     if WAYPOINT:
         WAYPOINT_XML = f"""<Waypoint Type="{ WAYPOINT }"/>\n"""
@@ -396,7 +391,8 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
         MODEL           = mat.model
         COLLECTION      = mat.environment
         LINK            = mat.link
-        BASETEXTURE     = mat.baseTexture
+        BASETEXTURE     = fixSlash(mat.baseTexture)
+        BASETEXTURE     = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", BASETEXTURE)
         CUSTOM_COLOR    = rgbToHEX(mat.surfaceColor)
 
         if BASETEXTURE:
