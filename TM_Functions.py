@@ -645,10 +645,10 @@ def fixUvLayerNamesOfObjects(col) -> None:
         deselectAll()
         selectObj(obj) 
         
-        if obj.type == "MESH"\
-            and not "socket"  in obj.name.lower() \
-            and not "trigger" in obj.name.lower() \
-            and len(obj.material_slots.keys()) > 0:
+        if  obj.type == "MESH"\
+        and not "socket"  in obj.name.lower() \
+        and not "trigger" in obj.name.lower() \
+        and len(obj.material_slots.keys()) > 0:
             uvs = obj.data.uv_layers
             validUvLayerNames   = [uv.lower() for uv in notDefaultUVLayerNames + defaultUVLayerNames]
             normalUVLayerNames = [uv.lower() for uv in defaultUVLayerNames]

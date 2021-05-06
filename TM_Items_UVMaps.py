@@ -121,6 +121,8 @@ def generateLightmap(col, fix=False) -> None:
             objectmode()
     
     for obj in objs:
+        if obj.type == "MESH" is False:
+            continue
         obj_uvs = [k.lower() for k in obj.data.uv_layers.keys()]
 
         if "basematerial" in obj_uvs:

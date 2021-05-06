@@ -472,8 +472,8 @@ def saveMatPropsAsJSONinMat(mat) -> None:
 
         DICT[prop_name] = prop
     
-    
-    #mat node texture abspaths
+
+    mat.use_nodes = True
     nodes = mat.node_tree.nodes
     tex_d = nodes["tex_D"].image
     tex_i = nodes["tex_I"].image
