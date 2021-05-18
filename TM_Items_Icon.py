@@ -123,7 +123,7 @@ def generateIcon(col, filepath, save=True) -> None:
     scene           = bpy.context.scene
     col_objs        = [obj for obj in col.all_objects if obj.type == "MESH"]
     tm_props        = scene.tm_props
-    overwrite_icon  = tm_props.CB_icon_overwiteIcons
+    overwrite_icon  = tm_props.CB_icon_overwriteIcons
     icon_path       = getIconPathOfFBXpath(filepath=filepath)
     icon_size       = tm_props.NU_icon_padding / 100
     objs            = bpy.data.objects
