@@ -212,6 +212,7 @@ def exportAndOrConvert()->None:
     exportedFBXs        = []
     invalidCollections  = []
     embeddedMaterials   = []
+    pre_selected_objs   = []
 
     exportFilePathBase  = ""
     exportPathType      = tm_props.LI_exportFolderType
@@ -231,6 +232,9 @@ def exportAndOrConvert()->None:
     if action == "EXPORT" \
     or action == "EXPORT_CONVERT"\
     or action == "ICON":
+
+        if useSelectedOnly:
+            pre_selected_objs = bpy.context.selected_objects.copy()
         
         #generate list of collections to export
         for obj in allObjs:
@@ -341,8 +345,11 @@ def exportAndOrConvert()->None:
         if invalidCollections:
             makeReportPopup("Invalid collections", invalidCollections)
     
-
-
+        deselectAll()
+        if useSelectedOnly:
+            for obj in pre_selected_objs:
+                try:    selectObj(obj)
+                except: pass
 
 
     if action == "EXPORT_CONVERT":
