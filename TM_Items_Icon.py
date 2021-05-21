@@ -64,7 +64,7 @@ class TM_PT_Items_Icon(Panel):
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
         row.prop(tm_props, "CB_icon_genIcons",         text="",    icon_only=True, icon="CHECKMARK",)
-        row.prop(tm_props, "CB_icon_overwiteIcons",    text="",    icon_only=True, icon="FILE_REFRESH")
+        row.prop(tm_props, "CB_icon_overwriteIcons",    text="",    icon_only=True, icon="FILE_REFRESH")
         row=layout.row()
     
     def draw(self, context):
