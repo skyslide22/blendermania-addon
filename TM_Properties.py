@@ -430,7 +430,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
     #icons
     CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redrawPanel)
-    CB_icon_overwriteIcons   : BoolProperty(name="Overwrite Icons",        default=True, update=redrawPanel)
+    CB_icon_overwriteIcons  : BoolProperty(name="Overwrite Icons",        default=True, update=redrawPanel)
     LI_icon_perspective     : EnumProperty(items=getIconPerspectives(),   name="Perspective")
     LI_icon_pxDimension     : EnumProperty(items=getIconPXdimensions(),   name="Size")
     NU_icon_padding         : IntProperty(min=0, max=100,     default=80, subtype="PERCENTAGE", update=redrawPanel) 

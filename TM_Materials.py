@@ -473,17 +473,20 @@ def saveMatPropsAsJSONinMat(mat) -> None:
         DICT[prop_name] = prop
     
 
-    mat.use_nodes = True
-    nodes = mat.node_tree.nodes
-    tex_d = nodes["tex_D"].image
-    tex_i = nodes["tex_I"].image
+    # tm2020 mats like CustomBricks do not need nodes
+    mat_has_nodes = mat.link.lower().startswith("custom") is False
+
+    if mat_has_nodes:
+        mat.use_nodes = True
+        nodes = mat.node_tree.nodes
+        tex_d = nodes["tex_D"].image
+        tex_i = nodes["tex_I"].image
+        
+        tex_d_path = tex_d.filepath if tex_d else ""
+        tex_i_path = tex_i.filepath if tex_i else ""
     
-    tex_d_path = tex_d.filepath if tex_d else ""
-    tex_i_path = tex_i.filepath if tex_i else ""
-
-
-    DICT["tex_d_path"] = getAbspath(tex_d_path)
-    DICT["tex_i_path"] = getAbspath(tex_i_path)
+        DICT["tex_d_path"] = getAbspath(tex_d_path)
+        DICT["tex_i_path"] = getAbspath(tex_i_path)
 
     JSON = json.dumps(DICT)
     mat[ MAT_PROPS_AS_JSON ] = JSON
@@ -510,7 +513,11 @@ def assignMatJSONpropsToMat(mat) -> bool:
     try:    DICT = json.loads(matJSON)
     except: return False
     
-    
+    link          = DICT.get("link", "")
+    mat_has_nodes = False if link.lower().startswith("custom") else True
+
+    mat.use_nodes = True if mat_has_nodes else False
+
     #assign mat tm_props to mat
     for prop in DICT:
         if prop.startswith("tex_"): continue
@@ -519,37 +526,38 @@ def assignMatJSONpropsToMat(mat) -> bool:
     
 
     #assign textures
-    createMaterialNodes(mat)
-    imgs  = bpy.data.images
-    nodes = mat.node_tree.nodes
-    tex_d = nodes["tex_D"]
-    tex_i = nodes["tex_I"]
+    if mat_has_nodes:
+        createMaterialNodes(mat)
+        imgs  = bpy.data.images
+        nodes = mat.node_tree.nodes
+        tex_d = nodes["tex_D"]
+        tex_i = nodes["tex_I"]
 
-    link  = DICT["link"]
-    btex  = DICT["baseTexture"]
-    envi  = DICT["environment"]
-    root  = getDocPathItemsAssetsTextures()
-    root  = root + envi + "/"
+        link  = DICT["link"]
+        btex  = DICT["baseTexture"]
+        envi  = DICT["environment"]
+        root  = getDocPathItemsAssetsTextures()
+        root  = root + envi + "/"
 
-    tex_d_path = DICT["tex_d_path"] or getDocPath() + btex + "_D.dds"
-    tex_i_path = DICT["tex_i_path"] or getDocPath() + btex + "_I.dds"
+        tex_d_path = DICT["tex_d_path"] or getDocPath() + btex + "_D.dds"
+        tex_i_path = DICT["tex_i_path"] or getDocPath() + btex + "_I.dds"
 
-    test_d_path_as_link = root + tex_d_path.split("/")[-1]
-    test_i_path_as_link = root + tex_d_path.split("/")[-1]
+        test_d_path_as_link = root + tex_d_path.split("/")[-1]
+        test_i_path_as_link = root + tex_d_path.split("/")[-1]
 
-    if doesFileExist( test_d_path_as_link ): tex_d_path = test_d_path_as_link
-    if doesFileExist( test_i_path_as_link ): tex_d_path = test_i_path_as_link
+        if doesFileExist( test_d_path_as_link ): tex_d_path = test_d_path_as_link
+        if doesFileExist( test_i_path_as_link ): tex_d_path = test_i_path_as_link
 
-    debug(tex_d_path)
-    debug(test_d_path_as_link)
+        debug(tex_d_path)
+        debug(test_d_path_as_link)
 
-    success, name = loadDDSTextureIntoBlender(tex_d_path)
-    if success and name in imgs:
-        tex_d.image = bpy.data.images[ name ]
+        success, name = loadDDSTextureIntoBlender(tex_d_path)
+        if success and name in imgs:
+            tex_d.image = bpy.data.images[ name ]
 
-    success, name = loadDDSTextureIntoBlender(tex_i_path)
-    if success and name in imgs:
-        tex_i.image = bpy.data.images[ name ]
+        success, name = loadDDSTextureIntoBlender(tex_i_path)
+        if success and name in imgs:
+            tex_i.image = bpy.data.images[ name ]
             
         
     debug(matJSON, pp=True)
