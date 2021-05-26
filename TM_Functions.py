@@ -1049,6 +1049,8 @@ def fixName(name: str) -> str:
             elif  char == "é": fixedChar = "e"
             elif  char == "ß": fixedChar = "ss"
             fixedName = fixedName.replace(charOriginal, fixedChar)
+    
+    fixedName = re.sub(r"_+", "_", fixedName)
             
     return fixedName
 
