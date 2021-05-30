@@ -52,14 +52,25 @@ header {
     flex-wrap: wrap;
     justify-items: stretch;
     > li {
-        padding: 1rem 0;
+        padding: .5rem 0;
     }
+}
+
+hr {
+    width: 100%;
+    border-bottom: 2px solid rgba(gray, .3);
 }
 
 .item,
 .mesh-error,
 .item-error {
-    width: 100%
+    width: 100%;
+    line-height: 1.2em;
+    b {}
+    &.original {
+        font-size: .85rem;
+        opacity: .75;
+    }
 }
 
 .success {

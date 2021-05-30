@@ -57,13 +57,26 @@ header {
 }
 
 .result-object > li {
-  padding: 1rem 0;
+  padding: .5rem 0;
+}
+
+hr {
+  width: 100%;
+  border-bottom: 2px solid rgba(128, 128, 128, 0.3);
 }
 
 .item,
 .mesh-error,
 .item-error {
   width: 100%;
+  line-height: 1.2em;
+}
+
+.item.original,
+.mesh-error.original,
+.item-error.original {
+  font-size: .85rem;
+  opacity: .75;
 }
 
 .success {

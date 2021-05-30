@@ -246,12 +246,23 @@ def writeConvertReport(results: list) -> None:
                 objName = result["path"]
                 objName = objName.replace(result["nameRAW"], f"""<i>{result["nameRAW"]}</i>""")
 
+                error_msg_mesh_pretty, \
+                error_msg_mesh_original = beautifyError(result["meshInfos"]) if result["meshRcode"] > 0 else ("No Error", "No Error")
+                
+                error_msg_item_pretty,\
+                error_msg_item_original = beautifyError(result["itemInfos"]) if result["itemRcode"] > 0 else ("No Error", "No Error")
+
                 resultList += f"""
                     <li class="{"error" if result["meshRcode"] > 0 or result["itemRcode"] > 0 else "success"}">
                         <ul class="result-object">
                             <li class="item"><b>Item:</b> {objName}  </li>
-                            <li class="mesh-error"><b>Mesh Errors:</b> {beautifyError(result["meshInfos"]) if result["meshRcode"] > 0 else ""} </li>
-                            <li class="item-error"><b>Item Errors:</b> {beautifyError(result["itemInfos"]) if result["itemRcode"] > 0 else ""} </li>
+                            <hr>
+                            <li class="mesh-error"><b>Mesh Errors Pretty:</b> <br />{error_msg_mesh_pretty} </li>
+                            <li class="mesh-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_mesh_original} </li>
+                            <hr>
+                            <li class="item-error"><b>Item Errors Pretty:</b> <br />{error_msg_item_pretty} </li>
+                            <li class="item-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_item_original} </li>
+                            <hr>
                             <li class="item-error"><b>Convert steps until convert failed:</b></li>
                             <ul class="progress-steps">
                                 {progressLIs}
@@ -321,7 +332,7 @@ def beautifyError(error: str):
     if itemXMLMissing   in error.lower(): prettymsg="Item.xml not found, does it exists?"
     if prettymsg == "":                   prettymsg=error 
 
-    return prettymsg
+    return prettymsg, error
 
     
     
