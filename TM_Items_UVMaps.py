@@ -69,7 +69,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
 def generateLightmap(col, fix=False) -> None:
     """generate lightmap of all mesh objects from given collection"""
     tm_props    = bpy.context.scene.tm_props
-    objs        = col.all_objects
+    objs        = [obj for obj in col.all_objects if selectObj(obj)]
     lm_objs     = []
 
     ANGLE = tm_props.NU_uv_angleLimitLM

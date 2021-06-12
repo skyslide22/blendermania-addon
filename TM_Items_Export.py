@@ -242,7 +242,7 @@ def exportAndOrConvert()->None:
             if useSelectedOnly:
                 if not obj.select_get(): continue
 
-            debug(f"try action <{action}> for <{obj.name}>")
+            # debug(f"try action <{action}> for <{obj.name}>")
 
             selectObj(obj)
             objnameLower = obj.name.lower()

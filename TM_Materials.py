@@ -490,7 +490,7 @@ def saveMatPropsAsJSONinMat(mat) -> None:
 
     JSON = json.dumps(DICT)
     mat[ MAT_PROPS_AS_JSON ] = JSON
-
+    debug(f"saved json in material <{mat.name}>:")
     debug(DICT, pp=True)
 
 

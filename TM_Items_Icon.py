@@ -126,6 +126,7 @@ def generateIcon(col, filepath, save=True) -> None:
     overwrite_icon  = tm_props.CB_icon_overwriteIcons
     icon_path       = getIconPathOfFBXpath(filepath=filepath)
     icon_size       = tm_props.NU_icon_padding / 100
+    icon_name       = getFilenameOfPath(icon_path)
     objs            = bpy.data.objects
     scene_objs      = scene.collection.objects
     scene_col       = scene.collection
@@ -133,11 +134,12 @@ def generateIcon(col, filepath, save=True) -> None:
     window          = bpy.context.window
     objs_to_delete  = []
     
-    if not overwrite_icon and save is True:
+    if overwrite_icon is False and save is True:
         if doesFileExist(filepath=icon_path):
+            debug(f"icon creation cancelled, <{ icon_name }> already exists")
             return
 
-
+    debug(f"create icon <icon_name>")
 
 
     # MAKE ICON OBJ----------
