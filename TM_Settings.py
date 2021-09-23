@@ -117,25 +117,31 @@ class TM_PT_Settings(Panel):
             row.label(text=MSG_ERROR_NADEO_INI)
             return
 
+
         if isNadeoIniValid():
+
+            op_row = layout.row()
+            op_row.enabled = tm_props.CB_nadeoImporterDLRunning is False
+
             if not tm_props.CB_nadeoImporter:
                 row = layout.row()
                 row.alert = True
                 row.label(text="NadeoImporter.exe not installed!")
                 
-                row = layout.row()
-                row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter.exe", icon="IMPORT")
+                op_row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter.exe", icon="IMPORT")
 
             else:
-                row = layout.row()
-                row.operator("view3d.tm_installnadeoimporter", text="Update NadeoImporter.exe", icon="FILE_REFRESH")
+                op_row.operator("view3d.tm_installnadeoimporter", text="Update NadeoImporter.exe", icon="FILE_REFRESH")
                 
-            error = tm_props.ST_nadeoImporterDLError
             
-            row = layout.row()
-            row.enabled = False
-            row.alert = error != ""
-            row.prop(tm_props, "NU_nadeoImporterDL", text="ERROR: " + error if error != "" else "Download progress")
+            error     = tm_props.ST_nadeoImporterDLError
+            showPanel = tm_props.CB_nadeoImporterDLshow
+
+            if showPanel:
+                row = layout.row()
+                row.enabled = False
+                row.alert = error != ""
+                row.prop(tm_props, "NU_nadeoImporterDL", text="ERROR: " + error if error != "" else "Download progress")
             
 
             
@@ -147,7 +153,7 @@ class TM_PT_Settings(Panel):
 
 
 
-        dlTexRunning = tm_props.CB_DL_TexturesRunning == False
+        dlTexRunning = tm_props.CB_DL_TexturesRunning is False
 
         row=layout.row()
         row.label(text="Download textures for uvmapping", icon="TEXTURE")
@@ -166,11 +172,14 @@ class TM_PT_Settings(Panel):
         row.operator("view3d.tm_installgametextures", text=f"Install {envi}Textures.zip")
 
 
-        dlTexError = tm_props.ST_DL_TexturesErrors
-        statusText = "Downloading..." if not dlTexRunning else "Done" if not dlTexError else dlTexError
-        row=layout.row()
-        row.enabled = False
-        row.prop(tm_props, "NU_DL_Textures", text=statusText)
+        dlTexError          = tm_props.ST_DL_TexturesErrors
+        statusText          = "Downloading..." if not dlTexRunning else "Done" if not dlTexError else dlTexError
+        showDLProgressbar   = tm_props.CB_DL_TexturesShow
+
+        if showDLProgressbar:
+            row=layout.row()
+            row.enabled = False
+            row.prop(tm_props, "NU_DL_Textures", text=statusText)
 
 
 
