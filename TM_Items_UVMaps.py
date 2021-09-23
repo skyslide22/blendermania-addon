@@ -72,20 +72,22 @@ def generateLightmap(col, fix=False) -> None:
     objs        = [obj for obj in col.all_objects if selectObj(obj)]
     lm_objs     = []
 
+    debug(f"create lightmap for <{col.name}>")
+
     ANGLE = tm_props.NU_uv_angleLimitLM
     MARGIN= tm_props.NU_uv_islandMarginLM
     AREA  = tm_props.NU_uv_areaWeightLM
     ASPECT= tm_props.CB_uv_correctAspectLM
     BOUNDS= tm_props.CB_uv_scaleToBoundsLM
 
-    has_overlaps = False
+    has_overlaps = checkUVLayerOverlapsOfCol(col=col, uv_name="LightMap")
     only_if_olaps= tm_props.CB_uv_fixLightMap
 
     deselectAll()
 
     #select only objs which need a lightmap
     for obj in objs:
-        if obj.type == "MESH" is False:
+        if obj.type != "MESH":
             continue
 
         obj_uvs = [k.lower() for k in obj.data.uv_layers.keys()]
@@ -99,9 +101,6 @@ def generateLightmap(col, fix=False) -> None:
             lm_objs.append(obj)
 
             obj.data.uv_layers.active_index = 1 # 0=BaseMaterial; 1=LightMap
-            
-            if hasUVLayerOverlaps(obj, "LightMap"): 
-                has_overlaps: True
             
 
     if lm_objs:
@@ -121,8 +120,9 @@ def generateLightmap(col, fix=False) -> None:
             objectmode()
     
     for obj in objs:
-        if obj.type == "MESH" is False:
+        if obj.type != "MESH":
             continue
+        
         obj_uvs = [k.lower() for k in obj.data.uv_layers.keys()]
 
         if "basematerial" in obj_uvs:
@@ -132,20 +132,51 @@ def generateLightmap(col, fix=False) -> None:
                         
 
 
-def hasUVLayerOverlaps(obj, uvName)-> bool:
+def checkUVLayerOverlapsOfCol(uv_name: str, col: bpy.types.Collection)-> bool:
     """checks if uvlayer has overlapping islands, return bool"""
-    loops = obj.data.loops
-    
-    bpy.ops.object.mode_set(mode="EDIT")
-    bpy.ops.uv.select_all(action='DESELECT')
-    bpy.ops.uv.select_overlap()
-    
-    bpy.ops.object.mode_set(mode="OBJECT")
 
-    for loop in loops:
-        uvs = obj.data.uv_layers[ uvName ].data[loop.index]
-        pos = uvs.uv #<vector>
-        if uvs.select: return True
+    deselectAll()
     
+    objs = [obj for obj in col.all_objects  if  obj.type == "MESH" \
+                                            and obj.name.startswith("_") is False \
+                                            and selectObj(obj) ]
+
+    objs_active_layernames = {} # { "myobj123": "BaseMaterial" }
+
+    for obj in objs:
+        if len(obj.data.uv_layers) != 0:
+            objs_active_layernames[ obj.name ] = obj.data.uv_layers.active.name
+
+    def reset_objs_active_uvlayer():
+        for obj_name, uv_name in objs_active_layernames.items():
+            bpy.data.objects[ obj_name ].data.uv_layers[ uv_name ].active = True
+
+    debug(f"check overlapping of uvlayer <{uv_name}> for {[obj.name for obj in objs]}")
+
+    try:
+        bpy.ops.object. mode_set(mode="EDIT")
+        bpy.ops.uv.     select_all(action='DESELECT')
+        bpy.ops.uv.     select_overlap() 
+        bpy.ops.object. mode_set(mode="OBJECT")
+
+        for obj in objs:
+            for loop in obj.data.loops:
+                
+
+                try:    uvs = obj.data.uv_layers[ uv_name ].data[ loop.index ]
+                except: continue #uvlayer name does not exist
+
+                if uvs.select: 
+                    debug("overlapping: True")
+                    reset_objs_active_uvlayer()
+                    return True
+
+    
+    except RuntimeError as err:
+        debug(f"lightmap overlap check error: {err}")
+
+
+    debug("overlapping: False")
+    reset_objs_active_uvlayer()
     return False
 
