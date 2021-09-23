@@ -100,8 +100,8 @@ def getExportTypes()->list:
 
 def getExportFolderTypes(self,context)->list:
     base = [
-        ("Base",       "/",             "Base folder(/Items",           "HOME",                  0),
-        ("Custom",     "???/",          "Custom folder",                "HELP",                  6),
+        ("Base",       "/",                 "Base folder(/Items",         "HOME",                  0),
+        ("Custom",     "Custom Folder/",    "Custom folder",              "HELP",                  1),
     ]
     if isGameTypeManiaPlanet():
         return base + [
