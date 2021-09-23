@@ -42,16 +42,24 @@ class CONVERT_ITEM(Thread):
 
         self.progress.append(f"""Start convert of <{self.fbxfilepath}> for {self.game}""")
 
+        self.convertMeshAndShapeGBX() # optional for tm2020 (needed for meshmodeler import), mandatory for maniaplanet
+
         if isGameTypeManiaPlanet():
-            self.convertMeshAndShapeGBX()
             if not self.convertFailed:    self.hackShapeGBX(action="MAKE_OLD") #rename shape.gbx += .old
             #convert again but replace "BaseMaterial" with "Link" in meshparams.xml of each item
             if not self.convertFailed:    self.convertMeshAndShapeGBX()
             if not self.convertFailed:    self.hackShapeGBX(action="USE_OLD") #delte current shape.gbx, rename shape.gbx.old (-old)
             
-        if not self.convertFailed:    self.convertItemGBX() #tm2020 only needs one convert
-        if not self.convertFailed:    self.progress.append(f"Convert of <{self.nameRAW}> successfully")
-        if     self.convertFailed:    self.progress.append(f"Convert of <{self.nameRAW}> failed")
+        #fix for 2021_07_07 importer (always returns false even if convert works)
+        if isGameTypeTrackmania2020():
+            self.convertItemGBX()
+
+        else:
+            if not self.convertFailed:    self.convertItemGBX() #tm2020 only needs one convert
+            if not self.convertFailed:    self.progress.append(f"Convert of <{self.nameRAW}> successfully")
+            if     self.convertFailed:    self.progress.append(f"Convert of <{self.nameRAW}> failed")
+
+
                
         updateConvertStatusNumbers(result=not self.convertFailed, objname=self.name)
 
@@ -184,8 +192,6 @@ def startBatchConvert(fbxfilepaths: list) -> None:
     """convert each fbx one after one, create a new thread for it"""
     tm_props = bpy.context.scene.tm_props
     results  = []
-    fails    = tm_props.NU_convertedError
-    report   = tm_props.CB_notifyPopupWhenDone
 
     tm_props.CB_showConvertPanel = True
     game = "ManiaPlanet" if isGameTypeManiaPlanet() else "TrackMania2020"
@@ -215,9 +221,7 @@ def startBatchConvert(fbxfilepaths: list) -> None:
     tm_props.CB_converting = False
     writeConvertReport(results=results)
     
-    if report:
-        ...#not working yet -> appears in background...
-        # makeWindowsReportPopup("Converting done", [f"fails: {fails}"])
+
 
 
 
