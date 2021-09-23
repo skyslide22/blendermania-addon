@@ -20,8 +20,8 @@ bl_info = {
     "name"          : "Trackmania Export & Convert fbx>gbx Addon",
     "author"        : "skyslide",
     "description"   : "Export collections, generate XMLs, convert items, all u nedd boi",
-    "blender"       : (2, 91, 0),
-    "version"       : (0, 1, 0),
+    "blender"       : (2, 93, 0),
+    "version"       : (0, 2, 0),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
