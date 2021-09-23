@@ -71,6 +71,10 @@ def gameTypeGotUpdated()->None:
     if isGameTypeTrackmania2020() and not colIsStadium:
         tm_props.LI_materialCollection = "Stadium"
 
+    if isGameTypeTrackmania2020():
+        tm_props.LI_DL_TextureEnvi = "Stadium"
+
+
     return None
 
 
@@ -398,13 +402,15 @@ def getMaterialGameplayIds(self, context)->None:
 
 class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     """general trackmania properties"""
-    LI_gameType:            EnumProperty(items=getGameTypes(), name="Game", update=lambda s, c: gameTypeGotUpdated())
-    ST_nadeoIniFile_MP:     StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
-    ST_nadeoIniFile_TM:     StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
-    ST_author:              StringProperty(name="Author", default="skyslide")
-    CB_nadeoImporter:       BoolProperty("NadeoImporter installed", default=False)
-    NU_nadeoImporterDL:     FloatProperty(min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
-    ST_nadeoImporterDLError:StringProperty(name="Status", default="")
+    LI_gameType:                EnumProperty(items=getGameTypes(), name="Game", update=lambda s, c: gameTypeGotUpdated())
+    ST_nadeoIniFile_MP:         StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
+    ST_nadeoIniFile_TM:         StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
+    ST_author:                  StringProperty(name="Author", default="skyslide")
+    CB_nadeoImporter:           BoolProperty("NadeoImporter installed", default=False)
+    NU_nadeoImporterDL:         FloatProperty(min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
+    CB_nadeoImporterDLRunning:  BoolProperty(default=False, update=redrawPanel)
+    ST_nadeoImporterDLError:    StringProperty(name="Status", default="", update=redrawPanel)
+    CB_nadeoImporterDLshow:     BoolProperty(default=False, update=redrawPanel)
 
     #export
     LI_exportType:          EnumProperty(items=getExportTypes(),        name="Action", default=1)
@@ -503,9 +509,10 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
     #textures
     LI_DL_TextureEnvi:      EnumProperty(items=getGameTextureZipFileNames(), update=redrawPanel)
-    CB_DL_TexturesRunning:  BoolProperty(name="Downloading...", default=False)
+    CB_DL_TexturesRunning:  BoolProperty(name="Downloading...", default=False, update=redrawPanel)
     NU_DL_Textures:         FloatProperty(min=0, max=100,   default=0, subtype="PERCENTAGE", update=redrawPanel)
     ST_DL_TexturesErrors:   StringProperty(name="Status",   default="")
+    CB_DL_TexturesShow:     BoolProperty(default=False, update=redrawPanel)
 
     #cars
 
