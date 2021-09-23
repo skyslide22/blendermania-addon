@@ -301,7 +301,6 @@ def isNadeoImporterInstalled(prop="")->None:
 
 def nadeoImporterInstalled_True()->None:
     bpy.context.scene.tm_props.CB_nadeoImporter     = True
-    bpy.context.scene.tm_props.NU_nadeoImporterDL   = 0 #%
     
 
 def nadeoImporterInstalled_False()->None:
@@ -311,6 +310,7 @@ def nadeoImporterInstalled_False()->None:
 def gameTexturesDownloading_False()->None:
     bpy.context.scene.tm_props.CB_DL_TexturesRunning = False
     bpy.context.scene.tm_props.NU_DL_Textures        = 0
+
 
 def gameTexturesDownloading_True()->None:
     bpy.context.scene.tm_props.CB_DL_TexturesRunning = True
@@ -335,38 +335,43 @@ def unzipNadeoImporter()->None:
 
 
 def installNadeoImporter()->None:
-    filePath = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip")
-    update   = "NU_nadeoImporterDL"
-    error    = "ST_nadeoImporterDLError"
-    cbSuccess= [unzipNadeoImporter]
-    cbError  = [nadeoImporterInstalled_False]
+    tm_props    = bpy.context.scene.tm_props
+    filePath    = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip")
+    progressbar = "NU_nadeoImporterDL"
+
+    tm_props.NU_nadeoImporterDL      = 0
+    tm_props.ST_nadeoImporterDLError = ""
+    tm_props.CB_nadeoImporterDLshow  = True
+    
+    def on_success():
+        tm_props.CB_nadeoImporterDLRunning = False
+        def run(): 
+            tm_props.CB_nadeoImporterDLshow = False
+        timer(run, 5)
+        unzipNadeoImporter()
+        nadeoImporterInstalled_True()
+
+    def on_error(msg):
+        tm_props.ST_nadeoImporterDLError = msg or "unknown error"
+        tm_props.CB_nadeoImporterDLRunning = False
+
+        nadeoImporterInstalled_False()
 
 
-    #! no hardcode, GET from MX server (/latest) 
     if isGameTypeManiaPlanet():
         url = WEBSPACE_NADEOIMPORTER_MP
-
     else:
         url = WEBSPACE_NADEOIMPORTER_TM
 
-    tm_props = bpy.context.scene.tm_props
-    tm_props.ST_nadeoImporterDLError = ""
-    tm_props.NU_nadeoImporterDL = 0
 
-    try:
-        download = DownloadTMFile(url, filePath, update, error, cbSuccess, cbError)
-        download.start()
+
+    download = DownloadTMFile(url, filePath, progressbar, on_success, on_error)
+    download.start()
+    tm_props.CB_nadeoImporterDLRunning = True
+
         
     
-    except urllib.error.HTTPError as e: #http error (400,404,500 etc)
-        tm_props.NU_nadeoImporterDL = 0
-        tm_props.ST_nadeoImporterDLError = f"{e.code} {e.msg}"
-        nadeoImporterInstalled_False()
 
-    except urllib.error.URLError as e: #domain does not exist..
-        tm_props.NU_nadeoImporterDL = 0
-        tm_props.ST_nadeoImporterDLError = "URL ERROR"
-        nadeoImporterInstalled_False()
 
 
 
@@ -400,27 +405,37 @@ def installGameTextures()->None:
     elif    envi == "mp_stadium":   url = WEBSPACE_TEXTURES_MP_STADIUM
     elif    envi == "mp_valley":    url = WEBSPACE_TEXTURES_MP_VALLEY
     
-    extractTo= fixSlash( getDocPathItemsAssetsTextures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
-    filePath = f"""{extractTo}/{enviRaw}.zip"""
-    update   = "NU_DL_Textures"
-    error    = "ST_DL_TexturesErrors"
-    cbSuccess= [gameTexturesDownloading_False, [unzipGameTextures, {"filepath": filePath, "extractTo": extractTo}]]
-    cbError  = [gameTexturesDownloading_False]
+    tm_props.CB_DL_TexturesShow = True
+
+    extractTo   = fixSlash( getDocPathItemsAssetsTextures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
+    filePath    = f"""{extractTo}/{enviRaw}.zip"""
+    progressbar = "NU_DL_Textures"
+
+    def on_success():
+        tm_props.CB_DL_TexturesRunning = False
+        def run(): 
+            tm_props.CB_DL_TexturesShow = False
+        timer(run, 5)
+
+    def on_error(msg):
+        tm_props.tm_props.ST_DL_TexturesErrors = msg or "unknown error"
+        tm_props.CB_DL_TexturesRunning = False
+
+        # def run(): ...
+        # bpy.app.timers.register(run, first_interval=120)
+
 
     createFolderIfNecessary( extractTo )
     gameTexturesDownloading_True()
 
-    try:
-        download = DownloadTMFile(url, filePath, update, error, cbSuccess, cbError)
-        download.start()
-        
-    except (urllib.error.HTTPError, urllib.error.URLError) as e: #domain does not exist..
-        gameTexturesDownloading_False()
-        err = f"{e.code} {e.msg}" if type(e) == "urllib.error.URLError" else str(e)
-        tm_props[error] = err
-        debug("DOWNLOAD FAIL: ", url)
-        debug(err)
-        return
+
+
+
+
+    download = DownloadTMFile(url, filePath, progressbar, on_success, on_error)
+    download.start()
+    tm_props.CB_DL_TexturesRunning = True
+
 
     
 
@@ -428,33 +443,31 @@ def installGameTextures()->None:
 
 class DownloadTMFile(Thread):
     """download file from URL, save file at SAVEFILEPATH, 
-    update context.scene.tm_props. (errorProp=float(0-100%), updateProp=str),
-    cbSuccess & cbError are arrays of callbacks, if callback is an array, [0] is callback, [1] is **kwargs (unpack dict)"""
+    update context.scene.tm_props.<prop>, callbacks: success, error & finish"""
     
-    def __init__(self, url, saveFilePath, updateProp: str="", errorProp: str="", cbSuccess: list=[], cbError: list=[]):
+    def __init__(self, url, saveFilePath, progressbar_prop=None, success_cb=None, error_cb=None, finish_cb=None):
         super(DownloadTMFile, self).__init__() #need to call init from Thread, otherwise error
-        self.response       = urllib.request.urlopen(url)
-        self.CHUNK          = 1024*512 # 512kb
-        self.saveFilePath   = saveFilePath
-        self.updateProp     = updateProp
-        self.errorProp      = errorProp
-        self.cbSuccess      = cbSuccess
-        self.cbError        = cbError
+        self.CHUNK              = 1024*512 # 512kb
+        self.saveFilePath       = saveFilePath
+        self.success_cb         = success_cb
+        self.error_cb           = error_cb
+        self.finish_cb          = finish_cb
+        self.progressbar_prop   = progressbar_prop
+        self.error_msg          = ""
 
-    def updateTMProp(self, percentage):
-        if self.updateProp != "":
-            executeStr = f"bpy.context.scene.tm_props.{self.updateProp} = {percentage}"
-            executeStr = executeStr #above causes syntax error, however, a=a fixes it...
-            exec(executeStr)
+        try:
+            self.response = urllib.request.urlopen(url)
 
-        if self.response.code >=400 and self.errorProp != "":
-            executeStr = f"bpy.context.scene.tm_props.{self.errorProp} = str({self.response.code})"
-            executeStr = executeStr #above causes syntax error, however, a=a fixes it...
-            exec(executeStr)
+        except (urllib.error.HTTPError, urllib.error.URLError) as e:
+            self.error_msg = f"{e.code} {e.msg}" if type(e) == "urllib.error.URLError" else str(e)
+        
         
 
     def run(self):
-        if self.response.code < 400:
+
+        success = False
+
+        if self.response.code == 200:
             with open(self.saveFilePath, "wb+") as f:
                 fileSize   = int(self.response.length)
                 downloaded = 0
@@ -463,34 +476,50 @@ class DownloadTMFile(Thread):
                     downloaded = os.stat(self.saveFilePath).st_size #get filesize on disk
                     dataParts  = self.response.read(self.CHUNK) #get part of downloaded data, empty after each read() call
 
-                    if not dataParts:
-                        self.updateTMProp(downloaded/fileSize * 100)
-                        break #if downloaded data is 0, download is complete
+                    
+
+                    def updateProgressbar():
+                        try: #x[ y ]=z does not trigger panel text refresh, so do x.y = z
+                            percentage = downloaded/fileSize * 100
+                            exec_str = f"bpy.context.scene.tm_props.{self.progressbar_prop} = percentage" 
+                            exec_str = exec_str 
+                            exec(exec_str)
+                        except Exception as e:
+                            debug(e)
+
+
+                    updateProgressbar()
+                        
+
+                    if not dataParts: #if downloaded data is 0, download is complete
+                        break 
 
                     f.write(dataParts) #write part to disk
-                    
-                    try:
-                        self.updateTMProp(downloaded/fileSize * 100) #update progressbar in UI
-                    except ZeroDivisionError as e:
-                        pass
 
-                for callback in self.cbSuccess:
-                    if callable(callback):
-                        callback()
-                    else:
-                        kwargs   = callback[1]
-                        callback = callback[0]
-                        callback(**kwargs) 
-        
-        else:
-            self.updateTMProp(0)
-            for callback in self.cbError:
-                if callable(callback):
-                    callback()
-                else:
-                    kwargs   = callback[1]
-                    callback = callback[0]
-                    callback(**kwargs) 
+                success = True
+
+
+        callback_list = [
+            [self.success_cb,   "success",          success is True ],
+            [self.error_cb,     self.error_msg,     success is False],
+            [self.finish_cb,    None,               True],
+        ]
+
+        for element in callback_list:
+            cb   = element[0]
+            msg  = element[1]
+            run  = element[2]
+
+            if run and callable(cb):
+                try:
+                    cb(msg)
+                except TypeError:
+                    cb()
+
+
+
+def timer(func, timeout) -> None:
+    bpy.app.timers.register(func, first_interval=timeout)
 
 
 
