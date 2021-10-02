@@ -75,61 +75,39 @@ class TM_PT_Materials(Panel):
         
         if requireValidNadeoINI(self) is False: return
 
-        mats        = bpy.data.materials
         action      = tm_props.LI_materialAction
-        game        = tm_props.LI_gameType
-        matname     = tm_props.ST_materialAddName
-        matnameOld  = tm_props.LI_materials
+        mat_name     = tm_props.ST_materialAddName
+        mat_name_old  = tm_props.LI_materials
 
-        actionIsUpdate = str(action).lower() == "update"
-        actionIsCreate = str(action).lower() == "create"
-
-
-
-
-
-
-
-        # layout.row().label(text="aaa")
-
-
-        # tex = bpy.data.textures["hello"]
-        # # tex = bpy.context.object.active_material
-        
-
-        # row = layout.row()
-        # # row.template_preview(tex, show_buttons=False)
-        # row.template_icon_view(tm_props, "LI_ICONS", show_labels=True, scale=6, )
-
-
-
-        # return
+        action_is_update = action == "UPDATE"
+    
+        use_physicsId   = tm_props.CB_materialUsePhysicsId
+        use_gameplayId  = tm_props.CB_materialUseGameplayId
+        use_customColor = tm_props.CB_materialUseCustomColor
+        mat_is_colorable = str(tm_props.LI_materialLink).lower().startswith("custom")
 
 
 
 
-
-
-
+        # choose action & mat name
         layout.row().prop(tm_props, "LI_materialAction", expand=True)
         
-        layout.row().prop(tm_props, "LI_materials") if actionIsUpdate else None
+        layout.row().prop(tm_props, "LI_materials") if action_is_update else None
         layout.row().prop(tm_props, "ST_materialAddName")
 
         row = layout.row()
         row.enabled = True if not tm_props.CB_converting else False
         row.prop(tm_props, "LI_gameType", text="Game")
 
-    
-        use_physicsId   = tm_props.CB_materialUsePhysicsId
-        use_gameplayId  = tm_props.CB_materialUseGameplayId
-        use_customColor = tm_props.CB_materialUseCustomColor
+
 
 
 
         if isGameTypeManiaPlanet():
-            layout.row().prop(tm_props, "LI_materialCollection")
-
+            row = layout.row()
+            row.prop(tm_props, "LI_materialCollection", text="Collection")
+            
+            # physics id
             row = layout.row(align=True)
             col = row.column()
             col.enabled = True if use_physicsId else False
@@ -137,60 +115,85 @@ class TM_PT_Materials(Panel):
             col = row.column()
             col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon="HIDE_OFF")
             
-            row = layout.row(align=True)
-            row.prop(tm_props, "ST_materialBaseTexture")
-            row.operator("view3d.tm_clearbasetexture", icon="X", text="")
+            layout.separator(factor=UI_SPACER_FACTOR)
 
-            row = layout.row()
-            row.enabled = tm_props.ST_materialBaseTexture != ""
-            row.prop(tm_props, "LI_materialModel")
+            # choose custom tex or linked mat
+            row = layout.row(align=True)
+            col = row.column()
+            col.label(text="Texture:")
+
+            col = row.column()
+            row = col.row()
+            row.prop(tm_props, "LI_materialChooseSource", expand=True)
             
-            row = layout.row()
-            row.prop(tm_props, "LI_materialLink") 
-            row.enabled = True if tm_props.ST_materialBaseTexture == "" else False
+            using_custom_texture = tm_props.LI_materialChooseSource == "CUSTOM"
+
+            # basetexture
+            if using_custom_texture:
+                row = layout.row(align=True)
+                row.alert = True if "/Items/" not in fixSlash(tm_props.ST_materialBaseTexture) else False
+                row.prop(tm_props, "ST_materialBaseTexture", text="Location")
+                row.operator("view3d.tm_clearbasetexture", icon="X", text="")
+
+                # model
+                row = layout.row()
+                row.prop(tm_props, "LI_materialModel")
+            
+
+            # link
+            else:
+                row = layout.row()
+                row.prop(tm_props, "LI_materialLink", text="Link") 
 
 
 
 
         elif isGameTypeTrackmania2020():
-            layout.row().prop(tm_props, "LI_materialLink")
+            # Link
+            row = layout.row()
+            row.prop(tm_props, "LI_materialLink", text="Link")
             
+            # physics id
             row = layout.row(align=True)
             col = row.column()
             col.enabled = True if use_physicsId else False
             col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
             col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon="HIDE_OFF")
+            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon="CHECKMARK")
 
+            # gameplay id
             row = layout.row(align=True)
             col = row.column()
             col.enabled = True if use_gameplayId else False
             col.prop(tm_props, "LI_materialGameplayId", text="Gameplay")
             col = row.column()
-            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon="HIDE_OFF")
+            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon="CHECKMARK")
 
-            linkIsCustom = str(tm_props.LI_materialLink).lower().startswith("custom")
-            row = layout.split(factor=0.3, align=True)
-            col = row.column()
-            col.enabled = linkIsCustom and use_customColor
-            col.label(text="Surface Color:")
-            col = row.column()
-            row = col.split(factor=0.87, align=True)
-            col = row.column()
-            col.enabled = linkIsCustom and use_customColor
-            col.prop(tm_props, "NU_materialColor", text="")
-            col = row.column()
-            col.prop(tm_props, "CB_materialUseCustomColor", text="", toggle=True, icon="HIDE_OFF")
+            
+            # custom color
+            if mat_is_colorable:
+                row = layout.row(align=True)
+                
+                col = row.column()
+                col.label(text="Color:")
+                col.enabled = use_customColor
+
+                col = row.column()
+                col.enabled = use_customColor
+                col.prop(tm_props, "NU_materialColor", text="")
+                col = row.column()
+                col.prop(tm_props, "CB_materialUseCustomColor", text="", toggle=True, icon="CHECKMARK")
+
 
 
         row = layout.row()
         row.scale_y = 1.5
 
-        if actionIsUpdate:
-            row.operator("view3d.tm_updatematerial", text=f"{matnameOld}", icon="FILE_REFRESH")
+        if action_is_update:
+            row.operator("view3d.tm_updatematerial", text=f"Update {mat_name_old}", icon="FILE_REFRESH")
 
-        elif actionIsCreate:
-            row.operator("view3d.tm_creatematerial", text=f"{matname}",    icon="ADD")
+        else:
+            row.operator("view3d.tm_creatematerial", text=f"Create {mat_name}",    icon="ADD")
 
 
 
@@ -471,7 +474,10 @@ def saveMatPropsAsJSONinMat(mat) -> None:
     
     #tm_props
     for prop_name in mat_props:
-        prop = getattr(mat, prop_name)
+        prop = getattr(mat, prop_name, None)
+        
+        if prop is None: continue
+        
         if prop.__class__.__name__ == "Color":
             prop = [prop[0], prop[1], prop[2]]
 
