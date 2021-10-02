@@ -21,7 +21,7 @@ bl_info = {
     "author"        : "skyslide",
     "description"   : "Export collections, generate XMLs, convert items, all u nedd boi",
     "blender"       : (2, 93, 0),
-    "version"       : (0, 2, 0),
+    "version"       : (0, 2, 1),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
