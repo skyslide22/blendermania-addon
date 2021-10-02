@@ -419,7 +419,7 @@ def installGameTextures()->None:
         timer(run, 5)
 
     def on_error(msg):
-        tm_props.tm_props.ST_DL_TexturesErrors = msg or "unknown error"
+        tm_props.ST_DL_TexturesErrors = msg or "unknown error"
         tm_props.CB_DL_TexturesRunning = False
 
         # def run(): ...
@@ -456,11 +456,14 @@ class DownloadTMFile(Thread):
         self.progressbar_prop   = progressbar_prop
         self.error_msg          = ""
 
+        debug(url)
         try:
             self.response = urllib.request.urlopen(url)
 
         except (urllib.error.HTTPError, urllib.error.URLError) as e:
+            self.response = {"code": 503} # service unavailable
             self.error_msg = f"{e.code} {e.msg}" if type(e) == "urllib.error.URLError" else str(e)
+
         
         
 
@@ -468,7 +471,7 @@ class DownloadTMFile(Thread):
 
         success = False
 
-        if self.response.code == 200:
+        if self.response["code"] == 200:
             with open(self.saveFilePath, "wb+") as f:
                 fileSize   = int(self.response.length)
                 downloaded = 0
