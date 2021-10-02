@@ -205,14 +205,16 @@ def exportAndOrConvert()->None:
     useSelectedOnly     = tm_props.LI_exportWhichObjs == "SELECTED"  #only selected objects?
     allObjs             = bpy.context.scene.collection.all_objects
     action              = tm_props.LI_exportType
-    generateLightmaps   = tm_props.CB_uv_genLightMap
-    fixLightmap         = tm_props.CB_uv_fixLightMap
     generateIcons       = tm_props.CB_icon_genIcons
     colsToExport        = []
     exportedFBXs        = []
     invalidCollections  = []
     embeddedMaterials   = []
     pre_selected_objs   = []
+
+    generateLightmaps                = tm_props.CB_uv_genLightMap
+    fixLightmap                      = tm_props.CB_uv_fixLightMap
+    generateBaseMaterialCubeProjects = tm_props.CB_uv_genBaseMaterialCubeMap
 
     exportFilePathBase  = ""
     exportPathType      = tm_props.LI_exportFolderType
@@ -302,10 +304,15 @@ def exportAndOrConvert()->None:
                     if   "_lod0" in obj.name.lower(): has_lod_0 = True
                     elif "_lod1" in obj.name.lower(): has_lod_1 = True
                 
+
                 if  not has_lod_0\
                 and not has_lod_1: #if obj uses lods, auto lightmap is not good.
+                
                     if generateLightmaps:
                         generateLightmap(col=col, fix=fixLightmap)
+
+                    if generateBaseMaterialCubeProjects:
+                        generateBaseMaterialCubeProject(col=col)
 
                 if has_lod_1 and not has_lod_0:
                     invalidCollections.append(f"<{col.name}> has Lod1, but not Lod0, collection skipped")
