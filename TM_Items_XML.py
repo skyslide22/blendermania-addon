@@ -394,7 +394,7 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
         BASETEXTURE     = fixSlash(mat.baseTexture)
         BASETEXTURE     = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", BASETEXTURE)
         CUSTOM_COLOR    = rgbToHEX(mat.surfaceColor)
-        USE_CUSTOM_COLOR= mat.useCustomColor
+        USE_CUSTOM_COLOR= getattr(mat, "useCustomColor", False) # old materials do not have this attribute: runtimeerror
 
         if BASETEXTURE:
             BASETEXTURE = fixSlash( BASETEXTURE )
