@@ -123,6 +123,7 @@ class TM_PT_Materials(Panel):
     
         use_physicsId   = tm_props.CB_materialUsePhysicsId
         use_gameplayId  = tm_props.CB_materialUseGameplayId
+        use_customColor = tm_props.CB_materialUseCustomColor
 
 
 
@@ -169,11 +170,17 @@ class TM_PT_Materials(Panel):
             col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon="HIDE_OFF")
 
             linkIsCustom = str(tm_props.LI_materialLink).lower().startswith("custom")
-            row = layout.row()
-            row.enabled = linkIsCustom
-            row.prop(tm_props, "NU_materialColor")
-    
-
+            row = layout.split(factor=0.3, align=True)
+            col = row.column()
+            col.enabled = linkIsCustom and use_customColor
+            col.label(text="Surface Color:")
+            col = row.column()
+            row = col.split(factor=0.87, align=True)
+            col = row.column()
+            col.enabled = linkIsCustom and use_customColor
+            col.prop(tm_props, "NU_materialColor", text="")
+            col = row.column()
+            col.prop(tm_props, "CB_materialUseCustomColor", text="", toggle=True, icon="HIDE_OFF")
 
 
         row = layout.row()
@@ -202,18 +209,19 @@ def createOrUpdateMaterial(action)->None:
     TM_PREFIX = "TM_"
     MP_PREFIX = "MP_"
 
-    matName         = tm_props.LI_materials
-    matNameNew      = fixName( tm_props.ST_materialAddName )
-    matGameType     = tm_props.LI_gameType
-    matCollection   = tm_props.LI_materialCollection
-    matPhysicsId    = tm_props.LI_materialPhysicsId
-    matUsePhysicsId = tm_props.CB_materialUsePhysicsId
-    matGameplayId   = tm_props.LI_materialGameplayId
-    matUseGameplayId= tm_props.CB_materialUseGameplayId
-    matModel        = tm_props.LI_materialModel
-    matLink         = tm_props.LI_materialLink
-    matBaseTexture  = tm_props.ST_materialBaseTexture
-    matColor        = tm_props.NU_materialColor
+    matName           = tm_props.LI_materials
+    matNameNew        = fixName( tm_props.ST_materialAddName )
+    matGameType       = tm_props.LI_gameType
+    matCollection     = tm_props.LI_materialCollection
+    matPhysicsId      = tm_props.LI_materialPhysicsId
+    matUsePhysicsId   = tm_props.CB_materialUsePhysicsId
+    matGameplayId     = tm_props.LI_materialGameplayId
+    matUseGameplayId  = tm_props.CB_materialUseGameplayId
+    matModel          = tm_props.LI_materialModel
+    matLink           = tm_props.LI_materialLink
+    matBaseTexture    = tm_props.ST_materialBaseTexture
+    matColor          = tm_props.NU_materialColor
+    matUseCustomColor = tm_props.CB_materialUseCustomColor
     MAT = None
 
 
@@ -236,16 +244,17 @@ def createOrUpdateMaterial(action)->None:
 
         else:
             MAT = bpy.data.materials.new(name=matNameNew)
-            MAT.gameType     = matGameType
-            MAT.environment  = matCollection
-            MAT.usePhysicsId = matUsePhysicsId
-            MAT.physicsId    = matPhysicsId
-            MAT.useGameplayId= matUseGameplayId
-            MAT.gameplayId   = matGameplayId
-            MAT.model        = matModel
-            MAT.link         = matLink
-            MAT.baseTexture  = matBaseTexture
-            MAT.surfaceColor = matColor
+            MAT.gameType       = matGameType
+            MAT.environment    = matCollection
+            MAT.usePhysicsId   = matUsePhysicsId
+            MAT.physicsId      = matPhysicsId
+            MAT.useGameplayId  = matUseGameplayId
+            MAT.gameplayId     = matGameplayId
+            MAT.model          = matModel
+            MAT.link           = matLink
+            MAT.baseTexture    = matBaseTexture
+            MAT.surfaceColor   = matColor
+            MAT.useCustomColor = matUseCustomColor
             makeReportPopup(
                 title=f"Material {matNameNew} successfully created!",
                 icon ="CHECKMARK"
@@ -255,17 +264,18 @@ def createOrUpdateMaterial(action)->None:
 
     else: #UPDATE
         MAT = bpy.data.materials[matName]
-        MAT.gameType     = matGameType
-        MAT.environment  = matCollection
-        MAT.usePhysicsId = matUsePhysicsId
-        MAT.physicsId    = matPhysicsId
-        MAT.useGameplayId= matUseGameplayId
-        MAT.gameplayId   = matGameplayId
-        MAT.model        = matModel
-        MAT.link         = matLink
-        MAT.baseTexture  = matBaseTexture if isGameTypeManiaPlanet() else ""
-        MAT.surfaceColor = matColor
-        MAT.name         = matNameNew
+        MAT.gameType       = matGameType
+        MAT.environment    = matCollection
+        MAT.usePhysicsId   = matUsePhysicsId
+        MAT.physicsId      = matPhysicsId
+        MAT.useGameplayId  = matUseGameplayId
+        MAT.gameplayId     = matGameplayId
+        MAT.model          = matModel
+        MAT.link           = matLink
+        MAT.baseTexture    = matBaseTexture if isGameTypeManiaPlanet() else ""
+        MAT.surfaceColor   = matColor
+        MAT.useCustomColor = matUseCustomColor
+        MAT.name           = matNameNew
         makeReportPopup(
             title=f"Material {matName} sucessfully updated", 
             icon= "CHECKMARK"

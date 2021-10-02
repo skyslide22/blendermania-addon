@@ -114,6 +114,7 @@ mat_props = [
         "model",
         "environment",
         "surfaceColor",
+        "useCustomColor",
     ]
 # -----
 

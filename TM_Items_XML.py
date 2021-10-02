@@ -394,6 +394,7 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
         BASETEXTURE     = fixSlash(mat.baseTexture)
         BASETEXTURE     = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", BASETEXTURE)
         CUSTOM_COLOR    = rgbToHEX(mat.surfaceColor)
+        USE_CUSTOM_COLOR= mat.useCustomColor
 
         if BASETEXTURE:
             BASETEXTURE = fixSlash( BASETEXTURE )
@@ -405,7 +406,7 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
         if GAME_IS_TM:
             GAMEPLAYID_XML  = f"""GameplayId="{ GAMEPLAYID }" """ if USE_GAMEPLAYID else ""
             PHYSICSID_XML   = f"""PhysicsId="{  PHYSICSID  }" """ if USE_PHYSICSID  else ""
-            CUSTOM_COLOR_XML= f"""Color="{ CUSTOM_COLOR }" """    if LINK.lower().startswith("custom") else ""
+            CUSTOM_COLOR_XML= f"""Color="{ CUSTOM_COLOR }" """    if USE_CUSTOM_COLOR and LINK.lower().startswith("custom") else ""
             materialsXML += f"""%TAB%<Material Name="{ NAME }" Link="{ LINK }" { CUSTOM_COLOR_XML } { PHYSICSID_XML } { GAMEPLAYID_XML } />\n"""
             
         elif GAME_IS_MP:
