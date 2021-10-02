@@ -31,7 +31,7 @@ bl_info = {
 
 
 
-#order matters for UI
+# register order matters for UI panel ordering
 classes = (
 
     #props (not panel)
@@ -66,12 +66,13 @@ classes = (
     TM_OT_Items_ItemXML_AddPivot,
     TM_OT_Items_ItemXML_RemovePivot,
 
-    #uvs
-    TM_PT_Items_UVmaps_LightMap,
-
     #icons,
     TM_PT_Items_Icon,
     TM_OT_Items_Icon_Test,
+
+    #uvs
+    TM_PT_Items_UVmaps_LightMap,
+    TM_PT_Items_UVmaps_BaseMaterial_CubeProject,
 
     #materials
     TM_PT_Materials,
