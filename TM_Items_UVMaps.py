@@ -121,7 +121,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
 def generateBaseMaterialCubeProject(col) -> None:
     """generate basematerial uvlayer with cube project method, only useful for repeating textures"""
     tm_props    = getTmProps()
-    objs        = [obj for obj in col.all_objects if selectObj(obj)]
+    objs        = [obj for obj in col.objects if selectObj(obj)]
     bm_objs     = []
 
     debug(f"overwrite basematerial with cubeproject for <{col.name}>")
@@ -230,7 +230,7 @@ def checkUVLayerOverlapsOfCol(uv_name: str, col: bpy.types.Collection)-> bool:
 
     deselectAll()
     
-    objs = [obj for obj in col.all_objects  if  obj.type == "MESH" \
+    objs = [obj for obj in col.objects  if  obj.type == "MESH" \
                                             and obj.name.startswith("_") is False \
                                             and selectObj(obj) ]
 

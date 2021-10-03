@@ -474,6 +474,10 @@ def saveMatPropsAsJSONinMat(mat) -> None:
     """save mat.prop, mat.prop123 as json string in mat["TM_PROPS_AS_JSON] for export"""
     DICT = {}
     
+    # material not created with this addon, no need to save it
+    if mat.name.startswith(("TM_", "MP_")) is False:
+        return
+
     #tm_props
     for prop_name in mat_props:
         prop = getattr(mat, prop_name, None)
@@ -644,7 +648,7 @@ def exportMaterialsAsJSON(col, filepath) -> None:
     # filepath = filepath.replace( filename, f".{filename}" ) #dot does not hide files in windows...
     filepath = filepath.replace("json", "Materials.json")
     mats_dict = {}
-    objs = col.all_objects
+    objs = col.objects
 
     for obj in objs:
         if obj.type != "MESH": continue

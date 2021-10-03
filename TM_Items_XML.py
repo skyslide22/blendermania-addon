@@ -369,7 +369,7 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
     lightsXML   = ""
 
     
-    for obj in col.all_objects:
+    for obj in col.objects:
         
         if obj.type == "MESH":
             for matSlot in obj.material_slots:
