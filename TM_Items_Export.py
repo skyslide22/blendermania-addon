@@ -20,7 +20,7 @@ from .TM_Materials      import *
 class TM_OT_Items_Export_ExportAndOrConvert(Operator):
     """export and or convert an item"""
     bl_idname = "view3d.tm_export"
-    bl_description = "Execute Order 66"
+    bl_description = "Export and convert items"
     bl_icon = 'MATERIAL'
     bl_label = "Export or/and Convert"
     bl_options = {"REGISTER", "UNDO"} #without, ctrl+Z == crash
@@ -39,7 +39,7 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
 class TM_OT_Items_Export_OpenConvertReport(Operator):
     """open convert report"""
     bl_idname = "view3d.tm_openconvertreport"
-    bl_description = "Execute Order 66"
+    bl_description = "Open the error report in browser"
     bl_icon = 'MATERIAL'
     bl_label = "Open convert report"
         
@@ -51,13 +51,17 @@ class TM_OT_Items_Export_OpenConvertReport(Operator):
 class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
     """open convert report"""
     bl_idname = "view3d.tm_closeconvertsubpanel"
-    bl_description = "Execute Order 66"
+    bl_description = "Ok, close this panel"
     bl_icon = 'MATERIAL'
     bl_label = "Close Convert Sub Panel"
         
     def execute(self, context):
-        context.scene.tm_props.CB_showConvertPanel      = False
-        context.scene.tm_props.CB_stopAllNextConverts   = False
+        tm_props = getTmProps()
+        tm_props.CB_showConvertPanel      = False
+        tm_props.CB_stopAllNextConverts   = False
+        tm_props.NU_lastConvertDuration   = tm_props.NU_currentConvertDuration
+        tm_props.CB_uv_genBaseMaterialCubeMap = False # for stupid mistakes ... :)
+
         return {"FINISHED"}
 
 
@@ -72,12 +76,12 @@ class TM_PT_Items_Export(Panel):
     def draw(self, context):
 
         layout = self.layout
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
 
         if requireValidNadeoINI(self) is False: return
 
         enableExportButton      = True
-        exportSelectedOrVisible = tm_props.LI_exportWhichObjs
+        exportActionIsSelected  = tm_props.LI_exportWhichObjs == "SELECTED"
         exportFolderType        = tm_props.LI_exportFolderType
         exportCustomFolder      = True if str(exportFolderType).lower() == "custom" else False
         exportCustomFolderProp  = "ST_exportFolder_MP" if isGameTypeManiaPlanet() else "ST_exportFolder_TM"
@@ -112,7 +116,7 @@ class TM_PT_Items_Export(Panel):
             # layout.row().prop(tm_props, "LI_exportValidTypes",)
             layout.row().prop(tm_props, "LI_exportWhichObjs", expand=True)
 
-            if bpy.context.selected_objects == [] and exportSelectedOrVisible == "SELECTED":
+            if bpy.context.selected_objects == [] and exportActionIsSelected:
                 enableExportButton = False
         
         if exportTypeIsConvertOnly:
@@ -123,8 +127,8 @@ class TM_PT_Items_Export(Panel):
 
         layout.separator(factor=UI_SPACER_FACTOR)
         
-        if showConvertPanel is False:
-            row = layout.row()
+        if not showConvertPanel:
+            row = layout.row(align=True)
             row.scale_y = 1.5
             row.enabled = enableExportButton
             row.alert   = not enableExportButton #red button, 0 selected
@@ -132,13 +136,31 @@ class TM_PT_Items_Export(Panel):
             text = exportType
             icon = "EXPORT"
 
-            if exportType == "EXPORT":            
-                icon="EXPORT";          
-                text=f"Export {exportSelectedOrVisible.lower()}"
+            collections = set()
 
-            elif exportType == "EXPORT_CONVERT":    
+            if exportActionIsSelected:
+                user_action = bpy.context.selected_objects
+
+            else:
+                user_action = bpy.context.visible_objects
+
+            for obj in user_action:
+                if obj.type == "MESH":
+                    col = obj.users_collection
+                    collections.add(col)
+
+            collection_count = len(collections)
+            number_or_all_visible = collection_count
+
+            plural = "s" if collection_count > 1 else ""
+
+            if exportType == "EXPORT":
+                icon="EXPORT"; 
+                text=f"Export {collection_count} collection{plural}"
+
+            elif exportType == "EXPORT_CONVERT":
                 icon="CON_FOLLOWPATH";  
-                text=f"Export {exportSelectedOrVisible.lower()} & convert"
+                text=f"Export & convert {collection_count} collection{plural}"
 
             elif exportType == "CONVERT":           
                 icon="FILE_REFRESH";    
@@ -146,17 +168,33 @@ class TM_PT_Items_Export(Panel):
                 
             elif exportType == "ICON":              
                 icon="FILE_IMAGE";      
-                text=f"Create icons for {exportSelectedOrVisible.lower()}"
+                text=f"""Create icons for {collection_count} collection{plural}"""
             
             row.operator("view3d.tm_export", text=text, icon=icon)
+            row.prop(tm_props, "CB_notifyPopupWhenDone", icon_only=True, icon="INFO")
 
 
-        #*show panel
+
+
+        #* show convert panel and hide everything else
         else:
 
             #progress bar
+            convert_duration_since_start = tm_props.NU_convertDurationSinceStart
+            last_convert_time            = tm_props.NU_lastConvertDuration
+            is_not_first_convert         = last_convert_time != -1
+            remaining_time               = tm_props.NU_remainingConvertTime
+
+            # convert time since start
+            layout.row().label(text=f"""Current convert duration: {convert_duration_since_start}s""")
+
+            # last & remaining
+            if is_not_first_convert and converting:
+                # layout.row().label(text=f"""Last convert duration took: {last_convert_time}s""")
+                layout.row().label(text=f"""Probably done in: {remaining_time}s""")
+
+
             row=layout.row(align=True)
-            # row.enabled = not (stopConverting or convertDone)
             row.alert   = atlestOneConvertFailed
             row.prop(tm_props, "NU_converted", text=f"{converted} of {convertCount}")
             row.prop(tm_props, "CB_stopAllNextConverts", icon_only=True, text="", icon="CANCEL")
@@ -170,24 +208,25 @@ class TM_PT_Items_Export(Panel):
             row.alert = atlestOneConvertFailed
             row.enabled = True if any([convertDone, stopConverting]) else False
             row.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="CHECKMARK")
-            row.operator("view3d.tm_openconvertreport",    text="Open Report",  icon="HELP")    
-
-            #label convert status
-            row = layout.row()
-            row.alert = atlestOneConvertFailed or stopConverting
-            row.label(text="Convert status: " + ("converting" if converting else "done" if not stopConverting else "stopped") )
+            if(failed):
+                row.operator("view3d.tm_openconvertreport",    text="Open Report",  icon="HELP")    
             
+
             #result of fails
-            row = layout.row()
-            row.alert = True if failed else False
-            row.label(text=f"Failed converts: {len(failed)}")
-
-            for i, fail in enumerate(failed):
+            if failed:
                 row = layout.row()
-                row.alert=True
-                row.label(text=f"{i+1}. {fail}")
+                row.alert = True if failed else False
+                row.label(text=f"Failed converts: {len(failed)}")
 
-        # layout.separator(factor=spacerFac)
+
+            for item in getTmConvertingItemsProp():
+                row = layout.row(align=True)
+                col = row.column()
+                col.alert = item.failed
+                col.label(
+                    text=f"""{item.convert_duration if item.converted else "??"}s — {item.name}""", 
+                    icon=item.icon)
+
 
 
 
@@ -200,7 +239,7 @@ class TM_PT_Items_Export(Panel):
 
 def exportAndOrConvert()->None:
     """export&convert fbx main function, call all other functions on conditions set in UI"""
-    tm_props            = bpy.context.scene.tm_props
+    tm_props            = getTmProps()
     # validObjTypes       = tm_props.LI_exportValidTypes #mesh, light, empty
     useSelectedOnly     = tm_props.LI_exportWhichObjs == "SELECTED"  #only selected objects?
     allObjs             = bpy.context.scene.collection.all_objects
@@ -396,7 +435,7 @@ def exportAndOrConvert()->None:
 
 def exportFBX(fbxfilepath) -> None:
     """exports fbx, creates filepath if it does not exist"""
-    tm_props    = bpy.context.scene.tm_props
+    tm_props    = getTmProps()
     objTypes    = tm_props.LI_exportValidTypes.split("_") 
     objTypes    = {ot for ot in objTypes} #MESH_LIGHT_EMPTY
     exportArgs  = {
