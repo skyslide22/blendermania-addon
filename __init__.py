@@ -106,16 +106,17 @@ def register():
     bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
     bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Cars_Import.addMenuPoint_CAR_SPAWN)
 
-    bpy.types.Material.gameType         = EnumProperty(  name="Game",           default=0, items=getGameTypes())
-    bpy.types.Material.baseTexture      = StringProperty(name="BaseTexture",    default="")
-    bpy.types.Material.link             = StringProperty(name="Link",           default="")
-    bpy.types.Material.physicsId        = StringProperty(name="PhysicsId",      default="")
-    bpy.types.Material.usePhysicsId     = BoolProperty(  name="Use PhysicsId",  default=False)
-    bpy.types.Material.gameplayId       = StringProperty(name="GameplayId",     default="")
-    bpy.types.Material.useGameplayId    = BoolProperty(  name="Use GameplayId", default=False)
-    bpy.types.Material.model            = EnumProperty(  name="Model",          default="TDSN",    items=getMaterialModelTypes())
-    bpy.types.Material.environment      = EnumProperty(  name="Collection",     default="Stadium", items=getMaterialCollectionTypes())#Material."collection" not allowed
-    bpy.types.Material.surfaceColor     = FloatVectorProperty(name='Surface Color ',  subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
+    bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
+    bpy.types.Material.baseTexture      = StringProperty(       name="BaseTexture",         default="")
+    bpy.types.Material.link             = StringProperty(       name="Link",                default="")
+    bpy.types.Material.physicsId        = StringProperty(       name="PhysicsId",           default="")
+    bpy.types.Material.usePhysicsId     = BoolProperty(         name="Use PhysicsId",       default=False)
+    bpy.types.Material.gameplayId       = StringProperty(       name="GameplayId",          default="")
+    bpy.types.Material.useGameplayId    = BoolProperty(         name="Use GameplayId",      default=False)
+    bpy.types.Material.model            = EnumProperty(         name="Model",               default="TDSN",    items=getMaterialModelTypes())
+    bpy.types.Material.environment      = EnumProperty(         name="Collection",          default="Stadium", items=getMaterialCollectionTypes())#Material."collection" not allowed
+    bpy.types.Material.surfaceColor     = FloatVectorProperty(  name='Surface Color ',      subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
+    bpy.types.Material.useCustomColor   = BoolProperty(         name="Use Custom Color",    default=False)
 
 
 # delete classes
