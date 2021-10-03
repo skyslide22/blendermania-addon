@@ -121,7 +121,7 @@ class TM_PT_Items_Icon(Panel):
 def generateIcon(col, filepath, save=True) -> None:
     """generate icon of """
     scene           = bpy.context.scene
-    col_objs        = [obj for obj in col.all_objects if obj.type == "MESH"]
+    col_objs        = [obj for obj in col.objects if obj.type == "MESH"]
     tm_props        = scene.tm_props
     overwrite_icon  = tm_props.CB_icon_overwriteIcons
     icon_path       = getIconPathOfFBXpath(filepath=filepath)
