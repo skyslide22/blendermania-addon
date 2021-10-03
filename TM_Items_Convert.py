@@ -197,9 +197,6 @@ def updateConvertTimes()->None:
 
     remaining_time = last_convert_duration - convert_duration_since_start
 
-    debug(remaining_time)
-
-
     if last_convert_duration == -1 or convert_is_done or converts_cancelled:
         return
 
@@ -207,7 +204,7 @@ def updateConvertTimes()->None:
     tm_props.NU_remainingConvertTime      = remaining_time 
 
 
-
+@newThread
 def startBatchConvert(fbxfilepaths: list) -> None:
     """convert each fbx one after one, create a new thread for it"""
     tm_props_convertingItems = getTmConvertingItemsProp()
