@@ -71,7 +71,7 @@ class TM_PT_Materials(Panel):
     def draw(self, context):
 
         layout   = self.layout
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         
         if requireValidNadeoINI(self) is False: return
 
@@ -196,6 +196,8 @@ class TM_PT_Materials(Panel):
             row.operator("view3d.tm_creatematerial", text=f"Create {mat_name}",    icon="ADD")
 
 
+        layout.separator(factor=UI_SPACER_FACTOR)
+
 
             
         
@@ -207,7 +209,7 @@ class TM_PT_Materials(Panel):
 
 def createOrUpdateMaterial(action)->None:
     """create a export/convert ready material for TM and MP"""
-    tm_props = bpy.context.scene.tm_props
+    tm_props = getTmProps()
     
     TM_PREFIX = "TM_"
     MP_PREFIX = "MP_"

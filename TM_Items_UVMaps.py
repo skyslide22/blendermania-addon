@@ -28,7 +28,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
                 and isNadeoIniValid()
@@ -36,7 +36,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
     
     def draw_header(self, context):
         layout = self.layout
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
         row.prop(tm_props, "CB_uv_genLightMap",         text="",    icon_only=True, icon="CHECKMARK",)
@@ -46,8 +46,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
     def draw(self, context):
 
         layout = self.layout
-        tm_props        = context.scene.tm_props
-        tm_props_pivots = context.scene.tm_props_pivots
+        tm_props        = getTmProps()
         
         if tm_props.CB_showConvertPanel:
             return
@@ -78,7 +77,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
                 and isNadeoIniValid()
@@ -86,7 +85,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
     
     def draw_header(self, context):
         layout = self.layout
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
         row.prop(tm_props, "CB_uv_genBaseMaterialCubeMap",  text="", icon_only=True, icon="CHECKMARK",)
@@ -95,7 +94,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
     def draw(self, context):
 
         layout = self.layout
-        tm_props        = context.scene.tm_props
+        tm_props        = getTmProps()
         
         if tm_props.CB_showConvertPanel:
             return
@@ -121,7 +120,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
 
 def generateBaseMaterialCubeProject(col) -> None:
     """generate basematerial uvlayer with cube project method, only useful for repeating textures"""
-    tm_props    = bpy.context.scene.tm_props
+    tm_props    = getTmProps()
     objs        = [obj for obj in col.all_objects if selectObj(obj)]
     bm_objs     = []
 
@@ -161,7 +160,7 @@ def generateBaseMaterialCubeProject(col) -> None:
 
 def generateLightmap(col, fix=False) -> None:
     """generate lightmap of all mesh objects from given collection"""
-    tm_props    = bpy.context.scene.tm_props
+    tm_props    = getTmProps()
     objs        = [obj for obj in col.all_objects if selectObj(obj)]
     lm_objs     = []
 
