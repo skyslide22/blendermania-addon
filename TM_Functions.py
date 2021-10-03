@@ -546,7 +546,7 @@ def createExportOriginFixer(col, createAt=None)->object:
     ORIGIN_OBJ = None
     
     #check if user defined a origin already
-    for obj in col.all_objects:
+    for obj in col.objects:
         if obj.name.lower().startswith("origin"):
             ORIGIN_OBJ = obj
             break
@@ -565,12 +565,12 @@ def createExportOriginFixer(col, createAt=None)->object:
         ORIGIN_OBJ = bpy.context.active_object
         ORIGIN_OBJ.name = "origin_delete"
 
-        if ORIGIN_OBJ.name not in col.all_objects:
+        if ORIGIN_OBJ.name not in col.objects:
             col.objects.link(ORIGIN_OBJ)
 
 
     # parent all objects to the origins
-    for obj in col.all_objects:
+    for obj in col.objects:
 
         #parent all objs to _Lod0
         if  obj is not ORIGIN_OBJ:
@@ -608,14 +608,14 @@ def parentObjsToObj(col, obj):
 
 def deleteExportOriginFixer(col)->None:
     """unparent all objects of a origin object"""
-    for obj in col.all_objects:
+    for obj in col.objects:
         if not obj.name.lower().startswith("origin"):
             deselectAll()
             setActiveObj(obj)
             bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
     
     deselectAll()
-    for obj in col.all_objects:
+    for obj in col.objects:
         if "delete" in str(obj.name).lower():
             setActiveObj(obj)
             deleteObj(obj)
@@ -739,26 +739,34 @@ def getFilenameOfPath(filepath, remove_extension=False)->str:
     return filepath
 
 
-def isCollectionExcluded(col) -> bool:
+def isCollectionExcludedOrHidden(col) -> bool:
     """check if collection is disabled in outliner (UI)"""
-    hir = getCollectionHierachy(colname=col.name, hierachystart=[col.name])
+    hierachy = getCollectionHierachy(colname=col.name, hierachystart=[col.name])
+    
 
-    vl  = bpy.context.view_layer
-    excluded = False
-    currentCol = ""
+    view_layer  = bpy.context.view_layer
+    current_col = ""
+    collection_is_excluded = False
 
     #loop over viewlayer (collection->children) <-recursive until obj col[0] found
-    for hircol in hir: #hierachy collection
+    for hierachy_col in hierachy: #hierachy collection
         
-        if currentCol == "": #set first collection
-            currentCol = vl.layer_collection.children[hircol]
+        #set first collection
+        if current_col == "": 
+            current_col = view_layer.layer_collection.children[hierachy_col]
         
         else:
-            currentCol = currentCol.children[hircol]
-            if currentCol.name == col.name: #last collection found
-                excluded = currentCol.exclude
+            current_col = current_col.children[hierachy_col]
             
-    return excluded
+        if current_col.name == col.name: #last collection found
+
+            if current_col.exclude or current_col.is_visible is False:
+                collection_is_excluded = True # any col in hierachy is not visible or enabled, ignore this col.
+                break
+            
+    # debug(f"collection excluded: {collection_is_excluded} {col.name}")
+
+    return True if collection_is_excluded else False
 
     
 
@@ -912,9 +920,9 @@ def getActiveCollection() -> object:
     return bpy.context.view_layer.active_layer_collection.collection
 
 
-def selectAllObjectsInACollection(col, exclude_infixes=None) -> None:
+def selectAllObjectsInACollection(col, only_direct_children=False, exclude_infixes=None) -> None:
     """select all objects in a collection, you may use deselectAll() before"""
-    objs = col.all_objects
+    objs = col.objects if only_direct_children else col.all_objects
     
     deselectAll()
     if exclude_infixes:
@@ -1003,6 +1011,33 @@ def checkMatValidity(matname: str) -> str("missing prop as str or True"):
 def clearProperty(prop, value):
     getTmProps()[prop] = value
 
+
+
+
+def getExportableCollections(objs)->set:
+    collections = set()
+
+    for obj in objs:
+
+        if obj.type != "MESH":
+            continue
+
+        if obj.visible_get() is False: 
+            continue
+
+        # filter special objects, allow only real "mesh" objects, not helpers (_xyz_)
+        if obj.name.startswith("_"):
+            continue
+
+        for col in obj.users_collection:
+
+            if col.name.lower() in notAllowedColnames: continue
+            if col in collections: continue
+            if isCollectionExcludedOrHidden(col): continue
+
+            collections.add(col)
+    
+    return collections
 
 
 
@@ -1168,7 +1203,7 @@ def roundInterval(num: float, interval: int) -> int:
 
 
 def onlyMeshObjsOfCollection(col) -> list:
-    return [obj for obj in col.all_objects if obj.type == "MESH"]
+    return [obj for obj in col.objects if obj.type == "MESH"]
 
 
 def getDimensionOfCollection(col: bpy.types.Collection)->list:
