@@ -294,7 +294,7 @@ def startBatchConvert(fbxfilepaths: list) -> None:
 
                     if atleast_one_convert_failed:
                         title=f"""Convert failed"""
-                        text =f"""{convert_count} of {convert_errors} converts failed\nDuration: {convert_duration}s"""
+                        text =f"""{convert_errors} of {convert_count} converts failed\nDuration: {convert_duration}s"""
                         icon ="Error"
                     else:
                         title=f"""Convert successfully"""
