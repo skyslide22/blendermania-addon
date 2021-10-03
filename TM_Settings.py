@@ -80,12 +80,13 @@ class TM_PT_Settings(Panel):
     bl_label = "Settings"
     bl_idname = "TM_PT_Settings"
     locals().update( panelClassDefaultProps )
+    bl_options = set() # default is closed, open as default
 
     # endregion
     def draw(self, context):
 
         layout = self.layout
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
 
         row = layout.row()
         row.prop(tm_props, "ST_author")
@@ -156,13 +157,13 @@ class TM_PT_Settings(Panel):
         dlTexRunning = tm_props.CB_DL_TexturesRunning is False
 
         row=layout.row()
-        row.label(text="Download textures for uvmapping", icon="TEXTURE")
+        row.label(text="Download textures for uvmapping")
 
         col = layout.column(align=True)
         col.enabled = dlTexRunning
 
         if isGameTypeManiaPlanet():
-            col.row().prop(tm_props, "LI_DL_TextureEnvi", text="Envi")
+            col.row().prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon="WORLD")
 
         envi = tm_props.LI_DL_TextureEnvi if isGameTypeManiaPlanet() else "Stadium"
 
@@ -181,6 +182,8 @@ class TM_PT_Settings(Panel):
             row.enabled = False
             row.prop(tm_props, "NU_DL_Textures", text=statusText)
 
+        layout.separator(factor=UI_SPACER_FACTOR)
+
 
 
 
@@ -190,7 +193,8 @@ class TM_PT_Settings(Panel):
 
 
 def autoFindNadeoIni()->None:
-    game    = str(bpy.context.scene.tm_props.LI_gameType).lower()
+    tm_props= getTmProps()
+    game    = str(getTmProps().LI_gameType).lower()
     base    = fixSlash(PATH_PROGRAM_FILES_X86)
     mp_envis= ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
     alphabet= list(string.ascii_lowercase) #[a-z]
@@ -232,10 +236,10 @@ def autoFindNadeoIni()->None:
 
     #change inifile
     if isGameTypeManiaPlanet():
-        bpy.context.scene.tm_props.ST_nadeoIniFile_MP = ini
+        tm_props.ST_nadeoIniFile_MP = ini
     
     if isGameTypeTrackmania2020():
-        bpy.context.scene.tm_props.ST_nadeoIniFile_TM = ini
+        tm_props.ST_nadeoIniFile_TM = ini
 
 
 
