@@ -136,22 +136,15 @@ class TM_PT_Items_Export(Panel):
             text = exportType
             icon = "EXPORT"
 
-            collections = set()
+            
+            # get number of collections which can be exported
+            selected_objects = bpy.context.selected_objects
+            visible_objects  = bpy.context.visible_objects
 
-            if exportActionIsSelected:
-                user_action = bpy.context.selected_objects
+            objs = selected_objects if exportActionIsSelected else visible_objects
+            collection_count = len(getExportableCollections(objs=objs))
 
-            else:
-                user_action = bpy.context.visible_objects
-
-            for obj in user_action:
-                if obj.type == "MESH":
-                    col = obj.users_collection
-                    collections.add(col)
-
-            collection_count = len(collections)
-            number_or_all_visible = collection_count
-
+        
             plural = "s" if collection_count > 1 else ""
 
             if exportType == "EXPORT":
@@ -245,11 +238,16 @@ def exportAndOrConvert()->None:
     allObjs             = bpy.context.scene.collection.all_objects
     action              = tm_props.LI_exportType
     generateIcons       = tm_props.CB_icon_genIcons
-    colsToExport        = []
     exportedFBXs        = []
     invalidCollections  = []
     embeddedMaterials   = []
     pre_selected_objs   = []
+
+    selected_objects = bpy.context.selected_objects
+    visible_objects  = bpy.context.visible_objects
+    
+    objs = selected_objects if useSelectedOnly else visible_objects
+    colsToExport = getExportableCollections(objs=objs)
 
     generateLightmaps                = tm_props.CB_uv_genLightMap
     fixLightmap                      = tm_props.CB_uv_fixLightMap
@@ -277,15 +275,11 @@ def exportAndOrConvert()->None:
         if useSelectedOnly:
             pre_selected_objs = bpy.context.selected_objects.copy()
         
-        #generate list of collections to export
+        deselectAll()
+
         for obj in allObjs:
             
-            if useSelectedOnly:
-                if not obj.select_get(): continue
-
-            # debug(f"try action <{action}> for <{obj.name}>")
-
-            selectObj(obj)
+            # rename lazy names (spawn and trigger)
             objnameLower = obj.name.lower()
 
             if "socket" in objnameLower\
@@ -297,36 +291,20 @@ def exportAndOrConvert()->None:
                 obj.name = "_trigger_"
 
 
-            #run through collections, select and add to exportlist if visible(=selectable)
-            for col in obj.users_collection:
-                if col.name.lower() not in notAllowedColnames:
-                    if col not in colsToExport:
-                        colsToExport.append( col )
+            # save material as json in the exported fbx file (for import? later) 
+            for slot in obj.material_slots:
+                mat = slot.material
+                if mat in embeddedMaterials: continue
+
+                saveMatPropsAsJSONinMat(mat=mat) #only string/bool/num custom props are saved in fbx...
+                embeddedMaterials.append(mat)
         
-        #remove doubles
-        colsToExportSet = set(colsToExport)
-        colsToExport = [] #sort collections which are not disabled
-        
-        for col in colsToExportSet:
-            if not isCollectionExcluded(col):
-                for obj in col.all_objects:
-                    if obj.type == "MESH":
-                        if selectObj(obj):
-                            for slot in obj.material_slots:
-                                mat = slot.material
-                                if not mat in embeddedMaterials:
-                                    saveMatPropsAsJSONinMat(mat=mat) #only string/bool/num custom props are saved in fbx...
-                                    embeddedMaterials.append(mat)
-                            colsToExport.append(col)
-                        
+        debug("-----")
+        for col in colsToExport:
+            debug(col.name)
+
         #export each collection ...
-
-
-        for col in set(colsToExport):
-
-            if isCollectionExcluded(col):
-                continue #col is disabled by user in outliner
-
+        for col in colsToExport:
 
             deselectAll()
 
@@ -339,7 +317,7 @@ def exportAndOrConvert()->None:
 
                 has_lod_0 = False
                 has_lod_1 = False
-                for obj in col.all_objects: 
+                for obj in col.objects: 
                     if   "_lod0" in obj.name.lower(): has_lod_0 = True
                     elif "_lod1" in obj.name.lower(): has_lod_1 = True
                 
@@ -357,6 +335,9 @@ def exportAndOrConvert()->None:
                     invalidCollections.append(f"<{col.name}> has Lod1, but not Lod0, collection skipped")
                     continue
                 
+                debug()
+                debug(f"Start export of collection <{col.name}>")
+                
                 # all col objs parenting to an empty obj
                 # move to center, unparent, export,
                 # parent again, back to old origin, unparent
@@ -371,7 +352,7 @@ def exportAndOrConvert()->None:
                 unparentObjsAndKeepTransform(col=col) 
 
                 deselectAll()
-                selectAllObjectsInACollection(col=col, exclude_infixes="_ignore, delete")
+                selectAllObjectsInACollection(col=col, only_direct_children=True, exclude_infixes="_ignore, delete")
                 debug(f"selected objects: {bpy.context.selected_objects}")
 
                 exportFBX(fbxfilepath=FBX_exportFilePath)
@@ -409,9 +390,8 @@ def exportAndOrConvert()->None:
         tm_props.CB_converting          = True
         
         #run convert on second thread to avoid blender to freeze
-        convert = Thread(target=startBatchConvert, args=[exportedFBXs]) 
-        convert.start()
-    
+        startBatchConvert(exportedFBXs) 
+
 
     # generate xmls
     for fbxinfo in exportedFBXs:
