@@ -65,7 +65,7 @@ def gameTypeGotUpdated()->None:
     matPhysics = ERROR_ENUM_PROPS
     nadeoLibParser(refresh=True)
 
-    tm_props     = bpy.context.scene.tm_props
+    tm_props     = getTmProps()
     colIsStadium = tm_props.LI_materialCollection.lower() == "stadium"
 
     if isGameTypeTrackmania2020() and not colIsStadium:
@@ -100,16 +100,16 @@ def getExportTypes()->list:
 
 def getExportFolderTypes(self,context)->list:
     base = [
-        ("Base",       "/",                 "Base folder(/Items",         "HOME",                  0),
-        ("Custom",     "Custom Folder/",    "Custom folder",              "HELP",                  1),
+        ("Base",       "/",                 "Base folder(Work/Items/",                  "HOME", 0),
+        ("Custom",     "Custom Folder/",    "Custom folder, need to be in Work/Items/", "HELP", 1),
     ]
     if isGameTypeManiaPlanet():
         return base + [
-            ("Stadium",    "Stadium/",      "Base folder(/Items/Stadium",   getIcon("ENVI_STADIUM"), 1),
-            ("Valley",     "Valley/",       "Base folder(/Items/Valley",    getIcon("ENVI_VALLEY"),  2),
-            ("Canyon",     "Canyon/",       "Base folder(/Items/Canyon",    getIcon("ENVI_CANYON"),  3),
-            ("Lagoon",     "Lagoon/",       "Base folder(/Items/Lagoon",    getIcon("ENVI_LAGOON"),  4),
-            ("Shootmania", "Shootmania/",   "Base folder(/Items/Storm",     getIcon("ENVI_STORM"),   5),
+            ("Stadium",    "Stadium/",      "Base folder(/Items/Stadium",   getIcon("ENVI_STADIUM"), 2),
+            ("Valley",     "Valley/",       "Base folder(/Items/Valley",    getIcon("ENVI_VALLEY"),  3),
+            ("Canyon",     "Canyon/",       "Base folder(/Items/Canyon",    getIcon("ENVI_CANYON"),  4),
+            ("Lagoon",     "Lagoon/",       "Base folder(/Items/Lagoon",    getIcon("ENVI_LAGOON"),  5),
+            ("Shootmania", "Shootmania/",   "Base folder(/Items/Storm",     getIcon("ENVI_STORM"),   6),
         ]
     else: return base
 
@@ -122,7 +122,7 @@ def getExportWhichObjects()->list:
     ]
 
 
-def getExportObjTypes(self, context) -> list:
+def getExportObjTypes() -> list:
     return [
         (   'MESH_LIGHT_EMPTY', "All object types",     "Normal meshes, lights and empties",                "SCENE_DATA",   0),
         (   'MESH_LIGHT',       "Mesh, Light",          "Normal meshes, lights, no empties",                "LIGHT_SUN",    1),
@@ -135,7 +135,7 @@ def getExportObjTypes(self, context) -> list:
 
 
 def updateGridAndLevi(self, context) -> None:
-    tm_props = bpy.context.scene.tm_props
+    tm_props = getTmProps()
     syncX = tm_props.NU_xml_gridAndLeviX
     syncY = tm_props.NU_xml_gridAndLeviY
     tm_props.NU_xml_gridX = syncX
@@ -264,7 +264,7 @@ def getMaterials(self, context):
 
 
 def updateMaterialSettings(self, context):
-    tm_props    = context.scene.tm_props
+    tm_props    = getTmProps()
     matToUpdate = bpy.data.materials[tm_props.LI_materials]
 
     assignments = [
@@ -361,6 +361,7 @@ def getMaterialPhysicIds(self=None, context=None)->list:
 
 def getMaterialLinks(self, context)->List:
     global matLinks
+    tm_props = getTmProps()
 
     if matLinks is not ERROR_ENUM_PROPS:
         return matLinks
@@ -375,7 +376,7 @@ def getMaterialLinks(self, context)->List:
     
     materials    = []
     libmats      = nadeoLibParser()
-    selectedEnvi = str(context.scene.tm_props.LI_materialCollection).lower()
+    selectedEnvi = str(tm_props.LI_materialCollection).lower()
     i = 0
 
     for envi in libmats:
@@ -421,24 +422,29 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
     #export
     LI_exportType         : EnumProperty(items=getExportTypes(),        name="Action", default=1)
-    LI_exportFolderType   : EnumProperty(items=getExportFolderTypes,    name="Folder")
+    LI_exportFolderType   : EnumProperty(items=getExportFolderTypes,    name="Folder", default=0)
     ST_exportFolder_MP    : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
     ST_exportFolder_TM    : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
     LI_exportWhichObjs    : EnumProperty(items=getExportWhichObjects(), name="Export by?")
-    LI_exportValidTypes   : EnumProperty(name="Export",      items=getExportObjTypes)
+    LI_exportValidTypes   : EnumProperty(name="Export",      items=getExportObjTypes())
     NU_exportObjScale     : FloatProperty(name="Scale", min=0, soft_max=16)
 
     #convert
-    NU_convertCount       : IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
-    NU_convertedRaw       : IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
-    NU_converted          : IntProperty(min=0, max=100,     default=0, subtype="PERCENTAGE", update=redrawPanel) 
-    NU_convertedSuccess   : IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
-    NU_convertedError     : IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
-    ST_convertedErrorList : StringProperty(default="",  update=redrawPanel)
-    CB_showConvertPanel   : BoolProperty(default=False, update=redrawPanel)
-    CB_stopAllNextConverts: BoolProperty(default=False, update=redrawPanel)
-    CB_converting         : BoolProperty(default=False, update=redrawPanel)
-    CB_notifyPopupWhenDone: BoolProperty(default=False)
+    NU_convertCount              : IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
+    NU_convertedRaw              : IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
+    NU_converted                 : IntProperty(min=0, max=100,     default=0, subtype="PERCENTAGE", update=redrawPanel) 
+    NU_convertedSuccess          : IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
+    NU_convertedError            : IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
+    ST_convertedErrorList        : StringProperty(default="",  update=redrawPanel)
+    CB_showConvertPanel          : BoolProperty(default=False, update=redrawPanel)
+    CB_stopAllNextConverts       : BoolProperty(default=False, update=redrawPanel, name="Stop all next converts")
+    CB_converting                : BoolProperty(default=False, update=redrawPanel)
+    CB_notifyPopupWhenDone       : BoolProperty(default=False, name="Notify toast when done")
+    NU_convertDurationSinceStart : IntProperty(min=-1, max=100000,  default=-1,   update=redrawPanel)
+    NU_convertStartedAt          : IntProperty(min=-1, max=100000,  default=-1,   update=redrawPanel)
+    NU_currentConvertDuration    : IntProperty(min=0,  max=100000,  default=0,    update=redrawPanel)
+    NU_lastConvertDuration       : IntProperty(min=-1, max=100000,  default=-1,   update=redrawPanel)
+    NU_remainingConvertTime      : IntProperty(min=0,  max=100000,  default=0,    update=redrawPanel)
 
     #import
     LI_importMatFailed        : StringProperty()
@@ -543,12 +549,16 @@ class TM_Properties_Pivots(PropertyGroup):
     NU_pivotY   : FloatProperty(name="Y", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
     NU_pivotZ   : FloatProperty(name="Z", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
     
+
+class TM_Properties_ConvertingItems(PropertyGroup):
+    """trackmania properties generated for pivots (item xml)"""
+    name              : StringProperty(name="ITEM NAME ... ", default="ITEM NAME ... ")
+    icon              : StringProperty(name="Icon name",      default="TIME")
+    failed            : BoolProperty(name="Convert failed?",  default=False)
+    converted         : BoolProperty(name="Item converted?",  default=False)
+    convert_duration  : IntProperty(name="Convert duration",  default=0, min=0, max=10000)
     
-class TM_ItemConvertStatus(PropertyGroup):
-    """trackmania properties for the convert progress, status"""
-    ST_fbx_toConvert        : StringProperty(name="fbxname",    default="")
-    CB_fbx_convertFailed    : BoolProperty(name="status",       default=False)
-    CB_fbx_convertDone      : BoolProperty(name="status",       default=False)
+
 
 
 
