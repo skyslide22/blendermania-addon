@@ -7,5 +7,59 @@ This addon is for Blender 2.93+, it will simplify all necessary steps and help y
 - convert your exported blocks with one click, with progressbar and error reporting
 - documentation (in dev...) https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/
 
+
+## How to install
+- download the repository as zip
+- go to blender 2.93+, edit > preferences > addons > install from file (the zip file)
+- enable addon
+- addon is in the 3d viewport
+- open the right panel (N KEY) and then choose the tab TrackmaniaAddon (90° rotated)
+
+## How to set it up
+- set your author name
+- choose between maniaplanet and trackmania2020
+- select the Nadeo.ini file of your game, try automatic search...
+- download the nadeoimporter for your game
+- optionally download the textures for your game/environment
+
+## Materials
+- materials contain the information for the textures
+- you can have multiple materials for any object
+- assign the geometry in editmode to the selected material
+- materials needs to be created with my addon
+
+## Collections (your objects)
+- your objects need to be in a collection, always
+- the objectnames do not matter at all, except the special ones
+- the collection name is the actual name of your object
+- collections can be nested, tree is used for exporting (folders in Work/Items/)
+- special objects are:
+- - \_socket\_whatever   (no uvs, no materials, spawn of your waypoint)
+- - \_trigger\_whatever  (no uvs, no materials, the mesh which triggers the waypoint)
+- - whatever_Lod0 (optional, highpoly version, visible when near)
+- - whatever_Lod1 (optional, lowpoly  version, visible when far away)
+- choose the waypoint type for your collection by rightclick, color:
+- - blue:   checkpoint
+- - red:    finish
+- - green:  start
+- - yellow: multilap (startfinish)
+
+## Export & Convert
+- you can choose between export and export & convert
+- export will only export the fbx file (the collection(s))
+- export visible will export all visible objects (the collection(s))
+- export selected will export all selected objects (the collection(s))
+- & convert will convert the fbx to GameBox (gbx)
+- this addon does not convert fbx to gbx, nadeoimporter.exe is required & used for this!
+- collections with names which start with \_ignore will not be exported, even if visible or selected 
+
+## Uvmaps
+- most materials require the BaseMateral & LightMap uvlayer
+- basematerial stores the texture information
+- lightmap stores the uv data for lightmap calculation
+- lightmap is corrupt if any uv islands overlap
+- fast lightmap generation can be done with KEY U > "smart uv project"
+- the blender build in KEY U > "lightmap pack" is totally wrong, do not use it!
+
 contact me on discord, in the #importer-help channel, http://discord.mania.exchange
 
