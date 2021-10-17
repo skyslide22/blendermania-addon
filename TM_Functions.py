@@ -42,7 +42,7 @@ PATH_PROGRAM_FILES      = os.environ.get("PROGRAMFILES").replace("\\", "/")     
 PATH_PROGRAM_FILES_X86  = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
 PATH_CONVERT_REPORT     = PATH_DESKTOP + "convert_report.html"
 
-WEBSPACE_BASE_URL                 = "https://images.mania.exchange/com/skyslide/"
+WEBSPACE_BASE_URL                 = "http://images.mania.exchange/com/skyslide/"
 WEBSPACE_TEXTURES_MP_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Stadium.zip"
 WEBSPACE_TEXTURES_MP_VALLEY      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Valley.zip"
 WEBSPACE_TEXTURES_MP_STORM       = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Shootmania.zip"
@@ -460,7 +460,6 @@ class DownloadTMFile(Thread):
         self.progressbar_prop   = progressbar_prop
         self.error_msg          = ""
 
-        debug(url)
         try:
             self.response = urllib.request.urlopen(url)
 
@@ -474,9 +473,8 @@ class DownloadTMFile(Thread):
     def run(self):
 
         success = False
-        tm_props = getTmProps()
 
-        if self.response["code"] == 200:
+        if self.response.code == 200:
             with open(self.saveFilePath, "wb+") as f:
                 fileSize   = int(self.response.length)
                 downloaded = 0
@@ -490,7 +488,7 @@ class DownloadTMFile(Thread):
                     def updateProgressbar():
                         try: #x[ y ]=z does not trigger panel text refresh, so do x.y = z
                             percentage = downloaded/fileSize * 100
-                            exec_str = f"tm_props.{self.progressbar_prop} = percentage" 
+                            exec_str = f"getTmProps().{self.progressbar_prop} = percentage" 
                             exec_str = exec_str 
                             exec(exec_str)
                         except Exception as e:
