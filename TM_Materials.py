@@ -305,8 +305,8 @@ def createMaterialNodes(mat)->None:
     NODE_bsdf = nodes.new(type="ShaderNodeBsdfPrincipled")
     NODE_bsdf.subsurface_method = "BURLEY"
     NODE_bsdf.location = x(3), y(1)
-    NODE_bsdf.inputs[5 ].default_value = 0 #.specular
-    NODE_bsdf.inputs[18].default_value = 3.0
+    NODE_bsdf.inputs["Specular"].default_value = 0 #.specular
+    NODE_bsdf.inputs["Emission Strength"].default_value = 3.0
 
     # uvmap basematerial
     NODE_uvmap = nodes.new(type="ShaderNodeUVMap")
@@ -417,10 +417,10 @@ def createMaterialNodes(mat)->None:
 
 
     if not isCustomMat:
-        links.new(NODE_uvmap.outputs[0], NODE_tex_D.inputs[0])
-    links.new(NODE_uvmap.outputs[0], NODE_tex_I.inputs[0])
-    links.new(NODE_uvmap.outputs[0], NODE_tex_R.inputs[0])
-    links.new(NODE_uvmap.outputs[0], NODE_tex_N.inputs[0])
+        links.new(NODE_uvmap.outputs["UV"], NODE_tex_D.inputs["Vector"])
+    links.new(NODE_uvmap.outputs["UV"], NODE_tex_I.inputs["Vector"])
+    links.new(NODE_uvmap.outputs["UV"], NODE_tex_R.inputs["Vector"])
+    links.new(NODE_uvmap.outputs["UV"], NODE_tex_N.inputs["Vector"])
 
     if not isCustomMat:
         links.new(NODE_tex_D.outputs["Color"], NODE_bsdf.inputs["Base Color"]) #basecolor
@@ -434,13 +434,13 @@ def createMaterialNodes(mat)->None:
 
     links.new(NODE_tex_I.outputs["Color"], NODE_bsdf.inputs["Emission"]) #emission
     
-    links.new(NODE_bsdf.outputs[0],  NODE_output.inputs[0])
+    links.new(NODE_bsdf.outputs["BSDF"],  NODE_output.inputs["Surface"])
     
 
     if mat.model.upper() == "TIADD":
-        links.new(NODE_tex_I.outputs[0], NODE_bsdf.inputs[19])  #alpha
-        links.new(NODE_tex_I.outputs[0], NODE_bsdf.inputs[0])   #basecolor
-        NODE_bsdf.inputs[18].default_value = 100.0
+        links.new(NODE_tex_I.outputs["Color"], NODE_bsdf.inputs["Alpha"])  #alpha
+        links.new(NODE_tex_I.outputs["Color"], NODE_bsdf.inputs["Base Color"])   #basecolor
+        NODE_bsdf.inputs["Emission Strength"].default_value = 100.0
         if not isCustomMat:
             nodes.remove(NODE_tex_D) #remove for solid view texture [0]
 
