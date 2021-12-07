@@ -17,11 +17,11 @@ from .TM_Items_Templates    import *
 
 
 bl_info = {
-    "name"          : "Trackmania Export & Convert fbx>gbx Addon",
+    "name"          : "Trackmania Export & Convert .fbx > .gbx Addon",
     "author"        : "skyslide",
-    "description"   : "Export collections, generate XMLs, convert items, all u nedd boi",
+    "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (2, 93, 0),
-    "version"       : (0, 2, 0),
+    "version"       : (0, 2, 5),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
@@ -31,14 +31,14 @@ bl_info = {
 
 
 
-#order matters for UI
+# register order matters for UI panel ordering
 classes = (
 
     #props (not panel)
     TM_Properties_for_Panels,
     TM_Properties_Generated,
     TM_Properties_Pivots,
-    TM_ItemConvertStatus,
+    TM_Properties_ConvertingItems,
 
     #settings
     TM_PT_Settings,
@@ -66,12 +66,13 @@ classes = (
     TM_OT_Items_ItemXML_AddPivot,
     TM_OT_Items_ItemXML_RemovePivot,
 
-    #uvs
-    TM_PT_Items_UVmaps_LightMap,
-
     #icons,
     TM_PT_Items_Icon,
     TM_OT_Items_Icon_Test,
+
+    #uvs
+    TM_PT_Items_UVmaps_LightMap,
+    TM_PT_Items_UVmaps_BaseMaterial_CubeProject,
 
     #materials
     TM_PT_Materials,
@@ -94,10 +95,10 @@ classes = (
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.Scene.tm_props            = PointerProperty(   type=TM_Properties_for_Panels)
-    bpy.types.Scene.tm_props_pivots     = CollectionProperty(type=TM_Properties_Pivots)
-    bpy.types.Scene.tm_props_generated  = CollectionProperty(type=TM_Properties_Generated)
-    bpy.types.Scene.tm_itemconvert      = CollectionProperty(type=TM_ItemConvertStatus)
+    bpy.types.Scene.tm_props                  = PointerProperty(   type=TM_Properties_for_Panels)
+    bpy.types.Scene.tm_props_pivots           = CollectionProperty(type=TM_Properties_Pivots)
+    bpy.types.Scene.tm_props_generated        = CollectionProperty(type=TM_Properties_Generated)
+    bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=TM_Properties_ConvertingItems)
 
     bpy.types.DATA_PT_EEVEE_light.append(extendObjectPropertiesPanel_LIGHT)
     bpy.types.Light.night_only          = BoolProperty(default=False)
@@ -105,18 +106,17 @@ def register():
     bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
     bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Cars_Import.addMenuPoint_CAR_SPAWN)
 
-    bpy.types.Material.gameType         = EnumProperty(  name="Game",           default=0, items=getGameTypes())
-    bpy.types.Material.baseTexture      = StringProperty(name="BaseTexture",    default="")
-    bpy.types.Material.link             = StringProperty(name="Link",           default="")
-    bpy.types.Material.physicsId        = StringProperty(name="PhysicsId",      default="")
-    bpy.types.Material.usePhysicsId     = BoolProperty(  name="Use PhysicsId",  default=False)
-    bpy.types.Material.gameplayId       = StringProperty(name="GameplayId",     default="")
-    bpy.types.Material.useGameplayId    = BoolProperty(  name="Use GameplayId", default=False)
-    bpy.types.Material.model            = EnumProperty(  name="Model",          default="TDSN",    items=getMaterialModelTypes())
-    bpy.types.Material.environment      = EnumProperty(  name="Collection",     default="Stadium", items=getMaterialCollectionTypes())#Material."collection" not allowed
-    bpy.types.Material.surfaceColor     = FloatVectorProperty(name='Surface Color ',  subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
-    # bpy.types.Material.isFromLib        = BoolProperty(  name="Linked to NadeoLib",  default=True)
-    # del bpy.types.Material.isFromLib
+    bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
+    bpy.types.Material.baseTexture      = StringProperty(       name="BaseTexture",         default="")
+    bpy.types.Material.link             = StringProperty(       name="Link",                default="")
+    bpy.types.Material.physicsId        = StringProperty(       name="PhysicsId",           default="")
+    bpy.types.Material.usePhysicsId     = BoolProperty(         name="Use PhysicsId",       default=False)
+    bpy.types.Material.gameplayId       = StringProperty(       name="GameplayId",          default="")
+    bpy.types.Material.useGameplayId    = BoolProperty(         name="Use GameplayId",      default=False)
+    bpy.types.Material.model            = EnumProperty(         name="Model",               default="TDSN",    items=getMaterialModelTypes())
+    bpy.types.Material.environment      = EnumProperty(         name="Collection",          default="Stadium", items=getMaterialCollectionTypes())#Material."collection" not allowed
+    bpy.types.Material.surfaceColor     = FloatVectorProperty(  name='Surface Color ',      subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
+    bpy.types.Material.useCustomColor   = BoolProperty(         name="Use Custom Color",    default=False)
 
 
 # delete classes
@@ -126,7 +126,7 @@ def unregister():
     del bpy.types.Scene.tm_props
     del bpy.types.Scene.tm_props_generated
     del bpy.types.Scene.tm_props_pivots
-    del bpy.types.Scene.tm_itemconvert
+    del bpy.types.Scene.tm_props_convertingItems
 
     bpy.types.DATA_PT_EEVEE_light.remove(extendObjectPropertiesPanel_LIGHT)
 

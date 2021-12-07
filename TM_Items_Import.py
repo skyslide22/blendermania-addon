@@ -32,7 +32,7 @@ class TM_OT_Items_ClearMatImportFailList(Operator):
     bl_label = "Clear failed material import list"
 
     def execute(self, context):
-        context.scene.tm_props.LI_importMatFailed = ""
+        getTmProps().LI_importMatFailed = ""
         return {"FINISHED"}
 
 
@@ -75,7 +75,7 @@ class TM_PT_Items_Import(Panel):
     def draw(self, context):
 
         layout = self.layout
-        tm_props  = context.scene.tm_props
+        tm_props  = getTmProps()
         action    = tm_props.LI_importType
         recursive = tm_props.CB_importFolderRecursive
         failedMats= tm_props.LI_importMatFailed
@@ -106,6 +106,8 @@ class TM_PT_Items_Import(Panel):
                 row.alert = True
                 row.label(text=matName)
         
+        layout.separator(factor=UI_SPACER_FACTOR)
+
 
 
 
@@ -116,7 +118,7 @@ class TM_PT_Items_Import(Panel):
 
 def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
     """main func for fbx import"""
-    tm_props    = bpy.context.scene.tm_props
+    tm_props    = getTmProps()
     action      = tm_props.LI_importType
     recursive   = recursive or tm_props.CB_importFolderRecursive
     fileList    = [] #name, relpath, abspath

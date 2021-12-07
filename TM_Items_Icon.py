@@ -52,7 +52,7 @@ class TM_PT_Items_Icon(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
                 and isNadeoIniValid()
@@ -60,7 +60,7 @@ class TM_PT_Items_Icon(Panel):
     
     def draw_header(self, context):
         layout = self.layout
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
         row.prop(tm_props, "CB_icon_genIcons",         text="",    icon_only=True, icon="CHECKMARK",)
@@ -121,7 +121,7 @@ class TM_PT_Items_Icon(Panel):
 def generateIcon(col, filepath, save=True) -> None:
     """generate icon of """
     scene           = bpy.context.scene
-    col_objs        = [obj for obj in col.all_objects if obj.type == "MESH"]
+    col_objs        = [obj for obj in col.objects if obj.type == "MESH"]
     tm_props        = scene.tm_props
     overwrite_icon  = tm_props.CB_icon_overwriteIcons
     icon_path       = getIconPathOfFBXpath(filepath=filepath)
@@ -260,7 +260,7 @@ def generateIcon(col, filepath, save=True) -> None:
 
 def getCamStyle() -> list:
     """return roation_euler list for the icon_obj"""
-    tm_props = bpy.context.scene.tm_props
+    tm_props = getTmProps()
     style    = tm_props.LI_icon_perspective
 
     if style == "CLASSIC":  return   rList(35.3,    30,    -35.3)

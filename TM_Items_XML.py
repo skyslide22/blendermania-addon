@@ -60,7 +60,7 @@ class TM_PT_Items_ItemXML(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
                 and isNadeoIniValid()
@@ -68,7 +68,7 @@ class TM_PT_Items_ItemXML(Panel):
     
     def draw_header(self, context):
         layout = self.layout
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
         row.prop(tm_props, "CB_xml_genItemXML",         text="",    icon_only=True, icon="CHECKMARK",)
@@ -78,8 +78,8 @@ class TM_PT_Items_ItemXML(Panel):
     def draw(self, context):
 
         layout = self.layout
-        tm_props        = context.scene.tm_props
-        tm_props_pivots = context.scene.tm_props_pivots
+        tm_props        = getTmProps()
+        tm_props_pivots = getTmPivotProps()
         
         if tm_props.CB_showConvertPanel:
             return
@@ -164,7 +164,7 @@ class TM_PT_Items_MeshXML(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
                 and isNadeoIniValid()
@@ -172,7 +172,7 @@ class TM_PT_Items_MeshXML(Panel):
     
     def draw_header(self, context):
         layout = self.layout
-        tm_props = context.scene.tm_props
+        tm_props = getTmProps()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
         row.prop(tm_props, "CB_xml_genMeshXML",         text="",            icon_only=True, icon="CHECKMARK")
@@ -182,7 +182,7 @@ class TM_PT_Items_MeshXML(Panel):
     
     def draw(self, context):
         layout = self.layout
-        tm_props        = context.scene.tm_props
+        tm_props        = getTmProps()
         
         if tm_props.CB_showConvertPanel:
             return
@@ -249,8 +249,8 @@ class TM_PT_Items_MeshXML(Panel):
 
 def generateItemXML(fbxfilepath, col) -> str:
     """generate item.xml"""
-    tm_props        = bpy.context.scene.tm_props
-    tm_props_pivots = bpy.context.scene.tm_props_pivots
+    tm_props        = getTmProps()
+    tm_props_pivots = getTmPivotProps()
     xmlfilepath     = fbxfilepath.replace(".fbx", ".Item.xml")
     overwrite       = tm_props.CB_xml_overwriteItemXML
 
@@ -348,7 +348,7 @@ def generateItemXML(fbxfilepath, col) -> str:
 
 def generateMeshXML(fbxfilepath: str, col: object) -> str:
     """generate meshparams.xml"""
-    tm_props  = bpy.context.scene.tm_props
+    tm_props  = getTmProps()
     overwrite = tm_props.CB_xml_overwriteMeshXML
 
     xmlfilepath = fbxfilepath.replace(".fbx", ".MeshParams.xml")
@@ -369,7 +369,7 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
     lightsXML   = ""
 
     
-    for obj in col.all_objects:
+    for obj in col.objects:
         
         if obj.type == "MESH":
             for matSlot in obj.material_slots:
@@ -394,7 +394,7 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
         BASETEXTURE     = fixSlash(mat.baseTexture)
         BASETEXTURE     = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", BASETEXTURE)
         CUSTOM_COLOR    = rgbToHEX(mat.surfaceColor)
-        USE_CUSTOM_COLOR= mat.useCustomColor
+        USE_CUSTOM_COLOR= getattr(mat, "useCustomColor", False) # old materials do not have this attribute: runtimeerror
 
         if BASETEXTURE:
             BASETEXTURE = fixSlash( BASETEXTURE )
@@ -452,8 +452,8 @@ def writeXMLFile(filepath, xmlstring) -> None:
 
 def addOrRemovePivot(type: str) -> None:
     """add or remove a pivot for xml creation"""
-    tm_props        = bpy.context.scene.tm_props
-    tm_props_pivots = bpy.context.scene.tm_props_pivots
+    tm_props        = getTmProps()
+    tm_props_pivots = getTmPivotProps()
     
     pivotcount = len(tm_props_pivots)
     

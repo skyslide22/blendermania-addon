@@ -1,6 +1,4 @@
 from datetime import datetime
-from os.path import abspath, relpath
-import string
 import subprocess
 import threading
 import urllib.request
@@ -10,21 +8,23 @@ import os
 import re
 import math
 import configparser
-import json
 import uuid
 import pprint
-import ctypes
 from zipfile import ZipFile
 from threading import Thread
 from inspect import currentframe, getframeinfo
 import bpy.utils.previews
-from bpy.types import Key, UIList 
+from time import sleep
+import time
 
 
 
 
 def getAddonPath() -> str:
     return os.path.dirname(__file__) + "/"
+
+def getAddonAssetsPath() -> str:
+    return getAddonPath() + "/assets/"
 
 MSG_ERROR_ABSOLUTE_PATH = "Absolute path only!"
 MSG_ERROR_NADEO_INI     = "Select the Nadeo.ini file first!"
@@ -42,7 +42,7 @@ PATH_PROGRAM_FILES      = os.environ.get("PROGRAMFILES").replace("\\", "/")     
 PATH_PROGRAM_FILES_X86  = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
 PATH_CONVERT_REPORT     = PATH_DESKTOP + "convert_report.html"
 
-WEBSPACE_BASE_URL                 = "https://images.mania.exchange/com/skyslide/"
+WEBSPACE_BASE_URL                 = "http://images.mania.exchange/com/skyslide/"
 WEBSPACE_TEXTURES_MP_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Stadium.zip"
 WEBSPACE_TEXTURES_MP_VALLEY      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Valley.zip"
 WEBSPACE_TEXTURES_MP_STORM       = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Shootmania.zip"
@@ -52,7 +52,7 @@ WEBSPACE_TEXTURES_TM_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_TrackMania202
 WEBSPACE_NADEOIMPORTER_MP        = WEBSPACE_BASE_URL + "NadeoImporter_ManiaPlanet.zip"
 WEBSPACE_NADEOIMPORTER_TM        = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania2020.zip"
 
-MAT_PROPS_AS_JSON = "MAT_PROPS_AS_JSON"
+MAT_PROPS_AS_JSON        = "MAT_PROPS_AS_JSON"
 
 COLOR_CHECKPOINT = "COLOR_05" 
 COLOR_START      = "COLOR_04" 
@@ -100,6 +100,7 @@ panelClassDefaultProps = {
     "bl_space_type":     "VIEW_3D",
     "bl_region_type":    "UI",
     "bl_context":        "objectmode",
+    "bl_options":        {"DEFAULT_CLOSED"}
 }
 
 mat_props = [
@@ -130,10 +131,10 @@ nadeoLibMaterials = {}
 
 def getNadeoIniFilePath() -> str:
     if isGameTypeManiaPlanet():
-        return fixSlash(bpy.context.scene.tm_props.ST_nadeoIniFile_MP)
+        return fixSlash(getTmProps().ST_nadeoIniFile_MP)
 
     if isGameTypeTrackmania2020():
-        return fixSlash(bpy.context.scene.tm_props.ST_nadeoIniFile_TM)
+        return fixSlash(getTmProps().ST_nadeoIniFile_TM)
     
     else: return ""
 
@@ -267,12 +268,13 @@ def requireValidNadeoINI(self) -> bool:
 
 def isNadeoIniValid() -> bool:
     ini = ""
+    tm_props = getTmProps()
 
     if   isGameTypeManiaPlanet():
-            ini = str(bpy.context.scene.tm_props.ST_nadeoIniFile_MP)
+            ini = str(tm_props.ST_nadeoIniFile_MP)
 
     elif isGameTypeTrackmania2020():
-            ini = str(bpy.context.scene.tm_props.ST_nadeoIniFile_TM)
+            ini = str(tm_props.ST_nadeoIniFile_TM)
     
     return doesFileExist(ini) and ini.lower().endswith(".ini")
 
@@ -286,7 +288,7 @@ def chooseNadeoIniPathFirstMessage(row) -> object:
 def isNadeoImporterInstalled(prop="")->None:
     filePath = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.exe" )
     exists   = os.path.isfile(filePath)
-    tm_props = bpy.context.scene.tm_props
+    tm_props = getTmProps()
     tm_props.CB_nadeoImporter = exists
 
     if prop:
@@ -301,30 +303,32 @@ def isNadeoImporterInstalled(prop="")->None:
 
 
 def nadeoImporterInstalled_True()->None:
-    bpy.context.scene.tm_props.CB_nadeoImporter     = True
+    getTmProps().CB_nadeoImporter     = True
     
 
 def nadeoImporterInstalled_False()->None:
-    bpy.context.scene.tm_props.CB_nadeoImporter = False
+    getTmProps().CB_nadeoImporter = False
 
 
 def gameTexturesDownloading_False()->None:
-    bpy.context.scene.tm_props.CB_DL_TexturesRunning = False
-    bpy.context.scene.tm_props.NU_DL_Textures        = 0
+    tm_props = getTmProps()
+    tm_props.CB_DL_TexturesRunning = False
+    tm_props.NU_DL_Textures        = 0
 
 
 def gameTexturesDownloading_True()->None:
-    bpy.context.scene.tm_props.CB_DL_TexturesRunning = True
-    bpy.context.scene.tm_props.NU_DL_Textures        = 0
-    bpy.context.scene.tm_props.ST_DL_TexturesErrors  = ""
+    tm_props = getTmProps()
+    tm_props.CB_DL_TexturesRunning = True
+    tm_props.NU_DL_Textures        = 0
+    tm_props.ST_DL_TexturesErrors  = ""
 
 
 def isGameTypeManiaPlanet()->bool:
-    return str(bpy.context.scene.tm_props.LI_gameType).lower() == "maniaplanet"
+    return str(getTmProps().LI_gameType).lower() == "maniaplanet"
 
 
 def isGameTypeTrackmania2020()->bool:
-    return str(bpy.context.scene.tm_props.LI_gameType).lower() == "trackmania2020"
+    return str(getTmProps().LI_gameType).lower() == "trackmania2020"
 
 
 def unzipNadeoImporter()->None:
@@ -336,7 +340,7 @@ def unzipNadeoImporter()->None:
 
 
 def installNadeoImporter()->None:
-    tm_props    = bpy.context.scene.tm_props
+    tm_props    = getTmProps()
     filePath    = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip")
     progressbar = "NU_nadeoImporterDL"
 
@@ -393,7 +397,7 @@ def reloadAllMaterialTextures() -> None:
 
 def installGameTextures()->None:
     """download and install game textures from MX to /Items/..."""
-    tm_props    = bpy.context.scene.tm_props
+    tm_props    = getTmProps()
     enviPrefix  = "TM_" if isGameTypeTrackmania2020() else "MP_"
     enviRaw     = tm_props.LI_DL_TextureEnvi
     envi        = str(enviPrefix + enviRaw).lower()
@@ -419,7 +423,7 @@ def installGameTextures()->None:
         timer(run, 5)
 
     def on_error(msg):
-        tm_props.tm_props.ST_DL_TexturesErrors = msg or "unknown error"
+        tm_props.ST_DL_TexturesErrors = msg or "unknown error"
         tm_props.CB_DL_TexturesRunning = False
 
         # def run(): ...
@@ -444,7 +448,7 @@ def installGameTextures()->None:
 
 class DownloadTMFile(Thread):
     """download file from URL, save file at SAVEFILEPATH, 
-    update context.scene.tm_props.<prop>, callbacks: success, error & finish"""
+    update getTmProps().<prop>, callbacks: success, error & finish"""
     
     def __init__(self, url, saveFilePath, progressbar_prop=None, success_cb=None, error_cb=None, finish_cb=None):
         super(DownloadTMFile, self).__init__() #need to call init from Thread, otherwise error
@@ -460,7 +464,9 @@ class DownloadTMFile(Thread):
             self.response = urllib.request.urlopen(url)
 
         except (urllib.error.HTTPError, urllib.error.URLError) as e:
+            self.response = {"code": 503} # service unavailable
             self.error_msg = f"{e.code} {e.msg}" if type(e) == "urllib.error.URLError" else str(e)
+
         
         
 
@@ -482,7 +488,7 @@ class DownloadTMFile(Thread):
                     def updateProgressbar():
                         try: #x[ y ]=z does not trigger panel text refresh, so do x.y = z
                             percentage = downloaded/fileSize * 100
-                            exec_str = f"bpy.context.scene.tm_props.{self.progressbar_prop} = percentage" 
+                            exec_str = f"getTmProps().{self.progressbar_prop} = percentage" 
                             exec_str = exec_str 
                             exec(exec_str)
                         except Exception as e:
@@ -538,7 +544,7 @@ def createExportOriginFixer(col, createAt=None)->object:
     ORIGIN_OBJ = None
     
     #check if user defined a origin already
-    for obj in col.all_objects:
+    for obj in col.objects:
         if obj.name.lower().startswith("origin"):
             ORIGIN_OBJ = obj
             break
@@ -557,12 +563,12 @@ def createExportOriginFixer(col, createAt=None)->object:
         ORIGIN_OBJ = bpy.context.active_object
         ORIGIN_OBJ.name = "origin_delete"
 
-        if ORIGIN_OBJ.name not in col.all_objects:
+        if ORIGIN_OBJ.name not in col.objects:
             col.objects.link(ORIGIN_OBJ)
 
 
     # parent all objects to the origins
-    for obj in col.all_objects:
+    for obj in col.objects:
 
         #parent all objs to _Lod0
         if  obj is not ORIGIN_OBJ:
@@ -600,14 +606,14 @@ def parentObjsToObj(col, obj):
 
 def deleteExportOriginFixer(col)->None:
     """unparent all objects of a origin object"""
-    for obj in col.all_objects:
+    for obj in col.objects:
         if not obj.name.lower().startswith("origin"):
             deselectAll()
             setActiveObj(obj)
             bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
     
     deselectAll()
-    for obj in col.all_objects:
+    for obj in col.objects:
         if "delete" in str(obj.name).lower():
             setActiveObj(obj)
             deleteObj(obj)
@@ -722,30 +728,43 @@ def getListOfFoldersInX(folderpath: str, prefix="") -> list:
 
 
 
-def getFilenameOfPath(filepath)->str:
-    return fixSlash( filepath ).split("/")[-1]
+def getFilenameOfPath(filepath, remove_extension=False)->str:
+    filepath = fixSlash( filepath ).split("/")[-1]
+    
+    if remove_extension:
+        filepath = re.sub(r"\.\w+$", "", filepath, flags=re.IGNORECASE)
+
+    return filepath
 
 
-def isCollectionExcluded(col) -> bool:
+def isCollectionExcludedOrHidden(col) -> bool:
     """check if collection is disabled in outliner (UI)"""
-    hir = getCollectionHierachy(colname=col.name, hierachystart=[col.name])
+    hierachy = getCollectionHierachy(colname=col.name, hierachystart=[col.name])
+    
 
-    vl  = bpy.context.view_layer
-    excluded = False
-    currentCol = ""
+    view_layer  = bpy.context.view_layer
+    current_col = ""
+    collection_is_excluded = False
 
     #loop over viewlayer (collection->children) <-recursive until obj col[0] found
-    for hircol in hir: #hierachy collection
+    for hierachy_col in hierachy: #hierachy collection
         
-        if currentCol == "": #set first collection
-            currentCol = vl.layer_collection.children[hircol]
+        #set first collection
+        if current_col == "": 
+            current_col = view_layer.layer_collection.children[hierachy_col]
         
         else:
-            currentCol = currentCol.children[hircol]
-            if currentCol.name == col.name: #last collection found
-                excluded = currentCol.exclude
+            current_col = current_col.children[hierachy_col]
             
-    return excluded
+        if current_col.name == col.name: #last collection found
+
+            if current_col.exclude or current_col.is_visible is False:
+                collection_is_excluded = True # any col in hierachy is not visible or enabled, ignore this col.
+                break
+            
+    # debug(f"collection excluded: {collection_is_excluded} {col.name}")
+
+    return True if collection_is_excluded else False
 
     
 
@@ -899,9 +918,9 @@ def getActiveCollection() -> object:
     return bpy.context.view_layer.active_layer_collection.collection
 
 
-def selectAllObjectsInACollection(col, exclude_infixes=None) -> None:
+def selectAllObjectsInACollection(col, only_direct_children=False, exclude_infixes=None) -> None:
     """select all objects in a collection, you may use deselectAll() before"""
-    objs = col.all_objects
+    objs = col.objects if only_direct_children else col.all_objects
     
     deselectAll()
     if exclude_infixes:
@@ -988,8 +1007,35 @@ def checkMatValidity(matname: str) -> str("missing prop as str or True"):
 
 
 def clearProperty(prop, value):
-    bpy.context.scene.tm_props[prop] = value
+    getTmProps()[prop] = value
 
+
+
+
+def getExportableCollections(objs)->set:
+    collections = set()
+
+    for obj in objs:
+
+        if obj.type != "MESH":
+            continue
+
+        if obj.visible_get() is False: 
+            continue
+
+        # filter special objects, allow only real "mesh" objects, not helpers (_xyz_)
+        if obj.name.startswith("_"):
+            continue
+
+        for col in obj.users_collection:
+
+            if col.name.lower() in notAllowedColnames: continue
+            if col in collections: continue
+            if isCollectionExcludedOrHidden(col): continue
+
+            collections.add(col)
+    
+    return collections
 
 
 
@@ -1155,7 +1201,7 @@ def roundInterval(num: float, interval: int) -> int:
 
 
 def onlyMeshObjsOfCollection(col) -> list:
-    return [obj for obj in col.all_objects if obj.type == "MESH"]
+    return [obj for obj in col.objects if obj.type == "MESH"]
 
 
 def getDimensionOfCollection(col: bpy.types.Collection)->list:
@@ -1392,9 +1438,14 @@ def debugALL() -> None:
     full_debug("programFilesX86Path:     ", PATH_PROGRAM_FILES_X86)
     full_debug("website_convertreport:   ", PATH_CONVERT_REPORT)
     separator(1)
+    full_debug("blender version:         ", bpy.app.version)
+    full_debug("blender file version:    ", bpy.app.version_file)
+    full_debug("blender install path:    ", bpy.app.binary_path)
+    full_debug("blender opened file:     ", bpy.context.blend_data.filepath)
+    separator(1)
 
     full_debug("tm_props:")
-    tm_props        = bpy.context.scene.tm_props
+    tm_props        = getTmProps()
     tm_prop_prefixes= ("li_", "cb_", "nu_", "st_") 
     tm_prop_names   = [name for name in dir(tm_props) if name.lower().startswith(tm_prop_prefixes)]
     max_chars       = 0
@@ -1404,26 +1455,27 @@ def debugALL() -> None:
         if prop_len > max_chars: max_chars = prop_len
 
     for name in tm_prop_names:
-        spaces   = " " * (max_chars - len(name))
-        tm_prop  = tm_props.get(name)
-        tm_prop_r= None
+        spaces  = " " * (max_chars - len(name))
+        tm_prop = tm_props.get(name)
 
         if tm_prop is None: 
             # tm_props.property_unset(name)
             tm_prop  = tm_props.bl_rna.properties[ name ].default
-        
 
+        if name.lower().startswith("cb_"):
+            tm_prop = bool(tm_prop)
         
+        elif tm_prop == "":
+            tm_prop = '''""'''
+
+
         if name.lower().startswith("nu_"):
-            if isinstance(tm_prop, float):
-                tm_prop_r = r(tm_prop, reverse=True)
-            if isinstance(tm_prop, bpy.types.bpy_prop_array):
+            if type(tm_prop).__name__ == "IDPropertyArray":
                 tm_prop = tuple(tm_prop)
         
 
         full_debug(f"{name}:{spaces}{tm_prop}")
-        if tm_prop_r:
-            full_debug(f"{name}:{spaces}{tm_prop_r} (radians => normal)")
+
         
 
 
@@ -1468,7 +1520,11 @@ def getIcon(icon: str) -> object:
     if icon not in pcoll.keys():
         pcoll.load(icon, os.path.join(iconsDir, icon + ".png"), "IMAGE")
     return pcoll[icon].icon_id
-           
+
+
+def getAddonIcon(name)->str:
+    return f"""{getAddonPath()}icons/{name}"""
+
 
 
 
@@ -1485,28 +1541,102 @@ def redrawPanel(self, context):
     except  AttributeError: pass #works fine but spams console full of errors... yes
 
 
+class Timer():
+    def __init__(self, callback=None, interval=1):
+        self.start_time = None
+        self.callback = callback
+        self.interval = interval
+        self.timer_stopped = False
+        self.elapsed_time = 0
+
+    def start(self):
+        self.start_time = time.perf_counter()
+        
+        if callable(self.callback):
+            def callback_wapper():
+                self.callback()
+                return self.interval if self.timer_stopped is False else None # None=stop recursion
+            
+            bpy.app.timers.register(callback_wapper, first_interval=self.interval)
+
+
+    def stop(self) -> float:
+        current_time = time.perf_counter()
+        self.timer_stopped = True
+        return current_time - self.start_time 
+
+
+
 
 def newThread(func):
-    """decorator, runs func in new thread, is its not blocking"""
+    """decorator, runs func in new thread"""
     def wrapper(*args, **kwargs):
         thread = threading.Thread(target=func, args=args, kwargs=kwargs)
         thread.start()
     return wrapper
 
 
+
+def changeScreenBrightness(value: int)->None:
+    """change screen brightness, 1 to 100"""
+    if (1 <= value <= 100) is False:
+        return # not inbetween mix max
+
+    cmd = f"powershell (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1,{value})"
+    process = subprocess.Popen(cmd)
+    print(value)
+
+
 @newThread
-def makeWindowsReportPopup(title: str, infos: list)->None:
-    MessageBox = ctypes.windll.user32.MessageBoxW
-    text = "\n".join(infos)
-    MessageBox(None, text, title, 0)
-    ##  Styles:
-    ##  0 : OK
-    ##  1 : OK | Cancel
-    ##  2 : Abort | Retry | Ignore
-    ##  3 : Yes | No | Cancel
-    ##  4 : Yes | No
-    ##  5 : Retry | No 
-    ##  6 : Cancel | Try Again | Continue
+def toggleScreenBrightness(duration: float = .5)->None:
+    """set screen brightness from current to 25, then back to 100"""
+    debug(f"toggle screen brightness, duration: {duration}")
+
+    MIN     = 50
+    MAX     = 100
+    STEPS   = 5
+
+    changeScreenBrightness(MIN)
+    sleep(duration)
+    changeScreenBrightness(MAX)
+
+    return
+    #? performance and screen speed?
+    SLEEP_DURATION = duration / (MAX - MIN)
+
+    RANGE = range(MIN, MAX + 1, STEPS)
+    
+    for i in reversed(RANGE):
+        changeScreenBrightness(i)
+        sleep(SLEEP_DURATION)
+        
+    for i in RANGE:
+        changeScreenBrightness(i)
+        sleep(SLEEP_DURATION)
+
+
+@newThread
+def makeToast(title, text, baloon_icon="Info", duration=5000) -> None:
+    """make windows notification popup "toast" """
+    
+    if baloon_icon not in {"None", "Info", "Warning", "Error"}:
+        raise ValueError
+
+    icon = "MANIAPLANET.ico" if isGameTypeManiaPlanet() else "TRACKMANIA2020.ico"
+    icon = getAddonIcon(icon)
+
+    assetpath = fixSlash( getAddonAssetsPath() )
+    cmd = [
+        "PowerShell", 
+        "-File",        f"""{assetpath}/make_toast.ps1""", 
+        "-Title",       title, 
+        "-Message",     text,
+        "-Icon",        icon,
+        "-BaloonIcon",  baloon_icon,
+        "-Duration",    str(duration),
+    ]
+
+    subprocess.call(cmd)
 
 
 def makeReportPopup(title= str("some error occured"), infos: list=[], icon: str='INFO', fileName: str="maniaplanet_report"):
@@ -1529,6 +1659,18 @@ def makeReportPopup(title= str("some error occured"), infos: list=[], icon: str=
     #     for info in infos:
     #         reportFile.write(info + "\n")
     #     reportFile.write(pyinfos)
+
+def getScene() -> object:
+    return bpy.context.scene
+
+def getTmProps() -> object:
+    return bpy.context.scene.tm_props
+
+def getTmPivotProps() -> object:
+    return bpy.context.scene.tm_props_pivots
+
+def getTmConvertingItemsProp() -> object:
+    return bpy.context.scene.tm_props_convertingItems
 
 
 

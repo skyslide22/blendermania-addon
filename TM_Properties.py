@@ -65,7 +65,7 @@ def gameTypeGotUpdated()->None:
     matPhysics = ERROR_ENUM_PROPS
     nadeoLibParser(refresh=True)
 
-    tm_props     = bpy.context.scene.tm_props
+    tm_props     = getTmProps()
     colIsStadium = tm_props.LI_materialCollection.lower() == "stadium"
 
     if isGameTypeTrackmania2020() and not colIsStadium:
@@ -100,16 +100,16 @@ def getExportTypes()->list:
 
 def getExportFolderTypes(self,context)->list:
     base = [
-        ("Base",       "/",                 "Base folder(/Items",         "HOME",                  0),
-        ("Custom",     "Custom Folder/",    "Custom folder",              "HELP",                  1),
+        ("Base",       "/",                 "Base folder(Work/Items/",                  "HOME", 0),
+        ("Custom",     "Custom Folder/",    "Custom folder, need to be in Work/Items/", "HELP", 1),
     ]
     if isGameTypeManiaPlanet():
         return base + [
-            ("Stadium",    "Stadium/",      "Base folder(/Items/Stadium",   getIcon("ENVI_STADIUM"), 1),
-            ("Valley",     "Valley/",       "Base folder(/Items/Valley",    getIcon("ENVI_VALLEY"),  2),
-            ("Canyon",     "Canyon/",       "Base folder(/Items/Canyon",    getIcon("ENVI_CANYON"),  3),
-            ("Lagoon",     "Lagoon/",       "Base folder(/Items/Lagoon",    getIcon("ENVI_LAGOON"),  4),
-            ("Shootmania", "Shootmania/",   "Base folder(/Items/Storm",     getIcon("ENVI_STORM"),   5),
+            ("Stadium",    "Stadium/",      "Base folder(/Items/Stadium",   getIcon("ENVI_STADIUM"), 2),
+            ("Valley",     "Valley/",       "Base folder(/Items/Valley",    getIcon("ENVI_VALLEY"),  3),
+            ("Canyon",     "Canyon/",       "Base folder(/Items/Canyon",    getIcon("ENVI_CANYON"),  4),
+            ("Lagoon",     "Lagoon/",       "Base folder(/Items/Lagoon",    getIcon("ENVI_LAGOON"),  5),
+            ("Shootmania", "Shootmania/",   "Base folder(/Items/Storm",     getIcon("ENVI_STORM"),   6),
         ]
     else: return base
 
@@ -122,7 +122,7 @@ def getExportWhichObjects()->list:
     ]
 
 
-def getExportObjTypes(self, context) -> list:
+def getExportObjTypes() -> list:
     return [
         (   'MESH_LIGHT_EMPTY', "All object types",     "Normal meshes, lights and empties",                "SCENE_DATA",   0),
         (   'MESH_LIGHT',       "Mesh, Light",          "Normal meshes, lights, no empties",                "LIGHT_SUN",    1),
@@ -135,7 +135,7 @@ def getExportObjTypes(self, context) -> list:
 
 
 def updateGridAndLevi(self, context) -> None:
-    tm_props = bpy.context.scene.tm_props
+    tm_props = getTmProps()
     syncX = tm_props.NU_xml_gridAndLeviX
     syncY = tm_props.NU_xml_gridAndLeviY
     tm_props.NU_xml_gridX = syncX
@@ -264,7 +264,7 @@ def getMaterials(self, context):
 
 
 def updateMaterialSettings(self, context):
-    tm_props    = context.scene.tm_props
+    tm_props    = getTmProps()
     matToUpdate = bpy.data.materials[tm_props.LI_materials]
 
     assignments = [
@@ -308,8 +308,15 @@ def getMaterialActions()->list:
     ]
 
 
+def getMaterialTextureSourceOptions()->list:
+    return [
+        ("LINK",    "Link",     "Link",     "LINKED",      0),
+        ("CUSTOM",  "Custom",   "Custom",   "FILE_IMAGE",  1),
+    ]
+
+
 def getMaterialPhysicIds(self=None, context=None)->list:
-    """get physics from nadeoLibParser() and return als list(tuples)"""
+    """get physics from nadeoLibParser() and return as list(tuples)"""
     global matPhysics #create global variable to read libfile only once
     
     if len(matPhysics) > 1:
@@ -354,6 +361,7 @@ def getMaterialPhysicIds(self=None, context=None)->list:
 
 def getMaterialLinks(self, context)->List:
     global matLinks
+    tm_props = getTmProps()
 
     if matLinks is not ERROR_ENUM_PROPS:
         return matLinks
@@ -368,7 +376,7 @@ def getMaterialLinks(self, context)->List:
     
     materials    = []
     libmats      = nadeoLibParser()
-    selectedEnvi = str(context.scene.tm_props.LI_materialCollection).lower()
+    selectedEnvi = str(tm_props.LI_materialCollection).lower()
     i = 0
 
     for envi in libmats:
@@ -402,41 +410,46 @@ def getMaterialGameplayIds(self, context)->None:
 
 class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     """general trackmania properties"""
-    LI_gameType:                EnumProperty(items=getGameTypes(), name="Game", update=lambda s, c: gameTypeGotUpdated())
-    ST_nadeoIniFile_MP:         StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
-    ST_nadeoIniFile_TM:         StringProperty(name="", subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
-    ST_author:                  StringProperty(name="Author", default="skyslide")
-    CB_nadeoImporter:           BoolProperty("NadeoImporter installed", default=False)
-    NU_nadeoImporterDL:         FloatProperty(min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
-    CB_nadeoImporterDLRunning:  BoolProperty(default=False, update=redrawPanel)
-    ST_nadeoImporterDLError:    StringProperty(name="Status", default="", update=redrawPanel)
-    CB_nadeoImporterDLshow:     BoolProperty(default=False, update=redrawPanel)
+    LI_gameType                : EnumProperty(  name="Game",    items=getGameTypes(), update=lambda s, c: gameTypeGotUpdated())
+    ST_nadeoIniFile_MP         : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
+    ST_nadeoIniFile_TM         : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
+    ST_author                  : StringProperty(name="Author",  default="skyslide")
+    CB_nadeoImporter           : BoolProperty(  name="NadeoImporter installed", default=False)
+    NU_nadeoImporterDL         : FloatProperty( min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
+    CB_nadeoImporterDLRunning  : BoolProperty(  default=False,  update=redrawPanel)
+    ST_nadeoImporterDLError    : StringProperty(name="Status",  default="", update=redrawPanel)
+    CB_nadeoImporterDLshow     : BoolProperty(  default=False,  update=redrawPanel)
 
     #export
-    LI_exportType:          EnumProperty(items=getExportTypes(),        name="Action", default=1)
-    LI_exportFolderType:    EnumProperty(items=getExportFolderTypes,    name="Folder")
-    ST_exportFolder_MP:     StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
-    ST_exportFolder_TM:     StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
-    LI_exportWhichObjs:     EnumProperty(items=getExportWhichObjects(), name="Export by?")
-    LI_exportValidTypes:    EnumProperty(name="Export",      items=getExportObjTypes)
-    NU_exportObjScale:      FloatProperty(name="Scale", min=0, soft_max=16)
+    LI_exportType         : EnumProperty(items=getExportTypes(),        name="Action", default=1)
+    LI_exportFolderType   : EnumProperty(items=getExportFolderTypes,    name="Folder", default=0)
+    ST_exportFolder_MP    : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
+    ST_exportFolder_TM    : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
+    LI_exportWhichObjs    : EnumProperty(items=getExportWhichObjects(), name="Export by?")
+    LI_exportValidTypes   : EnumProperty(name="Export",      items=getExportObjTypes())
+    NU_exportObjScale     : FloatProperty(name="Scale", min=0, soft_max=16)
 
     #convert
-    NU_convertCount:        IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
-    NU_convertedRaw:        IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
-    NU_converted:           IntProperty(min=0, max=100,     default=0, subtype="PERCENTAGE", update=redrawPanel) 
-    NU_convertedSuccess:    IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
-    NU_convertedError:      IntProperty(min=0, max=100000,  default=0, update=redrawPanel)
-    ST_convertedErrorList:  StringProperty(default="",  update=redrawPanel)
-    CB_showConvertPanel:    BoolProperty(default=False, update=redrawPanel)
-    CB_stopAllNextConverts: BoolProperty(default=False, update=redrawPanel)
-    CB_converting:          BoolProperty(default=False, update=redrawPanel)
-    CB_notifyPopupWhenDone: BoolProperty(default=False)
+    NU_convertCount              : IntProperty(min=0, max=100000,   default=0, update=redrawPanel)
+    NU_convertedRaw              : IntProperty(min=0, max=100000,   default=0, update=redrawPanel)
+    NU_converted                 : IntProperty(min=0, max=100,      default=0, subtype="PERCENTAGE", update=redrawPanel) 
+    NU_convertedSuccess          : IntProperty(min=0, max=100000,   default=0, update=redrawPanel)
+    NU_convertedError            : IntProperty(min=0, max=100000,   default=0, update=redrawPanel)
+    ST_convertedErrorList        : StringProperty(default="",       update=redrawPanel)
+    CB_showConvertPanel          : BoolProperty(default=False,      update=redrawPanel)
+    CB_stopAllNextConverts       : BoolProperty(default=False,      update=redrawPanel, name="Stop all next converts")
+    CB_converting                : BoolProperty(default=False,      update=redrawPanel)
+    CB_notifyPopupWhenDone       : BoolProperty(default=True,       name="Notify toast when done")
+    NU_convertDurationSinceStart : IntProperty(min=-1, max=100000,  default=-1,   update=redrawPanel)
+    NU_convertStartedAt          : IntProperty(min=-1, max=100000,  default=-1,   update=redrawPanel)
+    NU_currentConvertDuration    : IntProperty(min=0,  max=100000,  default=0,    update=redrawPanel)
+    NU_lastConvertDuration       : IntProperty(min=-1, max=100000,  default=-1,   update=redrawPanel)
+    NU_remainingConvertTime      : IntProperty(min=0,  max=100000,  default=0,    update=redrawPanel)
 
     #import
-    LI_importMatFailed:         StringProperty()
-    LI_importType:              EnumProperty(items=getImportTypes())
-    CB_importFolderRecursive:   BoolProperty(name="Recursive", default=False)
+    LI_importMatFailed        : StringProperty()
+    LI_importType             : EnumProperty(items=getImportTypes())
+    CB_importFolderRecursive  : BoolProperty(name="Recursive", default=False)
 
     #icons
     CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redrawPanel)
@@ -448,13 +461,15 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
 
     #uvmaps
-    CB_uv_genLightMap       : BoolProperty(name="Generate LightMap",        default=True, update=redrawPanel)
-    CB_uv_fixLightMap       : BoolProperty(name="Only if LM has overlaps",  default=True, update=redrawPanel)
-    NU_uv_angleLimitLM      : FloatProperty(name="Angle Limit",             default=r(89.0), min=0, max=r(89.0), subtype="ANGLE")
-    NU_uv_islandMarginLM    : FloatProperty(name="Island Margin",           default=0.1, min=0, max=1)
-    NU_uv_areaWeightLM      : FloatProperty(name="Area Weight",             default=0.0, min=0, max=1)
-    CB_uv_correctAspectLM   : BoolProperty(name="Correct Aspect",           default=True, update=redrawPanel)
-    CB_uv_scaleToBoundsLM   : BoolProperty(name="Scale To Bounds",          default=False, update=redrawPanel)
+    CB_uv_genLightMap               : BoolProperty(name="Generate LightMap",                        default=True,       update=redrawPanel)
+    CB_uv_fixLightMap               : BoolProperty(name="Only if LM has overlaps",                  default=True,       update=redrawPanel)
+    NU_uv_angleLimitLM              : FloatProperty(name="Angle Limit",                             default=r(89.0),    min=0, max=r(89.0), subtype="ANGLE")
+    NU_uv_islandMarginLM            : FloatProperty(name="Island Margin",                           default=0.1,        min=0, max=1)
+    NU_uv_areaWeightLM              : FloatProperty(name="Area Weight",                             default=0.0,        min=0, max=1)
+    CB_uv_correctAspectLM           : BoolProperty(name="Correct Aspect",                           default=True,       update=redrawPanel)
+    CB_uv_scaleToBoundsLM           : BoolProperty(name="Scale To Bounds",                          default=False,      update=redrawPanel)
+    CB_uv_genBaseMaterialCubeMap    : BoolProperty(name="Generate BaseMaterial with Cube Project",  default=False,      update=redrawPanel)
+    NU_uv_cubeProjectSize           : FloatProperty(name="Cube Project",                            default=0.2,        min=0, max=100)
     
     #xml
     CB_xml_syncGridLevi     : BoolProperty(name="Sync Grid & Levi steps",   default=True)
@@ -492,28 +507,28 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_xml_pivotSwitch      : BoolProperty(name="Pivot switch",     default=False)
     NU_xml_pivotSnapDis     : FloatProperty(name="Pivot snap distance", default=0.0,  min=0, max=256, step=100)
 
-    #materials
-    LI_materials:               EnumProperty(name="Material",         items=getMaterials, update=updateMaterialSettings)
-    LI_materialAction:          EnumProperty(name="Material Action",  default=0, items=getMaterialActions())
-    ST_materialAddName:         StringProperty(name="Name",           default="Matname...")
-    LI_materialCollection:      EnumProperty(name="Collection",       items=getMaterialCollectionTypes(), update=lambda s,c: gameTypeGotUpdated())
-    CB_materialUsePhysicsId:    BoolProperty(name="Use PhysicsId",    default=False)
-    LI_materialPhysicsId:       EnumProperty(name="PhysicId",         items=getMaterialPhysicIds)
-    CB_materialUseGameplayId:   BoolProperty(name="Use GameplayId",   default=False)
-    LI_materialGameplayId:      EnumProperty(name="GameplayId",       items=getMaterialGameplayIds)
-    LI_materialModel:           EnumProperty(name="Model",            items=getMaterialModelTypes())
-    LI_materialLink:            EnumProperty(name="Link",             items=getMaterialLinks)
-    ST_materialBaseTexture:     StringProperty(name="BaseTexture",    default="", subtype="FILE_PATH")
-    NU_materialColor:           FloatVectorProperty(name='Surface Color ',  subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
-    LI_materialIsFromLib:       BoolProperty(name="BaseTexture",      default=True)
-    CB_materialUseCustomColor:  BoolProperty(name="Use Custom Color", default=False)
+    #materials          
+    LI_materials              : EnumProperty(name="Material",                   items=getMaterials, update=updateMaterialSettings)
+    LI_materialAction         : EnumProperty(name="Material Action",            default=0, items=getMaterialActions())
+    ST_materialAddName        : StringProperty(name="Name",                     default="Matname...")
+    LI_materialCollection     : EnumProperty(name="Collection",                 items=getMaterialCollectionTypes(), update=lambda s,c: gameTypeGotUpdated())
+    CB_materialUsePhysicsId   : BoolProperty(name="Use PhysicsId",              default=False)
+    LI_materialPhysicsId      : EnumProperty(name="PhysicId",                   items=getMaterialPhysicIds)
+    CB_materialUseGameplayId  : BoolProperty(name="Use GameplayId",             default=False)
+    LI_materialGameplayId     : EnumProperty(name="GameplayId",                 items=getMaterialGameplayIds)
+    LI_materialModel          : EnumProperty(name="Model",                      items=getMaterialModelTypes())
+    LI_materialLink           : EnumProperty(name="Link",                       items=getMaterialLinks)
+    ST_materialBaseTexture    : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
+    NU_materialColor          : FloatVectorProperty(name='Surface Color ',      subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
+    CB_materialUseCustomColor : BoolProperty(name="Use Custom Color",           default=False)
+    LI_materialChooseSource   : EnumProperty(name="Custom Texture or Link",     items=getMaterialTextureSourceOptions())
 
     #textures
-    LI_DL_TextureEnvi:      EnumProperty(items=getGameTextureZipFileNames(), update=redrawPanel)
-    CB_DL_TexturesRunning:  BoolProperty(name="Downloading...", default=False, update=redrawPanel)
-    NU_DL_Textures:         FloatProperty(min=0, max=100,   default=0, subtype="PERCENTAGE", update=redrawPanel)
-    ST_DL_TexturesErrors:   StringProperty(name="Status",   default="")
-    CB_DL_TexturesShow:     BoolProperty(default=False, update=redrawPanel)
+    LI_DL_TextureEnvi      : EnumProperty(items=getGameTextureZipFileNames(), update=redrawPanel)
+    CB_DL_TexturesRunning  : BoolProperty(name="Downloading...",              default=False, update=redrawPanel)
+    NU_DL_Textures         : FloatProperty(min=0, max=100,                    default=0, subtype="PERCENTAGE", update=redrawPanel)
+    ST_DL_TexturesErrors   : StringProperty(name="Status",                    default="")
+    CB_DL_TexturesShow     : BoolProperty(default=False,                      update=redrawPanel)
 
     #cars
 
@@ -521,11 +536,11 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
 class TM_Properties_Generated(PropertyGroup):
     """trackmania properties generated"""
-    ST_matPhysicsId :  StringProperty(name="PhysicsId",         default="Concrete")
-    ST_matName :       StringProperty(name="Mat Name",          default="")
-    ST_matModel:       StringProperty(name="Mat Model",         default="TDSN")
-    ST_matBTex :       StringProperty(name="Mat BaseTexture",   default="StadiumPlatform")
-    CB_matBool :       BoolProperty(name="mat name not set yet",default=False)
+    ST_matPhysicsId : StringProperty(name="PhysicsId",             default="Concrete")
+    ST_matName      : StringProperty(name="Mat Name",              default="")
+    ST_matModel     : StringProperty(name="Mat Model",             default="TDSN")
+    ST_matBTex      : StringProperty(name="Mat BaseTexture",       default="StadiumPlatform")
+    CB_matBool      : BoolProperty(name="mat name not set yet",    default=False)
     
 
 class TM_Properties_Pivots(PropertyGroup):
@@ -534,12 +549,16 @@ class TM_Properties_Pivots(PropertyGroup):
     NU_pivotY   : FloatProperty(name="Y", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
     NU_pivotZ   : FloatProperty(name="Z", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
     
+
+class TM_Properties_ConvertingItems(PropertyGroup):
+    """trackmania properties generated for pivots (item xml)"""
+    name              : StringProperty(name="ITEM NAME ... ", default="ITEM NAME ... ")
+    icon              : StringProperty(name="Icon name",      default="TIME")
+    failed            : BoolProperty(name="Convert failed?",  default=False)
+    converted         : BoolProperty(name="Item converted?",  default=False)
+    convert_duration  : IntProperty(name="Convert duration",  default=0, min=0, max=10000)
     
-class TM_ItemConvertStatus(PropertyGroup):
-    """trackmania properties for the convert progress, status"""
-    ST_fbx_toConvert        : StringProperty(name="fbxname", default="")
-    CB_fbx_convertFailed    : BoolProperty(name="status",   default=False)
-    CB_fbx_convertDone      : BoolProperty(name="status",   default=False)
+
 
 
 
