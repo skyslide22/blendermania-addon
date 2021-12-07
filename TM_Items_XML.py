@@ -393,9 +393,12 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
         LINK            = mat.link
         BASETEXTURE     = fixSlash(mat.baseTexture)
         BASETEXTURE     = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", BASETEXTURE)
-        CUSTOM_COLOR    = rgbToHEX(mat.surfaceColor)
-        USE_CUSTOM_COLOR= getattr(mat, "useCustomColor", False) # old materials do not have this attribute: runtimeerror
+        MAT_COLOR       = mat.diffuse_color     # extract diffuse collor by default
+        if mat.use_nodes:                       # replace with BSDF color
+            MAT_COLOR = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
 
+        CUSTOM_COLOR    = rgbToHEX(MAT_COLOR, "", True) # convert to Hex with gamma correction
+        USE_CUSTOM_COLOR= MAT_COLOR[3] > 0              # use custom color only if material color has Alpha > 0
         if BASETEXTURE:
             BASETEXTURE = fixSlash( BASETEXTURE )
             BASETEXTURE = re.sub(r".*/Items/|_?(D|N|S|I)\.dds", "", BASETEXTURE, flags=re.IGNORECASE)

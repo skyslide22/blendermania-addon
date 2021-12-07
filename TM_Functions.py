@@ -114,8 +114,6 @@ mat_props = [
         "useGameplayId",
         "model",
         "environment",
-        "surfaceColor",
-        "useCustomColor",
     ]
 # -----
 
@@ -1153,18 +1151,27 @@ def fixAllColNames() -> None:
     for col in cols:
         try:    col.name = fixName(col.name)
         except: pass #mastercollection etc is readonly
-    
+
+# correct gamma the same way Blender do it
+def gammaCorrected(c):
+    if c < 0.0031308:
+        srgb = 0.0 if c < 0.0 else c * 12.92
+    else:
+        srgb = 1.055 * math.pow(c, 1.0 / 2.4) - 0.055
+
+    return max(min(int(srgb * 255 + 0.5), 255), 0)
 
 
-def rgbToHEX(rgbList, hashtag: str="") -> str:
+def rgbToHEX(rgbList, hashtag: str="", correctGamma: bool=False) -> str:
     """convert given rgbList=(0.0, 0.5, 0.93) to hexcode """
-    r = int( rgbList[0] * 256) - 1 
-    g = int( rgbList[1] * 256) - 1 
-    b = int( rgbList[2] * 256) - 1 
+    r = gammaCorrected(rgbList[0]) if correctGamma else int( rgbList[0] * 256) - 1 
+    g = gammaCorrected(rgbList[1]) if correctGamma else int( rgbList[1] * 256) - 1 
+    b = gammaCorrected(rgbList[2]) if correctGamma else int( rgbList[2] * 256) - 1 
     
-    r = max(0, min(r, 255))
-    g = max(0, min(g, 255))
-    b = max(0, min(b, 255))
+    if not correctGamma:
+        r = max(0, min(r, 255))
+        g = max(0, min(g, 255))
+        b = max(0, min(b, 255))
 
     hex = f"{hashtag}{r:02x}{g:02x}{b:02x}"
     return hex
