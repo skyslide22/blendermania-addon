@@ -275,7 +275,6 @@ def updateMaterialSettings(self, context):
         ("tm_props.LI_materialModel"        , "matToUpdate.model"),
         ("tm_props.LI_materialLink"         , "matToUpdate.link"),
         ("tm_props.ST_materialBaseTexture"  , "matToUpdate.baseTexture"),
-        ("tm_props.NU_materialColor"        , "matToUpdate.surfaceColor"),
     ]
 
     for assignment in assignments:
@@ -521,8 +520,6 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_materialModel          : EnumProperty(name="Model",                      items=getMaterialModelTypes())
     LI_materialLink           : EnumProperty(name="Link",                       items=getMaterialLinks)
     ST_materialBaseTexture    : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
-    NU_materialColor          : FloatVectorProperty(name='Surface Color ',      subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
-    CB_materialUseCustomColor : BoolProperty(name="Use Custom Color",           default=False)
     LI_materialChooseSource   : EnumProperty(name="Custom Texture or Link",     items=getMaterialTextureSourceOptions())
 
     #textures

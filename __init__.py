@@ -115,8 +115,6 @@ def register():
     bpy.types.Material.useGameplayId    = BoolProperty(         name="Use GameplayId",      default=False)
     bpy.types.Material.model            = EnumProperty(         name="Model",               default="TDSN",    items=getMaterialModelTypes())
     bpy.types.Material.environment      = EnumProperty(         name="Collection",          default="Stadium", items=getMaterialCollectionTypes())#Material."collection" not allowed
-    bpy.types.Material.surfaceColor     = FloatVectorProperty(  name='Surface Color ',      subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
-    bpy.types.Material.useCustomColor   = BoolProperty(         name="Use Custom Color",    default=False)
 
 
 # delete classes
