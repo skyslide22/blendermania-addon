@@ -192,20 +192,37 @@ class TM_PT_Items_MeshXML(Panel):
             layout.row().label(text="Overwrite object settings:")
 
 
-            #--- scale
-            row = layout.row()
+
+            #--- multi scales
+            layout.separator(factor=UI_SPACER_FACTOR)
+            layout.row().prop(tm_props, "CB_useMultiScaleExport", toggle=True, icon="SORTSIZE")
+            
+            row = layout.row(align=True)            
+            col = row.column()
+            col.prop(tm_props, "CB_overwriteMultiScaleFactor", toggle=True, icon="LINENUMBERS_ON")
             
             col = row.column()
-            col.enabled = True
+            col.enabled = True if tm_props.CB_overwriteMultiScaleFactor else False
+            col.prop(tm_props, "NU_multiScaleExportFactor", text="x =")
+            
+            
+            layout.separator(factor=UI_SPACER_FACTOR)
+            
+            
+            #--- object scale
+            row = layout.row(align=True)
+            
+            col = row.column()
+            col.enabled = True if tm_props.CB_useMultiScaleExport is False else False
             col.prop(tm_props, "CB_xml_scale", toggle=True, icon="OBJECT_ORIGIN")
 
             col = row.column()
             col.enabled = False if not tm_props.CB_xml_scale else True
             col.prop(tm_props, "NU_xml_scale", text="")
-            
 
+            
             #--- light power
-            row = layout.row()
+            row = layout.row(align=True)
 
             col = row.column()
             col.enabled = True
@@ -217,7 +234,7 @@ class TM_PT_Items_MeshXML(Panel):
 
 
             #--- light color
-            row = layout.row()
+            row = layout.row(align=True)
 
             col = row.column()
             col.enabled = True
@@ -229,7 +246,7 @@ class TM_PT_Items_MeshXML(Panel):
             
             
             #--- light distance
-            row = layout.row()
+            row = layout.row(align=True)
 
             col = row.column()
             col.enabled = True
@@ -247,12 +264,16 @@ class TM_PT_Items_MeshXML(Panel):
 
 
 
-def generateItemXML(fbxfilepath, col) -> str:
+def generateItemXML(exported_fbx: exportFBXModel) -> str:
     """generate item.xml"""
     tm_props        = getTmProps()
     tm_props_pivots = getTmPivotProps()
-    xmlfilepath     = fbxfilepath.replace(".fbx", ".Item.xml")
-    overwrite       = tm_props.CB_xml_overwriteItemXML
+
+    fbxfilepath = exported_fbx.filepath
+    col         = exported_fbx.col
+
+    xmlfilepath = fbxfilepath.replace(".fbx", ".Item.xml")
+    overwrite   = tm_props.CB_xml_overwriteItemXML
 
     if not overwrite:
         if doesFileExist(filepath=xmlfilepath): return
@@ -346,10 +367,14 @@ def generateItemXML(fbxfilepath, col) -> str:
 
 
 
-def generateMeshXML(fbxfilepath: str, col: object) -> str:
+def generateMeshXML(exported_fbx: exportFBXModel) -> str:
     """generate meshparams.xml"""
     tm_props  = getTmProps()
     overwrite = tm_props.CB_xml_overwriteMeshXML
+
+    fbxfilepath = exported_fbx.filepath
+    col         = exported_fbx.col
+    scale       = exported_fbx.scale
 
     xmlfilepath = fbxfilepath.replace(".fbx", ".MeshParams.xml")
 
@@ -357,11 +382,16 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
         if doesFileExist(filepath=xmlfilepath): return
 
     
-    
     GLOBAL_LIGHT_RADIUS= tm_props.NU_xml_lightGlobDistance  if tm_props.CB_xml_lightGlobDistance    else None
     GLOBAL_LIGHT_POWER = tm_props.NU_xml_lightPower         if tm_props.CB_xml_lightPower           else None
     GLOBAL_LIGHT_COLOR = tm_props.NU_xml_lightGlobColor     if tm_props.CB_xml_lightGlobColor       else None
-    GLOBAL_SCALE       = tm_props.NU_xml_scale              if tm_props.CB_xml_scale                else 1
+    
+    USE_GLOBAL_SCALE   = tm_props.CB_xml_scale is True
+    GLOBAL_SCALE       = tm_props.NU_xml_scale
+    
+    SCALE = scale if USE_GLOBAL_SCALE is False else GLOBAL_SCALE 
+    
+
     COLLECTION  = ""
     materials   = []
     materialsXML= ""
@@ -427,7 +457,7 @@ def generateMeshXML(fbxfilepath: str, col: object) -> str:
 
     fullXML = f"""
         <?xml version="1.0" ?>
-        <MeshParams Scale="{ GLOBAL_SCALE }" MeshType="Static" Collection="{ COLLECTION }" FbxFile="{ getFilenameOfPath(fbxfilepath) }">
+        <MeshParams Scale="{ SCALE }" MeshType="Static" Collection="{ COLLECTION }" FbxFile="{ getFilenameOfPath(fbxfilepath) }">
             <Materials>
             {materialsXML}
             </Materials>
