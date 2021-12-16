@@ -20,8 +20,8 @@ bl_info = {
     "name"          : "Trackmania Export & Convert .fbx > .gbx Addon",
     "author"        : "skyslide",
     "description"   : "Export collections, create icons, generate xml files and convert items",
-    "blender"       : (2, 93, 0),
-    "version"       : (0, 2, 5),
+    "blender"       : (3, 0, 0),
+    "version"       : (2, 0, 0),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
@@ -79,6 +79,7 @@ classes = (
     TM_OT_Materials_Create,
     TM_OT_Materials_Update,
     TM_OT_Materials_ClearBaseMaterial,
+    TM_OT_Materials_RevertCustomColor,
 
     #cars
     TM_OT_Items_Cars_Import,

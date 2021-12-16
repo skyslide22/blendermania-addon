@@ -1,1 +1,6 @@
 __pycache__/
+
+/tests
+/test_version
+.vscode
+_old

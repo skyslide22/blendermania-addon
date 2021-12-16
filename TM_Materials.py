@@ -2,21 +2,11 @@
 from inspect import getargs
 import json
 import bpy
-import os.path
 import re
-import xml.etree.ElementTree as ET
-from bpy.props import (
-    StringProperty,
-    BoolProperty,
-    PointerProperty,
-    CollectionProperty,
-    IntProperty
-)
+
 from bpy.types import (
     Panel,
     Operator,
-    AddonPreferences,
-    PropertyGroup
 )
 from .TM_Functions  import *
 from .TM_Properties import *
@@ -54,6 +44,17 @@ class TM_OT_Materials_ClearBaseMaterial(Operator):
    
     def execute(self, context):
         clearProperty("ST_materialBaseTexture", "")
+        context.region.tag_redraw()
+        return {"FINISHED"}
+
+
+class TM_OT_Materials_RevertCustomColor(Operator):
+    bl_idname = "view3d.tm_revertcustomcolor"
+    bl_label = "reset custom color"
+    bl_desciption = "reset custom color"
+   
+    def execute(self, context):
+        revertMaterialCustomColorLiveChanges()
         context.region.tag_redraw()
         return {"FINISHED"}
     
@@ -167,6 +168,17 @@ class TM_PT_Materials(Panel):
             col = row.column()
             col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon="CHECKMARK")
 
+            # custom color for materials starts with "custom"
+            mat_uses_custom_color = tm_props.LI_materialLink.lower().startswith("custom")
+
+            row = layout.row(align=True)
+            row.enabled = mat_uses_custom_color
+            col = row.column()
+            col.label(text="Color")
+            col = row.column()
+            col.prop(tm_props, "NU_materialCustomColor", text="")
+            row.operator("view3d.tm_revertcustomcolor", icon="FILE_REFRESH", text="")
+
 
 
         row = layout.row()
@@ -265,8 +277,11 @@ def createOrUpdateMaterial(action)->None:
         debug(f"Material {matName} updated")
 
     createMaterialNodes(MAT)
+    applyMaterialLiveChanges()
 
    
+
+
 
 
 def deleteMaterialNodes(mat) -> None:
@@ -307,6 +322,7 @@ def createMaterialNodes(mat)->None:
     NODE_bsdf.location = x(3), y(1)
     NODE_bsdf.inputs["Specular"].default_value = 0 #.specular
     NODE_bsdf.inputs["Emission Strength"].default_value = 3.0
+    NODE_bsdf.inputs["Base Color"].default_value = getTmProps().NU_materialCustomColor # blue
 
     # uvmap basematerial
     NODE_uvmap = nodes.new(type="ShaderNodeUVMap")

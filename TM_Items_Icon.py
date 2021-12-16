@@ -139,7 +139,7 @@ def generateIcon(col, filepath, save=True) -> None:
             debug(f"icon creation cancelled, <{ icon_name }> already exists")
             return
 
-    debug(f"create icon <icon_name>")
+    debug(f"create icon <{icon_name}>")
 
 
     # MAKE ICON OBJ----------

@@ -13,7 +13,7 @@ from bpy.types import (
 
 from .TM_Functions  import * 
 from .TM_Items_Icon import generateWorldNode
-
+from .TM_Descriptions import *
 
 
 
@@ -93,8 +93,8 @@ def getExportTypes()->list:
     return[
         ("EXPORT",          "Export only",          "Export only",                      "EXPORT", 0),
         ("EXPORT_CONVERT",  "Export and Convert",   "Export fbx and convert to gbx",    "CON_FOLLOWPATH", 1),
-        ("CONVERT",         "Convert only",         "Convert only",                     "FILE_REFRESH", 2),
-        ("ICON",            "Icon only",            "Icon only",                        "FILE_IMAGE", 3),
+        # ("CONVERT",         "Convert only",         "Convert only",                     "FILE_REFRESH", 2),
+        # ("ICON",            "Icon only",            "Icon only",                        "FILE_IMAGE", 3),
     ]
 
 
@@ -264,9 +264,6 @@ def getMaterials(self, context):
 
 
 def updateMaterialSettings(self, context):
-    tm_props    = getTmProps()
-    matToUpdate = bpy.data.materials[tm_props.LI_materials]
-
     assignments = [
         ("tm_props.ST_materialAddName"      , "matToUpdate.name"),
         ("tm_props.LI_materialCollection"   , "matToUpdate.environment"),
@@ -284,8 +281,58 @@ def updateMaterialSettings(self, context):
             exec(assignment)
         except TypeError:
             pass
-
+    
+    setCurrentMatBackupColor()
     redrawPanel(self,context)
+
+
+def setCurrentMatBackupColor() -> None:
+    tm_props = getTmProps()
+    mat = tm_props.LI_materials
+    mat = bpy.data.materials.get(mat, None)
+    
+    if mat.use_nodes:
+        old_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
+        tm_props.NU_materialCustomColorOld = old_color
+
+
+def applyMaterialLiveChanges() -> None:
+    tm_props = getTmProps()
+    mat = tm_props.LI_materials
+    mat = bpy.data.materials.get(mat, None)
+
+    if mat is not None:
+        color = tm_props.NU_materialCustomColor
+        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
+        tm_props.NU_materialCustomColorOld = color
+
+
+def setMaterialCustomColorLiveChanges(self, context) -> None:
+    tm_props = getTmProps()
+    method_is_update = tm_props.LI_materialAction == "UPDATE"
+
+    if method_is_update is False:
+        return
+    
+    mat = tm_props.LI_materials
+    mat = bpy.data.materials.get(mat, None)
+
+    if mat is not None:
+        color = tm_props.NU_materialCustomColor
+        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
+
+
+
+def revertMaterialCustomColorLiveChanges() -> None:
+    tm_props = getTmProps()
+    mat = tm_props.LI_materials
+    mat = bpy.data.materials.get(mat, None)
+
+    if mat is not None:
+        old_color = tm_props.NU_materialCustomColorOld
+        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = old_color
+        tm_props.NU_materialCustomColor = old_color
+
 
 
 
@@ -400,8 +447,6 @@ def getMaterialGameplayIds(self, context)->None:
 
 
 
-
-
 #? CB = CheckBox => BoolProperty
 #? LI = List     => EnumProperty
 #? NU = Number   => IntProperty, FloatProperty
@@ -420,14 +465,17 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_nadeoImporterDLshow     : BoolProperty(  default=False,  update=redrawPanel)
 
     #export
-    LI_exportType         : EnumProperty(items=getExportTypes(),        name="Action", default=1)
-    LI_exportFolderType   : EnumProperty(items=getExportFolderTypes,    name="Folder", default=0)
-    ST_exportFolder_MP    : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
-    ST_exportFolder_TM    : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
-    LI_exportWhichObjs    : EnumProperty(items=getExportWhichObjects(), name="Export by?")
-    LI_exportValidTypes   : EnumProperty(name="Export",      items=getExportObjTypes())
-    NU_exportObjScale     : FloatProperty(name="Scale", min=0, soft_max=16)
-
+    LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)
+    LI_exportFolderType         : EnumProperty(items=getExportFolderTypes,    name="Folder", default=0)
+    ST_exportFolder_MP          : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
+    ST_exportFolder_TM          : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
+    LI_exportWhichObjs          : EnumProperty(items=getExportWhichObjects(), name="Export by?")
+    LI_exportValidTypes         : EnumProperty(name="Export",      items=getExportObjTypes())
+    NU_exportObjScale           : FloatProperty(name="Scale", min=0, soft_max=16)
+    NU_multiScaleExportFactor   : FloatProperty(name="Steps", min=0, soft_max=8, default=0.25)
+    CB_useMultiScaleExport      : BoolProperty(default=True, name="Scale exports", description=DESC_MULTI_SCALE_EXPORT)
+    CB_overwriteMultiScaleFactor: BoolProperty(default=False, name="Step factor" , description=DESC_MULTI_SCALE_EXPORT)
+    
     #convert
     NU_convertCount              : IntProperty(min=0, max=100000,   default=0, update=redrawPanel)
     NU_convertedRaw              : IntProperty(min=0, max=100000,   default=0, update=redrawPanel)
@@ -517,6 +565,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_materialGameplayId     : EnumProperty(name="GameplayId",                 items=getMaterialGameplayIds)
     LI_materialModel          : EnumProperty(name="Model",                      items=getMaterialModelTypes())
     LI_materialLink           : EnumProperty(name="Link",                       items=getMaterialLinks)
+    NU_materialCustomColorOld : FloatVectorProperty(name='OldLightcolor',       subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4,) # as backup, when BELOW changes(live preview)
+    NU_materialCustomColor    : FloatVectorProperty(name='Lightcolor',          subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4, update=setMaterialCustomColorLiveChanges)
     ST_materialBaseTexture    : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
     LI_materialChooseSource   : EnumProperty(name="Custom Texture or Link",     items=getMaterialTextureSourceOptions())
 

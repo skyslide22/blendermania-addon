@@ -119,11 +119,11 @@ class TM_PT_Items_Export(Panel):
             if bpy.context.selected_objects == [] and exportActionIsSelected:
                 enableExportButton = False
         
-        if exportTypeIsConvertOnly:
-            row=layout.row()
-            row.alert=True
-            row.label(text="work in progress, soon ...")
-            return
+        # if exportTypeIsConvertOnly:
+        #     row=layout.row()
+        #     row.alert=True
+        #     row.label(text="work in progress, soon ...")
+        #     return
 
         layout.separator(factor=UI_SPACER_FACTOR)
         
@@ -155,13 +155,13 @@ class TM_PT_Items_Export(Panel):
                 icon="CON_FOLLOWPATH";  
                 text=f"Export & convert {collection_count} collection{plural}"
 
-            elif exportType == "CONVERT":           
-                icon="FILE_REFRESH";    
-                text=f"Convert folder..."
+            # elif exportType == "CONVERT":           
+            #     icon="FILE_REFRESH";    
+            #     text=f"Convert folder..."
                 
-            elif exportType == "ICON":              
-                icon="FILE_IMAGE";      
-                text=f"""Create icons for {collection_count} collection{plural}"""
+            # elif exportType == "ICON":              
+            #     icon="FILE_IMAGE";      
+            #     text=f"""Create icons for {collection_count} collection{plural}"""
             
             row.operator("view3d.tm_export", text=text, icon=icon)
             row.prop(tm_props, "CB_notifyPopupWhenDone", icon_only=True, icon="INFO")
@@ -184,7 +184,7 @@ class TM_PT_Items_Export(Panel):
             # last & remaining
             if is_not_first_convert and converting:
                 # layout.row().label(text=f"""Last convert duration took: {last_convert_time}s""")
-                layout.row().label(text=f"""Probably done in: {remaining_time}s""")
+                layout.row().label(text=f"""Like previous convert?: {remaining_time}s""")
 
 
             row=layout.row(align=True)
@@ -268,115 +268,123 @@ def exportAndOrConvert()->None:
     fixAllColNames() #[a-zA-Z0-9_-#] only
 
 
-    if action == "EXPORT" \
-    or action == "EXPORT_CONVERT"\
-    or action == "ICON":
-
-        if useSelectedOnly:
-            pre_selected_objs = bpy.context.selected_objects.copy()
-        
-        deselectAll()
-
-        for obj in allObjs:
-            
-            # rename lazy names (spawn and trigger)
-            objnameLower = obj.name.lower()
-
-            if "socket" in objnameLower\
-            and objnameLower.startswith("_") is False:
-                obj.name = "_socket_"
-            
-            if "trigger" in objnameLower\
-            and objnameLower.startswith("_") is False:
-                obj.name = "_trigger_"
 
 
-            # save material as json in the exported fbx file (for import? later) 
-            for slot in obj.material_slots:
-                mat = slot.material
-                if mat in embeddedMaterials: continue
-
-                saveMatPropsAsJSONinMat(mat=mat) #only string/bool/num custom props are saved in fbx...
-                embeddedMaterials.append(mat)
-        
-        debug("-----")
-        for col in colsToExport:
-            debug(col.name)
-
-        #export each collection ...
-        for col in colsToExport:
-
-            deselectAll()
-
-            exportFilePath = f"{exportFilePathBase}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
-            FBX_exportFilePath = fixSlash(exportFilePath + ".fbx")
-
-            if not action == "ICON":
-
-                fixUvLayerNamesOfObjects(col=col)
-
-                has_lod_0 = False
-                has_lod_1 = False
-                for obj in col.objects: 
-                    if   "_lod0" in obj.name.lower(): has_lod_0 = True
-                    elif "_lod1" in obj.name.lower(): has_lod_1 = True
-                
-
-                if  not has_lod_0\
-                and not has_lod_1: #if obj uses lods, auto lightmap is not good.
-                
-                    if generateLightmaps:
-                        generateLightmap(col=col, fix=fixLightmap)
-
-                    if generateBaseMaterialCubeProjects:
-                        generateBaseMaterialCubeProject(col=col)
-
-                if has_lod_1 and not has_lod_0:
-                    invalidCollections.append(f"<{col.name}> has Lod1, but not Lod0, collection skipped")
-                    continue
-                
-                debug()
-                debug(f"Start export of collection <{col.name}>")
-                
-                # all col objs parenting to an empty obj
-                # move to center, unparent, export,
-                # parent again, back to old origin, unparent
-                ORIGIN = createExportOriginFixer(col=col)
-                debug(f"origin for collection <{col.name}> is <{ORIGIN.name}>")
-
-                origin_oldPos    = tuple(ORIGIN.location) #old pos of origin
-                ORIGIN.location  = (0,0,0)  #center of world
-
-                # Lod0, Lod1 can't be childrens
-                # so unparent and keep all transforms at 0,0,0
-                unparentObjsAndKeepTransform(col=col) 
-
-                deselectAll()
-                selectAllObjectsInACollection(col=col, only_direct_children=True, exclude_infixes="_ignore, delete")
-                debug(f"selected objects: {bpy.context.selected_objects}")
-
-                exportFBX(fbxfilepath=FBX_exportFilePath)
-                exportedFBXs.append(    (FBX_exportFilePath, col)  )
-                debug(f"exported collection <{col.name}>")
-
-                parentObjsToObj(col=col, obj=ORIGIN)
-                ORIGIN.location = origin_oldPos
-
-                deleteExportOriginFixer(col=col)
-            
-            if generateIcons\
-            or action == "ICON":
-                generateIcon(col=col, filepath=FBX_exportFilePath)
-
-        #end for col in colsToExport
-        if invalidCollections:
-            makeReportPopup("Invalid collections", invalidCollections)
+    if useSelectedOnly:
+        pre_selected_objs = bpy.context.selected_objects.copy()
     
+    deselectAll()
+
+    for obj in allObjs:
+        
+        # rename lazy names (spawn and trigger)
+        objnameLower = obj.name.lower()
+
+        if "socket" in objnameLower\
+        and objnameLower.startswith("_") is False:
+            obj.name = "_socket_"
+        
+        if "trigger" in objnameLower\
+        and objnameLower.startswith("_") is False:
+            obj.name = "_trigger_"
+
+
+        # save material as json in the exported fbx file (for import? later) 
+        for slot in obj.material_slots:
+            mat = slot.material
+            if mat in embeddedMaterials: continue
+
+            saveMatPropsAsJSONinMat(mat=mat) #only string/bool/num custom props are saved in fbx...
+            embeddedMaterials.append(mat)
+    
+    debug("-----")
+    for col in colsToExport:
+        debug(col.name)
+
+    #export each collection ...
+    for col in colsToExport:
+
         deselectAll()
-        if useSelectedOnly:
-            for obj in pre_selected_objs:
-                try:    selectObj(obj)
-                except: pass
+
+        exportFilePath = f"{exportFilePathBase}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
+        FBX_exportFilePath = fixSlash(exportFilePath + ".fbx")
+
+    
+
+        fixUvLayerNamesOfObjects(col=col)
+
+        has_lod_0 = False
+        has_lod_1 = False
+        for obj in col.objects: 
+            if   "_lod0" in obj.name.lower(): has_lod_0 = True
+            elif "_lod1" in obj.name.lower(): has_lod_1 = True
+        
+
+        if  not has_lod_0\
+        and not has_lod_1: #if obj uses lods, auto lightmap is not good.
+        
+            if generateLightmaps:
+                generateLightmap(col=col, fix=fixLightmap)
+
+            if generateBaseMaterialCubeProjects:
+                generateBaseMaterialCubeProject(col=col)
+
+        if has_lod_1 and not has_lod_0:
+            invalidCollections.append(f"<{col.name}> has Lod1, but not Lod0, collection skipped")
+            continue
+        
+        debug()
+        debug(f"Start export of collection <{col.name}>")
+        
+        # all col objs parenting to an empty obj
+        # move to center, unparent, export,
+        # parent again, back to old origin, unparent
+        ORIGIN = createExportOriginFixer(col=col)
+        debug(f"origin for collection <{col.name}> is <{ORIGIN.name}>")
+
+        origin_oldPos    = tuple(ORIGIN.location) #old pos of origin
+        ORIGIN.location  = (0,0,0)  #center of world
+
+        # Lod0, Lod1 can't be childrens
+        # so unparent and keep all transforms at 0,0,0
+        unparentObjsAndKeepTransform(col=col) 
+
+        deselectAll()
+        selectAllObjectsInACollection(col=col, only_direct_children=True, exclude_infixes="_ignore, delete")
+        debug(f"selected objects: {bpy.context.selected_objects}")
+
+
+
+        # export, may be multiple lul
+        exportFBX(fbxfilepath=FBX_exportFilePath)
+        
+        for exportedFBX in getDuplicateScaledExportedFBXFiles(FBX_exportFilePath, col):
+
+            exportedFBXs.append(exportedFBX)
+            debug(f"exported collection <{getFilenameOfPath(exportedFBX.filepath, remove_extension=True)}>")
+
+            if generateIcons:
+                generateIcon(col, exportedFBX.filepath)
+
+
+
+
+        parentObjsToObj(col=col, obj=ORIGIN)
+        ORIGIN.location = origin_oldPos
+
+        deleteExportOriginFixer(col=col)
+        
+
+
+    #end for col in colsToExport
+    if invalidCollections:
+        makeReportPopup("Invalid collections", invalidCollections)
+
+    deselectAll()
+    if useSelectedOnly:
+        for obj in pre_selected_objs:
+            try:    selectObj(obj)
+            except: pass
 
 
     if action == "EXPORT_CONVERT":
@@ -394,19 +402,14 @@ def exportAndOrConvert()->None:
 
 
     # generate xmls
-    for fbxinfo in exportedFBXs:
+    for exportedFBX in exportedFBXs:
         genItemXML = tm_props.CB_xml_genItemXML
         genMeshXML = tm_props.CB_xml_genMeshXML
         genIcon    = tm_props.CB_icon_genIcons
 
-
-        fbx, col = fbxinfo
-
-        if genItemXML: generateItemXML(fbxfilepath=fbx, col=col)
-        if genMeshXML: generateMeshXML(fbxfilepath=fbx, col=col)
+        if genItemXML: generateItemXML(exportedFBX)
+        if genMeshXML: generateMeshXML(exportedFBX)
         # if genIcon:    generateIcon(col=col)
-
-
 
 
 
