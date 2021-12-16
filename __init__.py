@@ -79,6 +79,7 @@ classes = (
     TM_OT_Materials_Create,
     TM_OT_Materials_Update,
     TM_OT_Materials_ClearBaseMaterial,
+    TM_OT_Materials_RevertCustomColor,
 
     #cars
     TM_OT_Items_Cars_Import,

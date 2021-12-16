@@ -17,7 +17,6 @@ from .TM_Descriptions import *
 
 
 
-
 ERROR_ENUM_PROPS      = [("ERROR", "Nothing found", "ERROR", "ERROR", 0)]
 matPhysics          = ERROR_ENUM_PROPS
 matLinks            = ERROR_ENUM_PROPS
@@ -265,9 +264,6 @@ def getMaterials(self, context):
 
 
 def updateMaterialSettings(self, context):
-    tm_props    = getTmProps()
-    matToUpdate = bpy.data.materials[tm_props.LI_materials]
-
     assignments = [
         ("tm_props.ST_materialAddName"      , "matToUpdate.name"),
         ("tm_props.LI_materialCollection"   , "matToUpdate.environment"),
@@ -285,8 +281,58 @@ def updateMaterialSettings(self, context):
             exec(assignment)
         except TypeError:
             pass
-
+    
+    setCurrentMatBackupColor()
     redrawPanel(self,context)
+
+
+def setCurrentMatBackupColor() -> None:
+    tm_props = getTmProps()
+    mat = tm_props.LI_materials
+    mat = bpy.data.materials.get(mat, None)
+    
+    if mat.use_nodes:
+        old_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
+        tm_props.NU_materialCustomColorOld = old_color
+
+
+def applyMaterialLiveChanges() -> None:
+    tm_props = getTmProps()
+    mat = tm_props.LI_materials
+    mat = bpy.data.materials.get(mat, None)
+
+    if mat is not None:
+        color = tm_props.NU_materialCustomColor
+        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
+        tm_props.NU_materialCustomColorOld = color
+
+
+def setMaterialCustomColorLiveChanges(self, context) -> None:
+    tm_props = getTmProps()
+    method_is_update = tm_props.LI_materialAction == "UPDATE"
+
+    if method_is_update is False:
+        return
+    
+    mat = tm_props.LI_materials
+    mat = bpy.data.materials.get(mat, None)
+
+    if mat is not None:
+        color = tm_props.NU_materialCustomColor
+        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
+
+
+
+def revertMaterialCustomColorLiveChanges() -> None:
+    tm_props = getTmProps()
+    mat = tm_props.LI_materials
+    mat = bpy.data.materials.get(mat, None)
+
+    if mat is not None:
+        old_color = tm_props.NU_materialCustomColorOld
+        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = old_color
+        tm_props.NU_materialCustomColor = old_color
+
 
 
 
@@ -519,6 +565,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_materialGameplayId     : EnumProperty(name="GameplayId",                 items=getMaterialGameplayIds)
     LI_materialModel          : EnumProperty(name="Model",                      items=getMaterialModelTypes())
     LI_materialLink           : EnumProperty(name="Link",                       items=getMaterialLinks)
+    NU_materialCustomColorOld : FloatVectorProperty(name='OldLightcolor',       subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4,) # as backup, when BELOW changes(live preview)
+    NU_materialCustomColor    : FloatVectorProperty(name='Lightcolor',          subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4, update=setMaterialCustomColorLiveChanges)
     ST_materialBaseTexture    : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
     LI_materialChooseSource   : EnumProperty(name="Custom Texture or Link",     items=getMaterialTextureSourceOptions())
 
