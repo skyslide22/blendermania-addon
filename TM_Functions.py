@@ -1,4 +1,5 @@
 from datetime import datetime
+from shutil import copyfile
 import subprocess
 import threading
 import urllib.request
@@ -1103,7 +1104,60 @@ def nadeoLibParser(refresh=False) -> dict:
     
     nadeoLibMaterials = lib
     return nadeoLibMaterials
+
+
+
+class exportFBXModel:
+    def __init__(self, fbxfilepath, col, scale=1):
+        self.filepath = fbxfilepath
+        self.col      = col
+        self.scale    = scale
+
+
+
+def getDuplicateScaledExportedFBXFiles(fbxfilepath: str, col: bpy.types.Collection) -> list[exportFBXModel]:
+    """modify fbx file: fix filename and duplicate to different sizes"""
+    pattern   = r"_#SCALE_(\d)+to(\d)+_x(\d)+"
+    data_list = re.findall(pattern, fbxfilepath, flags=re.IGNORECASE)
+
+    new_paths = []
+    new_paths.append(exportFBXModel(fbxfilepath, col))
     
+    if len(data_list) > 0:
+        scale_from    = int(data_list[0][0]) 
+        scale_to      = int(data_list[0][1])
+        scale_step_raw= int(data_list[0][2]) 
+        scale_step    = 1 / scale_step_raw
+        current_scale = 1
+
+        # swap, always lowest to biggest
+        if scale_from > scale_to:
+            scale_from, scale_to = scale_to, scale_from
+
+        debug(f"{scale_from=}\n{scale_to=}\n{scale_step=}")
+        new_paths.clear()
+        
+        reverse_range = reversed(range(scale_from, scale_to+1))
+
+        for scale in reverse_range:
+
+            if current_scale <= 0:
+                raise Exception(f"""
+                Atleast one exported object scale is below 0!
+                try to increase your "_x{scale_step_raw}" to x{scale_step_raw + 1} or x{scale_step_raw+2} in {getFilenameOfPath(fbxfilepath)}""")
+
+            new_path = re.sub(pattern, f"_#{scale}", fbxfilepath) #_SCALE_7... to _#7
+
+            debug(f"create new file: {new_path}")
+            copyfile(fbxfilepath, new_path)
+            new_paths.append( exportFBXModel(new_path, col, current_scale) )
+            current_scale -= scale_step
+        
+        debug(f"remove original: {fbxfilepath}")
+        os.remove(fbxfilepath) # rm original
+
+    return new_paths
+
     
     
 def fixName(name: str) -> str:
