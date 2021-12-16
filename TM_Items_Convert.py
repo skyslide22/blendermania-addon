@@ -205,7 +205,7 @@ def updateConvertTimes()->None:
 
 
 @newThread
-def startBatchConvert(fbxfilepaths: list) -> None:
+def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
     """convert each fbx one after one, create a new thread for it"""
     tm_props_convertingItems = getTmConvertingItemsProp()
     tm_props = getTmProps()
@@ -227,17 +227,17 @@ def startBatchConvert(fbxfilepaths: list) -> None:
 
     atleast_one_convert_failed = False
 
-    for fbx in fbxfilepaths:
-        col = fbx[1]
-        name = col.name
+    for exported_fbx in fbxfilepaths:
+        col = exported_fbx.col
+        name = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
         item = tm_props_convertingItems.add()
         item.name = name
         items_convert_index[ name ] = counter
         counter += 1
 
-    for i, fbx in enumerate(fbxfilepaths):
-        fbxfilepath, col = fbx
-        name = col.name
+    for i, exported_fbx in enumerate(fbxfilepaths):
+        fbxfilepath = exported_fbx.filepath
+        name        = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
 
         current_convert_timer = Timer()
         current_convert_timer.start()
