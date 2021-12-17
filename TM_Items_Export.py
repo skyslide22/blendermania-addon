@@ -282,7 +282,7 @@ def exportAndOrConvert()->None:
 
         if "socket" in objnameLower\
         and objnameLower.startswith("_") is False:
-            obj.name = "_socket_"
+            obj.name = "_socket_start"
         
         if "trigger" in objnameLower\
         and objnameLower.startswith("_") is False:
