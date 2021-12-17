@@ -147,7 +147,7 @@ def generateIcon(col, filepath, save=True) -> None:
 
     for obj in col_objs:
         if  obj.type == "MESH"\
-        and obj.name.startswith("_") is False\
+        and isVisibleObjectByName(obj.name)\
         and not "lod1" in obj.name.lower():
             if selectObj(obj):
                 setActiveObj(obj)

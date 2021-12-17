@@ -136,9 +136,7 @@ def generateBaseMaterialCubeProject(col) -> None:
 
         obj_uvs = [k.lower() for k in obj.data.uv_layers.keys()]
 
-        if   "trigger" not in obj.name.lower()\
-        and  "socket"  not in obj.name.lower()\
-        and  obj.name.startswith("_") is False\
+        if   isVisibleObjectByName(obj.name)\
         and  "basematerial" in obj_uvs:
             selectObj(obj)
             setActiveObj(obj)
@@ -184,9 +182,7 @@ def generateLightmap(col, fix=False) -> None:
 
         obj_uvs = [k.lower() for k in obj.data.uv_layers.keys()]
 
-        if   "trigger" not in obj.name.lower()\
-        and  "socket"  not in obj.name.lower()\
-        and  obj.name.startswith("_") is False\
+        if   isVisibleObjectByName(obj.name)\
         and  "lightmap" in obj_uvs:
             selectObj(obj)
             setActiveObj(obj)
@@ -231,7 +227,7 @@ def checkUVLayerOverlapsOfCol(uv_name: str, col: bpy.types.Collection)-> bool:
     deselectAll()
     
     objs = [obj for obj in col.objects  if  obj.type == "MESH" \
-                                            and obj.name.startswith("_") is False \
+                                            and isVisibleObjectByName(obj.name) \
                                             and selectObj(obj) ]
 
     objs_active_layernames = {} # { "myobj123": "BaseMaterial" }
