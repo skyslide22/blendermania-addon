@@ -277,7 +277,7 @@ def exportAndOrConvert()->None:
 
     for obj in allObjs:
         
-        # rename lazy names (spawn and trigger)
+        # rename lazy names (spawn, trigger, notvisible, notcollidable)
         objnameLower = obj.name.lower()
 
         if "socket" in objnameLower\
@@ -287,6 +287,14 @@ def exportAndOrConvert()->None:
         if "trigger" in objnameLower\
         and objnameLower.startswith("_") is False:
             obj.name = "_trigger_"
+
+        if "notvisible" in objnameLower\
+        and objnameLower.startswith("_") is False:
+            obj.name = "_notvisible_"
+
+        if "notcollidable" in objnameLower\
+        and objnameLower.startswith("_") is False:
+            obj.name = "_notcollidable_"
 
 
         # save material as json in the exported fbx file (for import? later) 

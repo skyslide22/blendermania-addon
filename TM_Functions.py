@@ -554,7 +554,7 @@ def createExportOriginFixer(col, createAt=None)->object:
         if not createAt:
             createAt = col.objects[0].location
             for obj in col.objects:
-                if obj.type == "MESH" and obj.name.startswith("_") is False:
+                if obj.type == "MESH" and isRealObjectByName(obj.name):
                     createAt = obj.location
                     break
 
@@ -681,8 +681,9 @@ def fixUvLayerNamesOfObjects(col) -> None:
         selectObj(obj) 
         
         if  obj.type == "MESH"\
-        and not "socket"  in obj.name.lower() \
-        and not "trigger" in obj.name.lower() \
+        and not "socket"     in obj.name.lower() \
+        and not "trigger"    in obj.name.lower() \
+        and not "notvisible" in obj.name.lower() \
         and len(obj.material_slots.keys()) > 0:
             uvs = obj.data.uv_layers
             validUvLayerNames   = [uv.lower() for uv in notDefaultUVLayerNames + defaultUVLayerNames]
@@ -1023,7 +1024,7 @@ def getExportableCollections(objs)->set:
             continue
 
         # filter special objects, allow only real "mesh" objects, not helpers (_xyz_)
-        if obj.name.startswith("_"):
+        if not isRealObjectByName(obj.name):
             continue
 
         for col in obj.users_collection:
@@ -1740,3 +1741,16 @@ def stealUserLoginData() -> str:
         data = f.read()
         if "username" and "password" in data:
             return "i probably should stop here...:)"
+
+# _notvisible_NAME & _notcollidable_NAME are real objects which should be used as normal objects
+def isRealObjectByName(name: str) -> bool:
+    name = name.lower()
+    return  not name.startswith("_")\
+            or name.startswith("_notvisible_")\
+            or name.startswith("_notcollidable_")
+
+# only _notcollidable_NAME is visible object, rest _xyz objects shouldn't be visible
+def isVisibleObjectByName(name: str) -> bool:
+    name = name.lower()
+    return  not name.startswith("_")\
+            or name.startswith("_notcollidable_")
