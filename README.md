@@ -53,7 +53,7 @@ This addon is for Blender 2.93+, it will simplify all necessary steps and help y
 - this addon does not convert fbx to gbx, nadeoimporter.exe is required & used for this!
 - collections with names which start with \_ignore will not be exported, even if visible or selected
 - collections can have different scales, using the following syntax:
-- - <yourcollectionname>_#SCALE_<from:number>to<to:number>_x<step:number>
+- - \<yourcollectionname\>\_#SCALE\_\<from:number\>to\<to:number\>\_x\<step:number\>
 - - example: deco_tree_normal_#SCALE_7to2_x6
 - - will result in:
 - - - deco_tree_normal_#7.fbx - size 6/6 (100%)
