@@ -290,11 +290,11 @@ def exportAndOrConvert()->None:
 
         if "notvisible" in objnameLower\
         and objnameLower.startswith("_") is False:
-            obj.name = "_notvisible_"
+            obj.name = "_notvisible_"+obj.name
 
         if "notcollidable" in objnameLower\
         and objnameLower.startswith("_") is False:
-            obj.name = "_notcollidable_"
+            obj.name = "_notcollidable_"+obj.name
 
 
         # save material as json in the exported fbx file (for import? later) 
