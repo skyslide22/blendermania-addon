@@ -220,6 +220,7 @@ def createOrUpdateMaterial(action)->None:
     matModel          = tm_props.LI_materialModel
     matLink           = tm_props.LI_materialLink
     matBaseTexture    = tm_props.ST_materialBaseTexture
+    matColor          = tm_props.NU_materialCustomColor
     MAT = None
 
 
@@ -251,6 +252,7 @@ def createOrUpdateMaterial(action)->None:
             MAT.model          = matModel
             MAT.link           = matLink
             MAT.baseTexture    = matBaseTexture
+            MAT.surfaceColor   = matColor[:3]
             makeReportPopup(
                 title=f"Material {matNameNew} successfully created!",
                 icon ="CHECKMARK"
@@ -270,6 +272,7 @@ def createOrUpdateMaterial(action)->None:
         MAT.link           = matLink
         MAT.baseTexture    = matBaseTexture if isGameTypeManiaPlanet() else ""
         MAT.name           = matNameNew
+        MAT.surfaceColor   = matColor[:3]
         makeReportPopup(
             title=f"Material {matName} sucessfully updated", 
             icon= "CHECKMARK"
@@ -297,7 +300,11 @@ def createMaterialNodes(mat)->None:
     """create material nodes"""
     debug(f"start creating material nodes for {mat.name}")
     isCustomMat = mat.link.lower().startswith("custom")
+    surfaceColor = mat.surfaceColor
+    surfaceColor = (*surfaceColor, 1)
+    
     mat.use_nodes = True
+    mat.diffuse_color = surfaceColor
     mat.blend_method= "HASHED" #BLEND
     mat.show_transparent_back = False #backface culling
     mat.use_backface_culling  = False #backface culling
@@ -322,7 +329,7 @@ def createMaterialNodes(mat)->None:
     NODE_bsdf.location = x(3), y(1)
     NODE_bsdf.inputs["Specular"].default_value = 0 #.specular
     NODE_bsdf.inputs["Emission Strength"].default_value = 3.0
-    NODE_bsdf.inputs["Base Color"].default_value = getTmProps().NU_materialCustomColor # blue
+    NODE_bsdf.inputs["Base Color"].default_value = surfaceColor
 
     # uvmap basematerial
     NODE_uvmap = nodes.new(type="ShaderNodeUVMap")
@@ -526,6 +533,10 @@ def saveMatPropsAsJSONinMat(mat) -> None:
     if mat.name.startswith(("TM_", "MP_")) is False:
         return
 
+    mat.surfaceColor = mat.diffuse_color[:3]
+    if mat.use_nodes:
+        mat.surfaceColor = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value[:3]
+
     #tm_props
     for prop_name in mat_props:
         prop = getattr(mat, prop_name, None)
@@ -543,23 +554,22 @@ def saveMatPropsAsJSONinMat(mat) -> None:
         DICT[prop_name] = prop
     
 
-
-    mat.use_nodes = True
-    nodes = mat.node_tree.nodes
-    tex_d = nodes["tex_D"].image if "tex_D" in nodes else None
-    tex_i = nodes["tex_I"].image if "tex_I" in nodes else None
-    tex_r = nodes["tex_R"].image if "tex_R" in nodes else None
-    tex_n = nodes["tex_N"].image if "tex_N" in nodes else None
+    if mat.use_nodes:
+        nodes = mat.node_tree.nodes
+        tex_d = nodes["tex_D"].image if "tex_D" in nodes else None
+        tex_i = nodes["tex_I"].image if "tex_I" in nodes else None
+        tex_r = nodes["tex_R"].image if "tex_R" in nodes else None
+        tex_n = nodes["tex_N"].image if "tex_N" in nodes else None
+            
+        tex_d_path = tex_d.filepath if tex_d else ""
+        tex_i_path = tex_i.filepath if tex_i else ""
+        tex_r_path = tex_r.filepath if tex_r else ""
+        tex_n_path = tex_n.filepath if tex_n else ""
         
-    tex_d_path = tex_d.filepath if tex_d else ""
-    tex_i_path = tex_i.filepath if tex_i else ""
-    tex_r_path = tex_r.filepath if tex_r else ""
-    tex_n_path = tex_n.filepath if tex_n else ""
-    
-    DICT["tex_d_path"] = getAbspath(tex_d_path)
-    DICT["tex_i_path"] = getAbspath(tex_i_path)
-    DICT["tex_r_path"] = getAbspath(tex_r_path)
-    DICT["tex_n_path"] = getAbspath(tex_n_path)
+        DICT["tex_d_path"] = getAbspath(tex_d_path)
+        DICT["tex_i_path"] = getAbspath(tex_i_path)
+        DICT["tex_r_path"] = getAbspath(tex_r_path)
+        DICT["tex_n_path"] = getAbspath(tex_n_path)
 
     JSON = json.dumps(DICT)
     mat[ MAT_PROPS_AS_JSON ] = JSON
@@ -599,20 +609,20 @@ def assignMatJSONpropsToMat(mat) -> bool:
     createMaterialNodes(mat)
     imgs  = bpy.data.images
     nodes = mat.node_tree.nodes
-    tex_d = nodes["tex_D"]
-    tex_i = nodes["tex_I"]
-    tex_r = nodes["tex_R"]
-    tex_n = nodes["tex_N"]
+    tex_d = getattr(nodes, "tex_D", "")
+    tex_i = getattr(nodes, "tex_I", "")
+    tex_r = getattr(nodes, "tex_R", "")
+    tex_n = getattr(nodes, "tex_N", "")
 
-    btex  = DICT["baseTexture"]
-    envi  = DICT["environment"]
+    btex  = getattr(DICT, "baseTexture", "")
+    envi  = getattr(DICT, "environment", "")
     root  = getDocPathItemsAssetsTextures()
     root  = root + envi + "/"
 
-    tex_d_path = DICT["tex_d_path"] or getDocPath() + btex + "_D.dds"
-    tex_i_path = DICT["tex_i_path"] or getDocPath() + btex + "_I.dds"
-    tex_r_path = DICT["tex_r_path"] or getDocPath() + btex + "_R.dds"
-    tex_n_path = DICT["tex_n_path"] or getDocPath() + btex + "_N.dds"
+    tex_d_path = getattr(DICT, "tex_d_path", False) or getDocPath() + btex + "_D.dds"
+    tex_i_path = getattr(DICT, "tex_i_path", False) or getDocPath() + btex + "_I.dds"
+    tex_r_path = getattr(DICT, "tex_r_path", False) or getDocPath() + btex + "_R.dds"
+    tex_n_path = getattr(DICT, "tex_n_path", False) or getDocPath() + btex + "_N.dds"
 
     test_d_path_as_link = root + tex_d_path.split("/")[-1]
     test_i_path_as_link = root + tex_i_path.split("/")[-1]
