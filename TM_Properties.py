@@ -272,21 +272,13 @@ def getMaterials(self, context):
 
 
 def updateMaterialSettings(self, context):
-<<<<<<< HEAD
-    tm_props = getTmProps()
+    tm_props    = getTmProps()
     matToUpdate = getTmProps().ST_selectedExistingMaterial
     matToUpdate = bpy.data.materials.get(matToUpdate, None)
 
     if matToUpdate is None:
         debug("try to get selected material but failed")
         return
-=======
-    tm_props    = getTmProps()
-    matToUpdate = bpy.data.materials[tm_props.LI_materials]
-    currentColor = matToUpdate.diffuse_color
-    if matToUpdate.use_nodes:
-        currentColor = matToUpdate.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
->>>>>>> 19a180158af9ba3733220f1162cd2562c45720d1
 
     assignments = [
         ("tm_props.ST_materialAddName"      , "matToUpdate.name"),
