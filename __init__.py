@@ -39,6 +39,7 @@ classes = (
     TM_Properties_Generated,
     TM_Properties_Pivots,
     TM_Properties_ConvertingItems,
+    TM_Properties_LinkedMaterials,
 
     #settings
     TM_PT_Settings,
@@ -100,12 +101,14 @@ def register():
     bpy.types.Scene.tm_props_pivots           = CollectionProperty(type=TM_Properties_Pivots)
     bpy.types.Scene.tm_props_generated        = CollectionProperty(type=TM_Properties_Generated)
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=TM_Properties_ConvertingItems)
+    bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=TM_Properties_LinkedMaterials)
 
     bpy.types.DATA_PT_EEVEE_light.append(extendObjectPropertiesPanel_LIGHT)
     bpy.types.Light.night_only          = BoolProperty(default=False)
 
     bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
     bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Cars_Import.addMenuPoint_CAR_SPAWN)
+
 
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
     bpy.types.Material.baseTexture      = StringProperty(       name="BaseTexture",         default="")
@@ -126,6 +129,7 @@ def unregister():
     del bpy.types.Scene.tm_props_generated
     del bpy.types.Scene.tm_props_pivots
     del bpy.types.Scene.tm_props_convertingItems
+    del bpy.types.Scene.tm_props_linkedMaterials
 
     bpy.types.DATA_PT_EEVEE_light.remove(extendObjectPropertiesPanel_LIGHT)
 

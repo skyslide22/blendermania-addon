@@ -91,7 +91,9 @@ class TM_PT_Materials(Panel):
         # choose action & mat name
         layout.row().prop(tm_props, "LI_materialAction", expand=True)
         
-        layout.row().prop(tm_props, "LI_materials") if action_is_update else None
+        if action_is_update:
+            layout.row().prop_search(tm_props, "ST_selectedExistingMaterial", bpy.data, "materials") 
+    
         layout.row().prop(tm_props, "ST_materialAddName")
 
         row = layout.row()
@@ -118,11 +120,11 @@ class TM_PT_Materials(Panel):
 
             # choose custom tex or linked mat
             row = layout.row(align=True)
-            col = row.column()
-            col.label(text="Texture:")
+            # col = row.column()
+            # col.label(text="Source:")
 
-            col = row.column()
-            row = col.row()
+            # col = row.column()
+            # row = col.row()
             row.prop(tm_props, "LI_materialChooseSource", expand=True)
             
             using_custom_texture = tm_props.LI_materialChooseSource == "CUSTOM"
@@ -134,6 +136,11 @@ class TM_PT_Materials(Panel):
                 row.prop(tm_props, "ST_materialBaseTexture", text="Location")
                 row.operator("view3d.tm_clearbasetexture", icon="X", text="")
 
+                if row.alert:
+                    row=layout.row()
+                    row.alert = True
+                    row.label(text=".dds file in Documents/Items/")
+
                 # model
                 row = layout.row()
                 row.prop(tm_props, "LI_materialModel")
@@ -142,7 +149,11 @@ class TM_PT_Materials(Panel):
             # link
             else:
                 row = layout.row()
-                row.prop(tm_props, "LI_materialLink", text="Link") 
+                row.prop_search(
+                    tm_props, "ST_selectedLinkedMat", # value of selection
+                    context.scene, "tm_props_linkedMaterials", # list to search in 
+                    icon="LINKED",
+                    text="Link") 
 
 
 
@@ -150,7 +161,10 @@ class TM_PT_Materials(Panel):
         elif isGameTypeTrackmania2020():
             # Link
             row = layout.row()
-            row.prop(tm_props, "LI_materialLink", text="Link")
+            row.prop_search(
+                tm_props, "ST_selectedLinkedMat", # value of selection
+                context.scene, "tm_props_linkedMaterials", # list to search in 
+                icon="MATERIAL") 
             
             # physics id
             row = layout.row(align=True)
@@ -169,7 +183,7 @@ class TM_PT_Materials(Panel):
             col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon="CHECKMARK")
 
             # custom color for materials starts with "custom"
-            mat_uses_custom_color = tm_props.LI_materialLink.lower().startswith("custom")
+            mat_uses_custom_color = tm_props.ST_selectedLinkedMat.lower().startswith("custom")
 
             row = layout.row(align=True)
             row.enabled = mat_uses_custom_color
@@ -222,6 +236,7 @@ def createOrUpdateMaterial(action)->None:
     matBaseTexture    = tm_props.ST_materialBaseTexture
     MAT = None
 
+    matTexSourceIsCustom = tm_props.LI_materialChooseSource == "CUSTOM"
 
     if isGameTypeTrackmania2020():
         if not matNameNew.startswith(TM_PREFIX):
@@ -230,6 +245,19 @@ def createOrUpdateMaterial(action)->None:
     if isGameTypeManiaPlanet():
         if not matNameNew.startswith(MP_PREFIX):
             matNameNew = MP_PREFIX + matNameNew.replace(TM_PREFIX, "") 
+
+
+    MAT = bpy.data.materials.new(name=matNameNew)
+    MAT.gameType       = matGameType
+    MAT.environment    = matCollection
+    MAT.usePhysicsId   = matUsePhysicsId
+    MAT.physicsId      = matPhysicsId
+    MAT.useGameplayId  = matUseGameplayId
+    MAT.gameplayId     = matGameplayId
+    MAT.model          = matModel
+    MAT.link           = matLink        if matTexSourceIsCustom is False else "" # keep one empty
+    MAT.baseTexture    = matBaseTexture if matTexSourceIsCustom          else ""
+    MAT.name = matNameNew
 
     if action == "CREATE":
         if matNameNew in bpy.data.materials:
@@ -241,16 +269,6 @@ def createOrUpdateMaterial(action)->None:
             return
 
         else:
-            MAT = bpy.data.materials.new(name=matNameNew)
-            MAT.gameType       = matGameType
-            MAT.environment    = matCollection
-            MAT.usePhysicsId   = matUsePhysicsId
-            MAT.physicsId      = matPhysicsId
-            MAT.useGameplayId  = matUseGameplayId
-            MAT.gameplayId     = matGameplayId
-            MAT.model          = matModel
-            MAT.link           = matLink
-            MAT.baseTexture    = matBaseTexture
             makeReportPopup(
                 title=f"Material {matNameNew} successfully created!",
                 icon ="CHECKMARK"
@@ -259,17 +277,6 @@ def createOrUpdateMaterial(action)->None:
     
 
     else: #UPDATE
-        MAT = bpy.data.materials[matName]
-        MAT.gameType       = matGameType
-        MAT.environment    = matCollection
-        MAT.usePhysicsId   = matUsePhysicsId
-        MAT.physicsId      = matPhysicsId
-        MAT.useGameplayId  = matUseGameplayId
-        MAT.gameplayId     = matGameplayId
-        MAT.model          = matModel
-        MAT.link           = matLink
-        MAT.baseTexture    = matBaseTexture if isGameTypeManiaPlanet() else ""
-        MAT.name           = matNameNew
         makeReportPopup(
             title=f"Material {matName} sucessfully updated", 
             icon= "CHECKMARK"

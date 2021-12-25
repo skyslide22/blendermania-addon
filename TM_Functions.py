@@ -245,12 +245,6 @@ def doesFolderExist(folderpath) -> bool:
 
 
 
-def rNone(*funcs):
-    """call all functions and return None (for property lambdas"""
-    for func in funcs:
-        func()
-    return None
-
 
 def requireValidNadeoINI(self) -> bool:
     """adds a error row label to the panel, return bool isValid"""
@@ -1038,13 +1032,39 @@ def getExportableCollections(objs)->set:
     return collections
 
 
+def getLinkedMaterials() -> object:
+    return bpy.context.scene.tm_props_linkedMaterials
 
-def nadeoLibParser(refresh=False) -> dict:
-    """read NadeoImporterMaterialLib.txt set global variable and return list of all materials as dict"""
-    global nadeoLibMaterials #create global variable to read and parse liffile only once
-    
-    if nadeoLibMaterials != {} and not refresh:
-        return nadeoLibMaterials
+def addLinkedMaterial(name: str) -> None:
+    mat = bpy.context.scene.tm_props_linkedMaterials.add()
+    mat.name = name
+
+def clearAllLinkedMaterials() -> None: 
+    try:
+        bpy.context.scene.tm_props_linkedMaterials.clear()
+        debug("clear material links success")
+    except AttributeError: # FIXME in registration phase, error
+        debug("clear material links failed, attribute error")
+
+
+def setSelectedLinkedMaterialToFirst() -> None:
+    mats = bpy.context.scene.tm_props_linkedMaterials
+    if len(mats) > 0:
+        mat = mats[0].name
+        bpy.context.scene.tm_props.ST_selectedLinkedMat = mat
+
+
+nadeoLibMaterials = {}
+
+def getNadeoLibMats() -> dict:
+    if nadeoLibMaterials == {}:
+        nadeoLibParser()
+    return nadeoLibMaterials
+
+
+def nadeoLibParser() -> None:
+    """parse NadeoImporterMaterialLib.txt and save in global variable as dict"""
+    global nadeoLibMaterials 
     
     nadeolibfile = getNadeoImporterLIBPath()
     
@@ -1055,54 +1075,77 @@ def nadeoLibParser(refresh=False) -> dict:
     regex_DMaterial     = r"DMaterial\t*\((\w+)\)"          # group 1
     regex_DSurfaceId    = r"DSurfaceId(\t*|\s*)\((\w+)\)"   # group 2
     regex_DTexture      = r"DTexture(\t*|\s*)\((\t*|\s*)([0-9a-zA-Z_\.]+)\)"   # group 3
+
+    selected_collection = getTmProps().LI_materialCollection
     
     if not doesFileExist(nadeolibfile):
         return nadeoLibMaterials
 
-    with open(nadeolibfile, "r") as f:
-        for line in f:
-            
-            if "DLibrary" in line:
-                currentLib = re.search(regex_DLibrary, line).group(1) #libname (stadium, canyon, ...)
-            
-            if currentLib not in lib:
-                lib[currentLib] = {} #first loop
+    
+    clearAllLinkedMaterials()
+
+    matnames = []
+
+    try:
+        with open(nadeolibfile, "r") as f:
+            for line in f:
                 
-            if "DMaterial" in line:
-                currentMat = re.search(regex_DMaterial, line).group(1) #matname
-                lib[currentLib][currentMat] = {
-                        "MatName":currentMat,
-                        "PhysicsId":"Concrete" #changed below, fallback if not
-                    }
+                if "DLibrary" in line:
+                    currentLib = re.search(regex_DLibrary, line).group(1) #libname (stadium, canyon, ...)
+                
+                if currentLib not in lib:
+                    lib[currentLib] = {} #first loop
                     
-            if "DSurfaceId" in line:
-                currentPhy = re.search(regex_DSurfaceId, line).group(2) #pyhsicid
-                lib[currentLib][currentMat]["PhysicsId"] = currentPhy
-                
-            if "DTexture" in line:
-                mat      = lib[currentLib][currentMat]
-                nadeoTex = re.search(regex_DTexture, line)
-                nadeoTex = "" if nadeoTex is None else nadeoTex.group(3) #texture
-                mat["NadeoTexD"] = "" if "NadeoTexD" not in mat.keys() else mat["NadeoTexD"]
-                mat["NadeoTexS"] = "" if "NadeoTexS" not in mat.keys() else mat["NadeoTexS"]
-                mat["NadeoTexN"] = "" if "NadeoTexN" not in mat.keys() else mat["NadeoTexN"]
-                mat["NadeoTexI"] = "" if "NadeoTexI" not in mat.keys() else mat["NadeoTexI"]
-                
-                if mat["NadeoTexD"] == "":  mat["NadeoTexD"] = nadeoTex if nadeoTex.lower().endswith("d.dds")  else ""  
-                if mat["NadeoTexS"] == "":  mat["NadeoTexS"] = nadeoTex if nadeoTex.lower().endswith("s.dds")  else ""  
-                if mat["NadeoTexN"] == "":  mat["NadeoTexN"] = nadeoTex if nadeoTex.lower().endswith("n.dds")  else ""  
-                if mat["NadeoTexI"] == "":  mat["NadeoTexI"] = nadeoTex if nadeoTex.lower().endswith("i.dds")  else ""  
-            
-            if currentLib != "":
-                if currentMat !="":
-                    if currentMat in lib[currentLib].keys():
-                        lib[currentLib][currentMat]["Model"] = "TDSN" #can't read model from lib
-                        lib[currentLib][currentMat]["Envi"]  = currentLib 
+                if "DMaterial" in line:
+                    currentMat = re.search(regex_DMaterial, line).group(1) #matname
+                    lib[currentLib][currentMat] = {
+                            "MatName":currentMat,
+                            "PhysicsId":"Concrete" #changed below, fallback if not
+                        }
+
+                    if currentLib == selected_collection:
+                        matnames.append(currentMat)
+                        
+                if "DSurfaceId" in line:
+                    currentPhy = re.search(regex_DSurfaceId, line).group(2) #pyhsicid
+                    lib[currentLib][currentMat]["PhysicsId"] = currentPhy
                     
+                if "DTexture" in line:
+                    mat      = lib[currentLib][currentMat]
+                    nadeoTex = re.search(regex_DTexture, line)
+                    nadeoTex = "" if nadeoTex is None else nadeoTex.group(3) #texture
+                    mat["NadeoTexD"] = "" if "NadeoTexD" not in mat.keys() else mat["NadeoTexD"]
+                    mat["NadeoTexS"] = "" if "NadeoTexS" not in mat.keys() else mat["NadeoTexS"]
+                    mat["NadeoTexN"] = "" if "NadeoTexN" not in mat.keys() else mat["NadeoTexN"]
+                    mat["NadeoTexI"] = "" if "NadeoTexI" not in mat.keys() else mat["NadeoTexI"]
+                    
+                    if mat["NadeoTexD"] == "":  mat["NadeoTexD"] = nadeoTex if nadeoTex.lower().endswith("d.dds")  else ""  
+                    if mat["NadeoTexS"] == "":  mat["NadeoTexS"] = nadeoTex if nadeoTex.lower().endswith("s.dds")  else ""  
+                    if mat["NadeoTexN"] == "":  mat["NadeoTexN"] = nadeoTex if nadeoTex.lower().endswith("n.dds")  else ""  
+                    if mat["NadeoTexI"] == "":  mat["NadeoTexI"] = nadeoTex if nadeoTex.lower().endswith("i.dds")  else ""  
+                
+                if currentLib != "":
+                    if currentMat !="":
+                        if currentMat in lib[currentLib].keys():
+                            lib[currentLib][currentMat]["Model"] = "TDSN" #can't read model from lib
+                            lib[currentLib][currentMat]["Envi"]  = currentLib 
+        
+        nadeoLibMaterials = lib
+        
+                    
+    except AttributeError as e:
+        debug("failed to parse nadeolib")
+        debug(e)
 
     
-    nadeoLibMaterials = lib
-    return nadeoLibMaterials
+    finally:
+
+        matnames.sort()
+        for name in matnames:
+            addLinkedMaterial(name=name)
+
+        setSelectedLinkedMaterialToFirst()
+        return nadeoLibMaterials
 
 
 
@@ -1727,6 +1770,9 @@ def getScene() -> object:
 
 def getTmProps() -> object:
     return bpy.context.scene.tm_props
+
+def getTmPropsLinkedMats() -> object:
+    return bpy.context.scene.tm_props_linkedMaterials
 
 def getTmPivotProps() -> object:
     return bpy.context.scene.tm_props_pivots
