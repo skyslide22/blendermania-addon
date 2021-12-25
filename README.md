@@ -53,7 +53,20 @@ This addon is for Blender 2.93+, it will simplify all necessary steps and help y
 - export selected will export all selected objects (the collection(s))
 - & convert will convert the fbx to GameBox (gbx)
 - this addon does not convert fbx to gbx, nadeoimporter.exe is required & used for this!
-- collections with names which start with \_ignore will not be exported, even if visible or selected 
+- collections with names which start with \_ignore will not be exported, even if visible or selected
+- collections can have different scales, using the following syntax:
+- - \<yourcollectionname\>\_#SCALE\_\<from:number\>to\<to:number\>\_x\<step:number\>
+- - example: deco_tree_normal_#SCALE_7to2_x6
+- - will result in:
+- - - deco_tree_normal_#7.fbx - size 6/6 (100%)
+- - - deco_tree_normal_#6.fbx - size 5/6 (83.33%)
+- - - deco_tree_normal_#5.fbx - size 4/6 (66,66%)
+- - - deco_tree_normal_#4.fbx - size 3/6 (50%)
+- - - deco_tree_normal_#3.fbx - size 2/6 (33%)
+- - - deco_tree_normal_#2.fbx - size 1/6 (16.66%)
+- - may be useful for decoration(plants, trees, letters, sings...)
+- - 7 and 2 are free choosen, you can use any numbers
+- - 7 is the convention in the trackmania2 rpg titlepack for scaling
 
 ## Uvmaps
 - most materials require the BaseMateral & LightMap uvlayer

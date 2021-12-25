@@ -37,6 +37,12 @@ def updateINI(prop) -> None:
     global nadeoLibMaterials
     nadeoIniSettings.clear() #reset when changed
     nadeoLibMaterials.clear()
+    try:
+        gameTypeGotUpdated()
+    except AttributeError:
+        debug("Update nadeo ini path, can not update game type")
+
+
 
 def defaultINI(prop) -> str:
     """return nadeo.ini path from envi variable, or empty string"""
@@ -55,15 +61,15 @@ def getGameTypes()->list:
     ]
 
 
-def gameTypeGotUpdated()->None:
+def gameTypeGotUpdated(self=None,context=None)->None:
     """reset important variables to fit new gameType environment"""
     isNadeoImporterInstalled()
     resetNadeoIniSettings()
-
+    
     global matLinks, matPhysics, nadeoLibMaterials
     matLinks   = ERROR_ENUM_PROPS
     matPhysics = ERROR_ENUM_PROPS
-    nadeoLibParser(refresh=True)
+    nadeoLibParser()
 
     tm_props     = getTmProps()
     colIsStadium = tm_props.LI_materialCollection.lower() == "stadium"
@@ -73,9 +79,11 @@ def gameTypeGotUpdated()->None:
 
     if isGameTypeTrackmania2020():
         tm_props.LI_DL_TextureEnvi = "Stadium"
-
+    
+    refreshPanels()
 
     return None
+
 
 
 def getGameTextureZipFileNames()->list:
@@ -220,13 +228,13 @@ def getWorkItemsRootFolderNames(s,c) -> list:
 
 def getIconPerspectives() -> list:
     return [
-        ("CLASSIC",     "Classic",  "Bird View",    "HIDE_OFF", 0),
-        ("TOP",         "Top",      "From Top",     "HIDE_OFF", 1),
-        ("FRONT",       "Front",    "From Front",   "HIDE_OFF", 2),
-        ("BACK",        "Back",     "From Back",    "HIDE_OFF", 3),
-        ("LEFT",        "Left",     "From Left",    "HIDE_OFF", 4),
-        ("RIGHT",       "Right",    "From Right",   "HIDE_OFF", 5),
-        ("BOTTOM",      "Bottom",   "From Bottom",  "HIDE_OFF", 6),
+        ("CLASSIC",     "Classic",  "Bird View",    "FILE_TEXT",        0),
+        ("TOP",         "Top",      "From Top",     "ANCHOR_TOP",       1),
+        ("FRONT",       "Front",    "From Front",   "ANCHOR_CENTER",    2),
+        ("BACK",        "Back",     "From Back",    "ANCHOR_CENTER",    3),
+        ("LEFT",        "Left",     "From Left",    "ANCHOR_LEFT",      4),
+        ("RIGHT",       "Right",    "From Right",   "ANCHOR_RIGHT",     5),
+        ("BOTTOM",      "Bottom",   "From Bottom",  "ANCHOR_BOTTOM",    6),
     ]
 
 def getIconPXdimensions() -> list:
@@ -265,15 +273,17 @@ def getMaterials(self, context):
 
 def updateMaterialSettings(self, context):
     tm_props    = getTmProps()
-    matToUpdate = bpy.data.materials[tm_props.LI_materials]
-    currentColor = matToUpdate.diffuse_color
-    if matToUpdate.use_nodes:
-        currentColor = matToUpdate.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
+    matToUpdate = getTmProps().ST_selectedExistingMaterial
+    matToUpdate = bpy.data.materials.get(matToUpdate, None)
+
+    if matToUpdate is None:
+        debug("try to get selected material but failed")
+        return
 
     assignments = [
         ("tm_props.ST_materialAddName"      , "matToUpdate.name"),
         ("tm_props.LI_materialCollection"   , "matToUpdate.environment"),
-        ("tm_props.LI_materialPhysicId"     , "matToUpdate.physicsId"),
+        ("tm_props.LI_materialPhysicsId"    , "matToUpdate.physicsId"),
         ("tm_props.LI_materialModel"        , "matToUpdate.model"),
         ("tm_props.LI_materialLink"         , "matToUpdate.link"),
         ("tm_props.ST_materialBaseTexture"  , "matToUpdate.baseTexture"),
@@ -288,6 +298,12 @@ def updateMaterialSettings(self, context):
             exec(assignment)
         except TypeError:
             pass
+
+    if matToUpdate.baseTexture != "":
+        tm_props.LI_materialChooseSource = "CUSTOM"
+    else:
+        tm_props.LI_materialChooseSource = "LINK"
+
     
     setCurrentMatBackupColor()
     redrawPanel(self,context)
@@ -300,7 +316,7 @@ def setCurrentMatBackupColor() -> None:
     
     tm_props.NU_materialCustomColorOld = mat.diffuse_color
     if mat.use_nodes:
-        old_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
+        old_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
         tm_props.NU_materialCustomColorOld = old_color
 
 
@@ -352,8 +368,14 @@ def revertMaterialCustomColorLiveChanges() -> None:
 
 
 def getMaterialModelTypes()->list:
-    models = ["TDSN", "TDOSN", "TDOBSN", "TDSNI", "TDSNI_NIGHT", "TIAdd"]
-    return [(m, m, m) for m in models]
+    return [
+        ("TDSN",        "TDSN",         "Raw texture (_D.dds, _S.dds, _N.dds)",             getIcon("MODEL_TDSN")       , 0), 
+        ("TDOSN",       "TDOSN",        "TDSN + 1bit transparency (100% or 0%)",            getIcon("MODEL_TDOSN")      , 1), 
+        ("TDOBSN",      "TDOBSN",       "TDSN + 256bit transparency (glass for example)",   getIcon("MODEL_TDOBSN")     , 2), 
+        ("TDSNI",       "TDSNI",        "TDSN + glow, additional texture required: _I.dds", getIcon("MODEL_TDSNI")      , 3), 
+        ("TDSNI_NIGHT", "TDSNI_NIGHT",  "TDSNI, but only in night and sunset mood",         getIcon("MODEL_TDSNI_NIGHT"), 4), 
+        ("TIAdd",       "TIAdd",        "Glowing 256bit transparency, only _I.dds is used", getIcon("MODEL_TIADD")      , 5)
+    ]
 
 
 def getMaterialCollectionTypes()->list:
@@ -375,7 +397,7 @@ def getMaterialTextureSourceOptions()->list:
         ("CUSTOM",  "Custom",   "Custom",   "FILE_IMAGE",  1),
     ]
 
-
+@errorEnumPropsIfNadeoINIisNotValid
 def getMaterialPhysicIds(self=None, context=None)->list:
     """get physics from nadeoLibParser() and return as list(tuples)"""
     global matPhysics #create global variable to read libfile only once
@@ -394,9 +416,14 @@ def getMaterialPhysicIds(self=None, context=None)->list:
     if not libfile.endswith("Lib.txt"):
         return matPhysics
     
-    libmats = nadeoLibParser()
-    physics = []
+    try:
+        libmats = getNadeoLibMats()
+    except AttributeError:
+        return matPhysics
     
+    physics = []
+
+
     for envi in libmats:
         for mat in libmats[envi]:
             mat = libmats[envi][mat]
@@ -420,7 +447,7 @@ def getMaterialPhysicIds(self=None, context=None)->list:
     return matPhysics
 
 
-def getMaterialLinks(self, context)->List:
+def getMaterialLinks(self, context)-> list:
     global matLinks
     tm_props = getTmProps()
 
@@ -436,7 +463,7 @@ def getMaterialLinks(self, context)->List:
         return matLinks
     
     materials    = []
-    libmats      = nadeoLibParser()
+    libmats      = getNadeoLibMats()
     selectedEnvi = str(tm_props.LI_materialCollection).lower()
     i = 0
 
@@ -469,7 +496,7 @@ def getMaterialGameplayIds(self, context)->None:
 
 class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     """general trackmania properties"""
-    LI_gameType                : EnumProperty(  name="Game",    items=getGameTypes(), update=lambda s, c: gameTypeGotUpdated())
+    LI_gameType                : EnumProperty(  name="Game",    items=getGameTypes(),   update=gameTypeGotUpdated)
     ST_nadeoIniFile_MP         : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
     ST_nadeoIniFile_TM         : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
     ST_author                  : StringProperty(name="Author",  default="skyslide")
@@ -570,20 +597,22 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     NU_xml_pivotSnapDis     : FloatProperty(name="Pivot snap distance", default=0.0,  min=0, max=256, step=100)
 
     #materials          
-    LI_materials              : EnumProperty(name="Material",                   items=getMaterials, update=updateMaterialSettings)
-    LI_materialAction         : EnumProperty(name="Material Action",            default=0, items=getMaterialActions())
-    ST_materialAddName        : StringProperty(name="Name",                     default="Matname...")
-    LI_materialCollection     : EnumProperty(name="Collection",                 items=getMaterialCollectionTypes(), update=lambda s,c: gameTypeGotUpdated())
-    CB_materialUsePhysicsId   : BoolProperty(name="Use PhysicsId",              default=False)
-    LI_materialPhysicsId      : EnumProperty(name="PhysicId",                   items=getMaterialPhysicIds)
-    CB_materialUseGameplayId  : BoolProperty(name="Use GameplayId",             default=False)
-    LI_materialGameplayId     : EnumProperty(name="GameplayId",                 items=getMaterialGameplayIds)
-    LI_materialModel          : EnumProperty(name="Model",                      items=getMaterialModelTypes())
-    LI_materialLink           : EnumProperty(name="Link",                       items=getMaterialLinks)
-    NU_materialCustomColorOld : FloatVectorProperty(name='OldLightcolor',       subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4,) # as backup, when BELOW changes(live preview)
-    NU_materialCustomColor    : FloatVectorProperty(name='Lightcolor',          subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4, update=setMaterialCustomColorLiveChanges)
-    ST_materialBaseTexture    : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
-    LI_materialChooseSource   : EnumProperty(name="Custom Texture or Link",     items=getMaterialTextureSourceOptions())
+    ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)
+    LI_materials                : EnumProperty(name="Material",                   items=getMaterials, update=updateMaterialSettings)
+    LI_materialAction           : EnumProperty(name="Material Action",            default=0, items=getMaterialActions())
+    ST_materialAddName          : StringProperty(name="Name",                     default="Matname...")
+    LI_materialCollection       : EnumProperty(name="Collection",                 items=getMaterialCollectionTypes(), update=gameTypeGotUpdated)
+    CB_materialUsePhysicsId     : BoolProperty(name="Use PhysicsId",              default=False)
+    LI_materialPhysicsId        : EnumProperty(name="PhysicId",                   items=getMaterialPhysicIds)
+    CB_materialUseGameplayId    : BoolProperty(name="Use GameplayId",             default=False)
+    LI_materialGameplayId       : EnumProperty(name="GameplayId",                 items=getMaterialGameplayIds)
+    LI_materialModel            : EnumProperty(name="Model",                      items=getMaterialModelTypes())
+    LI_materialLink             : EnumProperty(name="Link",                       items=getMaterialLinks)
+    NU_materialCustomColorOld   : FloatVectorProperty(name='OldLightcolor',       subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4,) # as backup, when BELOW changes(live preview)
+    NU_materialCustomColor      : FloatVectorProperty(name='Lightcolor',          subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4, update=setMaterialCustomColorLiveChanges)
+    ST_materialBaseTexture      : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
+    LI_materialChooseSource     : EnumProperty(name="Custom Texture or Link",     items=getMaterialTextureSourceOptions())
+    ST_selectedLinkedMat        : StringProperty(name="Linked mat", default="")
 
     #textures
     LI_DL_TextureEnvi      : EnumProperty(items=getGameTextureZipFileNames(), update=redrawPanel)
@@ -594,6 +623,10 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
     #cars
 
+
+class TM_Properties_LinkedMaterials(PropertyGroup):
+    """for material creation panel, stores materials from the game's nadeoimportermateriallib.txt (linked)"""
+    name : StringProperty(name="Linked mat name", default="")
 
 
 class TM_Properties_Generated(PropertyGroup):
