@@ -272,6 +272,7 @@ def getMaterials(self, context):
 
 
 def updateMaterialSettings(self, context):
+<<<<<<< HEAD
     tm_props = getTmProps()
     matToUpdate = getTmProps().ST_selectedExistingMaterial
     matToUpdate = bpy.data.materials.get(matToUpdate, None)
@@ -279,6 +280,13 @@ def updateMaterialSettings(self, context):
     if matToUpdate is None:
         debug("try to get selected material but failed")
         return
+=======
+    tm_props    = getTmProps()
+    matToUpdate = bpy.data.materials[tm_props.LI_materials]
+    currentColor = matToUpdate.diffuse_color
+    if matToUpdate.use_nodes:
+        currentColor = matToUpdate.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
+>>>>>>> 19a180158af9ba3733220f1162cd2562c45720d1
 
     assignments = [
         ("tm_props.ST_materialAddName"      , "matToUpdate.name"),
@@ -287,6 +295,7 @@ def updateMaterialSettings(self, context):
         ("tm_props.LI_materialModel"        , "matToUpdate.model"),
         ("tm_props.LI_materialLink"         , "matToUpdate.link"),
         ("tm_props.ST_materialBaseTexture"  , "matToUpdate.baseTexture"),
+        ("tm_props.NU_materialCustomColor"  , "currentColor"),
     ]
 
     for assignment in assignments:
@@ -313,6 +322,7 @@ def setCurrentMatBackupColor() -> None:
     mat = tm_props.LI_materials
     mat = bpy.data.materials.get(mat, None)
     
+    tm_props.NU_materialCustomColorOld = mat.diffuse_color
     if mat.use_nodes:
         old_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
         tm_props.NU_materialCustomColorOld = old_color
@@ -325,7 +335,10 @@ def applyMaterialLiveChanges() -> None:
 
     if mat is not None:
         color = tm_props.NU_materialCustomColor
-        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
+        mat.diffuse_color = color
+        if mat.use_nodes:
+            mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
+        
         tm_props.NU_materialCustomColorOld = color
 
 
@@ -341,7 +354,9 @@ def setMaterialCustomColorLiveChanges(self, context) -> None:
 
     if mat is not None:
         color = tm_props.NU_materialCustomColor
-        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
+        mat.diffuse_color = color
+        if mat.use_nodes:
+            mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
 
 
 
@@ -352,7 +367,9 @@ def revertMaterialCustomColorLiveChanges() -> None:
 
     if mat is not None:
         old_color = tm_props.NU_materialCustomColorOld
-        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = old_color
+        mat.diffuse_color = old_color
+        if mat.use_nodes:
+            mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = old_color
         tm_props.NU_materialCustomColor = old_color
 
 

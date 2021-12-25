@@ -115,6 +115,7 @@ mat_props = [
         "useGameplayId",
         "model",
         "environment",
+        "surfaceColor",
     ]
 # -----
 
