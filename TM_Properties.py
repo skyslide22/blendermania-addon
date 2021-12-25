@@ -280,12 +280,16 @@ def updateMaterialSettings(self, context):
         debug("try to get selected material but failed")
         return
 
+    currentColor = matToUpdate.diffuse_color
+    if matToUpdate.use_nodes:
+        currentColor = matToUpdate.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
+
     assignments = [
         ("tm_props.ST_materialAddName"      , "matToUpdate.name"),
         ("tm_props.LI_materialCollection"   , "matToUpdate.environment"),
         ("tm_props.LI_materialPhysicsId"    , "matToUpdate.physicsId"),
         ("tm_props.LI_materialModel"        , "matToUpdate.model"),
-        ("tm_props.LI_materialLink"         , "matToUpdate.link"),
+        ("tm_props.ST_selectedLinkedMat"    , "matToUpdate.link"),
         ("tm_props.ST_materialBaseTexture"  , "matToUpdate.baseTexture"),
         ("tm_props.NU_materialCustomColor"  , "currentColor"),
     ]
@@ -311,7 +315,12 @@ def updateMaterialSettings(self, context):
 
 def setCurrentMatBackupColor() -> None:
     tm_props = getTmProps()
-    mat = tm_props.LI_materials
+    method_is_update = tm_props.LI_materialAction == "UPDATE"
+
+    if method_is_update is False:
+        return
+    
+    mat = tm_props.ST_selectedExistingMaterial
     mat = bpy.data.materials.get(mat, None)
     
     tm_props.NU_materialCustomColorOld = mat.diffuse_color
@@ -322,7 +331,12 @@ def setCurrentMatBackupColor() -> None:
 
 def applyMaterialLiveChanges() -> None:
     tm_props = getTmProps()
-    mat = tm_props.LI_materials
+    method_is_update = tm_props.LI_materialAction == "UPDATE"
+
+    if method_is_update is False:
+        return
+    
+    mat = tm_props.ST_selectedExistingMaterial
     mat = bpy.data.materials.get(mat, None)
 
     if mat is not None:
@@ -341,7 +355,7 @@ def setMaterialCustomColorLiveChanges(self, context) -> None:
     if method_is_update is False:
         return
     
-    mat = tm_props.LI_materials
+    mat = tm_props.ST_selectedExistingMaterial
     mat = bpy.data.materials.get(mat, None)
 
     if mat is not None:
@@ -354,7 +368,12 @@ def setMaterialCustomColorLiveChanges(self, context) -> None:
 
 def revertMaterialCustomColorLiveChanges() -> None:
     tm_props = getTmProps()
-    mat = tm_props.LI_materials
+    method_is_update = tm_props.LI_materialAction == "UPDATE"
+
+    if method_is_update is False:
+        return
+    
+    mat = tm_props.ST_selectedExistingMaterial
     mat = bpy.data.materials.get(mat, None)
 
     if mat is not None:
@@ -598,7 +617,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
     #materials          
     ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)
-    LI_materials                : EnumProperty(name="Material",                   items=getMaterials, update=updateMaterialSettings)
+    #LI_materials                : EnumProperty(name="Material",                   items=getMaterials, update=updateMaterialSettings)
     LI_materialAction           : EnumProperty(name="Material Action",            default=0, items=getMaterialActions())
     ST_materialAddName          : StringProperty(name="Name",                     default="Matname...")
     LI_materialCollection       : EnumProperty(name="Collection",                 items=getMaterialCollectionTypes(), update=gameTypeGotUpdated)
@@ -607,7 +626,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_materialUseGameplayId    : BoolProperty(name="Use GameplayId",             default=False)
     LI_materialGameplayId       : EnumProperty(name="GameplayId",                 items=getMaterialGameplayIds)
     LI_materialModel            : EnumProperty(name="Model",                      items=getMaterialModelTypes())
-    LI_materialLink             : EnumProperty(name="Link",                       items=getMaterialLinks)
+    #LI_materialLink             : EnumProperty(name="Link",                       items=getMaterialLinks)
     NU_materialCustomColorOld   : FloatVectorProperty(name='OldLightcolor',       subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4,) # as backup, when BELOW changes(live preview)
     NU_materialCustomColor      : FloatVectorProperty(name='Lightcolor',          subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4, update=setMaterialCustomColorLiveChanges)
     ST_materialBaseTexture      : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
