@@ -26,7 +26,7 @@ class TM_OT_Items_Icon_Test(Operator):
             col = obj.users_collection[0]
             generateIcon(col=col, filepath="", save=False)
             selectObj(obj)
-            setActiveObj(obj)
+            setActiveObject(obj)
 
         else:
             makeReportPopup("Icon test failed", ["No object selected"], "ERROR")
@@ -55,7 +55,7 @@ class TM_PT_Items_Icon(Panel):
         tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
-                and isNadeoIniValid()
+                and isSelectedNadeoIniFilepathValid()
         return show
     
     def draw_header(self, context):
@@ -143,14 +143,14 @@ def generateIcon(col, filepath, save=True) -> None:
 
 
     # MAKE ICON OBJ----------
-    deselectAll()
+    deselectAllObjects()
 
     for obj in col_objs:
         if  obj.type == "MESH"\
         and isVisibleObjectByName(obj.name)\
         and not "lod1" in obj.name.lower():
             if selectObj(obj):
-                setActiveObj(obj)
+                setActiveObject(obj)
 
     duplicateObjects()
     joinObjects()
@@ -200,7 +200,7 @@ def generateIcon(col, filepath, save=True) -> None:
     # HIDE ALL ------------------
     for obj in scene.collection.objects:
         if obj.name != icon_obj.name:
-            setActiveObj(obj)
+            setActiveObject(obj)
             bpy.context.object.hide_render = True
     
 
@@ -247,8 +247,8 @@ def generateIcon(col, filepath, save=True) -> None:
 
     # CLEAN UP -----------------
     for obj in objs_to_delete:
-        deselectAll()
-        setActiveObj(obj)
+        deselectAllObjects()
+        setActiveObject(obj)
         debug("delete: ", obj.name)
         bpy.ops.object.delete()
     window.view_layer = current_view_layer

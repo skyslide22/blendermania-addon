@@ -138,18 +138,30 @@ def unregister():
     bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
 
 
-    for pcoll in preview_collections.values():
-        bpy.utils.previews.remove(pcoll)
-    
-    preview_collections.clear()
+    for icon in custom_icons.values():
+        try: 
+            bpy.utils.previews.remove(icon)
+        except AttributeError:
+            pass # old addon version can cause this
+
+    custom_icons.clear()
 
 
 
 @persistent
 def on_startup(dummy) -> None:
     """run on blender startup/loadfile"""
+    
+    # can be opened on save
     bpy.ops.view3d.tm_closeconvertsubpanel()
-    isNadeoIniValid()
+    
+    # remove possible error text
+    isNadeoImporterInstalled()
+
+    # this mat is auto created by blender, remove due appearance in mat list 
+    stroke_mat = bpy.data.materials.get("Dots Stroke", None)
+    if stroke_mat is not None:
+        bpy.data.materials.remove(stroke_mat)
 
 
 bpy.app.handlers.load_post.append(on_startup)

@@ -31,7 +31,7 @@ class TM_OT_Items_Cars_Import(Operator):
     def execute(self, context):
         car     = self.properties.cars
         carPath = f"""{getAddonPath()}assets/item_cars/{car}.fbx"""
-        deselectAll()
+        deselectAllObjects()
         
         bpy.ops.import_scene.fbx(
             filepath=carPath 
@@ -75,7 +75,7 @@ class TM_OT_Items_Envi_Template_Import(Operator):
     def execute(self, context):
         envi    = self.properties.enviTemplates
         template= f"""{getAddonPath()}assets/item_vanilla_platforms/{envi}.fbx"""
-        deselectAll()
+        deselectAllObjects()
 
         abspath = template
         relpath = f"Templates/{envi}"

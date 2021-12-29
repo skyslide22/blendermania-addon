@@ -57,11 +57,11 @@ class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
         
     def execute(self, context):
         tm_props = getTmProps()
+        tm_props.CB_converting            = False
         tm_props.CB_showConvertPanel      = False
         tm_props.CB_stopAllNextConverts   = False
         tm_props.NU_lastConvertDuration   = tm_props.NU_currentConvertDuration
         tm_props.CB_uv_genBaseMaterialCubeMap = False # for stupid mistakes ... :)
-
         return {"FINISHED"}
 
 
@@ -70,7 +70,7 @@ class TM_PT_Items_Export(Panel):
     """Creates a Panel in the Object properties window"""
     bl_label = "Export & Convert FBX"
     bl_idname = "TM_PT_Items_Export"
-    locals().update( panelClassDefaultProps )
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
     # endregion
     def draw(self, context):
@@ -273,7 +273,7 @@ def exportAndOrConvert()->None:
     if useSelectedOnly:
         pre_selected_objs = bpy.context.selected_objects.copy()
     
-    deselectAll()
+    deselectAllObjects()
 
     for obj in allObjs:
         
@@ -312,7 +312,7 @@ def exportAndOrConvert()->None:
     #export each collection ...
     for col in colsToExport:
 
-        deselectAll()
+        deselectAllObjects()
 
         exportFilePath = f"{exportFilePathBase}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
         FBX_exportFilePath = fixSlash(exportFilePath + ".fbx")
@@ -357,7 +357,7 @@ def exportAndOrConvert()->None:
         # so unparent and keep all transforms at 0,0,0
         unparentObjsAndKeepTransform(col=col) 
 
-        deselectAll()
+        deselectAllObjects()
         selectAllObjectsInACollection(col=col, only_direct_children=True, exclude_infixes="_ignore, delete")
         debug(f"selected objects: {bpy.context.selected_objects}")
 
@@ -388,7 +388,7 @@ def exportAndOrConvert()->None:
     if invalidCollections:
         makeReportPopup("Invalid collections", invalidCollections)
 
-    deselectAll()
+    deselectAllObjects()
     if useSelectedOnly:
         for obj in pre_selected_objs:
             try:    selectObj(obj)
