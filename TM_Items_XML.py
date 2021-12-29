@@ -298,13 +298,8 @@ def generateItemXML(exported_fbx: exportFBXModel) -> str:
     PIVOTS              = tm_props.CB_xml_pivots
     GHOST_MODE          = tm_props.CB_xml_ghostMode
 
-    WAYPOINT     = ""
+    WAYPOINT     = WAYPOINTS.get(col.color_tag, "")
     WAYPOINT_XML = ""
-
-    if      col.color_tag == COLOR_CHECKPOINT:   WAYPOINT = "Checkpoint"
-    elif    col.color_tag == COLOR_START:        WAYPOINT = "Start"
-    elif    col.color_tag == COLOR_FINISH:       WAYPOINT = "Finish"
-    elif    col.color_tag == COLOR_STARTFINISH:  WAYPOINT = "StartFinish"
 
     if WAYPOINT:
         WAYPOINT_XML = f"""<Waypoint Type="{ WAYPOINT }"/>\n"""

@@ -72,6 +72,10 @@ class TM_PT_Items_Export(Panel):
     bl_idname = "TM_PT_Items_Export"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(icon="EXPORT")
+
     # endregion
     def draw(self, context):
 
@@ -128,10 +132,6 @@ class TM_PT_Items_Export(Panel):
         layout.separator(factor=UI_SPACER_FACTOR)
         
         if not showConvertPanel:
-            row = layout.row(align=True)
-            row.scale_y = 1.5
-            row.enabled = enableExportButton
-            row.alert   = not enableExportButton #red button, 0 selected
 
             text = exportType
             icon = "EXPORT"
@@ -144,7 +144,6 @@ class TM_PT_Items_Export(Panel):
             objs = selected_objects if exportActionIsSelected else visible_objects
             collection_count = len(getExportableCollections(objs=objs))
 
-        
             plural = "s" if collection_count > 1 else ""
 
             if exportType == "EXPORT":
@@ -155,14 +154,13 @@ class TM_PT_Items_Export(Panel):
                 icon="CON_FOLLOWPATH";  
                 text=f"Export & convert {collection_count} collection{plural}"
 
-            # elif exportType == "CONVERT":           
-            #     icon="FILE_REFRESH";    
-            #     text=f"Convert folder..."
-                
-            # elif exportType == "ICON":              
-            #     icon="FILE_IMAGE";      
-            #     text=f"""Create icons for {collection_count} collection{plural}"""
-            
+            if collection_count == 0:
+                enableExportButton = False
+
+            row = layout.row(align=True)
+            row.scale_y = 1.5
+            row.enabled = enableExportButton 
+            row.alert   = not enableExportButton #red button, 0 selected
             row.operator("view3d.tm_export", text=text, icon=icon)
             row.prop(tm_props, "CB_notifyPopupWhenDone", icon_only=True, icon="INFO")
 

@@ -65,13 +65,16 @@ class TM_OT_Items_Import(Operator):
         
 
 class TM_PT_Items_Import(Panel):
-    # region bl_
-    """Creates a Panel in the Object properties window"""
     bl_label = "Import FBX"
     bl_idname = "TM_PT_Items_Import"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
-    # endregion
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(icon="IMPORT")
+
+
     def draw(self, context):
 
         layout = self.layout
@@ -173,13 +176,8 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
         mats = bpy.data.materials
 
         waypoint       = getWaypointTypeOfFBXfile(abspath)
-        waypoint_color = None
-        if waypoint is not None:
-            waypoint = waypoint.upper()
-            if waypoint == "CHECKPOINT":    waypoint_color = COLOR_CHECKPOINT
-            if waypoint == "START":         waypoint_color = COLOR_START
-            if waypoint == "FINISH":        waypoint_color = COLOR_FINISH
-            if waypoint == "STARTFINISH":   waypoint_color = COLOR_STARTFINISH
+        waypoint_color = WAYPOINTS.get(waypoint, None)
+        
         
         #remove ext..
         filecol = relpath[-1]

@@ -246,29 +246,40 @@ def updateGridAndLevi(self, context) -> None:
 
 
 def getWayPointVariations() -> list:
+    col = "COLLECTION_"
     return EnumProps().add(
         id   = "Start",
         name = "Start",
         desc = "Object will be a start",
-        icon = getIcon("WP_START")
-    ).add(
-        id   = "Finish",
-        name = "Finish",
-        desc = "Object will be a finish",
-        icon = getIcon("WP_FINISH")
-    ).add(
-        id   = "StartFinish",
-        name = "Start Finish (Multilap)",
-        desc = "Object will be a multilap, start and finish will be the same",
-        icon = getIcon("WP_STARTFINISH")
+        icon = col + COLLECTION_COLOR_TAG_GREEN
     ).add(
         id   = "Checkpoint",
         name = "Checkpoint",
         desc = "Object will be a checkpoint",
-        icon = getIcon("WP_CHECKPOINT")
+        icon = col + COLLECTION_COLOR_TAG_BLUE
+    ).add(
+        id   = "Finish",
+        name = "Finish",
+        desc = "Object will be a finish",
+        icon = col + COLLECTION_COLOR_TAG_RED
+    ).add(
+        id   = "StartFinish",
+        name = "Multilap (StartFinish)",
+        desc = "Object will be a multilap, start and finish will be the same",
+        icon = col + COLLECTION_COLOR_TAG_YELLOW
+    ).add(
+        id   = "None",
+        name = "None",
+        desc = "Object will not be a waypoint",
+        icon = "CUBE" 
     ).toList()
 
      
+
+def onWaypointUpdate(self,context) -> None:
+    redrawPanel(self,context)
+    setWaypointTypeOfSelectedCollection()
+
 
 def getItemXMLCollections() -> list:
     return EnumProps().add(
@@ -872,7 +883,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_xml_lightGlobDistance: BoolProperty(name="Lightdistance",            default=False)
     NU_xml_lightGlobDistance: FloatProperty(name="Lightdistance",           default=32.0, min=0, max=256, step=1)
     LI_xml_itemtype         : EnumProperty( name="Type",            items=getItemXMLType())
-    LI_xml_waypointtype     : EnumProperty( name="Waypoint",        items=getWayPointVariations())
+    LI_xml_waypointtype     : EnumProperty( name="Waypoint",        items=getWayPointVariations(), update=onWaypointUpdate)
     LI_xml_enviType         : EnumProperty( name="Envi",            items=getItemXMLCollections())
     NU_xml_gridAndLeviX     : FloatProperty(name="Sync X",          default=8.0, min=0, max=256, step=100, update=updateGridAndLevi)
     NU_xml_gridAndLeviY     : FloatProperty(name="Synx Y",          default=8.0, min=0, max=256, step=100, update=updateGridAndLevi)
@@ -917,7 +928,6 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_DL_TexturesErrors   : StringProperty(name="Status",                    default="")
     CB_DL_TexturesShow     : BoolProperty(default=False,                      update=redrawPanel)
 
-    #cars
 
 
 class TM_Properties_LinkedMaterials(PropertyGroup):

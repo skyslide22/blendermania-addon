@@ -12,8 +12,7 @@ from bpy.types import (
 
 from .TM_Functions      import *
 from .TM_Items_Convert  import *
-
-
+from . import bl_info
 
 
 class TM_OT_Settings_AutoFindNadeoIni(Operator):
@@ -75,18 +74,27 @@ class TM_OT_Settings_DebugALL(Operator):
 
 
 class TM_PT_Settings(Panel):
-    # region bl_
-    """Creates a Panel in the Object properties window"""
     bl_label = "Settings"
     bl_idname = "TM_PT_Settings"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_options = set() # default is closed, open as default
 
-    # endregion
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(icon="SETTINGS")
+
+
     def draw(self, context):
 
         layout = self.layout
         tm_props = getTmProps()
+        
+        row = layout.row()
+        row.scale_y=.5
+        row.label(text=f"""Addon: {bl_info["version"]}""", icon="FILE_SCRIPT")
+        row = layout.row()
+        row.label(text=f"Blender: {bpy.app.version}", icon="BLENDER")
 
         row = layout.row()
         row.prop(tm_props, "ST_author")

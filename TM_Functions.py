@@ -56,11 +56,32 @@ WEBSPACE_NADEOIMPORTER_TM        = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania
 MAT_PROPS_AS_JSON = "MAT_PROPS_AS_JSON"
 
 
-# Used for collections in the outliner to define the waypoint type 
-COLOR_CHECKPOINT = "COLOR_05" 
-COLOR_START      = "COLOR_04" 
-COLOR_FINISH     = "COLOR_01" 
-COLOR_STARTFINISH= "COLOR_03" 
+# Used for collections in the outliner to define the waypoint type
+COLLECTION_COLOR_TAG_NONE   = "NONE" # real icon name is OUTLINER_COLLECTION
+COLLECTION_COLOR_TAG_RED    = "COLOR_01"
+COLLECTION_COLOR_TAG_ORANGE = "COLOR_02"
+COLLECTION_COLOR_TAG_YELLOW = "COLOR_03"
+COLLECTION_COLOR_TAG_GREEN  = "COLOR_04"
+COLLECTION_COLOR_TAG_BLUE   = "COLOR_05"
+COLLECTION_COLOR_TAG_VIOLET = "COLOR_06"
+COLLECTION_COLOR_TAG_PINK   = "COLOR_07"
+COLLECTION_COLOR_TAG_BROWN  = "COLOR_08"
+
+class WaypointDict(dict):
+    """ask for value, get key, ask for key, get value"""
+    def __setitem__(self, key, value):
+        parent = super(WaypointDict, self)
+        parent.__setitem__(key, value)
+        parent.__setitem__(value, key)
+
+WAYPOINTS = WaypointDict()
+WAYPOINTS["None"]        = COLLECTION_COLOR_TAG_NONE 
+WAYPOINTS["Start"]       = COLLECTION_COLOR_TAG_GREEN 
+WAYPOINTS["Checkpoint"]  = COLLECTION_COLOR_TAG_BLUE 
+WAYPOINTS["StartFinish"] = COLLECTION_COLOR_TAG_YELLOW 
+WAYPOINTS["Finish"]      = COLLECTION_COLOR_TAG_RED 
+
+
 
 
 # Not all physic ids are listed in the NadeoimporterMaterialLib.txt [Maniaplanet && TM2020]
@@ -996,6 +1017,16 @@ def getActiveCollection() -> object:
     return bpy.context.view_layer.active_layer_collection.collection
 
 
+def getActiveCollectionOfSelectedObject() -> bpy.types.Collection:
+    objs = bpy.context.selected_objects
+    col  = None
+    if objs:
+        obj = objs[0]
+        col = obj.users_collection[0]
+    return col
+        
+
+
 def selectAllObjectsInACollection(col, only_direct_children=False, exclude_infixes=None) -> None:
     """select all objects in a collection, you may use deselectAll() before"""
     objs = col.objects if only_direct_children else col.all_objects
@@ -1528,6 +1559,80 @@ def getWaypointTypeOfFBXfile(filepath: str) -> str:
     return waypoint
 
 
+def getWaypointTypeOfActiveObjectsCollection() -> str:
+    objs = bpy.context.selected_objects
+    
+    col      = getFirstCollectionOfFirstSelectedObjects(objs)
+    waypoint = getWaypointTypeOfCollection(col)
+
+    return waypoint
+
+
+def setActiveWaypoint() -> None:
+    col      = getFirstCollectionOfFirstSelectedObjects()
+    waypoint = getWaypointTypeOfCollection(col)
+    tm_props = getTmProps()
+
+    if waypoint is not None:
+        tm_props.LI_xml_waypointtype = waypoint
+
+
+
+def setWaypointTypeOfSelectedCollection() -> None:
+    col      = getActiveCollectionOfSelectedObject()
+    waypoint = getTmProps().LI_xml_waypointtype
+    
+    col.color_tag = WAYPOINTS[waypoint]
+
+
+
+def getFirstCollectionOfFirstSelectedObjects() -> bpy.types.Collection:
+    objs = bpy.context.selected_objects
+    col  = None
+    
+    if objs:
+        obj = objs[0]
+        col = obj.users_collection[0]
+    
+    return col
+
+
+def getWaypointTypeOfCollection(col: bpy.types.Collection) -> str:
+    col_color = col.color_tag
+    waypoint = WAYPOINTS.get(col_color, None)
+    return waypoint
+
+
+def onSelectObject(*args) -> None:
+    setActiveWaypoint()
+
+
+def checkIfCollectionHasSocketItem(col: bpy.types.Collection) -> None:
+    objs = col.objects
+    has_socket = False
+    if objs:
+        for obj in objs:
+            if "_socket_" in obj.name.lower():
+                has_socket = True
+                break
+    
+    return has_socket
+
+
+def checkIfCollectionHasObjectWithName(col: bpy.types.Collection, infix: str) -> None:
+    objs        = col.objects
+    infix_found = False
+    
+    if objs:
+        for obj in objs:
+            if infix.lower() in obj.name.lower():
+                infix_found = True
+                break
+    
+    return infix_found
+
+
+
 def searchStringInFile(filepath: str, regex: str, group: int) -> list:
     try:
         with open(filepath, "r") as f:
@@ -1687,11 +1792,14 @@ def debugALL() -> None:
 custom_icons_dir = os.path.join(os.path.dirname(__file__), "icons")
 custom_icons = bpy.utils.previews.new()
 
-def getIcon(icon: str="MANIAPLANET") -> object:
+def getIcon(icon: str="MANIAPLANET") -> int:
     """return icon for ui layout"""
     if icon not in custom_icons.keys():
         custom_icons.load(icon, os.path.join(custom_icons_dir, icon + ".png"), "IMAGE")
-    return custom_icons[icon].icon_id
+
+    icon = custom_icons[icon].icon_id
+
+    return icon
 
 
 def getPathOfCustomIcon(name:str) -> str:
