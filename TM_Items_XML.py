@@ -63,7 +63,7 @@ class TM_PT_Items_ItemXML(Panel):
         tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
-                and isNadeoIniValid()
+                and isSelectedNadeoIniFilepathValid()
         return (show)
     
     def draw_header(self, context):
@@ -167,7 +167,7 @@ class TM_PT_Items_MeshXML(Panel):
         tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
-                and isNadeoIniValid()
+                and isSelectedNadeoIniFilepathValid()
         return (show)
     
     def draw_header(self, context):

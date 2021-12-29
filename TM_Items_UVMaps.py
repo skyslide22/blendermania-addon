@@ -31,7 +31,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
         tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
-                and isNadeoIniValid()
+                and isSelectedNadeoIniFilepathValid()
         return (show)
     
     def draw_header(self, context):
@@ -80,7 +80,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
         tm_props = getTmProps()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
-                and isNadeoIniValid()
+                and isSelectedNadeoIniFilepathValid()
         return (show)
     
     def draw_header(self, context):
@@ -128,7 +128,7 @@ def generateBaseMaterialCubeProject(col) -> None:
 
     CUBE_FACTOR = tm_props.NU_uv_cubeProjectSize
 
-    deselectAll()
+    deselectAllObjects()
 
     for obj in objs:
         if obj.type != "MESH":
@@ -139,7 +139,7 @@ def generateBaseMaterialCubeProject(col) -> None:
         if   isVisibleObjectByName(obj.name)\
         and  "basematerial" in obj_uvs:
             selectObj(obj)
-            setActiveObj(obj)
+            setActiveObject(obj)
             bm_objs.append(obj)
 
             obj.data.uv_layers.active_index = 0 # 0=BaseMaterial; 1=LightMap
@@ -173,7 +173,7 @@ def generateLightmap(col, fix=False) -> None:
     has_overlaps = checkUVLayerOverlapsOfCol(col=col, uv_name="LightMap")
     only_if_olaps= tm_props.CB_uv_fixLightMap
 
-    deselectAll()
+    deselectAllObjects()
 
     #select only objs which need a lightmap
     for obj in objs:
@@ -185,7 +185,7 @@ def generateLightmap(col, fix=False) -> None:
         if   isVisibleObjectByName(obj.name)\
         and  "lightmap" in obj_uvs:
             selectObj(obj)
-            setActiveObj(obj)
+            setActiveObject(obj)
             lm_objs.append(obj)
 
             obj.data.uv_layers.active_index = 1 # 0=BaseMaterial; 1=LightMap
@@ -224,7 +224,7 @@ def generateLightmap(col, fix=False) -> None:
 def checkUVLayerOverlapsOfCol(uv_name: str, col: bpy.types.Collection)-> bool:
     """checks if uvlayer has overlapping islands, return bool"""
 
-    deselectAll()
+    deselectAllObjects()
     
     objs = [obj for obj in col.objects  if  obj.type == "MESH" \
                                             and isVisibleObjectByName(obj.name) \

@@ -69,7 +69,7 @@ class TM_PT_Items_Import(Panel):
     """Creates a Panel in the Object properties window"""
     bl_label = "Import FBX"
     bl_idname = "TM_PT_Items_Import"
-    locals().update( panelClassDefaultProps )
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
     # endregion
     def draw(self, context):
@@ -164,7 +164,7 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
         name, abspath, relpath = file
         relpath = fixSlash(relpath).split("/")
         
-        deselectAll()
+        deselectAllObjects()
         setMasterCollectionAsActive()
         importFBXFile(filepath=abspath)
         

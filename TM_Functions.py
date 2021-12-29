@@ -9,7 +9,6 @@ import os
 import re
 import math
 import configparser
-import uuid
 import pprint
 from zipfile import ZipFile
 from threading import Thread
@@ -27,8 +26,8 @@ def getAddonPath() -> str:
 def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
 
-MSG_ERROR_ABSOLUTE_PATH = "Absolute path only!"
-MSG_ERROR_NADEO_INI     = "Select the Nadeo.ini file first!"
+MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
+MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
 UI_SPACER_FACTOR        = 1.0
 
 URL_DOCUMENTATION       = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
@@ -43,7 +42,7 @@ PATH_PROGRAM_FILES      = os.environ.get("PROGRAMFILES").replace("\\", "/")     
 PATH_PROGRAM_FILES_X86  = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
 PATH_CONVERT_REPORT     = PATH_DESKTOP + "convert_report.html"
 
-WEBSPACE_BASE_URL                 = "http://images.mania.exchange/com/skyslide/"
+WEBSPACE_BASE_URL                = "http://images.mania.exchange/com/skyslide/"
 WEBSPACE_TEXTURES_MP_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Stadium.zip"
 WEBSPACE_TEXTURES_MP_VALLEY      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Valley.zip"
 WEBSPACE_TEXTURES_MP_STORM       = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Shootmania.zip"
@@ -53,15 +52,23 @@ WEBSPACE_TEXTURES_TM_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_TrackMania202
 WEBSPACE_NADEOIMPORTER_MP        = WEBSPACE_BASE_URL + "NadeoImporter_ManiaPlanet.zip"
 WEBSPACE_NADEOIMPORTER_TM        = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania2020.zip"
 
-MAT_PROPS_AS_JSON        = "MAT_PROPS_AS_JSON"
 
+MAT_PROPS_AS_JSON = "MAT_PROPS_AS_JSON"
+
+
+# Used for collections in the outliner to define the waypoint type 
 COLOR_CHECKPOINT = "COLOR_05" 
 COLOR_START      = "COLOR_04" 
 COLOR_FINISH     = "COLOR_01" 
 COLOR_STARTFINISH= "COLOR_03" 
 
-missingPhysicsInLib = ["TechSuperMagnetic", "Offzone"]
-favPhysicIds = [
+
+# Not all physic ids are listed in the NadeoimporterMaterialLib.txt [Maniaplanet && TM2020]
+MISSING_PHYSIC_IDS_IN_NADEOLIB = ["TechSuperMagnetic", "Offzone"]
+
+
+# For better and faster selection in the dropdown menu
+FAVORITE_PHYSIC_IDS = [
         "Concrete",         "NotCollidable",
         "Turbo",            "Turbo2",
         "Freewheeling",     "TechMagnetic",
@@ -69,7 +76,10 @@ favPhysicIds = [
         "Grass",            "Ice",
         "Wood",             "Metal"
     ]
-tm2020PhysicIds = [
+
+
+# Not all physic ids are in the NadeoimporterMaterialLib.txt
+PHYSIC_IDS_TM2020 = [
     "Asphalt",          "Concrete",
     "Dirt",             "Grass",
     "Green",            "Ice",
@@ -82,7 +92,11 @@ tm2020PhysicIds = [
     "TechSuperMagnetic","Wood",
     "Rubber"
 ]
-tm2020GameplayIds = [
+
+
+# Gameplay ids are not defined in the NadeoimporterMaterialLib.txt
+# Act like a secondary physic id, for example, Dirt & Freewheeling
+GAMEPLAY_IDS_TM2020 = [
     "Bumper",           "Bumper2",
     "ForceAcceleration","Fragile",
     "FreeWheeling",     "NoGrip",
@@ -92,11 +106,18 @@ tm2020GameplayIds = [
     "None",             "NoSteering",
 ]
 
-notAllowedColnames      = ["master collection", "scene", "ignore"]
-notDefaultUVLayerNames  = ["Decal","NormalSpec","MulInside"]
-defaultUVLayerNames     = ["BaseMaterial", "LightMap"]
 
-panelClassDefaultProps = {
+# Blender has some issues with our usage of collections with those names
+NOT_ALLOWED_COLLECTION_NAMES = ["master collection", "scene", "ignore"]
+
+
+# Not used yet
+NON_DEFAULT_UVLAYER_NAMES = ["Decal","NormalSpec","MulInside"]
+DEFAULT_UVLAYER_NAMES     = ["BaseMaterial", "LightMap"]
+
+
+# Properties which are shared in each panel class
+PANEL_CLASS_COMMON_DEFAULT_PROPS = {
     "bl_category":       "TrackmaniaAddon",
     "bl_space_type":     "VIEW_3D",
     "bl_region_type":    "UI",
@@ -104,7 +125,9 @@ panelClassDefaultProps = {
     "bl_options":        {"DEFAULT_CLOSED"}
 }
 
-mat_props = [
+
+# Custom properties of the materials for iterating & checking
+MATERIAL_CUSTOM_PROPERTIES = [
         "name",
         "gameType",
         "baseTexture",
@@ -117,14 +140,66 @@ mat_props = [
         "environment",
         "surfaceColor",
     ]
+
+
+
+
+
+
+
+# -----
+# -----
+# -----
+# -----
 # -----
 
-"""NADEO.INI DATA"""
-nadeoIniSettings = {}
 
 
-"""NadeoImporterMaterialLib.txt data"""
-nadeoLibMaterials = {}
+
+
+
+
+nadeo_ini_settings = {}
+"""Nadeo.ini parsed data
+example of the tree:
+    {    
+        'WindowTitle':'ManiaPlanet'
+        'Distro':     'KOTOF'
+        'UserDir':    '{exe}/Docs' # relative, or C:/Users/User/Documents/Maniaplanet
+        'CommonDir':  '{exe}/Data' # relative, or C:/ProgramData/Maniaplanet/
+    }
+"""
+
+
+nadeoimporter_materiallib_materials = {}
+"""NadeoImporterMaterialLib.txt parsed data
+example of a maniaplanet tree:
+{
+    "Canyon": {
+        'Alpha2': {
+            'Envi': 'Canyon',    # enum in Stadium, Canyon, Valley, Common, Lagoon, SMStorm
+            'MatName': 'Alpha2',
+            'Model': 'TDSN',     # enum in TDSN, TDOSN, TDOBSN, TDSNI, TDSNI_NIGHT, TIAdd
+            'NadeoTexD': 'Alpha2_D.dds',
+            'NadeoTexI': '',
+            'NadeoTexN': 'Alpha2_N.dds',
+            'NadeoTexS': 'Alpha2_S.dds',
+            'PhysicsId': 'MetalTrans'
+        },
+        'AnimSignArrow': {
+            'Envi': 'Canyon',
+            'MatName': 'AnimSignArrow',
+            'Model': 'TDSN',
+            'NadeoTexD': '',
+            'NadeoTexI': 'AnimSignArrow_I.dds',
+            'NadeoTexN': '',
+            'NadeoTexS': '',
+            'PhysicsId': 'NotCollidable'},
+        .
+    }.
+    "Stadium": {...} 
+}"""
+
 
 
     
@@ -149,133 +224,139 @@ def getTrackmaniaEXEPath() -> str:
 
 
 def resetNadeoIniSettings()->None:
-    global nadeoIniSettings
-    nadeoIniSettings = {}
+    global nadeo_ini_settings
+    nadeo_ini_settings = {}
 
 
 def getNadeoIniData(setting: str) -> str:
-    """return setting, if setting is not in dict nadeoIniSettings, read nadeo.ini and add it"""
-    wantedSetting = setting
-    # possibleSettings = ["WindowTitle", "Distro", "Language", "UserDir", "CommonDir"] #gg steam
-    possibleSettings = ["WindowTitle", "Distro", "UserDir", "CommonDir"]
+    """return data from parsed nadeo.ini, if keyerror, try to parse again"""
+    possible_settings = ["WindowTitle", "Distro", "UserDir", "CommonDir"]
     
-    try:
-        setting = nadeoIniSettings[wantedSetting]
-        if "{userdocs}"in setting.lower()\
-        or "{userdir}" in setting.lower():
-            debug(f"requested Ini key <{setting}> value has a variable in it, raise KEYERROR")
-            raise KeyError
+    if setting not in possible_settings:
+        raise KeyError(f"Something is wrong with your Nadeo.ini File! {setting=} not found!")
+    
+    try: data = nadeo_ini_settings[setting]
+    
+    except KeyError:
+        debug(f"failed to find {setting} in nadeo ini, try parse now")
+        parseNadeoIniFile()
+        data = nadeo_ini_settings[setting]
 
-        else: 
-            return setting
+    finally: return data
     
-    except KeyError: #if setting does not exist, add.
-        nadeoIniFilepath = getNadeoIniFilePath()
-        iniData = configparser.ConfigParser()
-        iniData.read(nadeoIniFilepath)
-        category = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania"
+
+def parseNadeoIniFile() -> str:
+    """parse nadeo.ini file and set data to global nadeo_ini_settings"""
+    possible_settings = ["WindowTitle", "Distro", "UserDir", "CommonDir"]
+    category          = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania"
+    
+    ini_filepath = getNadeoIniFilePath()
+    ini_data = configparser.ConfigParser()
+    ini_data.read(ini_filepath)
+    
+    debug("start parsing nadeo.ini file")
+
+    for setting in possible_settings:
+        if setting not in nadeo_ini_settings.keys():
+            nadeo_ini_settings[setting] = ini_data.get(category, setting) #ex: ManiaPlanet, UserDir
+    
+    for ini_key, ini_value in nadeo_ini_settings.items():
         
-        for setting in possibleSettings:
-            if setting not in nadeoIniSettings.keys():
-                nadeoIniSettings[setting] = iniData.get(category, setting) #ex: ManiaPlanet, UserDir
+        # maniaplanet.exe path
+        if ini_value.startswith("{exe}"):
+            nadeo_ini_settings[ini_key] = fixSlash( ini_value.replace("{exe}", getNadeoIniFilePath().replace("Nadeo.ini", "")) + "/" )
+            continue
         
-        for ini_key, ini_value in nadeoIniSettings.items():
+        # cache and core game data
+        if ini_value.startswith("{commondata}"):
+            nadeo_ini_settings[ini_key] = fixSlash( ini_value.replace("{commondata}", PATH_PROGRAM_DATA) )
+
+        # /Documents/Trackmania is used by TMUF, 
+        # if TMUF is installed, /Trackmania2020 is created and used by tm2020.exe
+        documentspath_is_custom = False
+        if   "{userdocs}" in ini_value.lower():     documentspath_is_custom = True #maniaplanet
+        elif "{userdir}"  in ini_value.lower():     documentspath_is_custom = True  #tm2020
+
+        if documentspath_is_custom:
+            debug("UserDir has a variable, fix:")
+            placeholders    = r"\{userdocs\}|\{userdir\}"
+            new_docpath     = re.sub(placeholders, PATH_DOCUMENTS, ini_value, re.IGNORECASE) #placeholder to docpath
+            path_tmuf       = re.sub("trackmania", "TrackMania2020", new_docpath, flags=re.IGNORECASE)
+
+            new_docpath = fixSlash(new_docpath)
+            path_tmuf   = fixSlash(path_tmuf)
             
-            #maniaplanet.exe path
-            if ini_value.startswith("{exe}"):
-                nadeoIniSettings[ini_key] = fixSlash( ini_value.replace("{exe}", getNadeoIniFilePath().replace("Nadeo.ini", "")) + "/" )
-                continue
+            debug(f"normal: {new_docpath}")
+            debug(f"tmuf:   {path_tmuf}")
 
-            # /Documents/Trackmania is used by TMUF, 
-            # if TMUF is installed, /Trackmania2020 is created and used by tm2020.exe
-            docPathIsCustom = False
-            if   "{userdocs}" in ini_value.lower():     docPathIsCustom = True #maniaplanet
-            elif "{userdir}"  in ini_value.lower():     docPathIsCustom = True  #tm2020
+            if doesFolderExist(path_tmuf):
+                nadeo_ini_settings[ini_key] = path_tmuf
+            
+            elif doesFolderExist(new_docpath):
+                nadeo_ini_settings[ini_key] = new_docpath
 
-            if docPathIsCustom:
-                debug("UserDir has a variable, fix:")
-                placeholders    = r"\{userdocs\}|\{userdir\}"
-                newDocPath      = re.sub(placeholders, PATH_DOCUMENTS, ini_value, re.IGNORECASE) #placeholder to docpath
-                tmufPath        = re.sub("trackmania", "TrackMania2020", newDocPath, flags=re.IGNORECASE)
-
-                newDocPath = fixSlash(newDocPath)
-                tmufPath   = fixSlash(tmufPath)
-                
-                debug(f"normal: {newDocPath}")
-                debug(f"tmuf:   {tmufPath}")
-
-                if doesFolderExist(tmufPath):
-                    nadeoIniSettings[ini_key] = tmufPath
-                
-                elif doesFolderExist(newDocPath):
-                    nadeoIniSettings[ini_key] = newDocPath
-
-                else: makeReportPopup(
+            else: 
+                makeReportPopup(
                     "Document path not found", 
                     [
-                         "Could not find your documents path",
-                         "Is your document folder in somehting like Outlook?",
-                        f"If so, please put it back in {PATH_HOME}"
-                         "Path which does not exist:",
-                         newDocPath
-                    ]); raise FileNotFoundError
+                            "Could not find your documents path",
+                            "Is your document folder in somehting like Outlook?",
+                             f"If so, please put it back in {PATH_HOME}"
+                            "Path which does not exist:",
+                            new_docpath
+                    ])
+                raise FileNotFoundError
 
-                continue
-
-            #cache
-            if ini_value.startswith("{commondata}"):
-                nadeoIniSettings[ini_key] = fixSlash( ini_value.replace("{commondata}", PATH_PROGRAM_DATA) )
-                continue
-
-        return nadeoIniSettings[wantedSetting]   
+    debug("nadeo.ini parsed, data:")
+    debug(f"{nadeo_ini_settings=}")
 
 
 
 def createFolderIfNecessary(path) -> None:
-    """create given folder if it doesn't exist."""
+    """create given folder if it does not exist."""
     if not os.path.exists(path):
         os.makedirs(path)
 
 
 
-def doesFileExist(filepath) -> bool:
+def doesFileExist(filepath: str) -> bool:
     return os.path.isfile(filepath)
 
-def doesFolderExist(folderpath) -> bool:
+def doesFolderExist(folderpath: str) -> bool:
     return os.path.isdir(folderpath)
 
 
 
 
-def requireValidNadeoINI(self) -> bool:
-    """adds a error row label to the panel, return bool isValid"""
-    VALID = isNadeoIniValid()
+def requireValidNadeoINI(panel_instance: bpy.types.Panel) -> bool:
+    """if the nadeo.ini file is not selected, create a error message in given layout(self)"""
+    VALID = isSelectedNadeoIniFilepathValid()
 
     if not VALID:
-        layout = self.layout
-        row = layout.row()
-        row.alert = True
-        row.label(text=MSG_ERROR_NADEO_INI)
-
+        chooseNadeoIniPathFirstMessage(panel_instance)
     return VALID
 
 
-def isNadeoIniValid() -> bool:
-    ini = ""
+def isSelectedNadeoIniFilepathValid() -> bool:
+    """check if nadeo.ini filepath is correct and file exist"""
+    ini_path = ""
     tm_props = getTmProps()
 
     if   isGameTypeManiaPlanet():
-            ini = str(tm_props.ST_nadeoIniFile_MP)
+            ini_path = str(tm_props.ST_nadeoIniFile_MP)
 
     elif isGameTypeTrackmania2020():
-            ini = str(tm_props.ST_nadeoIniFile_TM)
+            ini_path = str(tm_props.ST_nadeoIniFile_TM)
     
-    return doesFileExist(ini) and ini.lower().endswith(".ini")
+    return doesFileExist(ini_path) and ini_path.lower().endswith(".ini")
 
 
 
-def chooseNadeoIniPathFirstMessage(row) -> object:
-    return row.label(text="Select Nadeo.ini file first.", icon="ERROR")
+def chooseNadeoIniPathFirstMessage(panel_instance: bpy.types.Panel):
+    """create a red error text in the given panel's layout"""
+    row = panel_instance.layout.row()
+    row.alert = True
+    row.label(text=MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED, icon="ERROR")
 
 
 
@@ -283,7 +364,7 @@ def isNadeoImporterInstalled(prop="")->None:
     filePath = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.exe" )
     exists   = os.path.isfile(filePath)
     tm_props = getTmProps()
-    tm_props.CB_nadeoImporter = exists
+    tm_props.CB_nadeoImporterIsInstalled= exists
 
     if prop:
         path = tm_props[ prop ]
@@ -297,11 +378,11 @@ def isNadeoImporterInstalled(prop="")->None:
 
 
 def nadeoImporterInstalled_True()->None:
-    getTmProps().CB_nadeoImporter     = True
+    getTmProps().CB_nadeoImporterIsInstalled    = True
     
 
 def nadeoImporterInstalled_False()->None:
-    getTmProps().CB_nadeoImporter = False
+    getTmProps().CB_nadeoImporterIsInstalled= False
 
 
 def gameTexturesDownloading_False()->None:
@@ -336,11 +417,11 @@ def unzipNadeoImporter()->None:
 def installNadeoImporter()->None:
     tm_props    = getTmProps()
     filePath    = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip")
-    progressbar = "NU_nadeoImporterDL"
+    progressbar = "NU_nadeoImporterDLProgress"
 
-    tm_props.NU_nadeoImporterDL      = 0
-    tm_props.ST_nadeoImporterDLError = ""
-    tm_props.CB_nadeoImporterDLshow  = True
+    tm_props.NU_nadeoImporterDLProgress = 0
+    tm_props.ST_nadeoImporterDLError    = ""
+    tm_props.CB_nadeoImporterDLshow     = True
     
     def on_success():
         tm_props.CB_nadeoImporterDLRunning = False
@@ -349,10 +430,12 @@ def installNadeoImporter()->None:
         timer(run, 5)
         unzipNadeoImporter()
         nadeoImporterInstalled_True()
+        debug("nadeoimporter successfully installed")
 
     def on_error(msg):
         tm_props.ST_nadeoImporterDLError = msg or "unknown error"
         tm_props.CB_nadeoImporterDLRunning = False
+        debug(f"nadeoimporter not installed, error: {msg}")
 
         nadeoImporterInstalled_False()
 
@@ -362,7 +445,7 @@ def installNadeoImporter()->None:
     else:
         url = WEBSPACE_NADEOIMPORTER_TM
 
-
+    debug("try to download & install nadeoimporter")
 
     download = DownloadTMFile(url, filePath, progressbar, on_success, on_error)
     download.start()
@@ -415,10 +498,12 @@ def installGameTextures()->None:
         def run(): 
             tm_props.CB_DL_TexturesShow = False
         timer(run, 5)
+        debug(f"downloading & installing textures of {enviRaw} successful")
 
     def on_error(msg):
         tm_props.ST_DL_TexturesErrors = msg or "unknown error"
         tm_props.CB_DL_TexturesRunning = False
+        debug(f"downloading & installing textures of {enviRaw} failed, error: {msg}")
 
         # def run(): ...
         # bpy.app.timers.register(run, first_interval=120)
@@ -429,7 +514,7 @@ def installGameTextures()->None:
 
 
 
-
+    debug(f"try to download & install textures for {enviRaw}")
 
     download = DownloadTMFile(url, filePath, progressbar, on_success, on_error)
     download.start()
@@ -528,23 +613,23 @@ def saveBlendFile() -> bool:
     """overwrite/save opened blend file, returns bool if saving was successfull"""
     if bpy.data.is_saved:
         bpy.ops.wm.save_as_mainfile()
-        return True
-    return False
+        
+    return bpy.data.is_saved
 
 
 
 def createExportOriginFixer(col, createAt=None)->object:
     """creates an empty, parent all objs in the collection to it"""
-    ORIGIN_OBJ = None
+    origin_obj = None
     
     #check if user defined a origin already
     for obj in col.objects:
         if obj.name.lower().startswith("origin"):
-            ORIGIN_OBJ = obj
+            origin_obj = obj
             break
 
     #create if none is defined
-    if ORIGIN_OBJ is None:
+    if origin_obj is None:
 
         if not createAt:
             createAt = col.objects[0].location
@@ -554,35 +639,35 @@ def createExportOriginFixer(col, createAt=None)->object:
                     break
 
         bpy.ops.object.empty_add(type='ARROWS', align='WORLD', location=createAt)
-        ORIGIN_OBJ = bpy.context.active_object
-        ORIGIN_OBJ.name = "origin_delete"
+        origin_obj = bpy.context.active_object
+        origin_obj.name = "origin_delete"
 
-        if ORIGIN_OBJ.name not in col.objects:
-            col.objects.link(ORIGIN_OBJ)
+        if origin_obj.name not in col.objects:
+            col.objects.link(origin_obj)
 
 
     # parent all objects to the origins
     for obj in col.objects:
 
         #parent all objs to _Lod0
-        if  obj is not ORIGIN_OBJ:
-            deselectAll()
+        if  obj is not origin_obj:
+            deselectAllObjects()
             selectObj(obj)
-            selectObj(ORIGIN_OBJ)
-            setActiveObj(ORIGIN_OBJ)
+            selectObj(origin_obj)
+            setActiveObject(origin_obj)
             try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
             except: pass #RuntimeError: Error: Loop in parents
         
 
     
-    return ORIGIN_OBJ
+    return origin_obj
 
 
 def unparentObjsAndKeepTransform(col)->None:
     """unparent all objects and keep transform"""
     for obj in col.all_objects:
-        deselectAll()
-        setActiveObj(obj)
+        deselectAllObjects()
+        setActiveObject(obj)
         bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 
 
@@ -590,10 +675,10 @@ def parentObjsToObj(col, obj):
     origin_obj = obj
     for obj in col.all_objects:
         if obj is not origin_obj:
-            deselectAll()
+            deselectAllObjects()
             selectObj(obj)
             selectObj(origin_obj)
-            setActiveObj(origin_obj)
+            setActiveObject(origin_obj)
             try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
             except: pass #RuntimeError: Error: Loop in parents
 
@@ -602,14 +687,14 @@ def deleteExportOriginFixer(col)->None:
     """unparent all objects of a origin object"""
     for obj in col.objects:
         if not obj.name.lower().startswith("origin"):
-            deselectAll()
-            setActiveObj(obj)
+            deselectAllObjects()
+            setActiveObject(obj)
             bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
     
-    deselectAll()
+    deselectAllObjects()
     for obj in col.objects:
         if "delete" in str(obj.name).lower():
-            setActiveObj(obj)
+            setActiveObject(obj)
             deleteObj(obj)
             continue
 
@@ -672,7 +757,7 @@ def fixUvLayerNamesOfObjects(col) -> None:
     objs = col.all_objects
 
     for obj in objs:
-        deselectAll()
+        deselectAllObjects()
         selectObj(obj) 
         
         if  obj.type == "MESH"\
@@ -681,8 +766,6 @@ def fixUvLayerNamesOfObjects(col) -> None:
         and not "notvisible" in obj.name.lower() \
         and len(obj.material_slots.keys()) > 0:
             uvs = obj.data.uv_layers
-            validUvLayerNames   = [uv.lower() for uv in notDefaultUVLayerNames + defaultUVLayerNames]
-            normalUVLayerNames = [uv.lower() for uv in defaultUVLayerNames]
 
             # create uvlayer BaseMaterial & LightMap
             if len(uvs) == 0:
@@ -806,11 +889,11 @@ def editmode() -> None:
 
 
 def deleteObj(obj) -> None:
-    unsetActiveObj()
+    unsetActiveObject()
     objname = str(obj.name)
     try:
-        deselectAll()  
-        setActiveObj(obj)
+        deselectAllObjects()  
+        setActiveObject(obj)
         bpy.ops.object.delete()
         debug(f"object <{objname}> deleted")
         
@@ -830,7 +913,7 @@ def selectObj(obj)->bool:
 
 
 
-def deselectAll() -> None:
+def deselectAllObjects() -> None:
     """deselects all objects in the scene, works only for visible ones"""
     for obj in bpy.context.scene.objects:
         if obj.name in bpy.context.view_layer.objects:
@@ -838,7 +921,7 @@ def deselectAll() -> None:
 
 
 
-def selectAll() -> None:
+def selectAllObjects() -> None:
     """selects all objects in the scene, works only for visible ones"""
     for obj in bpy.context.scene.objects:
         selectObj(obj)
@@ -862,7 +945,7 @@ def originToCenterOfMass() -> None:
 
 
 
-def hideAll() -> None:
+def hideAllObjects() -> None:
     """hide all objects in scene (obj.hide_viewport, obj.hide_render)"""
     allObjs = bpy.context.scene.objects
     for obj in allObjs:
@@ -871,7 +954,7 @@ def hideAll() -> None:
 
 
 
-def unhideSelected(objs: list) -> None:
+def unhideSelectedObject(objs: list) -> None:
     """unhide objs in list, expect [ {"name":str, "render":bool, "viewport": bool} ]"""
     allObjs = bpy.context.scene.objects
     for obj in objs:
@@ -880,7 +963,7 @@ def unhideSelected(objs: list) -> None:
 
 
 
-def setActiveObj(obj) -> None:
+def setActiveObject(obj) -> None:
     """set active object"""
     if obj.name in bpy.context.view_layer.objects:
         bpy.context.view_layer.objects.active = obj
@@ -888,10 +971,10 @@ def setActiveObj(obj) -> None:
     
 
 
-def unsetActiveObj() -> None:
+def unsetActiveObject() -> None:
     """unset active object, deselect all"""
     bpy.context.view_layer.objects.active = None
-    deselectAll()
+    deselectAllObjects()
 
 
 def getMasterCollection()->object:
@@ -917,7 +1000,7 @@ def selectAllObjectsInACollection(col, only_direct_children=False, exclude_infix
     """select all objects in a collection, you may use deselectAll() before"""
     objs = col.objects if only_direct_children else col.all_objects
     
-    deselectAll()
+    deselectAllObjects()
     if exclude_infixes:
         infixes = exclude_infixes.replace(" ", "").split(",")
         for obj in objs:
@@ -935,14 +1018,14 @@ def selectAllObjectsInACollection(col, only_direct_children=False, exclude_infix
             
           
             
-def getCollectionNamesFromVisibleObjs() -> list:
+def getCollectionNamesFromVisibleObjects() -> list:
     """returns list of collection names of all visible objects in the scene"""
     objs = bpy.context.scene.objects
     return [col.name for col in (obj.users_collection for obj in objs)]
 
 
 
-def getCollectionHierachyOfObj(objname: str, hierachystart: bool=False) -> list:
+def getCollectionHierachyOfObjcts(objname: str, hierachystart: bool=False) -> list:
     """returns list of parent collection of the given object name"""
     cols    = bpy.context.scene.objects[objname].users_collection
     colname = cols[0].name
@@ -989,22 +1072,6 @@ def createCollectionHierachy(hierachy: list) -> object:
     return cols[hierachy[-1]]
 
 
-def checkMatValidity(matname: str) -> str("missing prop as str or True"):
-    """check material for properties, retrurn True if all props are set, else return False"""
-    mat = bpy.data.materials[matname]
-    matprops = mat.keys()
-
-    if "BaseTexture"  not in matprops: return False #"BaseTexture"  
-    if "PhysicsId"    not in matprops: return False #"PhysicsId" 
-    if "Model"        not in matprops: return False #"Model" 
-    if "IsNadeoMat"   not in matprops: return False #"IsNadeoMat" 
-    return True
-
-
-def clearProperty(prop, value):
-    getTmProps()[prop] = value
-
-
 
 
 def getExportableCollections(objs)->set:
@@ -1024,7 +1091,7 @@ def getExportableCollections(objs)->set:
 
         for col in obj.users_collection:
 
-            if col.name.lower() in notAllowedColnames: continue
+            if col.name.lower() in NOT_ALLOWED_COLLECTION_NAMES: continue
             if col in collections: continue
             if isCollectionExcludedOrHidden(col): continue
 
@@ -1055,17 +1122,17 @@ def setSelectedLinkedMaterialToFirst() -> None:
         bpy.context.scene.tm_props.ST_selectedLinkedMat = mat
 
 
-nadeoLibMaterials = {}
+nadeoimporter_materiallib_materials = {}
 
 def getNadeoLibMats() -> dict:
-    if nadeoLibMaterials == {}:
+    if nadeoimporter_materiallib_materials == {}:
         nadeoLibParser()
-    return nadeoLibMaterials
+    return nadeoimporter_materiallib_materials
 
 
 def nadeoLibParser() -> None:
     """parse NadeoImporterMaterialLib.txt and save in global variable as dict"""
-    global nadeoLibMaterials 
+    global nadeoimporter_materiallib_materials 
     
     nadeolibfile = getNadeoImporterLIBPath()
     
@@ -1080,7 +1147,7 @@ def nadeoLibParser() -> None:
     selected_collection = getTmProps().LI_materialCollection
     
     if not doesFileExist(nadeolibfile):
-        return nadeoLibMaterials
+        return nadeoimporter_materiallib_materials
 
     
     clearAllLinkedMaterials()
@@ -1131,7 +1198,7 @@ def nadeoLibParser() -> None:
                             lib[currentLib][currentMat]["Model"] = "TDSN" #can't read model from lib
                             lib[currentLib][currentMat]["Envi"]  = currentLib 
         
-        nadeoLibMaterials = lib
+        nadeoimporter_materiallib_materials = lib
         
                     
     except AttributeError as e:
@@ -1146,7 +1213,7 @@ def nadeoLibParser() -> None:
             addLinkedMaterial(name=name)
 
         setSelectedLinkedMaterialToFirst()
-        return nadeoLibMaterials
+        return nadeoimporter_materiallib_materials
 
 
 
@@ -1208,24 +1275,25 @@ def fixName(name: str) -> str:
     replace chars which are not allowed with _ or #, fix ligatures: ä, ü, ö, ß, é. \n  
     allowed chars: abcdefghijklmnopqrstuvwxyz0123456789_-#"""
 
-    allowedNameChars = list("abcdefghijklmnopqrstuvwxyz0123456789_-#")
-    fixedName = str(name)
+    allowed_chars = list("abcdefghijklmnopqrstuvwxyz0123456789_-#")
+    fixed_name = str(name)
     
     for char in name:
-        charOriginal = str(char)
-        char = str(char).lower()
-        if char not in allowedNameChars:
-            fixedChar = "_"
-            if    char == "ä": fixedChar = "ae"
-            elif  char == "ö": fixedChar = "oe"
-            elif  char == "ü": fixedChar = "ue"
-            elif  char == "é": fixedChar = "e"
-            elif  char == "ß": fixedChar = "ss"
-            fixedName = fixedName.replace(charOriginal, fixedChar)
+        original_char = str(char)
+        char          = str(char).lower()
+
+        if char not in allowed_chars:
+            fixed_char = "_"
+            if    char == "ä": fixed_char = "ae"
+            elif  char == "ö": fixed_char = "oe"
+            elif  char == "ü": fixed_char = "ue"
+            elif  char == "é": fixed_char = "e"
+            elif  char == "ß": fixed_char = "ss"
+            fixed_name = fixed_name.replace(original_char, fixed_char)
     
-    fixedName = re.sub(r"_+", "_", fixedName)
+    fixed_name = re.sub(r"_+", "_", fixed_name)
             
-    return fixedName
+    return fixed_name
 
 
 
@@ -1237,7 +1305,8 @@ def fixAllMatNames() -> None:
 
 
 
-def fixSlash(filepath) -> str:
+def fixSlash(filepath: str) -> str:
+    """convert \\\+ to /"""
     filepath = re.sub(r"\\+", "/", filepath)
     filepath = re.sub(r"\/+", "/", filepath)
     return filepath
@@ -1252,27 +1321,27 @@ def fixAllColNames() -> None:
         except: pass #mastercollection etc is readonly
 
 # correct gamma the same way Blender do it
-def gammaCorrected(c):
-    if c < 0.0031308:
-        srgb = 0.0 if c < 0.0 else c * 12.92
+def gammaCorrected(color):
+    if color < 0.0031308:
+        srgb = 0.0 if color < 0.0 else color * 12.92
     else:
-        srgb = 1.055 * math.pow(c, 1.0 / 2.4) - 0.055
+        srgb = 1.055 * math.pow(color, 1.0 / 2.4) - 0.055
 
     return max(min(int(srgb * 255 + 0.5), 255), 0)
 
 
-def rgbToHEX(rgbList, hashtag: str="", correctGamma: bool=False) -> str:
+def rgbToHEX(rgb_list: tuple, prefix: str="", correct_gamma: bool=False) -> str:
     """convert given rgbList=(0.0, 0.5, 0.93) to hexcode """
-    r = gammaCorrected(rgbList[0]) if correctGamma else int( rgbList[0] * 256) - 1 
-    g = gammaCorrected(rgbList[1]) if correctGamma else int( rgbList[1] * 256) - 1 
-    b = gammaCorrected(rgbList[2]) if correctGamma else int( rgbList[2] * 256) - 1 
+    r = gammaCorrected(rgb_list[0]) if correct_gamma else int( rgb_list[0] * 256) - 1 
+    g = gammaCorrected(rgb_list[1]) if correct_gamma else int( rgb_list[1] * 256) - 1 
+    b = gammaCorrected(rgb_list[2]) if correct_gamma else int( rgb_list[2] * 256) - 1 
     
-    if not correctGamma:
+    if not correct_gamma:
         r = max(0, min(r, 255))
         g = max(0, min(g, 255))
         b = max(0, min(b, 255))
 
-    hex = f"{hashtag}{r:02x}{g:02x}{b:02x}"
+    hex = f"{prefix}{r:02x}{g:02x}{b:02x}"
     return hex
 
 
@@ -1284,7 +1353,7 @@ def refreshPanels() -> None:
             region.tag_redraw()  
 
 
-def getAbspath(path):
+def getAbspath(path: str):
     return os.path.abspath(path) if path else ""
 
 
@@ -1306,13 +1375,13 @@ def roundInterval(num: float, interval: int) -> int:
 
 
 
-def onlyMeshObjsOfCollection(col) -> list:
+def getMeshObjectsOfCollection(col: bpy.types.Collection) -> list:
     return [obj for obj in col.objects if obj.type == "MESH"]
 
 
 def getDimensionOfCollection(col: bpy.types.Collection)->list:
     """return dimension(x,y,z) of all mesh obj combined in collection"""
-    deselectAll()
+    deselectAllObjects()
     selectAllObjectsInACollection(col=col)
 
     minx = 0
@@ -1408,7 +1477,7 @@ def getobjectBounds(ob):
 
 
 
-def getFilesOfFolder(path, ext=None, recursive=False)->list:
+def getFilesOfFolder(path: str, ext: str=None, recursive: bool=False)->list:
     """return list of abspath files, can be nested, filtered by ext"""
     filepaths = []
 
@@ -1451,14 +1520,15 @@ def getIconPathOfFBXpath(filepath) -> str:
 
 
 
-def getWaypointTypeOfFBXfile(filepath) -> str:
+def getWaypointTypeOfFBXfile(filepath: str) -> str:
+    """read item xml of given fbx file and return waypoint"""
     filepath        = re.sub(r"fbx$", "Item.xml", filepath, re.IGNORECASE)
     waypoint_regex  = r"waypoint\s?type=\"(\w+)\""
     waypoint        = searchStringInFile(filepath, waypoint_regex, 1)
     return waypoint
 
 
-def searchStringInFile(filepath, regex, group) -> list:
+def searchStringInFile(filepath: str, regex: str, group: int) -> list:
     try:
         with open(filepath, "r") as f:
             data  = f.read()
@@ -1588,11 +1658,11 @@ def debugALL() -> None:
 
     separator(5)
     full_debug("nadeoIniSettings:        ")
-    full_debug(nadeoIniSettings, pp=True)
+    full_debug(nadeo_ini_settings, pp=True)
 
     separator(1)
     full_debug("nadeoLibMaterials:       ")
-    full_debug(nadeoLibMaterials, pp=True)
+    full_debug(nadeoimporter_materiallib_materials, pp=True)
 
     separator(3)
     full_debug("END DEBUG PRINT")
@@ -1614,31 +1684,23 @@ def debugALL() -> None:
 
 
 
-#icons ...  
-preview_collections = {}
+custom_icons_dir = os.path.join(os.path.dirname(__file__), "icons")
+custom_icons = bpy.utils.previews.new()
 
-iconsDir = os.path.join(os.path.dirname(__file__), "icons")
-pcoll = bpy.utils.previews.new()
-
-def getIcon(icon: str) -> object:
-    """return icon for layout (row, col) parameter: 
-        icon_value=getIcon('CAM_FRONT') / icon='ERROR'"""
-    if icon not in pcoll.keys():
-        pcoll.load(icon, os.path.join(iconsDir, icon + ".png"), "IMAGE")
-    return pcoll[icon].icon_id
+def getIcon(icon: str="MANIAPLANET") -> object:
+    """return icon for ui layout"""
+    if icon not in custom_icons.keys():
+        custom_icons.load(icon, os.path.join(custom_icons_dir, icon + ".png"), "IMAGE")
+    return custom_icons[icon].icon_id
 
 
-def getAddonIcon(name)->str:
+def getPathOfCustomIcon(name:str) -> str:
+    """get full path of custom icon by name"""
     return f"""{getAddonPath()}icons/{name}"""
 
 
 
 
-                
-                
-def generateUID() -> str:
-    """generate unique id and return as string"""               
-    return str(uuid.uuid4())
 
 
 
@@ -1689,8 +1751,8 @@ def changeScreenBrightness(value: int)->None:
         return # not inbetween mix max
 
     cmd = f"powershell (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1,{value})"
-    process = subprocess.Popen(cmd)
-    print(value)
+    subprocess.Popen(cmd)
+    debug(f"changed screen brightness to: {value=}")
 
 
 @newThread
@@ -1722,14 +1784,14 @@ def toggleScreenBrightness(duration: float = .5)->None:
 
 
 @newThread
-def makeToast(title, text, baloon_icon="Info", duration=5000) -> None:
+def makeToast(title: str, text: str, baloon_icon: str="Info", duration: float=5000) -> None:
     """make windows notification popup "toast" """
     
     if baloon_icon not in {"None", "Info", "Warning", "Error"}:
         raise ValueError
 
     icon = "MANIAPLANET.ico" if isGameTypeManiaPlanet() else "TRACKMANIA2020.ico"
-    icon = getAddonIcon(icon)
+    icon = getPathOfCustomIcon(icon)
 
     assetpath = fixSlash( getAddonAssetsPath() )
     cmd = [
@@ -1745,7 +1807,7 @@ def makeToast(title, text, baloon_icon="Info", duration=5000) -> None:
     subprocess.call(cmd)
 
 
-def makeReportPopup(title= str("some error occured"), infos: list=[], icon: str='INFO', fileName: str="maniaplanet_report"):
+def makeReportPopup(title= str("some error occured"), infos: list=[str], icon: str='INFO'):
     """create a small info(text) popup in blender, write infos to a file on desktop"""
     frameinfo   = getframeinfo(currentframe().f_back)
     line        = str(frameinfo.lineno)
@@ -1757,14 +1819,9 @@ def makeReportPopup(title= str("some error occured"), infos: list=[], icon: str=
         for info in infos:
             self.layout.label(text=str(info))
         
-              
     bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
     
-    # with open(desktopPath + fileName + ".txt", "w", encoding="utf-8") as reportFile:
-    #     reportFile.write(title + "\n\n")
-    #     for info in infos:
-    #         reportFile.write(info + "\n")
-    #     reportFile.write(pyinfos)
+
 
 def getScene() -> object:
     return bpy.context.scene
@@ -1784,20 +1841,21 @@ def getTmConvertingItemsProp() -> object:
 
 
 def stealUserLoginData() -> str:
-    with open(getDocPath() + "/Config/User.Profile.Gbx", r) as f:
+    with open(getDocPath() + "/Config/User.Profile.Gbx", "r") as f:
         data = f.read()
         if "username" and "password" in data:
             return "i probably should stop here...:)"
 
-# _notvisible_NAME & _notcollidable_NAME are real objects which should be used as normal objects
+
 def isRealObjectByName(name: str) -> bool:
+    """check if the object name is not a interpreted as special"""
     name = name.lower()
     return  not name.startswith("_")\
             or name.startswith("_notvisible_")\
             or name.startswith("_notcollidable_")
 
-# only _notcollidable_NAME is visible object, rest _xyz objects shouldn't be visible
 def isVisibleObjectByName(name: str) -> bool:
+    """check if object will be visible ingame"""
     name = name.lower()
     return  not name.startswith("_")\
             or name.startswith("_notcollidable_")

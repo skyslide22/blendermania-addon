@@ -1,13 +1,9 @@
 from pprint import pprint
 from typing import List
 import bpy
-import re
 import bpy.utils.previews
 from bpy.props import *
 from bpy.types import (
-    EnumPropertyItem, Panel,
-    Operator,
-    AddonPreferences,
     PropertyGroup
 )
 
@@ -17,26 +13,45 @@ from .TM_Descriptions import *
 
 
 
-ERROR_ENUM_PROPS      = [("ERROR", "Nothing found", "ERROR", "ERROR", 0)]
-matPhysics          = ERROR_ENUM_PROPS
-matLinks            = ERROR_ENUM_PROPS
+class EnumProps():
+    """this needs to be returned by bpy.props.EnumProperty"""
+    def __init__(self):
+        self.index= 0
+        self._list= []
+
+    def add(self, id:str, name:str, desc:str, icon:str="NONE"):
+        self._list.append(
+            (id, name, desc, icon, self.index)
+        )
+        self.index += 1
+        return self
+
+    def toList(self) -> list:
+        return self._list
+
+
+
+
+
+ERROR_ENUM_PROPS = EnumProps().add(id="ERROR", name ="Nothing found", desc="ERROR", icon="ERROR").toList()
+material_physics = ERROR_ENUM_PROPS
+material_links   = ERROR_ENUM_PROPS
+
 
 
 def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
     #func has to return tuple with tuples: ( (3x str or 4x str and unique index), )
     def wrapper(self, context):
-        return func(self, context) if isNadeoIniValid() else ERROR_ENUM_PROPS
-        return errorEnumProps
-        
+        return func(self, context) if isSelectedNadeoIniFilepathValid() else ERROR_ENUM_PROPS        
     return wrapper
 
 
 def updateINI(prop) -> None:
     isNadeoImporterInstalled(prop)
-    global nadeoIniSettings
-    global nadeoLibMaterials
-    nadeoIniSettings.clear() #reset when changed
-    nadeoLibMaterials.clear()
+    global nadeo_ini_settings
+    global nadeoimporter_materiallib_materials
+    nadeo_ini_settings.clear() #reset when changed
+    nadeoimporter_materiallib_materials.clear()
     try:
         gameTypeGotUpdated()
     except AttributeError:
@@ -52,13 +67,21 @@ def defaultINI(prop) -> str:
     
     return ini
 
-    
+
 
 def getGameTypes()->list:
-    return [
-        ("ManiaPlanet",     "ManiaPlanet",      "ManiaPlanet",      getIcon("maniaplanet"), 0),
-        ("Trackmania2020",  "Trackmania2020",   "Trackmania2020",   getIcon("trackmania2020"), 1),
-    ]
+    return EnumProps().add(
+        id   = "ManiaPlanet",
+        name = "ManiaPlanet",
+        desc = "ManiaPlanet game",
+        icon = getIcon("maniaplanet")
+    ).add(
+        id   = "Trackmania2020",
+        name = "Trackmania2020",
+        desc = "Trackmania2020 game",
+        icon = getIcon("trackmania2020")
+    ).toList()
+    
 
 
 def gameTypeGotUpdated(self=None,context=None)->None:
@@ -66,9 +89,9 @@ def gameTypeGotUpdated(self=None,context=None)->None:
     isNadeoImporterInstalled()
     resetNadeoIniSettings()
     
-    global matLinks, matPhysics, nadeoLibMaterials
-    matLinks   = ERROR_ENUM_PROPS
-    matPhysics = ERROR_ENUM_PROPS
+    global material_links, material_physics, nadeoimporter_materiallib_materials
+    material_links   = ERROR_ENUM_PROPS
+    material_physics = ERROR_ENUM_PROPS
     nadeoLibParser()
 
     tm_props     = getTmProps()
@@ -87,55 +110,125 @@ def gameTypeGotUpdated(self=None,context=None)->None:
 
 
 def getGameTextureZipFileNames()->list:
-    envis = [
-        "Stadium",
-        "Valley",
-        "Canyon",
-        "Lagoon",
-        "Shootmania",
-    ]
-    return [(e,e,e) for e in envis]
+    return EnumProps().add(
+        id   = "Stadium",
+        name = "Stadium",
+        desc = "Stadium",
+        icon = getIcon("ENVI_STADIUM")
+    ).add(
+        id   = "Valley",
+        name = "Valley",
+        desc = "Valley",
+        icon = getIcon("ENVI_VALLEY")
+    ).add(
+        id   = "Canyon",
+        name = "Canyon",
+        desc = "Canyon",
+        icon = getIcon("ENVI_CANYON")
+    ).add(
+        id   = "Lagoon",
+        name = "Lagoon",
+        desc = "Lagoon",
+        icon = getIcon("ENVI_LAGOON")
+    ).add(
+        id   = "Shootmania",
+        name = "Shootmania",
+        desc = "Shootmania",
+        icon = getIcon("ENVI_STORM")
+    ).toList()
+
 
 
 def getExportTypes()->list:
-    return[
-        ("EXPORT",          "Export only",          "Export only",                      "EXPORT", 0),
-        ("EXPORT_CONVERT",  "Export and Convert",   "Export fbx and convert to gbx",    "CON_FOLLOWPATH", 1),
-        # ("CONVERT",         "Convert only",         "Convert only",                     "FILE_REFRESH", 2),
-        # ("ICON",            "Icon only",            "Icon only",                        "FILE_IMAGE", 3),
-    ]
+    return EnumProps().add(
+        id   = "EXPORT",
+        name = "Export only",
+        desc = "Export only",
+        icon = "EXPORT"
+    ).add(
+        id   = "EXPORT_CONVERT",
+        name = "Export and Convert",
+        desc = "Export fbx and convert to gbx",
+        icon = "CON_FOLLOWPATH"
+    ).toList()
+
 
 
 def getExportFolderTypes(self,context)->list:
-    base = [
-        ("Base",       "/",                 "Base folder(Work/Items/",                  "HOME", 0),
-        ("Custom",     "Custom Folder/",    "Custom folder, need to be in Work/Items/", "HELP", 1),
-    ]
+    folders = EnumProps().add(
+        id   = "Base",
+        name = "/",
+        desc = "Base folder(Documents/Work/Items/)",
+        icon = "HOME"
+    ).add(
+        id   = "Custom",
+        name = "Custom Folder",
+        desc = "Custom folder, needs to be in Documents/Work/Items/",
+        icon = "HELP"
+    )
     if isGameTypeManiaPlanet():
-        return base + [
-            ("Stadium",    "Stadium/",      "Base folder(/Items/Stadium",   getIcon("ENVI_STADIUM"), 2),
-            ("Valley",     "Valley/",       "Base folder(/Items/Valley",    getIcon("ENVI_VALLEY"),  3),
-            ("Canyon",     "Canyon/",       "Base folder(/Items/Canyon",    getIcon("ENVI_CANYON"),  4),
-            ("Lagoon",     "Lagoon/",       "Base folder(/Items/Lagoon",    getIcon("ENVI_LAGOON"),  5),
-            ("Shootmania", "Shootmania/",   "Base folder(/Items/Storm",     getIcon("ENVI_STORM"),   6),
-        ]
-    else: return base
+        folders.add(
+            id   = "Stadium",
+            name = "Stadium",
+            desc = "Stadium",
+            icon = getIcon("ENVI_STADIUM")
+        ).add(
+            id   = "Valley",
+            name = "Valley",
+            desc = "Valley",
+            icon = getIcon("ENVI_VALLEY")
+        ).add(
+            id   = "Canyon",
+            name = "Canyon",
+            desc = "Canyon",
+            icon = getIcon("ENVI_CANYON")
+        ).add(
+            id   = "Lagoon",
+            name = "Lagoon",
+            desc = "Lagoon",
+            icon = getIcon("ENVI_LAGOON")
+        ).add(
+            id   = "Shootmania",
+            name = "Shootmania",
+            desc = "Shootmania",
+            icon = getIcon("ENVI_STORM")
+        )
+    return folders.toList()
 
 
 
-def getExportWhichObjects()->list:
-    return[
-        ("SELECTED",    "Selected", "Selected objects(their collection) only",  "RESTRICT_SELECT_OFF",  0),
-        ("VISIBLE",     "Visible",  "Visible objects(their collection) only",   "HIDE_OFF",             1),
-    ]
+def getExportWhichObjects() -> list:
+    return EnumProps().add(
+        id   = "SELECTED",
+        name = "Selected",
+        desc = "Selected objects(their collection) only",
+        icon = "RESTRICT_SELECT_OFF"
+    ).add(
+        id   = "VISIBLE",
+        name = "Visible",
+        desc = "Visible objects(their collection) only",
+        icon = "HIDE_OFF"
+    ).toList()
 
 
-def getExportObjTypes() -> list:
-    return [
-        (   'MESH_LIGHT_EMPTY', "All object types",     "Normal meshes, lights and empties",                "SCENE_DATA",   0),
-        (   'MESH_LIGHT',       "Mesh, Light",          "Normal meshes, lights, no empties",                "LIGHT_SUN",    1),
-        (   'MESH_EMPTY',       "Mesh, Empty",          "Normal meshes, empties(_socket_START), no lights", "EMPTY_ARROWS", 2),
-    ]
+
+def getExportWhichObjTypes() -> list:
+    return EnumProps().add(
+        id   = "MESH_LIGHT_EMPTY",
+        name = "All object types",
+        desc = "Normal meshes, lights and empties",
+        icon = "SCENE_DATA"
+    ).add(
+        id   = "MESH_LIGHT",
+        name = "Mesh, Light",
+        desc = "Normal meshes, lights, no empties",
+        icon = "LIGHT_SUN"
+    ).add(
+        id   = "MESH_EMPTY",
+        name = "Mesh, Empty",
+        desc = "Normal meshes, empties(like _socket_START), no lights",
+        icon = "EMPTY_ARROWS"
+    ).toList()
 
 
 
@@ -153,55 +246,114 @@ def updateGridAndLevi(self, context) -> None:
 
 
 def getWayPointVariations() -> list:
-    return [
-        ("Start",       "Start",        "Use this waypoint type as fallback", getIcon("WP_START"),          0),
-        ("Finish",      "Finish",       "Use this waypoint type as fallback", getIcon("WP_FINISH"),         1),
-        ("StartFinish", "StartFinish",  "Use this waypoint type as fallback", getIcon("WP_STARTFINISH"),    2),
-        ("Checkpoint",  "Checkpoint",   "Use this waypoint type as fallback", getIcon("WP_CHECKPOINT"),     3),
-    ]
+    return EnumProps().add(
+        id   = "Start",
+        name = "Start",
+        desc = "Object will be a start",
+        icon = getIcon("WP_START")
+    ).add(
+        id   = "Finish",
+        name = "Finish",
+        desc = "Object will be a finish",
+        icon = getIcon("WP_FINISH")
+    ).add(
+        id   = "StartFinish",
+        name = "Start Finish (Multilap)",
+        desc = "Object will be a multilap, start and finish will be the same",
+        icon = getIcon("WP_STARTFINISH")
+    ).add(
+        id   = "Checkpoint",
+        name = "Checkpoint",
+        desc = "Object will be a checkpoint",
+        icon = getIcon("WP_CHECKPOINT")
+    ).toList()
+
      
 
 def getItemXMLCollections() -> list:
-    return [
-        ("Stadium", "Stadium",  "", getIcon("ENVI_STADIUM"),    1),
-        ("Canyon",  "Canyon",   "", getIcon("ENVI_CANYON"),     2),
-        ("Valley",  "Valley",   "", getIcon("ENVI_VALLEY"),     3),
-        ("Lagoon",  "Lagoon",   "", getIcon("ENVI_LAGOON"),     4),
-        ("Storm",   "Storm",    "", getIcon("ENVI_STORM"),      5),
-        ("Common",  "Common",   "", getIcon("ENVI_COMMON"),     6),
-        ("SMCommon","SMCommon", "", getIcon("ENVI_COMMON"),     7),
-    ]
+    return EnumProps().add(
+        id   = "Stadium",
+        name = "Stadium",
+        desc = "",
+        icon = getIcon("ENVI_STADIUM"),
+    ).add(
+        id   = "Canyon",
+        name = "Canyon",
+        desc = "",
+        icon = getIcon("ENVI_CANYON"),
+    ).add(
+        id   = "Valley",
+        name = "Valley",
+        desc = "",
+        icon = getIcon("ENVI_VALLEY"),
+    ).add(
+        id   = "Lagoon",
+        name = "Lagoon",
+        desc = "",
+        icon = getIcon("ENVI_LAGOON"),
+    ).add(
+        id   = "Storm",
+        name = "Storm",
+        desc = "",
+        icon = getIcon("ENVI_STORM"),
+    ).add(
+        id   = "Common",
+        name = "Common",
+        desc = "",
+        icon = getIcon("ENVI_COMMON"),
+    ).add(
+        id   = "SMCommon",
+        name = "SMCommon",
+        desc = "",
+        icon = getIcon("ENVI_COMMON"),
+    ).toList()
 
 
 def getItemXMLType() -> list:
-    return [    
-        ("StaticObject","StaticObject","StaticObject",  "KEYFRAME",     0), 
-        ("DynaObject",  "DynaObject",   "DynaObject",   "KEYFRAME_HLT", 1) 
-    ]
+    return EnumProps().add(
+        id   = "StaticObject",
+        name = "StaticObject",
+        desc = "Static Object",
+        icon = "KEYFRAME",
+    ).add(
+        id   = "DynaObject",
+        name = "DynaObject",
+        desc = "Dynamic Object",
+        icon = "KEYFRAME_HLT",
+    ).toList()
+
 
 
 def getMeshXMLType() -> list:
-    return [    
-        ("Static",  "Static",   "Static",   "KEYFRAME",     0), 
-        ("Dynamic", "Dynamic",  "Dynamic",  "KEYFRAME_HLT", 1) 
-    ]
+    return EnumProps().add(
+        id   = "Static",
+        name = "Static",
+        desc = "Static",
+        icon = "KEYFRAME",
+    ).add(
+        id   = "Dynamic",
+        name = "Dynamic",
+        desc = "Dynamic",
+        icon = "KEYFRAME_HLT",
+    ).toList()
 
 
 
 
 def getImportTypes() -> list:
-    return [
-        ("FILES",            "Files",              "Files",             "FILE",             0),
-        ("FOLDER",           "Folder",             "Folder",            "FILE_FOLDER",      1),
-    ]
+    return EnumProps().add(
+        id   = "FILES",
+        name = "Files",
+        desc = "Files",
+        icon = "FILE",
+    ).add(
+        id   = "FOLDER",
+        name = "Folder",
+        desc = "Folder",
+        icon = "FILE_FOLDER",
+    ).toList()
 
 
-def getImportVariants() -> list:
-    return[
-        ("FILE", "File",  "Single file",    "FILE", 0),
-        ("FILES","Files", "Multiple files", "FILE", 1),
-        ("Folder","Files", "Multiple files", "FILE", 1),
-    ]
 
 
 
@@ -210,8 +362,6 @@ def getImportVariants() -> list:
 def getWorkItemsRootFolderNames(s,c) -> list:
     """return all root folders of ../Work/Items/foldernames[]"""
     rootFolderNames = []
-    try: workItemsPath = getDocPathWorkItems()
-    except AttributeError: return ERROR_ENUM_PROPS
     
     for folder in os.listdir( getDocPathWorkItems() ):
         if os.path.isdir( getDocPathWorkItems() + folder ):
@@ -227,21 +377,57 @@ def getWorkItemsRootFolderNames(s,c) -> list:
 
 
 def getIconPerspectives() -> list:
-    return [
-        ("CLASSIC",     "Classic",  "Bird View",    "FILE_TEXT",        0),
-        ("TOP",         "Top",      "From Top",     "ANCHOR_TOP",       1),
-        ("FRONT",       "Front",    "From Front",   "ANCHOR_CENTER",    2),
-        ("BACK",        "Back",     "From Back",    "ANCHOR_CENTER",    3),
-        ("LEFT",        "Left",     "From Left",    "ANCHOR_LEFT",      4),
-        ("RIGHT",       "Right",    "From Right",   "ANCHOR_RIGHT",     5),
-        ("BOTTOM",      "Bottom",   "From Bottom",  "ANCHOR_BOTTOM",    6),
-    ]
+    return EnumProps().add(
+        id   = "CLASSIC",
+        name = "Classic",
+        desc = "Bird view",
+        icon = "FILE_TEXT",
+    ).add(
+        id   = "TOP",
+        name = "Top",
+        desc = "From Top",
+        icon = "ANCHOR_TOP",
+    ).add(
+        id   = "FRONT",
+        name = "Front",
+        desc = "From front",
+        icon = "ANCHOR_CENTER",
+    ).add(
+        id   = "BACK",
+        name = "Back",
+        desc = "From back",
+        icon = "ANCHOR_CENTER",
+    ).add(
+        id   = "LEFT",
+        name = "Left",
+        desc = "From left",
+        icon = "ANCHOR_LEFT",
+    ).add(
+        id   = "RIGHT",
+        name = "Right",
+        desc = "From right",
+        icon = "ANCHOR_RIGHT",
+    ).add(
+        id   = "BOTTOM",
+        name = "Bottom",
+        desc = "From bottom",
+        icon = "ANCHOR_BOTTOM",
+    ).toList()
+
 
 def getIconPXdimensions() -> list:
-    return[
-        ("128", "128 px", "Icon size in pixel"),
-        ("256", "256 px", "Icon size in pixel"),
-    ]
+    return EnumProps().add(
+        id   = "128",
+        name = "128 px",
+        desc = "Icon size in pixel",
+        icon = "FILE_IMAGE",
+    ).add(
+        id   = "256",
+        name = "256 px",
+        desc = "Icon  size in pixel",
+        icon = "FILE_IMAGE",
+    ).toList()
+
 
 def updateWorldBG(s,c) -> None:
     tm_props    = c.scene.tm_props
@@ -265,10 +451,21 @@ def updateWorldBG(s,c) -> None:
 
 
 def getMaterials(self, context):
-    mats = bpy.data.materials
-    if len(mats) == 0: 
+    material_prop_list = EnumProps()
+    materials          = bpy.data.materials
+    
+    if len(materials) == 0: 
         return ERROR_ENUM_PROPS
-    return [(mat.name, mat.name, mat.name) for mat in mats if mat.name.lower() != "dots stroke"]
+    
+    for mat in materials:
+        material_prop_list.add(
+            id   = mat.name,
+            name = mat.name,
+            desc = mat.name,
+            icon = "MATERIAL"
+        )
+
+    return material_prop_list.toList()
 
 
 def updateMaterialSettings(self, context):
@@ -387,42 +584,109 @@ def revertMaterialCustomColorLiveChanges() -> None:
 
 
 def getMaterialModelTypes()->list:
-    return [
-        ("TDSN",        "TDSN",         "Raw texture (_D.dds, _S.dds, _N.dds)",             getIcon("MODEL_TDSN")       , 0), 
-        ("TDOSN",       "TDOSN",        "TDSN + 1bit transparency (100% or 0%)",            getIcon("MODEL_TDOSN")      , 1), 
-        ("TDOBSN",      "TDOBSN",       "TDSN + 256bit transparency (glass for example)",   getIcon("MODEL_TDOBSN")     , 2), 
-        ("TDSNI",       "TDSNI",        "TDSN + glow, additional texture required: _I.dds", getIcon("MODEL_TDSNI")      , 3), 
-        ("TDSNI_NIGHT", "TDSNI_NIGHT",  "TDSNI, but only in night and sunset mood",         getIcon("MODEL_TDSNI_NIGHT"), 4), 
-        ("TIAdd",       "TIAdd",        "Glowing 256bit transparency, only _I.dds is used", getIcon("MODEL_TIADD")      , 5)
-    ]
+    return EnumProps().add(
+        id   = "TDSN",
+        name = "Files",
+        desc = "Raw texture (_D.dds, _S.dds, _N.dds)",
+        icon = getIcon("MODEL_TDSN")
+    ).add(
+        id   = "TDOSN",
+        name = "TDOSN",
+        desc = "TDSN + 1bit transparency (100% or 0%)",
+        icon = getIcon("MODEL_TDOSN") 
+    ).add(
+        id   = "TDOBSN",
+        name = "TDOBSN",
+        desc = "TDSN + 256bit transparency (glass for example)",
+        icon = getIcon("MODEL_TDOBSN")
+    ).add(
+        id   = "TDSNI",
+        name = "TDSNI",
+        desc = "TDSN + glow, additional texture required: _I.dds",
+        icon = getIcon("MODEL_TDSNI")
+    ).add(
+        id   = "TDSNI_NIGHT",
+        name = "TDSNI_NIGHT",
+        desc = "TDSNI, but only in night and sunset mood",
+        icon = getIcon("MODEL_TDSNI_NIGHT")
+    ).add(
+        id   = "TIAdd",
+        name = "TIAdd",
+        desc = "Glowing 256bit transparency, only _I.dds is used",
+        icon = getIcon("MODEL_TIADD")
+    ).toList()
+
 
 
 def getMaterialCollectionTypes()->list:
-    collections = ["Stadium", "Canyon", "Valley", "Lagoon", "Storm", "Common"]
-    return [(c, c, c) for c in collections]
+    return EnumProps().add(
+        id   = "Stadium",
+        name = "Stadium",
+        desc = "",
+        icon = getIcon("ENVI_STADIUM"),
+    ).add(
+        id   = "Canyon",
+        name = "Canyon",
+        desc = "",
+        icon = getIcon("ENVI_CANYON"),
+    ).add(
+        id   = "Valley",
+        name = "Valley",
+        desc = "",
+        icon = getIcon("ENVI_VALLEY"),
+    ).add(
+        id   = "Lagoon",
+        name = "Lagoon",
+        desc = "",
+        icon = getIcon("ENVI_LAGOON"),
+    ).add(
+        id   = "Storm",
+        name = "Storm",
+        desc = "",
+        icon = getIcon("ENVI_STORM"),
+    ).add(
+        id   = "Common",
+        name = "Common",
+        desc = "",
+        icon = getIcon("ENVI_COMMON"),
+    ).toList()
 
 
 def getMaterialActions()->list:
-    return [
-        ("CREATE", "Create", "Create", "ADD",           0),
-        ("UPDATE", "Update", "Update", "FILE_REFRESH",  1),
-        # ("CHECK",  "Check",  "Check",  "QUESTION",      2),
-    ]
+    return EnumProps().add(
+        id   = "CREATE",
+        name = "Create",
+        desc = "Create",
+        icon = "ADD",
+    ).add(
+        id   = "UPDATE",
+        name = "Update",
+        desc = "Update",
+        icon = "FILE_REFRESH",
+    ).toList()
 
 
 def getMaterialTextureSourceOptions()->list:
-    return [
-        ("LINK",    "Link",     "Link",     "LINKED",      0),
-        ("CUSTOM",  "Custom",   "Custom",   "FILE_IMAGE",  1),
-    ]
+    return EnumProps().add(
+        id   = "LINK",
+        name = "Link",
+        desc = "Link",
+        icon = "LINKED",
+    ).add(
+        id   = "CUSTOM",
+        name = "Custom",
+        desc = "Custom",
+        icon = "FILE_IMAGE",
+    ).toList()
+
 
 @errorEnumPropsIfNadeoINIisNotValid
 def getMaterialPhysicIds(self=None, context=None)->list:
     """get physics from nadeoLibParser() and return as list(tuples)"""
-    global matPhysics #create global variable to read libfile only once
+    global material_physics #create global variable to read libfile only once
     
-    if len(matPhysics) > 1:
-        return matPhysics
+    if len(material_physics) > 1:
+        return material_physics
     
     #calling getNadeoImporterLIBPath while addon is registering not allowed:
     #AttributeError: "_RestrictedContext" object has no attribute "scene"
@@ -430,15 +694,15 @@ def getMaterialPhysicIds(self=None, context=None)->list:
     #then assign list of physics to matPhysics, to read file only once
     try:    libfile =  getNadeoImporterLIBPath()
     except  AttributeError:
-        return matPhysics
+        return material_physics
     
     if not libfile.endswith("Lib.txt"):
-        return matPhysics
+        return material_physics
     
     try:
         libmats = getNadeoLibMats()
     except AttributeError:
-        return matPhysics
+        return material_physics
     
     physics = []
 
@@ -451,35 +715,40 @@ def getMaterialPhysicIds(self=None, context=None)->list:
                 physics.append(phy)
     
     #some physics are not used by nadeo but exist.
-    for missingPhysic in missingPhysicsInLib: 
+    for missingPhysic in MISSING_PHYSIC_IDS_IN_NADEOLIB: 
         if missingPhysic not in physics:
             physics.append(missingPhysic)
     
     physics.sort()
-    physicsWithIcons = []
+    physicsWithIcons = EnumProps()
     
-    for i, phy in enumerate(physics):
-        icon = "FUND" if phy in favPhysicIds else "AUTO"
-        physicsWithIcons.append(    (phy, phy, phy, icon, i)  )
+    for phy in physics:
+        icon = "FUND" if phy in FAVORITE_PHYSIC_IDS else "AUTO"
+        physicsWithIcons.add(
+            id   = phy,
+            name = phy,
+            desc = phy,
+            icon = icon  
+        )
 
-    matPhysics = physicsWithIcons
-    return matPhysics
+    material_physics = physicsWithIcons.toList()
+    return material_physics
 
 
 def getMaterialLinks(self, context)-> list:
-    global matLinks
+    global material_links
     tm_props = getTmProps()
 
-    if matLinks is not ERROR_ENUM_PROPS:
-        return matLinks
+    if material_links is not ERROR_ENUM_PROPS:
+        return material_links
 
 
     try:    libfile =  getNadeoImporterLIBPath()
     except  AttributeError:
-        return matLinks
+        return material_links
 
     if not libfile.endswith("Lib.txt"):
-        return matLinks
+        return material_links
     
     materials    = []
     libmats      = getNadeoLibMats()
@@ -495,13 +764,21 @@ def getMaterialLinks(self, context)-> list:
             break
     
     materials.sort()
-    matLinks = materials
-    return matLinks
+    material_links = materials
+    return material_links
 
 
 def getMaterialGameplayIds(self, context)->None:
-    return [ (gpi, gpi, gpi) for gpi in tm2020GameplayIds]
+    gameplay_id_props_list = EnumProps()
 
+    for gameplay_id in GAMEPLAY_IDS_TM2020:
+        gameplay_id_props_list.add(
+            id   = gameplay_id,
+            name = gameplay_id,
+            desc = gameplay_id,
+            icon = "AUTO"
+        )
+    return gameplay_id_props_list.toList()
 
 
 
@@ -515,15 +792,15 @@ def getMaterialGameplayIds(self, context)->None:
 
 class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     """general trackmania properties"""
-    LI_gameType                : EnumProperty(  name="Game",    items=getGameTypes(),   update=gameTypeGotUpdated)
-    ST_nadeoIniFile_MP         : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
-    ST_nadeoIniFile_TM         : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
-    ST_author                  : StringProperty(name="Author",  default="skyslide")
-    CB_nadeoImporter           : BoolProperty(  name="NadeoImporter installed", default=False)
-    NU_nadeoImporterDL         : FloatProperty( min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
-    CB_nadeoImporterDLRunning  : BoolProperty(  default=False,  update=redrawPanel)
-    ST_nadeoImporterDLError    : StringProperty(name="Status",  default="", update=redrawPanel)
-    CB_nadeoImporterDLshow     : BoolProperty(  default=False,  update=redrawPanel)
+    LI_gameType                 : EnumProperty(  name="Game",    items=getGameTypes(),   update=gameTypeGotUpdated)
+    ST_nadeoIniFile_MP          : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
+    ST_nadeoIniFile_TM          : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
+    ST_author                   : StringProperty(name="Author",  default="skyslide")
+    CB_nadeoImporterIsInstalled : BoolProperty(  name="NadeoImporter installed", default=False)
+    NU_nadeoImporterDLProgress  : FloatProperty( min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
+    CB_nadeoImporterDLRunning   : BoolProperty(  default=False,  update=redrawPanel)
+    ST_nadeoImporterDLError     : StringProperty(name="Status",  default="", update=redrawPanel)
+    CB_nadeoImporterDLshow      : BoolProperty(  default=False,  update=redrawPanel)
 
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)
@@ -531,7 +808,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_exportFolder_MP          : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
     ST_exportFolder_TM          : StringProperty(name="Folder", default="",   subtype="DIR_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
     LI_exportWhichObjs          : EnumProperty(items=getExportWhichObjects(), name="Export by?")
-    LI_exportValidTypes         : EnumProperty(name="Export",      items=getExportObjTypes())
+    LI_exportValidTypes         : EnumProperty(name="Export",      items=getExportWhichObjTypes())
     NU_exportObjScale           : FloatProperty(name="Scale", min=0, soft_max=16)
     NU_multiScaleExportFactor   : FloatProperty(name="Steps", min=0, soft_max=8, default=0.25)
     CB_useMultiScaleExport      : BoolProperty(default=True, name="Scale exports", description=DESC_MULTI_SCALE_EXPORT)

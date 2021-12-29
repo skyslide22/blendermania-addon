@@ -79,7 +79,7 @@ class TM_PT_Settings(Panel):
     """Creates a Panel in the Object properties window"""
     bl_label = "Settings"
     bl_idname = "TM_PT_Settings"
-    locals().update( panelClassDefaultProps )
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_options = set() # default is closed, open as default
 
     # endregion
@@ -112,19 +112,17 @@ class TM_PT_Settings(Panel):
 
         layout.row().separator(factor=UI_SPACER_FACTOR)
 
-        if not isNadeoIniValid():
-            row = layout.row()
-            row.alert = True
-            row.label(text=MSG_ERROR_NADEO_INI)
+        if not isSelectedNadeoIniFilepathValid():
+            requireValidNadeoINI(self)
             return
 
 
-        if isNadeoIniValid():
+        if isSelectedNadeoIniFilepathValid():
 
             op_row = layout.row()
             op_row.enabled = tm_props.CB_nadeoImporterDLRunning is False
 
-            if not tm_props.CB_nadeoImporter:
+            if not tm_props.CB_nadeoImporterIsInstalled:
                 row = layout.row()
                 row.alert = True
                 row.label(text="NadeoImporter.exe not installed!")
@@ -142,7 +140,7 @@ class TM_PT_Settings(Panel):
                 row = layout.row()
                 row.enabled = False
                 row.alert = error != ""
-                row.prop(tm_props, "NU_nadeoImporterDL", text="ERROR: " + error if error != "" else "Download progress")
+                row.prop(tm_props, "NU_nadeoImporterDLProgress", text="ERROR: " + error if error != "" else "Download progress")
             
 
             

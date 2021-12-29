@@ -43,7 +43,7 @@ class TM_OT_Materials_ClearBaseMaterial(Operator):
     bl_desciption = "clear basematerial"
    
     def execute(self, context):
-        clearProperty("ST_materialBaseTexture", "")
+        getTmProps()["ST_materialBaseTexture"] = ""
         context.region.tag_redraw()
         return {"FINISHED"}
 
@@ -64,7 +64,7 @@ class TM_PT_Materials(Panel):
     """Creates a Panel in the Object properties window"""
     bl_label = "Material Creation/Update"
     bl_idname = "OBJECT_PT_TM_Materials"
-    locals().update( panelClassDefaultProps )
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
 
     # endregion
@@ -546,7 +546,7 @@ def saveMatPropsAsJSONinMat(mat) -> None:
         mat.surfaceColor = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value[:3]
 
     #tm_props
-    for prop_name in mat_props:
+    for prop_name in MATERIAL_CUSTOM_PROPERTIES:
         prop = getattr(mat, prop_name, None)
         
         if prop is None: continue
@@ -713,7 +713,7 @@ def importMaterialsFromJSON(filepath) -> None:
         
         if mat["name"] not in mats:
             newMat = bpy.data.materials.new(mat["name"])
-            for prop in mat_props:
+            for prop in MATERIAL_CUSTOM_PROPERTIES:
                 debug(prop)
                 exec(f"""{newMat}.{prop}={mat[prop]}""")
     
@@ -742,7 +742,7 @@ def exportMaterialsAsJSON(col, filepath) -> None:
                 debug(mat.name)
 
                 mat_dict = {}
-                for prop_name in mat_props:
+                for prop_name in MATERIAL_CUSTOM_PROPERTIES:
                     
                     prop = getattr(mat, prop_name)
                     if prop.__class__.__name__ == "Color":
