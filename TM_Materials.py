@@ -60,15 +60,16 @@ class TM_OT_Materials_RevertCustomColor(Operator):
     
    
 class TM_PT_Materials(Panel):
-    # region bl_
-    """Creates a Panel in the Object properties window"""
     bl_label = "Material Creation/Update"
     bl_idname = "OBJECT_PT_TM_Materials"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
 
-    # endregion
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(icon="MATERIAL")
     
+
     def draw(self, context):
 
         layout   = self.layout

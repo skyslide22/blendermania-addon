@@ -4,17 +4,6 @@ import bpy_types
 from bpy.props import *
 from bpy.app.handlers import persistent
 
-from .TM_Functions          import *
-from .TM_Settings           import *
-from .TM_Properties         import *
-from .TM_Items_Export       import *
-from .TM_Items_Import       import * 
-from .TM_Materials          import *
-from .TM_Items_XML          import *
-from .TM_Items_UVMaps       import *
-from .TM_Items_Icon         import *
-from .TM_Items_Templates    import *
-
 
 bl_info = {
     "name"          : "Trackmania Export & Convert .fbx > .gbx Addon",
@@ -28,20 +17,34 @@ bl_info = {
 }                    
 
 
+from .TM_Functions          import *
+from .TM_Settings           import *
+from .TM_Properties         import *
+from .TM_Items_Export       import *
+from .TM_Items_Import       import * 
+from .TM_Materials          import *
+from .TM_Items_XML          import *
+from .TM_Items_UVMaps       import *
+from .TM_Items_Icon         import *
+from .TM_Items_Templates    import *
+from .TM_Items_Manipulate   import *
 
 
+
+# owner of the object eventlistener
+object_eventlistner_owner = object()
 
 # register order matters for UI panel ordering
 classes = (
 
-    #props (not panel)
+    # props (not panel)
     TM_Properties_for_Panels,
     TM_Properties_Generated,
     TM_Properties_Pivots,
     TM_Properties_ConvertingItems,
     TM_Properties_LinkedMaterials,
 
-    #settings
+    # settings
     TM_PT_Settings,
     TM_OT_Settings_AutoFindNadeoIni,
     TM_OT_Settings_OpenDocumentation,
@@ -50,42 +53,47 @@ classes = (
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_DebugALL,
 
-    #export
+    # object manipulation
+    TM_PT_ObjectManipulations,
+    TM_OT_Items_ObjectManipulationAddSocketItem,
+    TM_OT_Items_ObjectManipulationAddTriggerItem,
+
+    # export
     TM_PT_Items_Export,
     TM_OT_Items_Export_ExportAndOrConvert,
     TM_OT_Items_Export_OpenConvertReport,
     TM_OT_Items_Export_CloseConvertSubPanel,
 
-    #import
+    # import
     TM_PT_Items_Import,
     TM_OT_Items_Import,
     TM_OT_Items_ClearMatImportFailList,
 
-    #xml,
+    # xml,
     TM_PT_Items_MeshXML,
     TM_PT_Items_ItemXML,
     TM_OT_Items_ItemXML_AddPivot,
     TM_OT_Items_ItemXML_RemovePivot,
 
-    #icons,
+    # icons,
     TM_PT_Items_Icon,
     TM_OT_Items_Icon_Test,
 
-    #uvs
+    # uvs
     TM_PT_Items_UVmaps_LightMap,
     TM_PT_Items_UVmaps_BaseMaterial_CubeProject,
 
-    #materials
+    # materials
     TM_PT_Materials,
     TM_OT_Materials_Create,
     TM_OT_Materials_Update,
     TM_OT_Materials_ClearBaseMaterial,
     TM_OT_Materials_RevertCustomColor,
 
-    #cars
+    # cars
     TM_OT_Items_Cars_Import,
 
-    #templates
+    # templates
     TM_OT_Items_Envi_Template_Import,
 )
 
@@ -122,6 +130,9 @@ def register():
     # the size should be 4 (for BSDF) but to keep backward compability we have to keep it with size=3 (we convert it later in the code)
     bpy.types.Material.surfaceColor     = FloatVectorProperty(  name='Surface Color ',      subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
 
+
+
+
 # delete classes
 def unregister():
     for cls in reversed(classes):
@@ -138,19 +149,19 @@ def unregister():
     bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
 
 
-    for icon in custom_icons.values():
+    for icon in custom_icons:
         try: 
             bpy.utils.previews.remove(icon)
         except AttributeError:
+            # debug(f"unable to unregister icon {icon}")
             pass # old addon version can cause this
 
     custom_icons.clear()
 
 
-
 @persistent
 def on_startup(dummy) -> None:
-    """run on blender startup/loadfile"""
+    """run on blender startup, load blend file & reload current file"""
     
     # can be opened on save
     bpy.ops.view3d.tm_closeconvertsubpanel()
@@ -163,6 +174,21 @@ def on_startup(dummy) -> None:
     if stroke_mat is not None:
         bpy.data.materials.remove(stroke_mat)
 
+
+    # clear before add to avoid multi register
+    bpy.msgbus.clear_by_owner(object_eventlistner_owner)
+
+    # eventlistner when a object gets selected
+    try:
+        bpy.msgbus.subscribe_rna(
+            key=(bpy.types.LayerObjects, 'active'),
+            owner=bpy,
+            args=(),
+            notify=onSelectObject
+        )
+    except RuntimeError:
+        pass # first try always fails
+        # RuntimeError: subscribe_rna, missing bl_rna attribute from 'Scene' instance (may not be registered)
 
 bpy.app.handlers.load_post.append(on_startup)
 
