@@ -34,6 +34,10 @@ from .TM_Items_Manipulate   import *
 # owner of the object eventlistener
 object_eventlistner_owner = object()
 
+# icons
+CustomIcons.icon_source_folder = os.path.join(os.path.dirname(__file__), "icons")
+CustomIcons.custom_icons = None
+
 # register order matters for UI panel ordering
 classes = (
 
@@ -133,6 +137,8 @@ def register():
     # the size should be 4 (for BSDF) but to keep backward compability we have to keep it with size=3 (we convert it later in the code)
     bpy.types.Material.surfaceColor     = FloatVectorProperty(  name='Surface Color ',      subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
 
+    
+    
 
 
 
@@ -151,15 +157,12 @@ def unregister():
     bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Cars_Import.addMenuPoint_CAR_SPAWN)
     bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
 
+    # icons
+    icons = CustomIcons.icon_collection
+    if icons is not None:
+        bpy.utils.previews.remove(icons)
+            
 
-    for icon in custom_icons:
-        try: 
-            bpy.utils.previews.remove(icon)
-        except AttributeError:
-            # debug(f"unable to unregister icon {icon}")
-            pass # old addon version can cause this
-
-    custom_icons.clear()
 
 
 @persistent

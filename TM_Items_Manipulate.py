@@ -144,6 +144,7 @@ class TM_PT_ObjectManipulations(Panel):
                     box = layout.box()
                     row = box.row()
                     row.alert = True
+                    row.scale_y = .75
                     row.label(text="Spawn object not found!")
                     row = box.row()
                     row.operator("view3d.tm_createsocketitemincollection", text="Add _socket_ to collection", icon="ADD")
@@ -153,14 +154,20 @@ class TM_PT_ObjectManipulations(Panel):
                     box = layout.box()
                     row = box.row()
                     row.alert = True
+                    row.scale_y = .75
                     row.label(text="Trigger object not found!")
                     row = box.row()
                     row.operator("view3d.tm_createtriggeritemincollection", text="Add _trigger_ to collection", icon="ADD")
 
-        if len(bpy.context.selected_objects) == 1:
-            obj = bpy.context.selected_objects[0]
+
+        if isGameTypeTrackmania2020():
+            obj      = None
+            obj_name = ""
+            if bpy.context.selected_objects:
+                obj      = bpy.context.selected_objects[0]
+                obj_name = obj.name
             
-            isEnabled = obj.name.startswith("_skip_")
+            isEnabled = obj_name.startswith("_skip_")
             row = layout.row()
             row.scale_y = 1
             row.operator("view3d.tm_toggleobjectskip", text=f"{'Use' if isEnabled else 'Ignore'} \"{cleanObjNameFromSpecialProps(obj.name)}\" during export")
@@ -189,4 +196,11 @@ def addItemToCollection(obj_type: str) -> None:
     debug(f"add {obj_type=}")
 
 def cleanObjNameFromSpecialProps(name: str) -> str:
-    return name.replace("_skip_", "").replace("_notvisible_", "").replace("_notcollidable_", "")
+    new_name = ""
+    if name is not None:
+        new_name = (name
+            .replace("_skip_", "")
+            .replace("_notvisible_", "")
+            .replace("_notcollidable_", "")
+            )
+    return new_name
