@@ -87,15 +87,25 @@ class TM_PT_Settings(Panel):
 
     def draw(self, context):
 
+        blender_version = bpy.app.version
+        addon_version   = bl_info["version"]
+        is_blender_3    = blender_version[0] >= 3
         layout = self.layout
         tm_props = getTmProps()
         
         box = layout.box()
         row = box.row()
         row.scale_y=.5
-        row.label(text=f"""Addon: {bl_info["version"]}""", icon="FILE_SCRIPT")
+        row.label(text=f"""Addon: {addon_version}""", icon="FILE_SCRIPT")
         row = box.row()
-        row.label(text=f"Blender: {bpy.app.version}", icon="BLENDER")
+        row.alert = not is_blender_3
+        row.label(text=f"Blender: {blender_version}", icon="BLENDER")
+        if not is_blender_3:
+            row = box.row()
+            row.alert = False
+            row.label(text="Blender 3.0+ required!")
+
+
         row = box.row(align=True)
         row.operator("view3d.tm_opendoc",      text="Help",         )#icon="URL")
         row.operator("view3d.tm_opengithub",   text="Github",       )#icon="FILE_SCRIPT")
