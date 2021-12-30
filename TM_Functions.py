@@ -785,6 +785,7 @@ def fixUvLayerNamesOfObjects(col) -> None:
         and not "socket"     in obj.name.lower() \
         and not "trigger"    in obj.name.lower() \
         and not "notvisible" in obj.name.lower() \
+        and not "skip" in obj.name.lower() \
         and len(obj.material_slots.keys()) > 0:
             uvs = obj.data.uv_layers
 
