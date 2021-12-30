@@ -286,6 +286,10 @@ def exportAndOrConvert()->None:
         and objnameLower.startswith("_") is False:
             obj.name = "_trigger_"
 
+        if "skip" in objnameLower\
+        and objnameLower.startswith("_") is False:
+            obj.name = "_skip_"+obj.name
+
         if "notvisible" in objnameLower\
         and objnameLower.startswith("_") is False:
             obj.name = "_notvisible_"+obj.name

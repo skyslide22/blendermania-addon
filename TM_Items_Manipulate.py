@@ -30,6 +30,66 @@ class TM_OT_Items_ObjectManipulationAddTriggerItem(Operator):
         addTriggerItemToSelectedCollection()
         return {"FINISHED"}
 
+class TM_OT_Items_ObjectManipulationToggleSkip(Operator):
+    bl_idname = "view3d.tm_toggleobjectskip"
+    bl_description = "Toggle _skip_ on selected object"
+    bl_icon = 'ADD'
+    bl_label = "Toggle _skip_"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            obj = bpy.context.selected_objects[0]
+            isEnabled = obj.name.startswith("_skip_")
+
+            obj.name = obj.name.replace("_notvisible_", "").replace("_notcollidable_", "")
+
+            if isEnabled:
+                obj.name = obj.name.replace("_skip_", "")
+            else:
+                obj.name = "_skip_"+obj.name
+        
+        return {"FINISHED"}
+
+class TM_OT_Items_ObjectManipulationToggleNotvisible(Operator):
+    bl_idname = "view3d.tm_toggleobjectnotvisible"
+    bl_description = "Toggle _notvisible_ on selected object"
+    bl_icon = 'ADD'
+    bl_label = "Toggle _notvisible_"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            obj = bpy.context.selected_objects[0]
+            isEnabled = obj.name.startswith("_notvisible_")
+
+            obj.name = obj.name.replace("_skip_", "").replace("_notcollidable_", "")
+
+            if isEnabled:
+                obj.name = obj.name.replace("_notvisible_", "")
+            else:
+                obj.name = "_notvisible_"+obj.name
+        
+        return {"FINISHED"}
+
+class TM_OT_Items_ObjectManipulationToggleNotcollidable(Operator):
+    bl_idname = "view3d.tm_toggleobjectnotcollidable"
+    bl_description = "Toggle _notcollidable_ on selected object"
+    bl_icon = 'ADD'
+    bl_label = "Toggle _notcollidable_"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            obj = bpy.context.selected_objects[0]
+            isEnabled = obj.name.startswith("_notcollidable_")
+
+            obj.name = obj.name.replace("_skip_", "").replace("_notvisible_", "")
+
+            if isEnabled:
+                obj.name = obj.name.replace("_notcollidable_", "")
+            else:
+                obj.name = "_notcollidable_"+obj.name
+
+        return {"FINISHED"}
+
 
 
 class TM_PT_ObjectManipulations(Panel):
@@ -97,6 +157,26 @@ class TM_PT_ObjectManipulations(Panel):
                     row = box.row()
                     row.operator("view3d.tm_createtriggeritemincollection", text="Add _trigger_ to collection", icon="ADD")
 
+        if len(bpy.context.selected_objects) == 1:
+            obj = bpy.context.selected_objects[0]
+            
+            isEnabled = obj.name.startswith("_skip_")
+            row = layout.row()
+            row.scale_y = 1
+            row.operator("view3d.tm_toggleobjectskip", text=f"{'Use' if isEnabled else 'Ignore'} \"{cleanObjNameFromSpecialProps(obj.name)}\" during export")
+
+            isEnabled = obj.name.startswith("_notvisible_")
+            row = layout.row()
+            row.scale_y = 1
+            row.operator("view3d.tm_toggleobjectnotvisible", text=f"Mark \"{cleanObjNameFromSpecialProps(obj.name)}\" as {'Visible' if isEnabled else 'Not Visible'}")
+
+            isEnabled = obj.name.startswith("_notcollidable_")
+            row = layout.row()
+            row.scale_y = 1
+            row.operator("view3d.tm_toggleobjectnotcollidable", text=f"Mark \"{cleanObjNameFromSpecialProps(obj.name)}\" as {'Collidable' if isEnabled else 'Not Collidable'}")
+
+            
+
 
 def addSocketItemToSelectedCollection() -> None:
     addItemToCollection("_socket_")
@@ -107,3 +187,6 @@ def addTriggerItemToSelectedCollection() -> None:
 
 def addItemToCollection(obj_type: str) -> None:
     debug(f"add {obj_type=}")
+
+def cleanObjNameFromSpecialProps(name: str) -> str:
+    return name.replace("_skip_", "").replace("_notvisible_", "").replace("_notcollidable_", "")

@@ -57,6 +57,9 @@ classes = (
     TM_PT_ObjectManipulations,
     TM_OT_Items_ObjectManipulationAddSocketItem,
     TM_OT_Items_ObjectManipulationAddTriggerItem,
+    TM_OT_Items_ObjectManipulationToggleSkip,
+    TM_OT_Items_ObjectManipulationToggleNotvisible,
+    TM_OT_Items_ObjectManipulationToggleNotcollidable,
 
     # export
     TM_PT_Items_Export,
