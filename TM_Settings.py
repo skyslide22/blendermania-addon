@@ -90,11 +90,16 @@ class TM_PT_Settings(Panel):
         layout = self.layout
         tm_props = getTmProps()
         
-        row = layout.row()
+        box = layout.box()
+        row = box.row()
         row.scale_y=.5
         row.label(text=f"""Addon: {bl_info["version"]}""", icon="FILE_SCRIPT")
-        row = layout.row()
+        row = box.row()
         row.label(text=f"Blender: {bpy.app.version}", icon="BLENDER")
+        row = box.row(align=True)
+        row.operator("view3d.tm_opendoc",      text="Help",         )#icon="URL")
+        row.operator("view3d.tm_opengithub",   text="Github",       )#icon="FILE_SCRIPT")
+        row.operator("view3d.tm_debugall",     text="Debug",        )#icon="FILE_TEXT")
 
         row = layout.row()
         row.prop(tm_props, "ST_author")
@@ -103,49 +108,49 @@ class TM_PT_Settings(Panel):
         row.enabled = True if not tm_props.CB_converting else False
         row.prop(tm_props, "LI_gameType", text="Game")
 
+        box = layout.box()
         ini = "ST_nadeoIniFile_MP" if isGameTypeManiaPlanet() else "ST_nadeoIniFile_TM"
-        row = layout.row()
+        row = box.row()
         row.prop(tm_props, ini, text="Ini file")
         row.alert=True
 
-        row = layout.row()
+        row = box.row()
         row.operator("view3d.tm_autofindnadeoini", text="Try autofind Nadeo.ini", icon="VIEWZOOM")
 
 
-        row = layout.row(align=True)
-        row.scale_y = 1.5
-        row.operator("view3d.tm_opendoc",      text="Help",         icon="URL")
-        row.operator("view3d.tm_opengithub",   text="Github",       icon="FILE_SCRIPT")
-        row.operator("view3d.tm_debugall",     text="Debug",        icon="FILE_TEXT")
 
-        layout.row().separator(factor=UI_SPACER_FACTOR)
+
+        # layout.row().separator(factor=UI_SPACER_FACTOR)
+
+
+
 
         if not isSelectedNadeoIniFilepathValid():
             requireValidNadeoINI(self)
             return
 
 
+        box = layout.box()
         if isSelectedNadeoIniFilepathValid():
-
-            op_row = layout.row()
+            op_row = box.row()
             op_row.enabled = tm_props.CB_nadeoImporterDLRunning is False
 
             if not tm_props.CB_nadeoImporterIsInstalled:
-                row = layout.row()
+                row = box.row()
                 row.alert = True
                 row.label(text="NadeoImporter.exe not installed!")
                 
-                op_row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter.exe", icon="IMPORT")
+                op_row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon="IMPORT")
 
             else:
-                op_row.operator("view3d.tm_installnadeoimporter", text="Update NadeoImporter.exe", icon="FILE_REFRESH")
+                op_row.operator("view3d.tm_installnadeoimporter", text="Update NadeoImporter", icon="FILE_REFRESH")
                 
             
             error     = tm_props.ST_nadeoImporterDLError
             showPanel = tm_props.CB_nadeoImporterDLshow
 
             if showPanel:
-                row = layout.row()
+                row = box.row()
                 row.enabled = False
                 row.alert = error != ""
                 row.prop(tm_props, "NU_nadeoImporterDLProgress", text="ERROR: " + error if error != "" else "Download progress")
@@ -153,7 +158,7 @@ class TM_PT_Settings(Panel):
 
             
 
-        layout.separator(factor=UI_SPACER_FACTOR)
+        # layout.separator(factor=UI_SPACER_FACTOR)
 
 
 
@@ -162,10 +167,11 @@ class TM_PT_Settings(Panel):
 
         dlTexRunning = tm_props.CB_DL_TexturesRunning is False
 
-        row=layout.row()
-        row.label(text="Download textures for uvmapping")
+        box = layout.box()
+        row=box.row()
+        row.label(text="Game textures for materials")
 
-        col = layout.column(align=True)
+        col = box.column(align=True)
         col.enabled = dlTexRunning
 
         if isGameTypeManiaPlanet():
@@ -173,10 +179,10 @@ class TM_PT_Settings(Panel):
 
         envi = tm_props.LI_DL_TextureEnvi if isGameTypeManiaPlanet() else "Stadium"
 
-        row = col.row()
-        row.scale_y=1.5
+        row = box.row()
+        # row.scale_y=1.5
         row.enabled = dlTexRunning
-        row.operator("view3d.tm_installgametextures", text=f"Install {envi}Textures.zip")
+        row.operator("view3d.tm_installgametextures", text=f"Install {envi} textures", icon="TEXTURE")
 
 
         dlTexError          = tm_props.ST_DL_TexturesErrors
@@ -184,7 +190,7 @@ class TM_PT_Settings(Panel):
         showDLProgressbar   = tm_props.CB_DL_TexturesShow
 
         if showDLProgressbar:
-            row=layout.row()
+            row=box.row()
             row.enabled = False
             row.prop(tm_props, "NU_DL_Textures", text=statusText)
 

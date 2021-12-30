@@ -288,11 +288,3 @@ def alignCollectionsInRows(col_dict):
         
 
     
-
-
-
-def importFBXFile(filepath):
-    bpy.ops.import_scene.fbx(
-        filepath=filepath,
-        use_custom_props=True
-    )

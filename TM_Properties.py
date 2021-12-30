@@ -792,6 +792,30 @@ def getMaterialGameplayIds(self, context)->None:
     return gameplay_id_props_list.toList()
 
 
+def getCarNames() -> list:
+    return EnumProps().add(
+        id   = "Stadium",
+        name = "Stadium",
+        desc = "Stadium",
+        icon = getIcon("ENVI_STADIUM")
+    ).add(
+        id   = "Canyon",
+        name = "Canyon",
+        desc = "Canyon",
+        icon = getIcon("ENVI_CANYON")
+    ).add(
+        id   = "Valley",
+        name = "Valley",
+        desc = "Valley",
+        icon = getIcon("ENVI_VALLEY")
+    ).add(
+        id   = "Lagoon",
+        name = "Lagoon",
+        desc = "Lagoon",
+        icon = getIcon("ENVI_LAGOON")
+    ).toList()
+
+
 
 
 
@@ -928,6 +952,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_DL_TexturesErrors   : StringProperty(name="Status",                    default="")
     CB_DL_TexturesShow     : BoolProperty(default=False,                      update=redrawPanel)
 
+    # cars
+    LI_items_cars : EnumProperty(name="Car", items=getCarNames())
 
 
 class TM_Properties_LinkedMaterials(PropertyGroup):

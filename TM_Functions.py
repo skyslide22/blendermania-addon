@@ -82,6 +82,23 @@ WAYPOINTS["StartFinish"] = COLLECTION_COLOR_TAG_YELLOW
 WAYPOINTS["Finish"]      = COLLECTION_COLOR_TAG_RED 
 
 
+# For waypoint import and live manipulation
+SPECIAL_NAME_PREFIXES = (
+    SPECIAL_NAME_PREFIX_SOCKET        := "_socket_",
+    SPECIAL_NAME_PREFIX_TRIGGER       := "_trigger_",
+    SPECIAL_NAME_PREFIX_SKIP          := "_skip_",
+    SPECIAL_NAME_PREFIX_NOTVISIBLE    := "_notvisible_",
+    SPECIAL_NAME_PREFIX_NOTCOLLIDABLE := "_notcollidable_",
+)
+
+
+# custom items included in addon for import
+ADDON_ITEM_FILEPATH_CAR_STADIUM = getAddonAssetsPath() + "/item_cars/CAR_StadiumCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_LAGOON  = getAddonAssetsPath() + "/item_cars/CAR_LagoonCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_CANYON  = getAddonAssetsPath() + "/item_cars/CAR_CanyonCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_VALLEY  = getAddonAssetsPath() + "/item_cars/CAR_ValleyCar_Lowpoly.fbx"
+
+ADDON_ITEM_FILEPATH_TRIGGER_32x8 = getAddonAssetsPath() + "/item_triggers/TRIGGER_32x8.fbx"
 
 
 # Not all physic ids are listed in the NadeoimporterMaterialLib.txt [Maniaplanet && TM2020]
@@ -427,6 +444,9 @@ def isGameTypeTrackmania2020()->bool:
     return str(getTmProps().LI_gameType).lower() == "trackmania2020"
 
 
+def getCarType() -> str:
+    return str(getTmProps().LI_items_cars)
+
 def unzipNadeoImporter()->None:
     """unzips the downloaded <exe>/NadeoImporter.zip file in <exe> dir"""
     nadeoImporterZip = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip" )
@@ -592,7 +612,7 @@ class DownloadTMFile(Thread):
                             exec_str = exec_str 
                             exec(exec_str)
                         except Exception as e:
-                            debug(e)
+                            debug(f"update progressbar failed: {e=}")
 
 
                     updateProgressbar()
@@ -720,6 +740,11 @@ def deleteExportOriginFixer(col)->None:
             continue
 
 
+def importFBXFile(filepath):
+    bpy.ops.import_scene.fbx(
+        filepath=filepath,
+        use_custom_props=True
+    )
 
 
 def getDocPath() -> str:
@@ -1709,6 +1734,8 @@ def debugALL() -> None:
     full_debug("programFilesX86Path:     ", PATH_PROGRAM_FILES_X86)
     full_debug("website_convertreport:   ", PATH_CONVERT_REPORT)
     separator(1)
+    from . import bl_info
+    full_debug("addon version:           ", bl_info["version"])
     full_debug("blender version:         ", bpy.app.version)
     full_debug("blender file version:    ", bpy.app.version_file)
     full_debug("blender install path:    ", bpy.app.binary_path)

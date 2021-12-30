@@ -148,6 +148,8 @@ class TM_PT_ObjectManipulations(Panel):
                     row.label(text="Spawn object not found!")
                     row = box.row()
                     row.operator("view3d.tm_createsocketitemincollection", text="Add _socket_ to collection", icon="ADD")
+                    row = box.row()
+                    row.prop(tm_props, "LI_items_cars")
                     
                 
                 if has_trigger_item is False:
@@ -170,37 +172,75 @@ class TM_PT_ObjectManipulations(Panel):
             isEnabled = obj_name.startswith("_skip_")
             row = layout.row()
             row.scale_y = 1
-            row.operator("view3d.tm_toggleobjectskip", text=f"{'Use' if isEnabled else 'Ignore'} \"{cleanObjNameFromSpecialProps(obj.name)}\" during export")
+            row.operator(f"view3d.tm_toggleobjectskip", text=f"""{'Use' if isEnabled else 'Ignore'} "{cleanObjNameFromSpecialProps(obj_name)}" during export""")
 
-            isEnabled = obj.name.startswith("_notvisible_")
+            isEnabled = obj_name.startswith("_notvisible_")
             row = layout.row()
             row.scale_y = 1
-            row.operator("view3d.tm_toggleobjectnotvisible", text=f"Mark \"{cleanObjNameFromSpecialProps(obj.name)}\" as {'Visible' if isEnabled else 'Not Visible'}")
+            row.operator("view3d.tm_toggleobjectnotvisible", text=f"""Mark "{cleanObjNameFromSpecialProps(obj_name)}" as {'Visible' if isEnabled else 'Not Visible'}""")
 
-            isEnabled = obj.name.startswith("_notcollidable_")
+            isEnabled = obj_name.startswith("_notcollidable_")
             row = layout.row()
             row.scale_y = 1
-            row.operator("view3d.tm_toggleobjectnotcollidable", text=f"Mark \"{cleanObjNameFromSpecialProps(obj.name)}\" as {'Collidable' if isEnabled else 'Not Collidable'}")
+            row.operator("view3d.tm_toggleobjectnotcollidable", text=f"""Mark "{cleanObjNameFromSpecialProps(obj_name)}" as {'Collidable' if isEnabled else 'Not Collidable'}""")
 
             
 
 
 def addSocketItemToSelectedCollection() -> None:
-    addItemToCollection("_socket_")
+    importWaypointHelperAndAddToActiveCollection(SPECIAL_NAME_PREFIX_SOCKET)
 
 def addTriggerItemToSelectedCollection() -> None:
-    addItemToCollection("_trigger")
-
-
-def addItemToCollection(obj_type: str) -> None:
-    debug(f"add {obj_type=}")
+    importWaypointHelperAndAddToActiveCollection(SPECIAL_NAME_PREFIX_TRIGGER)
 
 def cleanObjNameFromSpecialProps(name: str) -> str:
     new_name = ""
     if name is not None:
         new_name = (name
-            .replace("_skip_", "")
-            .replace("_notvisible_", "")
-            .replace("_notcollidable_", "")
+            .replace(SPECIAL_NAME_PREFIX_SKIP, "")
+            .replace(SPECIAL_NAME_PREFIX_NOTVISIBLE, "")
+            .replace(SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, "")
             )
     return new_name
+
+
+def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
+    collection   = getActiveCollectionOfSelectedObject()
+    fbx_filepath = ""
+    pre_selected_objects = bpy.context.selected_objects.copy()
+
+    if collection is None:
+        return
+    
+    if obj_type == SPECIAL_NAME_PREFIX_TRIGGER:
+        fbx_filepath = ADDON_ITEM_FILEPATH_TRIGGER_32x8
+    
+    elif obj_type == SPECIAL_NAME_PREFIX_SOCKET:
+        envi = getCarType()
+        if   envi == "Stadium": fbx_filepath = ADDON_ITEM_FILEPATH_CAR_STADIUM
+        elif envi == "Canyon":  fbx_filepath = ADDON_ITEM_FILEPATH_CAR_CANYON
+        elif envi == "Valley":  fbx_filepath = ADDON_ITEM_FILEPATH_CAR_VALLEY
+        elif envi == "Lagoon":  fbx_filepath = ADDON_ITEM_FILEPATH_CAR_LAGOON
+        else:
+            makeReportPopup(f"Collection not supported,{envi=}, {obj_type=}")
+            return
+
+    else:
+        makeReportPopup(f"failed to import a obj of {obj_type=}")
+        return
+
+    fbx_filepath = fixSlash(fbx_filepath)
+    import_at    = bpy.context.selected_objects[0].location
+    collection   = getActiveCollectionOfSelectedObject()
+
+    deselectAllObjects()
+
+    importFBXFile(fbx_filepath)
+    imported_objs = bpy.context.selected_objects
+
+    for object in imported_objs:
+        # collection.objects.link(object)
+        object.location = import_at
+
+    for object in pre_selected_objects:
+        object.select_set(True)
