@@ -241,6 +241,7 @@ def autoFindNadeoIni()->None:
         for char in alphabet:
             paths.append(fr"{char}:\Trackmania\Nadeo.ini")
             paths.append(fr"{char}:\Games\Trackmania\Nadeo.ini")
+            paths.append(fr"{char}:\Ubisoft\Ubisoft Game Launcher\games\Trackmania\Nadeo.ini")
 
 
     debug("Try to find Nadeo.ini in most used installation paths:")
