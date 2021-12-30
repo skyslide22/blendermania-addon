@@ -1608,17 +1608,6 @@ def onSelectObject(*args) -> None:
     setActiveWaypoint()
 
 
-def checkIfCollectionHasSocketItem(col: bpy.types.Collection) -> None:
-    objs = col.objects
-    has_socket = False
-    if objs:
-        for obj in objs:
-            if "_socket_" in obj.name.lower():
-                has_socket = True
-                break
-    
-    return has_socket
-
 
 def checkIfCollectionHasObjectWithName(col: bpy.types.Collection, infix: str) -> None:
     objs        = col.objects
@@ -1788,17 +1777,24 @@ def debugALL() -> None:
             ])
     
 
+class CustomIcons:
+    icon_collection    = bpy.utils.previews.new()
+    icon_source_folder = os.path.join(os.path.dirname(__file__), "icons")
 
 
-custom_icons_dir = os.path.join(os.path.dirname(__file__), "icons")
-custom_icons = bpy.utils.previews.new()
+
 
 def getIcon(icon: str="MANIAPLANET") -> int:
     """return icon for ui layout"""
-    if icon not in custom_icons.keys():
-        custom_icons.load(icon, os.path.join(custom_icons_dir, icon + ".png"), "IMAGE")
+    icons = CustomIcons.icon_collection
 
-    icon = custom_icons[icon].icon_id
+    if icon not in icons:
+        icons.load(
+            icon, 
+            os.path.join(CustomIcons.icon_source_folder, icon + ".png"), "IMAGE"
+        )
+
+    icon = icons[icon].icon_id # int
 
     return icon
 
