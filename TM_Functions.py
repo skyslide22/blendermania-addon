@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 from shutil import copyfile
 import subprocess
 import threading
@@ -178,6 +179,7 @@ MATERIAL_CUSTOM_PROPERTIES = [
         "environment",
         "surfaceColor",
     ]
+
 
 
 
@@ -536,6 +538,7 @@ def installGameTextures()->None:
 
     def on_success():
         tm_props.CB_DL_TexturesRunning = False
+        unzipGameTextures(filePath,extractTo)
         def run(): 
             tm_props.CB_DL_TexturesShow = False
         timer(run, 5)
@@ -1939,12 +1942,14 @@ def makeToast(title: str, text: str, baloon_icon: str="Info", duration: float=50
     subprocess.call(cmd)
 
 
-def makeReportPopup(title= str("some error occured"), infos: list=[str], icon: str='INFO'):
+def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str='INFO'):
     """create a small info(text) popup in blender, write infos to a file on desktop"""
     frameinfo   = getframeinfo(currentframe().f_back)
     line        = str(frameinfo.lineno)
     name        = str(frameinfo.filename).split("\\")[-1]
     pyinfos     = f"\n\nLINE: {line}\nFILE: {name}"
+
+    title = str(title)
 
     def draw(self, context):
         # self.layout.label(text=f"This report is saved at: {desktopPath} as {fileName}.txt", icon="FILE_TEXT")
