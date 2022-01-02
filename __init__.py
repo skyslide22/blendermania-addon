@@ -160,7 +160,10 @@ def unregister():
     # icons
     icons = CustomIcons.icon_collection
     if icons is not None:
-        bpy.utils.previews.remove(icons)
+        try:
+            bpy.utils.previews.remove(icons)
+        except KeyError():
+            debug("failed to unregister icons, keyerror")
             
 
 

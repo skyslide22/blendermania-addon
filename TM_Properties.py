@@ -865,6 +865,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     NU_currentConvertDuration    : IntProperty(min=0,  max=100000,  default=0,    update=redrawPanel)
     NU_lastConvertDuration       : IntProperty(min=-1, max=100000,  default=-1,   update=redrawPanel)
     NU_remainingConvertTime      : IntProperty(min=0,  max=100000,  default=0,    update=redrawPanel)
+    CB_generateMeshAndShapeGBX   : BoolProperty(default=True,       update=redrawPanel, description="To import your item in meshmodeler, those 2 additional files are required")
+
 
     #import
     LI_importMatFailed        : StringProperty()

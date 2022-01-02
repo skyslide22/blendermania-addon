@@ -141,6 +141,7 @@ class TM_PT_Items_Export(Panel):
             selected_objects = bpy.context.selected_objects
             visible_objects  = bpy.context.visible_objects
 
+
             objs = selected_objects if exportActionIsSelected else visible_objects
             collection_count = len(getExportableCollections(objs=objs))
 
@@ -157,12 +158,18 @@ class TM_PT_Items_Export(Panel):
             if collection_count == 0:
                 enableExportButton = False
 
-            row = layout.row(align=True)
+            col = layout.column(align=True)
+
+            row = col.row(align=True)
             row.scale_y = 1.5
             row.enabled = enableExportButton 
             row.alert   = not enableExportButton #red button, 0 selected
             row.operator("view3d.tm_export", text=text, icon=icon)
             row.prop(tm_props, "CB_notifyPopupWhenDone", icon_only=True, icon="INFO")
+
+            if isGameTypeTrackmania2020():
+                row = col.row(align=True)
+                row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Generate mesh & item gbx", toggle=True)
 
 
 

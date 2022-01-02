@@ -7,178 +7,259 @@ import xml.etree.ElementTree as ET
 
 from .TM_Functions import *
 
+
+class ConvertStep():
+    def __init__(self, title, additional_infos: tuple=()):
+        self.title = title
+        self.additional_infos = (info for info in additional_infos)
+
+
+class ConvertResult():
+    def __init__(self):
+        self.relative_fbx_filepath = None
+        self.name_raw = None
+        self.mesh_returncode = None
+        self.mesh_error_message = None
+        self.item_returncode = None
+        self.item_error_message = None
+        self.convert_has_failed = None
+        self.convert_steps = ()
+
+
 class CONVERT_ITEM(Thread):
     
     def __init__(self, fbxfilepath: str, game: str) -> None:
         super(CONVERT_ITEM, self).__init__() #need to call init from Thread, otherwise error
-        self.fbxfilepath    = fixSlash( fbxfilepath ) 
-        self.fbxfilepathREL = "Items/" + fbxfilepath.split("/Work/Items/")[-1] 
-        self.convertIsDone  = False
-        self.convertFailed  = False
-        self.meshInfos = None   #error or success msg of mesh/shape.gbx
-        self.itemInfos = None   #error or success msg of item.gbx
-        self.itemRcode = 0      #0 good, 1 and above bad
-        self.meshRcode = 0      #0 good, 1 and above bad
-        self.name      = self.fbxfilepath.split("/")[-1]
-        self.nameRAW   = self.name.replace(".fbx", "")
-        self.progress  = []
-        self.game      = game
+        
+        
+        # relative (Items/...) & absolute (C:/Users...) fbx filepaths
+        self.fbx_filepath           = fixSlash( fbxfilepath ) 
+        self.fbx_filepath_relative  = "Items/" + fbxfilepath.split("/Work/Items/")[-1] 
+        
+        # xm filepaths located in next to the fbx file
+        self.xml_meshparams_filepath    = self.fbx_filepath.replace(".fbx", ".MeshParams.xml")
+        self.xml_item_filepath          = self.fbx_filepath.replace(".fbx", ".Item.xml")
+        self.xml_item_filepath_relative = self.fbx_filepath_relative.replace(".fbx", ".Item.xml")
+        
+        # gbx filepaths located in Documents/Items/
+        self.gbx_filepath            = self.fbx_filepath.replace("/Work/Items/", "/Items/")
+        self.gbx_mesh_filepath       = self.gbx_filepath.replace(".fbx", ".Mesh.gbx")
+        self.gbx_item_filepath       = self.gbx_filepath.replace(".fbx", ".Item.gbx")
+        self.gbx_shape_filepath      = self.gbx_filepath.replace(".fbx", ".Shape.gbx")
+        self.gbx_shape_filepath_old  = self.gbx_filepath.replace(".fbx", ".Shape.gbx.old")
+        
+        # name to display in UI and error report
+        self.name     = self.fbx_filepath.split("/")[-1]
+        self.name_raw = self.name.replace(".fbx", "")
 
-        self.meshparamsXMLFilepath  = self.fbxfilepath.replace(".fbx", ".MeshParams.xml")
-        self.itemXMLFilepath        = self.fbxfilepath.replace(".fbx", ".Item.xml")
-        self.itemXMLFilepathREL     = self.fbxfilepathREL.replace(".fbx", ".Item.xml")
-        
-        self.gbxfilepath         = self.fbxfilepath.replace("/Work/Items/", "/Items/")
-        self.meshGBXFilepath     = self.gbxfilepath.replace(".fbx", ".Mesh.gbx")
-        self.itemGBXFilepath     = self.gbxfilepath.replace(".fbx", ".Item.gbx")
-        self.shapeGBXFilepath    = self.gbxfilepath.replace(".fbx", ".Shape.gbx")
-        self.shapeGBXFilepathOLD = self.gbxfilepath.replace(".fbx", ".Shape.gbx.old")
-        
+        # convert statistics
+        self.convert_message_mesh_shape_gbx    = None   
+        self.convert_message_item_gbx          = None   
+        self.convert_returncode_item_gbx       = 0      # 0 good, 1 and above bad
+        self.convert_returncode_mesh_shape_gbx = 0      # 0 good, 1 and above bad
+        self.convert_progress:ConvertStep      = []
+
+        self.game = game
+        self.game_is_trackmania2020 = game == "Trackmania2020"
+        self.game_is_maniaplanet    = game == "ManiaPlanet"
+
+        self.convert_is_done    = False
+        self.convert_has_failed = False
+
+    
+    def addProgressStep(self, step: str, additional_infos: tuple=()) -> None:
+        self.convert_progress.append(ConvertStep(
+                title=f"{self.name_raw}: {step}",
+                additional_infos = additional_infos
+            ))
+
+        if not additional_infos:
+            debug(step)
+        else:
+            debug(step, additional_infos)
         
     
     def run(self) -> None:
         """method called when method start() is called on an instance of this class"""
-
-        self.progress.append(f"""Start convert of <{self.fbxfilepath}> for {self.game}""")
-
-        self.convertMeshAndShapeGBX() # optional for tm2020 (needed for meshmodeler import), mandatory for maniaplanet
-
-        if isGameTypeManiaPlanet():
-            if not self.convertFailed:    self.hackShapeGBX(action="MAKE_OLD") #rename shape.gbx += .old
-            #convert again but replace "BaseMaterial" with "Link" in meshparams.xml of each item
-            if not self.convertFailed:    self.convertMeshAndShapeGBX()
-            if not self.convertFailed:    self.hackShapeGBX(action="USE_OLD") #delte current shape.gbx, rename shape.gbx.old (-old)
-            
-        #fix for 2021_07_07 importer (always returns false even if convert works)
-        if isGameTypeTrackmania2020():
+        debug()
+        self.addProgressStep(f"""Start convert to game {self.game}""")
+        
+        # trackmania 2020 convert process
+        if self.game_is_trackmania2020:
             self.convertItemGBX()
-
+            if getTmProps().CB_generateMeshAndShapeGBX:
+                if not self.convert_has_failed: self.convertMeshAndShapeGBX()
+            
+        
+        # maniaplanet convert process
+        if self.game_is_maniaplanet:
+            self.convertItemGBX()
+            if not self.convert_has_failed: self.convertMeshAndShapeGBX() 
+            if not self.convert_has_failed: self.hackShapeGBX()
+            
+        if not self.convert_has_failed:
+            self.addProgressStep("Convert succeeded\n\n")
         else:
-            if not self.convertFailed:    self.convertItemGBX() #tm2020 only needs one convert
-            if not self.convertFailed:    self.progress.append(f"Convert of <{self.nameRAW}> successfully")
-            if     self.convertFailed:    self.progress.append(f"Convert of <{self.nameRAW}> failed")
+            mesh_returncode = self.convert_returncode_mesh_shape_gbx
+            mesh_error_msg  = self.convert_message_mesh_shape_gbx
+            item_returncode = self.convert_returncode_item_gbx
+            item_error_msg  = self.convert_message_item_gbx 
 
+            errors = []
 
-               
-        updateConvertStatusNumbers(result=not self.convertFailed, objname=self.name)
+            if item_returncode > 0:
+                errors.append(f"item returncode: {item_returncode}")
+                errors.append(f"item error msg:  {item_error_msg}")
+            
+            if mesh_returncode > 0:
+                errors.append(f"mesh returncode: {mesh_returncode}")
+                errors.append(f"mesh error msg:  {mesh_error_msg}")
+            
+            self.addProgressStep("Convert failed\n\n", errors)
+ 
+        updateConvertStatusNumbersInUI(convert_failed=self.convert_has_failed, obj_name=self.name)
 
 
     
 
     def convertMeshAndShapeGBX(self) -> None:
         """convert fbx to shape/mesh.gbx"""
-        self.progress.append(f"""Convert <{self.nameRAW}.Mesh and Shape.gbx>""")
+        self.addProgressStep(f"""Convert .fbx to .Mesh.gbx and Shape.gbx""")
         
-        cmd = f"{getNadeoImporterPath()} Mesh {self.fbxfilepathREL}" # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
-        convertProcess  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        mesh_output     = convertProcess.communicate()  # is blocking, => blender not frozen cuz this func runs in a new thread
-        mesh_returncode = convertProcess.returncode
-        convertProcess.wait()
+        cmd = f"{getNadeoImporterPath()} Mesh {self.fbx_filepath_relative}" # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
+        self.addProgressStep(f"""Command: {cmd}""")
         
-        self.meshInfos = str(mesh_output[0])
-        self.meshRcode = mesh_returncode
-        self.convertFailed = True if mesh_returncode > 0 else False
-        self.progress.append(f"""Convert <{self.nameRAW}.Mesh and Shape.gbx> {"failed" if self.convertFailed else "success"}""")
+        convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        mesh_output      = convert_process.communicate() 
+        mesh_returncode  = convert_process.returncode
+        convert_process.wait()
+        
+        self.convert_has_failed                = True if mesh_returncode > 0 else False
+        self.convert_message_mesh_shape_gbx    = str(mesh_output[0], encoding="ascii")
+        self.convert_returncode_mesh_shape_gbx = int(mesh_returncode)
+
+        if not self.convert_has_failed:
+            self.addProgressStep(f"""Convert to .Mesh.gbx and Shape.gbx successfully""")
+        else:
+            self.addProgressStep(f"""Convert to .Mesh.gbx and Shape.gbx failed""")
 
     
     
     def convertItemGBX(self) -> None:
         """convert fbx to item.gbx"""
-        self.progress.append(f"Convert <{self.nameRAW}>.Item.gbx")
+        self.addProgressStep(f"""Convert .fbx to .Item.gbx""")
         
-        cmd = f"{getNadeoImporterPath()} Item {self.itemXMLFilepathREL}" # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
-        debug(cmd)
-        convertProcess  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        item_output     = convertProcess.communicate()  # is blocking, => blender not frozen cuz this func runs in a new thread
-        item_returncode = convertProcess.returncode
-        convertProcess.wait()
+        cmd = f"{getNadeoImporterPath()} Item {self.xml_item_filepath_relative}" # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
+        self.addProgressStep(f"""Command: {cmd}""")
 
-        self.itemInfos = str(item_output[0])
-        self.itemRcode = item_returncode
-        self.convertFailed = True if item_returncode > 0 else False
-        self.progress.append(f"""Convert <{self.nameRAW}>.Item.gbx {"failed" if self.convertFailed else "success"}""")
+        convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        item_output     = convert_process.communicate() 
+        item_returncode = convert_process.returncode
+        convert_process.wait()
 
-    
-    
-    def hackShapeGBX(self, action: str="MAKE_OLD" or "USE_OLD") -> None:
-        """hack the shape.gbx of the given filename, call this function 2 times!
-            --- 1st call: action='MAKE_OLD', this will rename the shape.gbx to shape.gbx.old
-                and change meshParams.xml.
-            --- 2nd call: action='USE_OLD',  replace shape.gbx with shape.gbx.old
+        self.convert_has_failed          = True if item_returncode > 0 else False
+        self.convert_message_item_gbx    = str(item_output[0], encoding="ascii")
+        self.convert_returncode_item_gbx = int(item_returncode)
+
+        if not self.convert_has_failed:
+            self.addProgressStep(f"""Convert to .Item.gbx successfully""")
+        else:
+            self.addProgressStep(f"""Convert to .Item.gbx failed""")
+
+
+
+
+    def hackShapeGBX(self) -> None:
         """
+        Hacking the shape.gbx file, only necessary for maniaplanet,
+        To use custom physics with nadeo materials like StadiumPlatform,
+        we need to use a workaround:
+        1. convert .Mesh.gbx and .Shape.gbx, while using BaseTexture=Link in .MeshParams.xml,
+        2. The generated .Mesh.gbx is now invalid, but the .Shape.gbx is valid 
+        3. replace BaseTexture=Link with Link=Link in .MeshParams.xml
+        4. rename the generated .Shape.gbx to .Shape.gbx.old 
+        5. convert .Mesh.gbx and .Shape.gbx again with valid settings (Link=Link)
+        6. replace new generated .Shape.gbx with .Shape.gbx.old
+        """
+
+        self.addProgressStep(f"""Hacking .Shape.gbx for custom physic id""")            
+        self.addOldSuffixToShapeGbx()
+
+        self.addProgressStep(f"""Parsing .Item.xml""")
+        tree = ET.parse(self.xml_meshparams_filepath)
+        root = tree.getroot()
+        data = root.findall(".Materials/Material")
         
-        #create shape.gbx.old file, should be used in first call
-        if action == "MAKE_OLD":
-            
-            self.progress.append(f"Hacking <{self.nameRAW}.Shape.gbx>, rename to <{self.nameRAW}.Shape.gbx.old>")
-            
-            if doesFileExist(self.shapeGBXFilepathOLD):
-                os.remove(self.shapeGBXFilepathOLD)
-            
-            try:
-                os.rename(
-                self.shapeGBXFilepath,
-                self.shapeGBXFilepathOLD
-                )
-                self.progress.append(f"Hacking <{self.nameRAW}.Shape.gbx> success")
+        # replace BaseTexture=xyz with Link=xyz
+        for mat in data:
+            if "BaseTexture" in mat.attrib:
+                if not "/" in mat.get("BaseTexture", ""):
+                    self.addProgressStep(f"""Replace BaseTexture= with Link= for {mat.get("name")}""")
+                    mat.set("Link", mat.get("BaseTexture"))
+                    del mat.attrib["BaseTexture"]   # obsolete if Link is used
+                    del mat.attrib["Model"]         # obsolete if Link is used
+                    del mat.attrib["PhysicsId"]     # obsolete if Link is used
 
-            except FileNotFoundError:
-                self.progress.append(f"Hacking <{self.nameRAW}.Shape.gbx> failed, file not found")
-            
-            
-            self.progress.append(f"Parsing <{self.nameRAW}.Item.xml>")
-            tree = ET.parse(self.meshparamsXMLFilepath)
-            root = tree.getroot()
-            data = root.findall(".Materials/Material")
-            for mat in data:
-                if "BaseTexture" in mat.attrib:
-                    if not "/" in mat.get("BaseTexture", ""):
-                        mat.set("Link", mat.get("BaseTexture"))
-                        del mat.attrib["BaseTexture"]
-                        del mat.attrib["Model"]
-                        del mat.attrib["PhysicsId"]
+        self.addProgressStep(f"""Write changes to .Item.xml""")
+        tree.write(self.xml_meshparams_filepath)
 
-            # xmlstr = ET.tostring(root, encoding='utf8', method='xml')
-            # pro__print(xmlstr)
-                        
-            self.progress.append(f"Write changes to <{self.nameRAW}.Item.xml>")
-            tree.write(self.meshparamsXMLFilepath)
+        if not self.convert_has_failed: self.convertMeshAndShapeGBX()
+        if not self.convert_has_failed: self.useOldShapeGbx()
+        # end hacking
+    
+
+    def deleteOldShapeGbx(self) -> None:
+        if doesFileExist(self.gbx_shape_filepath_old):
+            os.remove(self.gbx_shape_filepath_old)
+            self.addProgressStep(""".Shape.gbx.old deleted""")
 
 
-        
-        #replace shape.gbx with shape.old.gbx
-        if action == "USE_OLD":
+    def deleteShapeGbx(self) -> None:
+        if doesFileExist(self.gbx_shape_filepath):
+            os.remove(self.gbx_shape_filepath)
+            self.addProgressStep(""".Shape.gbx deleted""")
+
+
+    def useOldShapeGbx(self) -> None:
+        try:
+            self.deleteShapeGbx()
+            os.rename(self.gbx_shape_filepath_old, self.gbx_shape_filepath)
+            self.addProgressStep(f"""Renamed .Shape.gbx.old to .Shape.gbx""")
+        except FileNotFoundError as e:
+            self.addProgressStep(f"""Renaming .Shape.gbx.old to .Shape.gbx failed""", [e])
+            self.convert_has_failed = True
             
-            self.progress.append(f"Hacking <{self.nameRAW}.Shape.gbx>, replace with <{self.nameRAW}.Shape.gbx.old>")
-        
-            try:    os.remove(self.shapeGBXFilepath)
-            except: pass #doesn't work sometimes, for some unknown reason..
 
-            try:
-                os.rename(
-                    self.shapeGBXFilepathOLD,
-                    self.shapeGBXFilepath
-                )
-                self.progress.append(f"Hacking <{self.nameRAW}.Shape.gbx> success")
+    def addOldSuffixToShapeGbx(self) -> None:
+        self.deleteOldShapeGbx()
+        try:
+            os.rename(self.gbx_shape_filepath, self.gbx_shape_filepath_old)
+            self.addProgressStep(f"""Renamed .Shape.gbx to .Shape.gbx.old""")
+        except FileNotFoundError as e:
+            self.addProgressStep(f"""Renaming .Shape.gbx to .Shape.gbx.old failed""", [e])
+            self.convert_has_failed = True
 
-            except FileNotFoundError:
-                self.progress.append(f"Hacking <{self.nameRAW}.Shape.gbx> failed, file not found")
-        
         
 
 
-        
 
-def updateConvertStatusNumbers(result: bool, objname: str) -> None:
+
+
+
+
+
+
+
+def updateConvertStatusNumbersInUI(convert_failed: bool, obj_name: str) -> None:
     """updates the numbers for converting which are displaed in the ui panel"""
     tm_props = getTmProps()
 
-    if result:
+    if not convert_failed:
         tm_props.NU_convertedSuccess += 1
     
     else:       
         tm_props.NU_convertedError += 1
-        tm_props.ST_convertedErrorList += f"%%%{objname}"
+        tm_props.ST_convertedErrorList += f"%%%{obj_name}"
 
     tm_props.NU_convertedRaw += 1
     tm_props.NU_converted     = tm_props.NU_convertedRaw / tm_props.NU_convertCount * 100
@@ -210,7 +291,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
     tm_props_convertingItems = getTmConvertingItemsProp()
     tm_props = getTmProps()
     results  = []
-    game     = "ManiaPlanet" if isGameTypeManiaPlanet() else "TrackMania2020"
+    game     = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania2020"
     notify   = tm_props.CB_notifyPopupWhenDone
 
     tm_props.CB_showConvertPanel = True
@@ -228,14 +309,13 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
     atleast_one_convert_failed = False
 
     for exported_fbx in fbxfilepaths:
-        col = exported_fbx.col
         name = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
         item = tm_props_convertingItems.add()
         item.name = name
         items_convert_index[ name ] = counter
         counter += 1
 
-    for i, exported_fbx in enumerate(fbxfilepaths):
+    for exported_fbx in fbxfilepaths:
         fbxfilepath = exported_fbx.filepath
         name        = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
 
@@ -246,17 +326,18 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         convertTheFBX.start() #start the convert (call internal run())
         convertTheFBX.join()  #waits until the thread terminated (function/convert is done..)
         
-        results.append({
-            "path":         convertTheFBX.fbxfilepathREL,
-            "nameRAW":      convertTheFBX.nameRAW,
-            "meshRcode":    convertTheFBX.meshRcode,
-            "itemRcode":    convertTheFBX.itemRcode,
-            "itemInfos":    convertTheFBX.itemInfos,
-            "meshInfos":    convertTheFBX.meshInfos,
-            "progress":     convertTheFBX.progress
-        })
+        result = ConvertResult()
+        result.name_raw = convertTheFBX.name_raw
+        result.relative_fbx_filepath = convertTheFBX.fbx_filepath_relative
+        result.mesh_error_message    = convertTheFBX.convert_message_mesh_shape_gbx
+        result.mesh_returncode       = convertTheFBX.convert_returncode_mesh_shape_gbx
+        result.item_error_message    = convertTheFBX.convert_message_item_gbx
+        result.item_returncode       = convertTheFBX.convert_returncode_item_gbx
+        result.convert_steps         = convertTheFBX.convert_progress
+        result.convert_has_failed    = convertTheFBX.convert_has_failed
+        results.append(result)
 
-        failed              = True if convertTheFBX.convertFailed else False
+        failed              = True if convertTheFBX.convert_has_failed else False
         icon                = "CHECKMARK" if not failed else "FILE_FONT"
         current_item_index  = items_convert_index[ name ] # number
 
@@ -268,9 +349,6 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         tm_props_convertingItems[ current_item_index ].failed           = failed
         tm_props_convertingItems[ current_item_index ].converted        = True
         tm_props_convertingItems[ current_item_index ].convert_duration = current_convert_timer.stop()
-
-        for step in convertTheFBX.progress:
-            debug(step)
 
         if tm_props.CB_stopAllNextConverts is True:
             debug("Convert stopped, aborted by user (UI CHECKBOX)")
@@ -327,43 +405,66 @@ def writeConvertReport(results: list) -> None:
     converted   = len(results)
     
     for result in results:
-        if result["meshRcode"] > 0 or result["itemRcode"] > 0:
+        if result.convert_has_failed:
             errors += 1
+
     try:
         with open( fixSlash(PATH_CONVERT_REPORT), "w", encoding="utf-8") as f:
             
             resultList = ""
             for result in results:
 
-                progressLIs = ""
-                for progress in result["progress"]:
-                    progress = progress.replace("<", "&lt;")
-                    progress = progress.replace(">", "&gt;")
-                    progressLIs += f"""<li class="">{progress}</li> """
+                progress_LIs = ""
+                for step in result.convert_steps:
 
-                objName = result["path"]
-                objName = objName.replace(result["nameRAW"], f"""<i>{result["nameRAW"]}</i>""")
+                    sub_steps = step.additional_infos
+                    sub_steps_LIs = ""
+                    sub_steps_UL  = ""
+                    for sub_step in sub_steps:
+                        sub_steps_LIs += f"<li>{sub_step}</li>"
+                    
+                    if sub_steps_LIs:
+                        sub_steps_UL = f"<ul>{sub_steps_LIs}</ul>"
+                    
+                    progress_LIs += f"""<li class="">{step.title}{sub_steps_UL}</li> """
+
+                objName = result.relative_fbx_filepath
+                objName = objName.replace(result.name_raw, f"""<i>{result.name_raw}</i>""")
+
+                error_msg_item = result.item_error_message
+                error_msg_mesh = result.mesh_error_message
+
+                mesh_has_error = result.mesh_returncode > 0
+                item_has_error = result.item_returncode > 0
 
                 error_msg_mesh_pretty, \
-                error_msg_mesh_original = beautifyError(result["meshInfos"]) if result["meshRcode"] > 0 else ("No Error", "No Error")
+                error_msg_mesh_original = beautifyError(error_msg_mesh) if mesh_has_error else ("", "")
                 
                 error_msg_item_pretty,\
-                error_msg_item_original = beautifyError(result["itemInfos"]) if result["itemRcode"] > 0 else ("No Error", "No Error")
+                error_msg_item_original = beautifyError(error_msg_item) if item_has_error else ("", "")
+
+                html_item_error = f"""
+                    <li class="item-error"><b><h2>{error_msg_item_pretty}</h2><b> </li>
+                    <li class="item-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_item_original} </li>
+                    <hr>
+                """ if item_has_error else ""
+
+                html_mesh_error = f"""
+                    <li class="mesh-error"><b><h2>{error_msg_mesh_pretty}</h2><b> </li>
+                    <li class="mesh-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_mesh_original} </li>
+                    <hr>
+                """ if mesh_has_error else ""
 
                 resultList += f"""
-                    <li class="{"error" if result["meshRcode"] > 0 or result["itemRcode"] > 0 else "success"}">
+                    <li class="{"error" if result.convert_has_failed else "success"}">
                         <ul class="result-object">
                             <li class="item"><b>Item:</b> {objName}  </li>
                             <hr>
-                            <li class="mesh-error"><b>Mesh Errors Pretty:</b> <br />{error_msg_mesh_pretty} </li>
-                            <li class="mesh-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_mesh_original} </li>
-                            <hr>
-                            <li class="item-error"><b>Item Errors Pretty:</b> <br />{error_msg_item_pretty} </li>
-                            <li class="item-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_item_original} </li>
-                            <hr>
+                            {html_item_error}
+                            {html_mesh_error}
                             <li class="item-error"><b>Convert steps until convert failed:</b></li>
                             <ul class="progress-steps">
-                                {progressLIs}
+                                {progress_LIs}
                             </ul>
                         </ul>    
                     </li>
@@ -408,7 +509,6 @@ def beautifyError(error: str):
     LMMissing       = "lightmap"
     BMMissing       = "basematerial"
     MatMissing      = "no material"
-    noInfos         = ""
     missingUV       = "uvlayers"
     commonNotFound  = "common"
     itemXMLMissing  = "item.xml"       
