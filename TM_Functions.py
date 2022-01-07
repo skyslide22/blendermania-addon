@@ -11,6 +11,7 @@ import re
 import math
 import configparser
 import pprint
+import ctypes.wintypes
 from zipfile import ZipFile
 from threading import Thread
 from inspect import currentframe, getframeinfo
@@ -27,6 +28,19 @@ def getAddonPath() -> str:
 def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
 
+def getDocumentsPath() -> str:
+    documentsPath = os.path.expanduser("~/Documents/")
+    # if can't find Documents in default windows path - try to locate it with SHGetFolderPathW
+    if not os.path.isdir(documentsPath):
+        CSIDL_PERSONAL     = 5  # My Documents
+        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+
+        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+        if ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf) == 0:
+            documentsPath = buf.value
+
+    return documentsPath.replace("\\", "/")
+
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
 UI_SPACER_FACTOR        = 1.0
@@ -37,7 +51,6 @@ URL_GITHUB              = "https://github.com/skyslide22/blender-addon-for-track
 URL_REGEX               = "https://regex101.com/"
 PATH_DESKTOP            = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
 PATH_HOME               = os.path.expanduser("~")
-PATH_DOCUMENTS          = os.path.expanduser("~/Documents/").replace("\\", "/")
 PATH_PROGRAM_DATA       = os.environ.get("ALLUSERSPROFILE").replace("\\", "/")   + "/"
 PATH_PROGRAM_FILES      = os.environ.get("PROGRAMFILES").replace("\\", "/")      + "/"
 PATH_PROGRAM_FILES_X86  = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
@@ -320,12 +333,14 @@ def parseNadeoIniFile() -> str:
         if documentspath_is_custom:
             debug("UserDir has a variable, fix:")
             placeholders    = r"\{userdocs\}|\{userdir\}"
-            new_docpath     = re.sub(placeholders, PATH_DOCUMENTS, ini_value, re.IGNORECASE) #placeholder to docpath
+            new_docpath     = re.sub(placeholders, getDocumentsPath(), ini_value, re.IGNORECASE) #placeholder to docpath
             path_tmuf       = re.sub("trackmania", "TrackMania2020", new_docpath, flags=re.IGNORECASE)
 
             new_docpath = fixSlash(new_docpath)
             path_tmuf   = fixSlash(path_tmuf)
             
+            smth = getDocumentsPath()
+
             debug(f"normal: {new_docpath}")
             debug(f"tmuf:   {path_tmuf}")
 
@@ -1731,7 +1746,7 @@ def debugALL() -> None:
     separator(2)
 
     full_debug("desktopPath:             ", PATH_DESKTOP)
-    full_debug("documentsPath:           ", PATH_DOCUMENTS)
+    full_debug("documentsPath:           ", getDocumentsPath())
     full_debug("programDataPath:         ", PATH_PROGRAM_DATA)
     full_debug("programFilesPath:        ", PATH_PROGRAM_FILES)
     full_debug("programFilesX86Path:     ", PATH_PROGRAM_FILES_X86)
