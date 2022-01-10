@@ -215,13 +215,13 @@ class TM_PT_Settings(Panel):
 
 
 def autoFindNadeoIni()->None:
-    tm_props= getTmProps()
-    game    = str(getTmProps().LI_gameType).lower()
-    base    = fixSlash(PATH_PROGRAM_FILES_X86)
-    mp_envis= ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
-    alphabet= list(string.ascii_lowercase) #[a-z]
-    paths   = []
-    ini     = ""
+    tm_props          = getTmProps()
+    game              = str(getTmProps().LI_gameType).lower()
+    program_data_path = [ fixSlash(PATH_PROGRAM_FILES_X86), fixSlash(PATH_PROGRAM_FILES) ]
+    mp_envis          = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
+    alphabet          = list(string.ascii_lowercase) #[a-z]
+    paths             = []
+    ini               = ""
     
     if isGameTypeManiaPlanet(): 
         paths.append(f"{base}/ManiaPlanet/Nadeo.ini".replace("/", "\\"))
@@ -232,12 +232,16 @@ def autoFindNadeoIni()->None:
             paths.append(fr"{char}:\Spiele\ManiaPlanet\Nadeo.ini")
 
         for envi in mp_envis:
-            paths.append(f"{base}/Steam/steamapps/common/ManiaPlanet_{envi}/Nadeo.ini".replace("/", "\\"))
+            for base in program_data_path:
+                paths.append(f"{base}/Steam/steamapps/common/ManiaPlanet_{envi}/Nadeo.ini".replace("/", "\\"))
 
     if isGameTypeTrackmania2020():
-        paths.append(f"{base}/Ubisoft/Ubisoft Game Launcher/games/Trackmania/Nadeo.ini".replace("/", "\\"))
-        paths.append(f"{base}/Epic Games/TrackmaniaNext/Nadeo.ini".replace("/", "\\"))
-        paths.append(f"{PATH_PROGRAM_FILES_X86}/Trackmania/Nadeo.ini".replace("/", "\\"))
+
+        for base in program_data_path:
+            paths.append(f"{base}/Ubisoft/Ubisoft Game Launcher/games/Trackmania/Nadeo.ini".replace("/", "\\"))
+            paths.append(f"{base}/Epic Games/TrackmaniaNext/Nadeo.ini".replace("/", "\\"))
+            paths.append(f"{base}/Trackmania/Nadeo.ini".replace("/", "\\"))
+
         for char in alphabet:
             paths.append(fr"{char}:\Trackmania\Nadeo.ini")
             paths.append(fr"{char}:\Games\Trackmania\Nadeo.ini")
