@@ -7,6 +7,11 @@ This addon is for Blender 2.93+, it will simplify all necessary steps and help y
 - convert your exported blocks with one click, with progressbar and error reporting
 - documentation (in dev...) https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/
 
+# Short Turorial for install & quick export
+- video by MattDTO
+- https://www.youtube.com/watch?v=JXINd6oBTw4
+- fyi: detailed tutorial video on the todo list...
+
 
 ## How to install
 - download the repository as zip

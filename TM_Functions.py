@@ -126,41 +126,83 @@ MISSING_PHYSIC_IDS_IN_NADEOLIB = ["TechSuperMagnetic", "Offzone"]
 
 # For better and faster selection in the dropdown menu
 FAVORITE_PHYSIC_IDS = [
-        "Concrete",         "NotCollidable",
-        "Turbo",            "Turbo2",
-        "Freewheeling",     "TechMagnetic",
-        "TechSuperMagnetic","Dirt",
-        "Grass",            "Ice",
-        "Wood",             "Metal"
+        "Concrete",         
+        "NotCollidable",
+        "Turbo",            
+        "Turbo2",
+        "Freewheeling",     
+        "TechMagnetic",
+        "TechSuperMagnetic",
+        "Dirt",
+        "Grass",            
+        "Ice",
+        "Wood",             
+        "Metal"
     ]
 
 
 # Not all physic ids are in the NadeoimporterMaterialLib.txt
+# from https://doc.trackmania.com/nadeo-importer/04-how-to-create-the-meshparams-xml-file/
+# from https://doc.maniaplanet.com/nadeo-importer/import-a-mesh
 PHYSIC_IDS_TM2020 = [
-    "Asphalt",          "Concrete",
-    "Dirt",             "Grass",
-    "Green",            "Ice",
-    "Metal",            "MetalTrans",
-    "NotCollidable",    "Pavement",
-    "ResonantMetal",    "RoadIce",
-    "RoadSynthetic",    "Rock",
-    "Snow",             "Sand",
-    "TechMagnetic",     "TechMagneticAccel",
-    "TechSuperMagnetic","Wood",
+    "Asphalt",          
+    "Concrete",
+    "Dirt",             
+    "Grass",
+    "Green",            
+    "Ice",
+    "Metal",            
+    "MetalTrans",
+    "NotCollidable",    
+    "Pavement",
+    "ResonantMetal",    
+    "RoadIce",
+    "RoadSynthetic",    
+    "Rock",
+    "Snow",             
+    "Sand",
+    "TechMagnetic",     
+    "TechMagneticAccel",
+    "TechSuperMagnetic",
+    "Wood",
     "Rubber"
 ]
 
 
+# Only for tm2020
 # Gameplay ids are not defined in the NadeoimporterMaterialLib.txt
 # Act like a secondary physic id, for example, Dirt & Freewheeling
+# from https://doc.trackmania.com/nadeo-importer/04-how-to-create-the-meshparams-xml-file/
 GAMEPLAY_IDS_TM2020 = [
-    "Bumper",           "Bumper2",
-    "ForceAcceleration","Fragile",
-    "FreeWheeling",     "NoGrip",
-    "ReactorBoost",     "ReactorBoost2",
-    "Reset",            "SlowMotion",
-    "Turbo",            "Turbo2",
-    "None",             "NoSteering",
+    "Bumper",           
+    "Bumper2",
+    "Cruise",
+    "ForceAcceleration",
+    "Fragile",
+    "FreeWheeling",
+    "NoBrakes",     
+    "NoGrip",
+    "None",             
+    "NoSteering",
+    "ReactorBoost",     
+    "ReactorBoost2",
+    "Reset",            
+    "SlowMotion",
+    "Turbo",            
+    "Turbo2",
+]
+
+# TODO
+# from https://doc.trackmania.com/nadeo-importer/04-how-to-create-the-meshparams-xml-file/
+LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID = [
+    "PlatformDirt_PlatformTech",
+    "PlatformGrass_PlatformTech",
+    "PlatformIce_PlatformTech",
+    "PlatformTech",
+    "RoadBump",
+    "RoadDirt",
+    "RoadIce",
+    "RoadTech",
 ]
 
 
