@@ -330,6 +330,7 @@ def updateAddon() -> None:
     addon = AddonUpdate()
     has_new_release = addon.checkForNewRelease()
 
+    # TODO create check for new update on startup && dynamic version text in UI
     # if has_new_release:
     #     addon.doUpdate()
     
