@@ -18,6 +18,7 @@ from inspect import currentframe, getframeinfo
 import bpy.utils.previews
 from time import sleep
 import time
+import json
 
 
 
@@ -66,6 +67,10 @@ WEBSPACE_TEXTURES_TM_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_TrackMania202
 WEBSPACE_NADEOIMPORTER_MP        = WEBSPACE_BASE_URL + "NadeoImporter_ManiaPlanet.zip"
 WEBSPACE_NADEOIMPORTER_TM        = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania2020.zip"
 
+# materials map for tm 2020 (someday nadeo gonna have corrent filenames for materials...)
+file = open("./2020-materials-map.json")
+MATERIALS_MAP_TM_2020 = json.load(file)
+file.close()
 
 MAT_PROPS_AS_JSON = "MAT_PROPS_AS_JSON"
 
@@ -1461,7 +1466,15 @@ def rgbToHEX(rgb_list: tuple, prefix: str="", correct_gamma: bool=False) -> str:
     hex = f"{prefix}{r:02x}{g:02x}{b:02x}"
     return hex
 
-
+def hexToRGB(value):
+    gamma = 2.2
+    value = value.lstrip('#')
+    lv = len(value)
+    fin = list(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+    r = pow(fin[0] / 255, gamma)
+    g = pow(fin[1] / 255, gamma)
+    b = pow(fin[2] / 255, gamma)
+    return (r,g,b)
 
 def refreshPanels() -> None:
     """refresh panel in ui, they are not updating sometimes"""

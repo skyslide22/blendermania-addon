@@ -12,13 +12,10 @@ from .TM_Functions  import *
 from .TM_Properties import *
 # endregion imports
 
-
-
-
 class TM_OT_Materials_Create(Operator):
     bl_idname = "view3d.tm_creatematerial"
     bl_label = "create materials"
-    bl_desciption = "create material"
+    bl_description = "create material"
    
     def execute(self, context):
         createOrUpdateMaterial("CREATE")
@@ -29,7 +26,7 @@ class TM_OT_Materials_Create(Operator):
 class TM_OT_Materials_Update(Operator):
     bl_idname = "view3d.tm_updatematerial"
     bl_label = "update materials"
-    bl_desciption = "update material"
+    bl_description = "update material"
    
     def execute(self, context):
         createOrUpdateMaterial("UPDATE")
@@ -40,7 +37,7 @@ class TM_OT_Materials_Update(Operator):
 class TM_OT_Materials_ClearBaseMaterial(Operator):
     bl_idname = "view3d.tm_clearbasetexture"
     bl_label = "clear basematerial"
-    bl_desciption = "clear basematerial"
+    bl_description = "clear basematerial"
    
     def execute(self, context):
         getTmProps()["ST_materialBaseTexture"] = ""
@@ -51,7 +48,7 @@ class TM_OT_Materials_ClearBaseMaterial(Operator):
 class TM_OT_Materials_RevertCustomColor(Operator):
     bl_idname = "view3d.tm_revertcustomcolor"
     bl_label = "reset custom color"
-    bl_desciption = "reset custom color"
+    bl_description = "reset custom color"
    
     def execute(self, context):
         revertMaterialCustomColorLiveChanges()
@@ -86,12 +83,17 @@ class TM_PT_Materials(Panel):
         use_physicsId   = tm_props.CB_materialUsePhysicsId
         use_gameplayId  = tm_props.CB_materialUseGameplayId
 
-
+        box = layout.box()
+        row = box.row()
+        currentGameName = tm_props.LI_gameType
+        if isGameTypeManiaPlanet():
+            currentGameName += " - "+tm_props.LI_materialCollection
+        row.operator("view3d.tm_createassetlib", text=f"Create {currentGameName} Assets Library", icon="ADD")
 
 
         # choose action & mat name
         layout.row().prop(tm_props, "LI_materialAction", expand=True)
-        
+
         if action_is_update:
             layout.row().prop_search(tm_props, "ST_selectedExistingMaterial", bpy.data, "materials") 
     
@@ -375,55 +377,56 @@ def createMaterialNodes(mat)->None:
     NODE_tex_N.location = x(1), y(3)
     NODE_tex_N.label = "Texture Normal _N.dds"
     NODE_tex_N.name  = "tex_N"
+
+    # normal map
+    NODE_normal_map = nodes.new(type="ShaderNodeNormalMap")
+    NODE_normal_map.location = x(2), y(3)
+
+    # H
+    NODE_tex_H = nodes.new(type="ShaderNodeTexImage")
+    NODE_tex_H.location = x(1), y(5)
+    NODE_tex_H.label = "Texture H _H.dds"
+    NODE_tex_H.name  = "tex_H"
     
+    matMap2020 = None
+    if isGameTypeTrackmania2020() and mat.link in MATERIALS_MAP_TM_2020:
+        matMap2020 = MATERIALS_MAP_TM_2020[mat.link]
+
+    NODE_mapping = None
+    if matMap2020 and "Scale" in matMap2020 and matMap2020["Scale"] > 0:
+        NODE_mapping = nodes.new(type="ShaderNodeMapping")
+        NODE_mapping.location = x(0), y(2)
+        NODE_mapping.inputs["Scale"].default_value = (matMap2020["Scale"], matMap2020["Scale"], 1)
+
     tex = ""
     DTexture = ""
     ITexture = ""
     RTexture = ""
     NTexture = ""
+    HTexture = ""
 
     isLinkedMat = mat.baseTexture == ""
     
     debug(f"material link is :  {mat.link}")
     debug(f"material is a link: {isLinkedMat}")
 
-    if isLinkedMat: tex = getDocPathItemsAssetsTextures() + mat.environment + "/" + re.sub(r"_.*", "", mat.link, flags=re.IGNORECASE)
+    if isLinkedMat: tex = getDocPathItemsAssetsTextures() + mat.environment + "/" + mat.link
     else:           tex = re.sub(r"_?(i|d)\.dds$", "", mat.baseTexture, flags=re.IGNORECASE)
 
-    tex = bpy.path.abspath(tex)
-
-    # D
     if not isCustomMat:
-        debug(f"try to find:   {tex.split('/')[-1]}_D.dds")
-        if      doesFileExist(tex + "D.dds"):   DTexture = tex + "D.dds"    #; debug(f"Texture to load: {DTexture}")
-        elif    doesFileExist(tex + "_D.dds"):  DTexture = tex + "_D.dds"   #; debug(f"Texture to load: {DTexture}")
-        elif    doesFileExist(tex + ".dds"):    DTexture = tex + ".dds"     #; debug(f"Texture to load: {DTexture}")
-        debug(f"_D found in: {DTexture}") if DTexture else debug("_D texture not found")
+        DTexture = getMatDDS(tex, "D")
     
-    # I
-    debug(f"try to find:   {tex.split('/')[-1]}_I.dds")
-    if      doesFileExist(tex + "I.dds"):   ITexture = tex + "I.dds"    #; debug(f"Texture to load: {DTexture}")
-    elif    doesFileExist(tex + "_I.dds"):  ITexture = tex + "_I.dds"   #; debug(f"Texture to load: {DTexture}")
-    debug(f"_I found in: {ITexture}") if ITexture else debug("_I texture not found")
-
-    # R
-    debug(f"try to find:   {tex.split('/')[-1]}_R.dds")
-    if      doesFileExist(tex + "R.dds"):   RTexture = tex + "R.dds"    #; debug(f"Texture to load: {DTexture}")
-    elif    doesFileExist(tex + "_R.dds"):  RTexture = tex + "_R.dds"   #; debug(f"Texture to load: {DTexture}")
-    debug(f"_R found in: {RTexture}") if RTexture else debug("_R texture not found")
-
-    # N
-    debug(f"try to find:   {tex.split('/')[-1]}_N.dds")
-    if      doesFileExist(tex + "N.dds"):   NTexture = tex + "N.dds"    #; debug(f"Texture to load: {DTexture}")
-    elif    doesFileExist(tex + "_N.dds"):  NTexture = tex + "_N.dds"   #; debug(f"Texture to load: {DTexture}")
-    debug(f"_N found in: {NTexture}") if NTexture else debug("_N texture not found")
-
+    ITexture = getMatDDS(tex, "I")
+    RTexture = getMatDDS(tex, "R")
+    NTexture = getMatDDS(tex, "N")
+    HTexture = getMatDDS(tex, "H")
     
     if not isCustomMat:
         DTexture = loadDDSTextureIntoBlender(texpath=DTexture)
     ITexture = loadDDSTextureIntoBlender(texpath=ITexture)
     RTexture = loadDDSTextureIntoBlender(texpath=RTexture)
     NTexture = loadDDSTextureIntoBlender(texpath=NTexture)
+    HTexture = loadDDSTextureIntoBlender(texpath=HTexture)
 
     if not isCustomMat:
         DTextureSuccess = DTexture[0]
@@ -434,6 +437,8 @@ def createMaterialNodes(mat)->None:
     RTextureName    = RTexture[1]
     NTextureSuccess = NTexture[0]
     NTextureName    = NTexture[1]
+    HTextureSuccess = HTexture[0]
+    HTextureName    = HTexture[1]
 
     if not isCustomMat and DTextureSuccess:
         assignTextureToImageNode(DTextureName, NODE_tex_D)
@@ -447,24 +452,42 @@ def createMaterialNodes(mat)->None:
     if NTextureSuccess:
         assignTextureToImageNode(NTextureName, NODE_tex_N)
 
+    if HTextureSuccess:
+        assignTextureToImageNode(HTextureName, NODE_tex_H)
 
-    if not isCustomMat:
-        links.new(NODE_uvmap.outputs["UV"], NODE_tex_D.inputs["Vector"])
+    if NODE_mapping:
+        links.new(NODE_uvmap.outputs["UV"], NODE_mapping.inputs["Vector"])
+        if not isCustomMat:
+            links.new(NODE_mapping.outputs["Vector"], NODE_tex_D.inputs["Vector"])
+        links.new(NODE_mapping.outputs["Vector"], NODE_tex_R.inputs["Vector"])
+        links.new(NODE_mapping.outputs["Vector"], NODE_tex_N.inputs["Vector"])
+        links.new(NODE_mapping.outputs["Vector"], NODE_tex_H.inputs["Vector"])
+    else:
+        if not isCustomMat:
+            links.new(NODE_uvmap.outputs["UV"], NODE_tex_D.inputs["Vector"])
+        links.new(NODE_uvmap.outputs["UV"], NODE_tex_R.inputs["Vector"])
+        links.new(NODE_uvmap.outputs["UV"], NODE_tex_N.inputs["Vector"])
+        links.new(NODE_uvmap.outputs["UV"], NODE_tex_H.inputs["Vector"])
+
     links.new(NODE_uvmap.outputs["UV"], NODE_tex_I.inputs["Vector"])
-    links.new(NODE_uvmap.outputs["UV"], NODE_tex_R.inputs["Vector"])
-    links.new(NODE_uvmap.outputs["UV"], NODE_tex_N.inputs["Vector"])
 
     if not isCustomMat:
         links.new(NODE_tex_D.outputs["Color"], NODE_bsdf.inputs["Base Color"]) #basecolor
-        links.new(NODE_tex_D.outputs["Alpha"], NODE_bsdf.inputs["Alpha"]) if DTextureSuccess else None #alpha
+        if not NODE_mapping:
+            links.new(NODE_tex_D.outputs["Alpha"], NODE_bsdf.inputs["Alpha"]) if DTextureSuccess else None
+    
+    if RTextureSuccess:
+        links.new(NODE_tex_R.outputs["Color"],  NODE_rgbsplit.inputs["Image"]) #RGB split
+        links.new(NODE_rgbsplit.outputs["R"],  NODE_bsdf.inputs["Roughness"]) #roughness
+        links.new(NODE_rgbsplit.outputs["G"],  NODE_bsdf.inputs["Metallic"]) #metallic
 
-    links.new(NODE_tex_R.outputs["Color"],  NODE_rgbsplit.inputs["Image"]) #RGB split
-    links.new(NODE_rgbsplit.outputs["R"],  NODE_bsdf.inputs["Roughness"]) #roughness
-    links.new(NODE_rgbsplit.outputs["G"],  NODE_bsdf.inputs["Metallic"]) #metallic
+    if NTextureSuccess:
+        links.new(NODE_tex_N.outputs["Color"],  NODE_normal_map.inputs["Color"]) #normal
+        links.new(NODE_normal_map.outputs["Normal"],  NODE_bsdf.inputs["Normal"])
+    
+    links.new(NODE_tex_H.outputs["Color"],  NODE_bsdf.inputs["Emission Strength"]) if HTextureSuccess else None
 
-    links.new(NODE_tex_N.outputs["Color"],  NODE_bsdf.inputs["Normal"]) #normal
-
-    links.new(NODE_tex_I.outputs["Color"], NODE_bsdf.inputs["Emission"]) #emission
+    links.new(NODE_tex_I.outputs["Color"], NODE_bsdf.inputs["Emission"]) if ITextureSuccess else None
     
     links.new(NODE_bsdf.outputs["BSDF"],  NODE_output.inputs["Surface"])
     
@@ -569,16 +592,19 @@ def saveMatPropsAsJSONinMat(mat) -> None:
         tex_i = nodes["tex_I"].image if "tex_I" in nodes else None
         tex_r = nodes["tex_R"].image if "tex_R" in nodes else None
         tex_n = nodes["tex_N"].image if "tex_N" in nodes else None
+        tex_h = nodes["tex_H"].image if "tex_H" in nodes else None
             
         tex_d_path = tex_d.filepath if tex_d else ""
         tex_i_path = tex_i.filepath if tex_i else ""
         tex_r_path = tex_r.filepath if tex_r else ""
         tex_n_path = tex_n.filepath if tex_n else ""
+        tex_h_path = tex_h.filepath if tex_h else ""
         
         DICT["tex_d_path"] = getAbspath(tex_d_path)
         DICT["tex_i_path"] = getAbspath(tex_i_path)
         DICT["tex_r_path"] = getAbspath(tex_r_path)
         DICT["tex_n_path"] = getAbspath(tex_n_path)
+        DICT["tex_h_path"] = getAbspath(tex_h_path)
 
     JSON = json.dumps(DICT)
     mat[ MAT_PROPS_AS_JSON ] = JSON
@@ -622,6 +648,7 @@ def assignMatJSONpropsToMat(mat) -> bool:
     tex_i = getattr(nodes, "tex_I", "")
     tex_r = getattr(nodes, "tex_R", "")
     tex_n = getattr(nodes, "tex_N", "")
+    tex_h = getattr(nodes, "tex_H", "")
 
     btex  = getattr(DICT, "baseTexture", "")
     envi  = getattr(DICT, "environment", "")
@@ -632,16 +659,19 @@ def assignMatJSONpropsToMat(mat) -> bool:
     tex_i_path = getattr(DICT, "tex_i_path", False) or getDocPath() + btex + "_I.dds"
     tex_r_path = getattr(DICT, "tex_r_path", False) or getDocPath() + btex + "_R.dds"
     tex_n_path = getattr(DICT, "tex_n_path", False) or getDocPath() + btex + "_N.dds"
+    tex_h_path = getattr(DICT, "tex_h_path", False) or getDocPath() + btex + "_H.dds"
 
     test_d_path_as_link = root + tex_d_path.split("/")[-1]
     test_i_path_as_link = root + tex_i_path.split("/")[-1]
     test_r_path_as_link = root + tex_r_path.split("/")[-1]
     test_n_path_as_link = root + tex_n_path.split("/")[-1]
+    test_h_path_as_link = root + tex_h_path.split("/")[-1]
 
     if doesFileExist( test_d_path_as_link ): tex_d_path = test_d_path_as_link
     if doesFileExist( test_i_path_as_link ): tex_i_path = test_i_path_as_link
     if doesFileExist( test_r_path_as_link ): tex_r_path = test_r_path_as_link
     if doesFileExist( test_n_path_as_link ): tex_n_path = test_n_path_as_link
+    if doesFileExist( test_h_path_as_link ): tex_h_path = test_h_path_as_link
 
     debug(tex_d_path)
     debug(test_d_path_as_link)
@@ -661,6 +691,10 @@ def assignMatJSONpropsToMat(mat) -> bool:
     success, name = loadDDSTextureIntoBlender(tex_n_path)
     if success and name in imgs:
         tex_n.image = bpy.data.images[ name ]
+
+    success, name = loadDDSTextureIntoBlender(tex_h_path)
+    if success and name in imgs:
+        tex_h.image = bpy.data.images[ name ]
             
         
     debug(matJSON, pp=True)
@@ -695,6 +729,30 @@ def fixMaterialNames(obj) -> None:
         if re.search(regex, mat.name):
             bpy.data.materials.remove(mat)
 
+
+
+def getMatDDS(tex: str, ddsType: str) -> str:
+    Texture = ""
+    basePath = "/".join(tex.split('/')[:-1]) + "/"
+    matName = tex.split('/')[-1]
+
+    matMap2020 = None
+    if matName in MATERIALS_MAP_TM_2020:
+        matMap2020 = MATERIALS_MAP_TM_2020[matName]
+
+    debug(f"try to find:   {matName}_"+ddsType+".dds")
+    # if we have a map in 2020 dict -> use it, otherwise try default
+    if (
+        isGameTypeTrackmania2020() and
+        matMap2020 and ddsType in matMap2020 and 
+        len(matMap2020[ddsType]) > 0 and doesFileExist(basePath + matMap2020[ddsType])
+    ): Texture = basePath + matMap2020[ddsType]
+    elif doesFileExist(tex + "D.dds"): Texture = tex + ddsType+".dds"
+    elif doesFileExist(tex + "_D.dds"): Texture = tex + "_"+ddsType+".dds"
+    elif ddsType == "D" and doesFileExist(tex + ".dds"): Texture = tex + ".dds"
+    debug(f"_{ddsType} found in: {Texture}") if Texture else debug("_"+ddsType+" texture not found")
+
+    return Texture
 
 
 

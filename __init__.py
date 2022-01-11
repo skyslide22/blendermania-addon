@@ -28,6 +28,7 @@ from .TM_Items_UVMaps       import *
 from .TM_Items_Icon         import *
 from .TM_Items_Templates    import *
 from .TM_Items_Manipulate   import *
+from .TM_Assets_Library   import *
 
 
 
@@ -94,6 +95,7 @@ classes = (
     TM_PT_Materials,
     TM_OT_Materials_Create,
     TM_OT_Materials_Update,
+    TM_OT_Materials_Create_Asset_Lib,
     TM_OT_Materials_ClearBaseMaterial,
     TM_OT_Materials_RevertCustomColor,
 
