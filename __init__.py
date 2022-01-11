@@ -56,6 +56,7 @@ classes = (
     TM_OT_Settings_InstallNadeoImporter,
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_DebugALL,
+    TM_OT_Settings_UpdateAddon,
 
     # object manipulation
     TM_PT_ObjectManipulations,

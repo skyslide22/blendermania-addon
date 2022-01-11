@@ -70,6 +70,25 @@ class TM_OT_Settings_DebugALL(Operator):
         debugALL()
         return {"FINISHED"}
 
+class TM_OT_Settings_UpdateAddon(Operator):
+    bl_idname = "view3d.tm_updateaddonrestartblender"
+    bl_description = "fetch latest version from github, install, save and restart blender"
+    bl_label = "Update addon"
+    bl_options = {"REGISTER"}
+        
+    def execute(self, context):
+        if saveBlendFile():
+            if isAddonsFolderLinkedWithDevEnvi():
+                makeReportPopup("dev environment, operator not executed")
+                return {"FINISHED"}
+
+            updateAddon()
+        else:
+            makeReportPopup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
+
+        return {"FINISHED"}
+
+
 
 
 
@@ -90,11 +109,13 @@ class TM_PT_Settings(Panel):
         blender_version = bpy.app.version
         addon_version   = bl_info["version"]
         is_blender_3    = blender_version[0] >= 3
-        layout = self.layout
-        tm_props = getTmProps()
+        layout          = self.layout
+        tm_props        = getTmProps()
         
         box = layout.box()
-        row = box.row()
+        row = box.row(align=True)
+        row.label(text="CHANGED 11")
+        row = box.row(align=True)
         row.scale_y=.5
         row.label(text=f"""Addon: {addon_version}""", icon="FILE_SCRIPT")
         row = box.row()
@@ -105,8 +126,12 @@ class TM_PT_Settings(Panel):
             row.alert = False
             row.label(text="Blender 3.0+ required!")
 
+        col = box.column(align=True)
+        row = col.row()
+        row.operator("view3d.tm_updateaddonrestartblender", text="Update addon & restart")
 
-        row = box.row(align=True)
+
+        row = col.row(align=True)
         row.operator("view3d.tm_opendoc",      text="Help",         )#icon="URL")
         row.operator("view3d.tm_opengithub",   text="Github",       )#icon="FILE_SCRIPT")
         row.operator("view3d.tm_debugall",     text="Debug",        )#icon="FILE_TEXT")
@@ -216,7 +241,6 @@ class TM_PT_Settings(Panel):
 
 def autoFindNadeoIni()->None:
     tm_props          = getTmProps()
-    game              = str(getTmProps().LI_gameType).lower()
     program_data_paths= [ fixSlash(PATH_PROGRAM_FILES_X86), fixSlash(PATH_PROGRAM_FILES) ]
     mp_envis          = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
     alphabet          = list(string.ascii_lowercase) #[a-z]
@@ -272,6 +296,20 @@ def autoFindNadeoIni()->None:
     if isGameTypeTrackmania2020():
         tm_props.ST_nadeoIniFile_TM = ini
 
+
+
+def updateAddon() -> None:
+    """update the addon if a new version exist and restart blender to use new version"""
+    new_addon_zip = "A:/new-addon-version.zip"
+    
+    
+    debug( isAddonUpdateAvailable() )
+
+
+    return
+
+    with ZipFile(new_addon_zip, 'r') as zipFile:
+        zipFile.extractall(path=getBlenderAddonsPath())
 
 
 

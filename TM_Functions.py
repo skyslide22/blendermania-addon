@@ -18,15 +18,21 @@ from inspect import currentframe, getframeinfo
 import bpy.utils.previews
 from time import sleep
 import time
+import json
 
 
 
+def getBlenderAddonsPath() -> str:
+    return str(bpy.utils.user_resource('SCRIPTS') + "/addons/").replace("\\", "/")
 
 def getAddonPath() -> str:
     return os.path.dirname(__file__) + "/"
 
 def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
+
+def isAddonsFolderLinkedWithDevEnvi() -> bool:
+    return os.path.exists(getAddonPath() + ".git")
 
 def getDocumentsPath() -> str:
     documentsPath = os.path.expanduser("~/Documents/")
@@ -48,6 +54,7 @@ UI_SPACER_FACTOR        = 1.0
 URL_DOCUMENTATION       = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
 URL_BUG_REPORT          = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
 URL_GITHUB              = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
+URL_RELEASES            = "https://api.github.com/repos/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases"
 URL_REGEX               = "https://regex101.com/"
 PATH_DESKTOP            = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
 PATH_HOME               = os.path.expanduser("~")
@@ -422,8 +429,52 @@ def doesFileExist(filepath: str) -> bool:
 def doesFolderExist(folderpath: str) -> bool:
     return os.path.isdir(folderpath)
 
+def getRecentOpenedFiles() -> list[str]:
+    path_config       = bpy.utils.user_resource('CONFIG')
+    path_recent_files = os.path.join(path_config, "recent-files.txt")
+    with open(path_recent_files, "r") as f:
+        return [rfile for rfile in f.readlines()]
+
+def getCurrentOpenedBlendfilePath() -> str:
+    return bpy.data.filepath
 
 
+def reloadCurrentOpenedFileWithRestart() -> None:
+    subprocess.Popen([
+        bpy.app.binary_path,
+        "--open-last"
+    ])
+    bpy.ops.wm.quit_blender()
+
+
+
+def getLatestAddonRelease() -> tuple[int, int, int]:
+    version = (0,0,0)
+    try:
+        # addon_github_url = "https://api.github.com/repos/tiangolo/fastapi/releases"
+        json_string = urllib.request.urlopen(URL_RELEASES).read()
+        json_object = json.loads(json_string.decode('utf-8'))
+        if len(json_object) > 0:
+            tag_name = json_object[0]["tag_name"].replace("v", "")
+            version  = tuple(
+                map(
+                    int, 
+                    tag_name.split(".")
+                    )
+                )
+    
+    except Exception as e: 
+        makeReportPopup("Failed to fetch releases", ["failed to get data from github", f"error: {e}"])
+    
+    finally: 
+        return version
+
+
+def isAddonUpdateAvailable() -> bool:
+    from . import bl_info
+    return getLatestAddonRelease() > bl_info["version"]
+
+    
 
 def requireValidNadeoINI(panel_instance: bpy.types.Panel) -> bool:
     """if the nadeo.ini file is not selected, create a error message in given layout(self)"""
