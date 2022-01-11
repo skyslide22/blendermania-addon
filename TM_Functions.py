@@ -487,8 +487,10 @@ class AddonUpdate:
             tm_props.CB_addonUpdateDLRunning = False
             unzipNewAndOverwriteOldAddon(save_to)
             def run(): 
-                tm_props.CB_addonUpdateDLshow = False
-            timer(run, 5)
+                tm_props.ST_addonUpdateDLError = "Success, restarting blender ..."
+                reloadCurrentOpenedFileWithRestart()
+                
+            timer(run, 2)
             debug(f"Downloading & installing addon successful")
 
         def on_error(msg):

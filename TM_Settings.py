@@ -70,6 +70,23 @@ class TM_OT_Settings_DebugALL(Operator):
         debugALL()
         return {"FINISHED"}
 
+
+class TM_OT_Settings_UpdateAddonResetSettings(Operator):
+    """open convert report"""
+    bl_idname = "view3d.tm_resetaddonupdatesettings"
+    bl_description = "Reset settings after update"
+    bl_icon = 'MATERIAL'
+    bl_label = "Reset settings after update"
+        
+    def execute(self, context):
+        tm_props = getTmProps()
+        tm_props.CB_addonUpdateDLRunning  = False
+        tm_props.NU_addonUpdateDLProgress = 0
+        tm_props.ST_addonUpdateDLError    = ""
+        tm_props.CB_addonUpdateDLshow     = False
+        return {"FINISHED"}
+
+
 class TM_OT_Settings_UpdateAddon(Operator):
     bl_idname = "view3d.tm_updateaddonrestartblender"
     bl_description = "fetch latest version from github, install, save and restart blender"
@@ -309,22 +326,16 @@ def autoFindNadeoIni()->None:
 
 
 def updateAddon() -> None:
-    """update the addon if a new version exist and restart blender to use new version"""
-    new_addon_zip = "A:/new-addon-version.zip"
-    
+    """update the addon if a new version exist and restart blender to use new version"""    
     addon = AddonUpdate()
     has_new_release = addon.checkForNewRelease()
 
-    if has_new_release:
-        addon.doUpdate()
+    # if has_new_release:
+    #     addon.doUpdate()
     
     addon.doUpdate()
 
 
-    return
-
-    with ZipFile(new_addon_zip, 'r') as zipFile:
-        zipFile.extractall(path=getBlenderAddonsPath())
 
 
 

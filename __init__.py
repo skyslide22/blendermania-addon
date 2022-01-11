@@ -177,6 +177,7 @@ def on_startup(dummy) -> None:
     
     # can be opened on save
     bpy.ops.view3d.tm_closeconvertsubpanel()
+    bpy.ops.view3d.tm_resetaddonupdatesettings()
     
     # remove possible error text
     isNadeoImporterInstalled()
