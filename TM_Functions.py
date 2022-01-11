@@ -477,9 +477,7 @@ class AddonUpdate:
     
 
     def doUpdate(self) -> None:
-        debug(self.new_addon_version)
-        debug(self.addon_version)
-        debug(self.download_url)
+        debug("Update addon now")
         tm_props = getTmProps()
         filename = self.download_url.split("/")[-1]
         save_to  = getBlenderAddonsPath() + filename
@@ -487,7 +485,7 @@ class AddonUpdate:
 
         def on_success():
             tm_props.CB_addonUpdateDLRunning = False
-            # unzipAddon(filePath,extractTo)
+            unzipNewAndOverwriteOldAddon(save_to)
             def run(): 
                 tm_props.CB_addonUpdateDLshow = False
             timer(run, 5)
@@ -505,6 +503,7 @@ class AddonUpdate:
             on_success,
             on_error
         )
+        debug("Start download addon now")
         new_addon.start()
         tm_props.CB_addonUpdateDLRunning = True
         tm_props.CB_addonUpdateDLshow    = True
@@ -512,8 +511,10 @@ class AddonUpdate:
 
     
 
-def unzipAddon(filename) -> None:
-    ...
+def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
+    with ZipFile(filepath, "r") as zipfile:
+        zipfile.extractall( getBlenderAddonsPath() )
+        # blender-addon-for-trackmania-and-maniaplanet
 
 
 def requireValidNadeoINI(panel_instance: bpy.types.Panel) -> bool:
