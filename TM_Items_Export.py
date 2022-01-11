@@ -261,7 +261,8 @@ def exportAndOrConvert()->None:
     exportFilePathBase  = ""
     exportPathType      = tm_props.LI_exportFolderType
     exportPathCustom    = tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM
-
+    exportPathCustom    = fixSlash(getAbspath(exportPathCustom)) # ../../myproject=> C:/Users.../Work/Items/myproject
+    
     if str(exportPathType).lower() != "custom":
         envi = exportPathType if str(exportPathType).lower() != "base" else ""
         exportFilePathBase = getDocPathWorkItems() + envi
