@@ -55,19 +55,19 @@ def generate2020Assets() -> None:
     matList = getLinkedMaterials()
 
     for key in matList.keys():
-        if key in MATERIALS_MAP_TM_2020:
+        if key in MATERIALS_MAP_TM2020:
             matNameNew = "TM_"+key+"_asset" 
             if matNameNew in bpy.data.materials:
                 continue
 
             color = (0.0,0.319,0.855)
-            if "Color" in MATERIALS_MAP_TM_2020[key]:
-                color = hexToRGB(MATERIALS_MAP_TM_2020[key]["Color"])   
+            if "Color" in MATERIALS_MAP_TM2020[key]:
+                color = hexToRGB(MATERIALS_MAP_TM2020[key]["Color"])   
             mat = createMaterialAsset(matNameNew, key, color)
 
             if mat.use_nodes:
                 if (
-                    "IsSign" not in MATERIALS_MAP_TM_2020[key] and
+                    "IsSign" not in MATERIALS_MAP_TM2020[key] and
                     "tex_D" in mat.node_tree.nodes and
                     mat.node_tree.nodes["tex_D"].image and
                     mat.node_tree.nodes["tex_D"].image.filepath

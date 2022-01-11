@@ -22,6 +22,12 @@ import json
 
 
 
+def doesFileExist(filepath: str) -> bool:
+    return os.path.isfile(filepath)
+
+def doesFolderExist(folderpath: str) -> bool:
+    return os.path.isdir(folderpath)
+
 def getBlenderAddonsPath() -> str:
     return str(bpy.utils.user_resource('SCRIPTS') + "/addons/").replace("\\", "/")
 
@@ -46,6 +52,7 @@ def getDocumentsPath() -> str:
             documentsPath = buf.value
 
     return documentsPath.replace("\\", "/")
+
 
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
@@ -74,10 +81,17 @@ WEBSPACE_NADEOIMPORTER_MP        = WEBSPACE_BASE_URL + "NadeoImporter_ManiaPlane
 WEBSPACE_NADEOIMPORTER_TM        = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania2020.zip"
 
 # materials map for tm 2020 (someday nadeo gonna have corrent filenames for materials...)
-file = open("./2020-materials-map.json")
-MATERIALS_MAP_TM_2020 = json.load(file)
-file.close()
+MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = "./assets/materials/materials-map-trackmania2020.json"
+MATERIALS_MAP_TM2020 = {}
 
+if doesFileExist(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
+    with open(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020, "r") as f:
+        data = f.read()
+        MATERIALS_MAP_TM2020 = json.loads(data)
+
+
+
+# For saving custom material properties as JSON string in the material (fbx)
 MAT_PROPS_AS_JSON = "MAT_PROPS_AS_JSON"
 
 
@@ -427,11 +441,7 @@ def createFolderIfNecessary(path) -> None:
 
 
 
-def doesFileExist(filepath: str) -> bool:
-    return os.path.isfile(filepath)
 
-def doesFolderExist(folderpath: str) -> bool:
-    return os.path.isdir(folderpath)
 
 def getRecentOpenedFiles() -> list[str]:
     path_config       = bpy.utils.user_resource('CONFIG')

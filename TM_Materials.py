@@ -389,8 +389,8 @@ def createMaterialNodes(mat)->None:
     NODE_tex_H.name  = "tex_H"
     
     matMap2020 = None
-    if isGameTypeTrackmania2020() and mat.link in MATERIALS_MAP_TM_2020:
-        matMap2020 = MATERIALS_MAP_TM_2020[mat.link]
+    if isGameTypeTrackmania2020() and mat.link in MATERIALS_MAP_TM2020:
+        matMap2020 = MATERIALS_MAP_TM2020[mat.link]
 
     NODE_mapping = None
     if matMap2020 and "Scale" in matMap2020 and matMap2020["Scale"] > 0:
@@ -737,8 +737,8 @@ def getMatDDS(tex: str, ddsType: str) -> str:
     matName = tex.split('/')[-1]
 
     matMap2020 = None
-    if matName in MATERIALS_MAP_TM_2020:
-        matMap2020 = MATERIALS_MAP_TM_2020[matName]
+    if matName in MATERIALS_MAP_TM2020:
+        matMap2020 = MATERIALS_MAP_TM2020[matName]
 
     debug(f"try to find:   {matName}_"+ddsType+".dds")
     # if we have a map in 2020 dict -> use it, otherwise try default
