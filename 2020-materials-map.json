@@ -1,0 +1,924 @@
+{
+    "CustomBricks": {
+        "Name":  "CustomBricks",
+        "D":     "CustomBricks_D.dds",
+        "I":     "",
+        "R":     "CustomBricks_R.dds",
+        "N":     "CustomBricks_N.dds",
+        "L":     "",
+        "Color": "e15a2d"
+    },
+    "CustomConcrete": {
+        "Name":  "CustomConcrete",
+        "D":     "CustomConcrete_D.dds",
+        "I":     "",
+        "R":     "CustomConcrete_R.dds",
+        "N":     "CustomConcrete_N.dds",
+        "L":     "",
+        "Color": "ffffff"
+    },
+    "CustomDirt": {
+        "Name":  "CustomDirt",
+        "D":     "CustomDirt_D.dds",
+        "I":     "",
+        "R":     "CustomDirt_R.dds",
+        "N":     "CustomDirt_N.dds",
+        "L":     "",
+        "Color": "f55a30"
+    },
+    "CustomGlass": {
+        "Name":  "CustomGlass",
+        "D":     "",
+        "I":     "",
+        "R":     "",
+        "N":     "",
+        "L":     "",
+        "Color": "515151",
+        "Alpha": 0.5
+    },
+    "CustomGrass": {
+        "Name":  "CustomGrass",
+        "D":     "CustomGrass_D.dds",
+        "I":     "",
+        "R":     "CustomGrass_R.dds",
+        "N":     "CustomGrass_N.dds",
+        "L":     "",
+        "Color": "80ea4d"
+    },
+    "CustomIce": {
+        "Name":  "CustomIce",
+        "D":     "CustomIce_D.dds",
+        "I":     "",
+        "R":     "CustomIce_R.dds",
+        "N":     "CustomIce_N.dds",
+        "L":     "",
+        "Color": "dffffe"
+    },
+    "CustomMetal": {
+        "Name":  "CustomMetal",
+        "D":     "CustomMetal_D.dds",
+        "I":     "",
+        "R":     "CustomMetal_R.dds",
+        "N":     "CustomMetal_N.dds",
+        "L":     "",
+        "Color": "c0c0c0"
+    },
+    "CustomMetalPainted": {
+        "Name":  "CustomMetalPainted",
+        "D":     "CustomMetalPainted_D.dds",
+        "I":     "",
+        "R":     "CustomMetalPainted_R.dds",
+        "N":     "CustomMetalPainted_N.dds",
+        "L":     "",
+        "Color": "000080"
+    },
+    "CustomPlastic": {
+        "Name":  "CustomPlastic",
+        "D":     "CustomPlastic_D.dds",
+        "I":     "",
+        "R":     "CustomPlastic_R.dds",
+        "N":     "CustomPlastic_N.dds",
+        "L":     "",
+        "Color": "e11616"
+    },
+    "CustomRock": {
+        "Name":  "CustomRock",
+        "D":     "CustomRock_D.dds",
+        "I":     "",
+        "R":     "CustomRock_R.dds",
+        "N":     "CustomRock_N.dds",
+        "L":     "",
+        "Color": "d3d3d3"
+    },
+    "CustomRoughWood": {
+        "Name":  "CustomRoughWood",
+        "D":     "CustomRoughWood_D.dds",
+        "I":     "",
+        "R":     "CustomRoughWood_R.dds",
+        "N":     "CustomRoughWood_N.dds",
+        "L":     "",
+        "Color": "d78543"
+    },
+    "CustomSand": {
+        "Name":  "CustomSand",
+        "D":     "CustomSand_D.dds",
+        "I":     "",
+        "R":     "CustomSand_R.dds",
+        "N":     "CustomSand_N.dds",
+        "L":     "",
+        "Color": "fde88d"
+    },
+    "CustomSnow": {
+        "Name":  "CustomSnow",
+        "D":     "CustomSnow_D.dds",
+        "I":     "",
+        "R":     "CustomSnow_R.dds",
+        "N":     "CustomSnow_N.dds",
+        "L":     "",
+        "Color": "dbfbfa"
+    },
+
+
+
+
+    "ChronoFinish": {
+        "Name":  "ChronoFinish",
+        "D":     "",
+        "I":     "ChronoFinish_I.dds",
+        "R":     "",
+        "N":     "",
+        "L":     ""
+    },
+    "DecalCurbs": {
+        "Name": "DecalCurbs",
+        "D": "DecalCurbs_D.dds",
+        "I": "",
+        "R": "DecalCurbs_R.dds",
+        "N": "DecalCurbs_N.dds",
+        "L": ""
+    },
+    "DecalMarks": {
+        "Name": "DecalMarks",
+        "D": "DecalMarks_D.dds",
+        "I": "",
+        "R": "DecalMarks_R.dds",
+        "N": "DecalMarks_N.dds",
+        "L": ""
+    },
+    "DecalMarksItems": {
+        "Name": "DecalMarksItems",
+        "D": "DecalMarksItems_D.dds",
+        "I": "",
+        "R": "DecalMarksItems_R.dds",
+        "N": "DecalMarksItems_N.dds",
+        "L": ""
+    },
+    "DecalMarksRamp": {
+        "Name": "DecalMarksRamp",
+        "D": "DecalMarksRamp_D.dds",
+        "I": "",
+        "R": "DecalMarksRamp_R.dds",
+        "N": "DecalMarksRamp_N.dds",
+        "L": ""
+    },
+    "DecalMarksStart": {
+        "Name": "DecalMarksStart",
+        "D": "DecalMarksStart_D.dds",
+        "I": "",
+        "R": "DecalMarksStart_R.dds",
+        "N": "DecalMarksStart_N.dds",
+        "L": ""
+    },
+    "DecalObstaclePusher": {
+        "Name": "DecalObstaclePusher",
+        "D": "DecalObstaclePusher_D.dds",
+        "I": "",
+        "R": "DecalObstaclePusher_R.dds",
+        "N": "DecalObstaclePusher_N.dds",
+        "L": ""
+    },
+    "DecalObstacleTube": {
+        "Name": "DecalObstacleTube",
+        "D": "DecalObstacleTube_D.dds",
+        "I": "",
+        "R": "DecalObstacleTube_R.dds",
+        "N": "DecalObstacleTube_N.dds",
+        "L": ""
+    },
+    "DecalObstacleTurnstileLeft": {
+        "Name": "DecalObstacleTurnstileLeft",
+        "D": "DecalObstacleTurnstileLeft_D.dds",
+        "I": "",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "DecalObstacleTurnstileRight": {
+        "Name": "DecalObstacleTurnstileRight",
+        "D": "DecalObstacleTurnstileRight_D.dds",
+        "I": "",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "DecalSponsor1x1BigA": {
+        "Name": "DecalSponsor1x1BigA",
+        "D": "DecalSponsor1x1BigA_D.dds",
+        "I": "",
+        "R": "DecalSponsor1x1BigA_R.dds",
+        "N": "DecalSponsor1x1BigA_N.dds",
+        "L": ""
+    },
+    "DecoHill": {
+        "Name": "DecoHill",
+        "D": "DecoHill_D.dds",
+        "I": "",
+        "R": "DecoHill_R.dds",
+        "N": "DecoHill_N.dds",
+        "L": ""
+    },
+    "DecoHill2": {
+        "Name": "DecoHill2",
+        "D": "DecoHill2_D.dds",
+        "I": "",
+        "R": "DecoHill_R.dds",
+        "N": "DecoHill_N.dds",
+        "L": ""
+    },
+    "GlassWaterWall": {
+        "Name": "GlassWaterWall",
+        "D": "",
+        "I": "",
+        "R": "GlassWaterWall_R.dds",
+        "N": "GlassWaterWall_N.dds",
+        "L": ""
+    },
+    "Grass": {
+        "Name": "Grass",
+        "D": "Grass_D.dds",
+        "I": "",
+        "R": "Grass_R.dds",
+        "N": "Grass_N.dds",
+        "L": ""
+    },
+    "ItemBase": {
+        "Name": "ItemBase",
+        "D": "ItemBase_D.dds",
+        "I": "",
+        "R": "ItemBase_R.dds",
+        "N": "ItemBase_N.dds",
+        "L": ""
+    },
+    "ItemBorder": {
+        "Name": "ItemBorder",
+        "D": "ItemBorder_D.dds",
+        "I": "",
+        "R": "ItemBorder_R.dds",
+        "N": "ItemBorder_N.dds",
+        "L": ""
+    },
+    "ItemCactus": {
+        "Name": "ItemCactus",
+        "D": "ItemCactus_D.dds",
+        "I": "",
+        "R": "ItemCactus_R.dds",
+        "N": "ItemCactus_N.dds",
+        "L": ""
+    },
+    "ItemInflatableFloor": {
+        "Name": "ItemInflatableFloor",
+        "D": "ItemInflatableFloor_D.dds",
+        "I": "",
+        "R": "ItemInflatableFloor_R.dds",
+        "N": "ItemInflatableFloor_N.dds",
+        "L": ""
+    },
+    "ItemInflatableMat": {
+        "Name": "ItemInflatableMat",
+        "D": "ItemInflatableMat_D.dds",
+        "I": "",
+        "R": "ItemInflatableMat_R.dds",
+        "N": "ItemInflatableMat_N.dds",
+        "L": ""
+    },
+    "ItemInflatableTube": {
+        "Name": "ItemInflatableTube",
+        "D": "ItemInflatableTube_D.dds",
+        "I": "",
+        "R": "ItemInflatableTube_R.dds",
+        "N": "ItemInflatableTube_N.dds",
+        "L": ""
+    },
+    "ItemLamp": {
+        "Name": "ItemLamp",
+        "D": "ItemLamp_D.dds",
+        "I": "ItemLamp_I.dds",
+        "R": "ItemLamp_R.dds",
+        "N": "ItemLamp_N.dds",
+        "L": "ItemLamp_L.dds"
+    },
+    "ItemObstacle": {
+        "Name": "ItemObstacle",
+        "D": "ItemObstacle_D.dds",
+        "I": "",
+        "R": "ItemObstacle_R.dds",
+        "N": "ItemObstacle_N.dds",
+        "L": ""
+    },
+    "ItemObstacleLight": {
+        "Name": "ItemObstacleLight",
+        "D": "ItemObstacleLight_D.dds",
+        "I": "ItemObstacleLight_I.dds",
+        "R": "ItemObstacleLight_R.dds",
+        "N": "ItemObstacleLight_N.dds",
+        "L": "ItemObstacleLight_L.dds"
+    },
+    "ItemObstaclePusher": {
+        "Name": "ItemObstaclePusher",
+        "D": "ItemObstaclePusher_D.dds",
+        "I": "",
+        "R": "ItemObstaclePusher_R.dds",
+        "N": "ItemObstaclePusher_N.dds",
+        "L": ""
+    },
+    "ItemPillar": {
+        "Name": "ItemPillar",
+        "D": "ItemPillar_D.dds",
+        "I": "",
+        "R": "ItemPillar_R.dds",
+        "N": "ItemPillar_N.dds",
+        "L": ""
+    },
+    "ItemPillar2": {
+        "Name": "ItemPillar2",
+        "D": "ItemPillar2_D.dds",
+        "I": "",
+        "R": "ItemPillar2_R.dds",
+        "N": "",
+        "L": ""
+    },
+    "ItemRamp": {
+        "Name": "ItemRamp",
+        "D": "ItemRamp_D.dds",
+        "I": "",
+        "R": "ItemRamp_R.dds",
+        "N": "ItemRamp_N.dds",
+        "L": ""
+    },
+    "ItemRoadSign": {
+        "Name": "ItemRoadSign",
+        "D": "ItemRoadSign_D.dds",
+        "I": "",
+        "R": "ItemRoadSign_R.dds",
+        "N": "ItemRoadSign_N.dds",
+        "L": ""
+    },
+    "ItemSupportConnector": {
+        "Name": "ItemSupportConnector",
+        "D": "ItemSupportConnector_D.dds",
+        "I": "",
+        "R": "ItemSupportConnector_R.dds",
+        "N": "ItemSupportConnector_N.dds",
+        "L": ""
+    },
+    "ItemSupportTube": {
+        "Name": "ItemSupportTube",
+        "D": "ItemSupportTube_D.dds",
+        "I": "",
+        "R": "ItemSupportTube_R.dds",
+        "N": "ItemSupportTube_N.dds",
+        "L": ""
+    },
+    "ItemTrackBarrier": {
+        "Name": "ItemTrackBarrier",
+        "D": "ItemTrackBarrier_D.dds",
+        "I": "",
+        "R": "ItemTrackBarrier_R.dds",
+        "N": "ItemTrackBarrier_N.dds",
+        "L": ""
+    },
+    "ItemTrackBarrierB": {
+        "Name": "ItemTrackBarrierB",
+        "D": "ItemTrackBarrierB_D.dds",
+        "I": "",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "ItemTrackBarrierC": {
+        "Name": "ItemTrackBarrierC",
+        "D": "ItemTrackBarrierC_D.dds",
+        "I": "",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "LightSpot": {
+        "Name": "LightSpot",
+        "D": "LightSpot_D.dds",
+        "I": "LightSpot_I.dds",
+        "R": "LightSpot_R.dds",
+        "N": "LightSpot_N.dds",
+        "L": "LightSpot_L.dds"
+    },
+    "LightSpot2": {
+        "Name": "LightSpot2",
+        "D": "LightSpot2_D.dds",
+        "I": "",
+        "R": "LightSpot2_R.dds",
+        "N": "LightSpot2_N.dds",
+        "L": "LightSpot2_L.dds"
+    },
+    "PlatformDirt_DecoHill": {
+        "Name": "PlatformDirt_DecoHill",
+        "D": "DecoHillDirt_D.dds",
+        "I": "",
+        "R": "DecoHillDirt_R.dds",
+        "N": "DecoHillDirt_N.dds",
+        "L": ""
+    },
+    "PlatformDirt_PlatformTech": {
+        "Name": "PlatformDirt_PlatformTech",
+        "D": "DirtPy_D.dds",
+        "I": "",
+        "R": "DirtPy_R.dds",
+        "N": "DirtPy_N.dds",
+        "L": ""
+    },
+    "PlatformGrass_PlatformTech": {
+        "Name": "PlatformGrass_PlatformTech",
+        "D": "PlatformGrass_D.dds",
+        "I": "",
+        "R": "PlatformGrass_R.dds",
+        "N": "PlatformGrass_N.dds",
+        "L": ""
+    },
+    "PlatformIce_DecoHill": {
+        "Name": "PlatformIce_DecoHill",
+        "D": "DecoHillIce_D.dds",
+        "I": "",
+        "R": "DecoHillIce_R.dds",
+        "N": "DecoHillIce_N.dds",
+        "L": ""
+    },
+    "PlatformIce_PlatformTech": {
+        "Name": "PlatformIce_PlatformTech",
+        "D": "PlatformIce_D.dds",
+        "I": "",
+        "R": "IcePy_R.dds",
+        "N": "IcePy_N.dds",
+        "L": ""
+    },
+    "PlatformPlastic_PlatformTech": {
+        "Name": "PlatformPlastic_PlatformTech",
+        "D": "PlatformPlastic_D.dds",
+        "I": "",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "PlatformTech": {
+        "Name": "PlatformTech",
+        "D": "PlatformTech_D.dds",
+        "I": "",
+        "R": "PlatformTech_R.dds",
+        "N": "PlatformTech_N.dds",
+        "L": ""
+    },
+    "Pylon": {
+        "Name": "Pylon",
+        "D": "Pylon_D.dds",
+        "I": "",
+        "R": "Pylon_R.dds",
+        "N": "Pylon_N.dds",
+        "L": ""
+    },
+    "RaceArchCheckpoint": {
+        "Name": "RaceArchCheckpoint",
+        "D": "",
+        "I": "RaceArchCheckpoint_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "RaceArchFinish": {
+        "Name": "RaceArchFinish",
+        "D": "",
+        "I": "RaceArchFinish_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "RaceScreenStart": {
+        "Name": "RaceScreenStart",
+        "D": "",
+        "I": "RaceScreenStart_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "RoadBump": {
+        "Name": "RoadBump",
+        "D": "RoadBump_D.dds",
+        "I": "",
+        "R": "RoadBump_R.dds",
+        "N": "RoadBump_N.dds",
+        "L": ""
+    },
+    "RoadDirt": {
+        "Name": "RoadDirt",
+        "D": "RoadDirt_D.dds",
+        "I": "",
+        "R": "RoadDirt_R.dds",
+        "N": "RoadDirt_N.dds",
+        "L": ""
+    },
+    "RoadIce": {
+        "Name": "RoadIce",
+        "D": "RoadIce_D.dds",
+        "I": "",
+        "R": "IcePy_R.dds",
+        "N": "IcePy_N.dds",
+        "L": ""
+    },
+    "RoadTech": {
+        "Name": "RoadTech",
+        "D": "RoadTech_D.dds",
+        "I": "",
+        "R": "RoadTech_R.dds",
+        "N": "RoadTech_N.dds",
+        "L": ""
+    },
+    "ScreenBack": {
+        "Name": "ScreenBack",
+        "D": "ScreenBack_D.dds",
+        "I": "",
+        "R": "ScreenBack_R.dds",
+        "N": "ScreenBack_N.dds",
+        "L": ""
+    },
+    "ScreenPusher": {
+        "Name": "ScreenPusher",
+        "D": "ScreenPusher_D.dds",
+        "I": "ScreenPusher_I.dds",
+        "R": "ScreenPusher_R.dds",
+        "N": "ScreenPusher_N.dds",
+        "L": "ScreenPusher_L.dds"
+    },
+    "Speedometer": {
+        "Name": "Speedometer",
+        "D": "Speedometer_D.dds",
+        "I": "Speedometer_I.dds",
+        "R": "Speedometer_R.dds",
+        "N": "Speedometer_N.dds",
+        "L": ""
+    },
+    "Structure": {
+        "Name": "Structure",
+        "D": "Structure_D.dds",
+        "I": "",
+        "R": "Structure_R.dds",
+        "N": "Structure_N.dds",
+        "L": ""
+    },
+    "Technics": {
+        "Name": "Technics",
+        "D": "Technics_D.dds",
+        "I": "",
+        "R": "Technics_R.dds",
+        "N": "Technics_N.dds",
+        "L": ""
+    },
+    "TechnicsSpecials": {
+        "Name": "TechnicsSpecials",
+        "D": "TechnicsSpecials_D.dds",
+        "I": "",
+        "R": "TechnicsSpecials_R.dds",
+        "N": "TechnicsSpecials_N.dds",
+        "L": ""
+    },
+    "TechnicsTrims": {
+        "Name": "TechnicsTrims",
+        "D": "TechnicsTrims_D.dds",
+        "I": "",
+        "R": "TechnicsTrims_R.dds",
+        "N": "TechnicsTrims_N.dds",
+        "L": ""
+    },
+    "TrackBorders": {
+        "Name": "TrackBorders",
+        "D": "TrackBorders_D.dds",
+        "I": "",
+        "R": "TrackBorders_R.dds",
+        "N": "TrackBorders_N.dds",
+        "L": "TrackBorders_L.dds"
+    },
+    "TrackBordersOff": {
+        "Name": "TrackBordersOff",
+        "D": "TrackBorders_D.dds",
+        "I": "",
+        "R": "TrackBorders_R.dds",
+        "N": "TrackBorders_N.dds",
+        "L": "TrackBorders_L.dds"
+    },
+    "TrackWall": {
+        "Name": "TrackWall",
+        "D": "TrackWall_D.dds",
+        "I": "",
+        "R": "TrackWall_R.dds",
+        "N": "TrackWall_N.dds",
+        "L": ""
+    },
+    "TrackWallClips": {
+        "Name": "TrackWallClips",
+        "D": "TrackWallClips_D.dds",
+        "I": "",
+        "R": "TrackWallClips_R.dds",
+        "N": "TrackWallClips_N.dds",
+        "L": ""
+    },
+    "Underwater": {
+        "Name": "Underwater",
+        "D": "Underwater_D.dds",
+        "I": "",
+        "R": "Underwater_R.dds",
+        "N": "Underwater_N.dds",
+        "L": ""
+    },
+    "Water": {
+        "Name": "Water",
+        "D": "",
+        "I": "",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "WaterBorders": {
+        "Name": "WaterBorders",
+        "D": "WaterBorders_D.dds",
+        "I": "",
+        "R": "WaterBorders_R.dds",
+        "N": "WaterBorders_N.dds",
+        "L": ""
+    },
+    "Waterground": {
+        "Name": "Waterground",
+        "D": "Waterground_D.dds",
+        "I": "",
+        "R": "Waterground_R.dds",
+        "N": "Waterground_N.dds",
+        "L": ""
+    },
+    "WarpGlass": {
+        "Name":  "WarpGlass",
+        "D":     "WarpGlass_D.dds",
+        "I":     "WarpGlass_N.dds",
+        "R":     "",
+        "N":     "",
+        "L":     "",
+        "Alpha": 0.5
+    },
+
+
+
+
+
+    "ItemWrongWaySign": {
+        "Name":  "ItemWrongWaySign",
+        "D":     "",
+        "I":     "ItemAd1x1ScreenSmallWrongWay_I.dds",
+        "R":     "",
+        "N":     "",
+        "L":     ""
+    },
+    "ItemCurveSign": {
+        "Name": "ItemCurveSign",
+        "D": "",
+        "I": "ItemAd1x1ScreenSmall_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "ItemCurveSignB": {
+        "Name": "ItemCurveSignB",
+        "D": "",
+        "I": "ItemAd1x1ScreenSmallB_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "ItemCurveSignC": {
+        "Name": "ItemCurveSignC",
+        "D": "",
+        "I": "ItemAd1x1ScreenSmallC_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+
+
+
+
+
+    "SpecialSignTurbo": {
+        "Name":  "SpecialSignTurbo",
+        "D":     "LightCells2_D.dds",
+        "I":     "SpecialSignTurbo_I.dds",
+        "R":     "LightCells2_R.dds",
+        "N":     "LightCells2_N.dds",
+        "H":     "LightCells2_H.dds",
+        "Scale": 8,
+        "IsSign": true
+    },
+    "Turbo2_Sign": {
+        "Name":   "Turbo2_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignTurbo2_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "Boost_Sign": {
+        "Name":   "Boost_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignBoost_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "Boost2_Sign": {
+        "Name":   "Boost2_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignBoost2_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "TurboRoulette_Sign": {
+        "Name":   "TurboRoulette_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignTurboRoulette_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "SlowMotion_Sign": {
+        "Name":   "SlowMotion_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignSlowMotion_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "Reset_Sign": {
+        "Name":   "Reset_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignReset_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "NoBrake_Sign": {
+        "Name":   "NoBrake_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignNoBrake_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "NoEngine_Sign": {
+        "Name":   "NoEngine_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignNoEngine_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "NoSteering_Sign": {
+        "Name":   "NoSteering_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignNoSteering_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "Fragile_Sign": {
+        "Name":   "Fragile_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignFragile_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+    "Cruise_Sign": {
+        "Name":   "Cruise_Sign",
+        "D":      "LightCells2_D.dds",
+        "I":      "SpecialSignCruise_I.dds",
+        "R":      "LightCells2_R.dds",
+        "N":      "LightCells2_N.dds",
+        "H":      "LightCells2_H.dds",
+        "Scale":  8,
+        "IsSign": true
+    },
+
+
+
+
+
+    "SpecialFXTurbo": {
+        "Name": "SpecialFXTurbo",
+        "D": "",
+        "I": "SpecialFXTurbo_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "Turbo2_SpecialFX": {
+        "Name": "Turbo2_SpecialFX",
+        "D": "",
+        "I": "SpecialFXTurbo2_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "Boost_SpecialFX": {
+        "Name": "Boost_SpecialFX",
+        "D": "",
+        "I": "SpecialFXBoost_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "Boost2_SpecialFX": {
+        "Name": "Boost2_SpecialFX",
+        "D": "",
+        "I": "SpecialFXBoost2_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "TurboRoulette_SpecialFX": {
+        "Name": "TurboRoulette_SpecialFX",
+        "D": "",
+        "I": "SpecialFXTurboRoulette_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "SlowMotion_SpecialFX": {
+        "Name": "SlowMotion_SpecialFX",
+        "D": "",
+        "I": "SpecialFXSlowMotion_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "Reset_SpecialFX": {
+        "Name": "Reset_SpecialFX",
+        "D": "",
+        "I": "SpecialFXReset_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "NoBrake_SpecialFX": {
+        "Name": "NoBrake_SpecialFX",
+        "D": "",
+        "I": "SpecialFXNoBrake_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "NoEngine_SpecialFX": {
+        "Name": "NoEngine_SpecialFX",
+        "D": "",
+        "I": "SpecialFXNoEngine_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "NoSteering_SpecialFX": {
+        "Name": "NoSteering_SpecialFX",
+        "D": "",
+        "I": "SpecialFXNoSteering_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "Fragile_SpecialFX": {
+        "Name": "Fragile_SpecialFX",
+        "D": "",
+        "I": "SpecialFXFragile_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    },
+    "Cruise_SpecialFX": {
+        "Name": "Cruise_SpecialFX",
+        "D": "",
+        "I": "SpecialFXCruise_I.dds",
+        "R": "",
+        "N": "",
+        "L": ""
+    }
+}
