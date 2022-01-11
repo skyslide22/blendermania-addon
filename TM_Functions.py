@@ -54,7 +54,7 @@ UI_SPACER_FACTOR        = 1.0
 URL_DOCUMENTATION       = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
 URL_BUG_REPORT          = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
 URL_GITHUB              = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
-URL_RELEASES            = "https://api.github.com/repos/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases"
+URL_RELEASES            = "https://api.github.com/repos/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases/latest"
 URL_REGEX               = "https://regex101.com/"
 PATH_DESKTOP            = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
 PATH_HOME               = os.path.expanduser("~")
@@ -452,33 +452,69 @@ def reloadCurrentOpenedFileWithRestart() -> None:
 
 
 
-def getLatestAddonRelease() -> tuple[int, int, int]:
-    version = (0,0,0)
-    try:
-        # addon_github_url = "https://api.github.com/repos/tiangolo/fastapi/releases"
-        json_string = urllib.request.urlopen(URL_RELEASES).read()
-        json_object = json.loads(json_string.decode('utf-8'))
-        if len(json_object) > 0:
-            tag_name = json_object[0]["tag_name"].replace("v", "")
-            version  = tuple(
-                map(
-                    int, 
-                    tag_name.split(".")
-                    )
-                )
-    
-    except Exception as e: 
-        makeReportPopup("Failed to fetch releases", ["failed to get data from github", f"error: {e}"])
-    
-    finally: 
-        return version
-
-
-def isAddonUpdateAvailable() -> bool:
-    from . import bl_info
-    return getLatestAddonRelease() > bl_info["version"]
+class AddonUpdate:
+    def __init__(self) -> None:
+        from . import bl_info
+        self.addon_version     :tuple = bl_info["version"]
+        self.new_addon_version :tuple = (0,0,0)
+        self.download_url      :str   = None
 
     
+    def checkForNewRelease(self) -> bool:
+        try:
+            json_string = urllib.request.urlopen(URL_RELEASES).read()
+            json_object = json.loads(json_string.decode('utf-8'))
+            tag_name    = json_object["tag_name"].replace("v", "")
+            
+            self.new_addon_version = tuple( map( int, tag_name.split(".") ))
+            self.download_url      = json_object["assets"][0]["browser_download_url"]
+        
+        except Exception as e: 
+            makeReportPopup("Failed to fetch releases", ["failed to get data from github", f"error: {e}"])
+        
+        finally: 
+            return self.new_addon_version > self.addon_version
+    
+
+    def doUpdate(self) -> None:
+        debug(self.new_addon_version)
+        debug(self.addon_version)
+        debug(self.download_url)
+        tm_props = getTmProps()
+        filename = self.download_url.split("/")[-1]
+        save_to  = getBlenderAddonsPath() + filename
+        url      = self.download_url
+
+        def on_success():
+            tm_props.CB_addonUpdateDLRunning = False
+            # unzipAddon(filePath,extractTo)
+            def run(): 
+                tm_props.CB_addonUpdateDLshow = False
+            timer(run, 5)
+            debug(f"Downloading & installing addon successful")
+
+        def on_error(msg):
+            tm_props.ST_addonUpdateDLError = msg or "unknown error"
+            tm_props.CB_addonUpdateDLRunning = False
+            debug(f"Downloading & installing addon failed, error: {msg}")
+
+        new_addon = DownloadTMFile(
+            url,
+            save_to,
+            "NU_addonUpdateDLProgress",
+            on_success,
+            on_error
+        )
+        new_addon.start()
+        tm_props.CB_addonUpdateDLRunning = True
+        tm_props.CB_addonUpdateDLshow    = True
+    
+
+    
+
+def unzipAddon(filename) -> None:
+    ...
+
 
 def requireValidNadeoINI(panel_instance: bpy.types.Panel) -> bool:
     """if the nadeo.ini file is not selected, create a error message in given layout(self)"""
@@ -608,7 +644,6 @@ def installNadeoImporter()->None:
 
         
     
-
 
 
 

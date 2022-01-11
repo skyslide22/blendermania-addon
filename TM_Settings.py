@@ -78,9 +78,9 @@ class TM_OT_Settings_UpdateAddon(Operator):
         
     def execute(self, context):
         if saveBlendFile():
-            if isAddonsFolderLinkedWithDevEnvi():
-                makeReportPopup("dev environment, operator not executed")
-                return {"FINISHED"}
+            # if isAddonsFolderLinkedWithDevEnvi():
+            #     makeReportPopup("dev environment, operator not executed")
+            #     return {"FINISHED"}
 
             updateAddon()
         else:
@@ -114,27 +114,38 @@ class TM_PT_Settings(Panel):
         
         box = layout.box()
         row = box.row(align=True)
-        row.label(text="CHANGED 11")
+        row.alert = not is_blender_3
+        row.label(text=f"Blender: {blender_version}", icon="BLENDER")
         row = box.row(align=True)
         row.scale_y=.5
         row.label(text=f"""Addon: {addon_version}""", icon="FILE_SCRIPT")
-        row = box.row()
-        row.alert = not is_blender_3
-        row.label(text=f"Blender: {blender_version}", icon="BLENDER")
         if not is_blender_3:
             row = box.row()
             row.alert = False
             row.label(text="Blender 3.0+ required!")
 
-        col = box.column(align=True)
-        row = col.row()
-        row.operator("view3d.tm_updateaddonrestartblender", text="Update addon & restart")
+
+        if True:
+            col = box.column(align=True)
+            row = col.row(align=True)
+            row.scale_y = 1.5
+            row.enabled = tm_props.CB_addonUpdateDLshow is False
+            row.operator("view3d.tm_updateaddonrestartblender", text="Update addon to v2.0.1 & restart")
+
+            error     = tm_props.ST_addonUpdateDLError
+            show_panel = tm_props.CB_addonUpdateDLshow
+
+            if show_panel:
+                row = col.row(align=True)
+                row.alert = error != ""
+                row.prop(tm_props, "NU_addonUpdateDLProgress", text=f"ERROR: {error}" if error else "Download progress")
 
 
-        row = col.row(align=True)
+        row = box.row(align=True)
         row.operator("view3d.tm_opendoc",      text="Help",         )#icon="URL")
         row.operator("view3d.tm_opengithub",   text="Github",       )#icon="FILE_SCRIPT")
         row.operator("view3d.tm_debugall",     text="Debug",        )#icon="FILE_TEXT")
+
 
         row = layout.row()
         row.prop(tm_props, "ST_author")
@@ -182,11 +193,10 @@ class TM_PT_Settings(Panel):
                 
             
             error     = tm_props.ST_nadeoImporterDLError
-            showPanel = tm_props.CB_nadeoImporterDLshow
+            show_panel = tm_props.CB_nadeoImporterDLshow
 
-            if showPanel:
+            if show_panel:
                 row = box.row()
-                row.enabled = False
                 row.alert = error != ""
                 row.prop(tm_props, "NU_nadeoImporterDLProgress", text="ERROR: " + error if error != "" else "Download progress")
             
@@ -302,8 +312,13 @@ def updateAddon() -> None:
     """update the addon if a new version exist and restart blender to use new version"""
     new_addon_zip = "A:/new-addon-version.zip"
     
+    addon = AddonUpdate()
+    has_new_release = addon.checkForNewRelease()
+
+    if has_new_release:
+        addon.doUpdate()
     
-    debug( isAddonUpdateAvailable() )
+    addon.doUpdate()
 
 
     return

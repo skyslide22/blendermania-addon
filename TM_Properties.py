@@ -837,6 +837,12 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_nadeoImporterDLError     : StringProperty(name="Status",  default="", update=redrawPanel)
     CB_nadeoImporterDLshow      : BoolProperty(  default=False,  update=redrawPanel)
 
+    CB_addonUpdateDLRunning   : BoolProperty(  default=False,  update=redrawPanel)
+    NU_addonUpdateDLProgress  : FloatProperty( min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
+    ST_addonUpdateDLError     : StringProperty(name="Status",  default="", update=redrawPanel)
+    CB_addonUpdateDLshow      : BoolProperty(  default=False,  update=redrawPanel)
+
+
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)
     LI_exportFolderType         : EnumProperty(items=getExportFolderTypes,    name="Folder", default=0)
