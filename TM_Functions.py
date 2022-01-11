@@ -479,7 +479,7 @@ class AddonUpdate:
     def doUpdate(self) -> None:
         debug("Update addon now")
         tm_props = getTmProps()
-        filename = self.download_url.split("/")[-1]
+        filename = "blender-addon-for-trackmania-and-maniaplanet.zip"
         save_to  = getBlenderAddonsPath() + filename
         url      = self.download_url
 
