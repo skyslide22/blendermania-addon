@@ -740,7 +740,7 @@ def getMatDDS(tex: str, ddsType: str) -> str:
     if matName in MATERIALS_MAP_TM2020:
         matMap2020 = MATERIALS_MAP_TM2020[matName]
 
-    debug(f"try to find:   {matName}_"+ddsType+".dds")
+    debug(f"try to find:   {matName}_{ddsType}.dds")
     # if we have a map in 2020 dict -> use it, otherwise try default
     if (
         isGameTypeTrackmania2020() and
@@ -750,7 +750,7 @@ def getMatDDS(tex: str, ddsType: str) -> str:
     elif doesFileExist(tex + "D.dds"): Texture = tex + ddsType+".dds"
     elif doesFileExist(tex + "_D.dds"): Texture = tex + "_"+ddsType+".dds"
     elif ddsType == "D" and doesFileExist(tex + ".dds"): Texture = tex + ".dds"
-    debug(f"_{ddsType} found in: {Texture}") if Texture else debug("_"+ddsType+" texture not found")
+    debug(f"_{ddsType} found in: {Texture}") if Texture else debug(f"_{ddsType} texture not found")
 
     return Texture
 

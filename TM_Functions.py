@@ -81,7 +81,7 @@ WEBSPACE_NADEOIMPORTER_MP        = WEBSPACE_BASE_URL + "NadeoImporter_ManiaPlane
 WEBSPACE_NADEOIMPORTER_TM        = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania2020.zip"
 
 # materials map for tm 2020 (someday nadeo gonna have corrent filenames for materials...)
-MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = "./assets/materials/materials-map-trackmania2020.json"
+MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = getAddonAssetsPath()+"/materials/materials-map-trackmania2020.json"
 MATERIALS_MAP_TM2020 = {}
 
 if doesFileExist(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
