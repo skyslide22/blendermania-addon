@@ -525,7 +525,7 @@ class AddonUpdate:
 
 def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
     with ZipFile(filepath, "r") as zipfile:
-        zipfile.extractall( getBlenderAddonsPath() )
+        zipfile.extractall(path=getBlenderAddonsPath())
         # blender-addon-for-trackmania-and-maniaplanet
 
 
