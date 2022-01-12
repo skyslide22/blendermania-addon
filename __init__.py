@@ -165,7 +165,7 @@ def unregister():
     if icons is not None:
         try:
             bpy.utils.previews.remove(icons)
-        except KeyError():
+        except KeyError as error:
             debug("failed to unregister icons, keyerror")
             
 
@@ -176,8 +176,11 @@ def on_startup(dummy) -> None:
     """run on blender startup, load blend file & reload current file"""
     
     # can be opened on save
-    bpy.ops.view3d.tm_closeconvertsubpanel()
-    bpy.ops.view3d.tm_resetaddonupdatesettings()
+    try:
+        bpy.ops.view3d.tm_closeconvertsubpanel()
+        bpy.ops.view3d.tm_resetaddonupdatesettings()
+    except AttributeError as error:
+        pass # fails on first startup when open_mainfile used
     
     # remove possible error text
     isNadeoImporterInstalled()

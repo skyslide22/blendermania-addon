@@ -820,6 +820,13 @@ def saveBlendFile() -> bool:
         
     return bpy.data.is_saved
 
+def saveBlendFileAs(filepath: str) -> bool:
+    """overwrite/save opened blend file, returns bool if saving was successfull"""
+    if bpy.data.is_saved:
+        bpy.ops.wm.save_as_mainfile(filepath=filepath)
+        
+    return bpy.data.is_saved
+
 
 
 def createExportOriginFixer(col, createAt=None)->object:
