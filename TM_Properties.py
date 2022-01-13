@@ -851,7 +851,6 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_addonUpdateDLmsg     : StringProperty(     name="Status",  default="", update=redrawPanel)
     CB_addonUpdateDLshow      : BoolProperty(       default=False,  update=redrawPanel)
     CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redrawPanel)
-    NU_addonUpdateNewVersion  : IntVectorProperty(default=(0,0,0), size=3,  update=redrawPanel)
 
     #panel
     CB_panelReportAccept : BoolProperty(default=False)

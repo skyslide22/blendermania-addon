@@ -177,7 +177,7 @@ class TM_PT_Settings(Panel):
 
         if update_available:
 
-            next_version = tuple(tm_props.NU_addonUpdateNewVersion)
+            next_version = AddonUpdate.new_addon_version
 
             col = box.column(align=True)
             col.alert = BLENDER_INSTANCE_IS_DEV
