@@ -82,7 +82,7 @@ class TM_OT_Settings_UpdateAddonResetSettings(Operator):
         tm_props = getTmProps()
         tm_props.CB_addonUpdateDLRunning  = False
         tm_props.NU_addonUpdateDLProgress = 0
-        tm_props.ST_addonUpdateDLError    = ""
+        tm_props.ST_addonUpdateDLmsg    = ""
         tm_props.CB_addonUpdateDLshow     = False
         return {"FINISHED"}
 
@@ -187,13 +187,13 @@ class TM_PT_Settings(Panel):
             row.operator("view3d.tm_updateaddonrestartblender", text=f"Update to {next_version}", icon="FILE_REFRESH")
             row = col.row(align=True)
             row.operator("view3d.tm_updateaddonopenchangelog", text="Open changelog", icon="WORLD")
-            error     = tm_props.ST_addonUpdateDLError
+            dl_msg     = tm_props.ST_addonUpdateDLmsg
             show_panel = tm_props.CB_addonUpdateDLshow
 
             if show_panel:
                 row = col.row(align=True)
-                row.alert = error != ""
-                row.prop(tm_props, "NU_addonUpdateDLProgress", text=f"ERROR: {error}" if error else "Download progress")
+                row.alert = "error" in dl_msg.lower()
+                row.prop(tm_props, "NU_addonUpdateDLProgress", text=f"{dl_msg}" if dl_msg else "Download progress")
 
 
         row = box.row(align=True)

@@ -503,7 +503,7 @@ class AddonUpdate:
         def on_success():
             tm_props.CB_addonUpdateDLRunning = False
             unzipNewAndOverwriteOldAddon(save_to)
-            tm_props.ST_addonUpdateDLError = "Success, restarting blender ..."
+            tm_props.ST_addonUpdateDLmsg = "Success, restarting blender ..."
             def run(): 
                 reloadCurrentOpenedFileWithRestart()
                 
@@ -511,7 +511,7 @@ class AddonUpdate:
             debug(f"Downloading & installing addon successful")
 
         def on_error(msg):
-            tm_props.ST_addonUpdateDLError = msg or "unknown error"
+            tm_props.ST_addonUpdateDLmsg = msg or "unknown error"
             tm_props.CB_addonUpdateDLRunning = False
             debug(f"Downloading & installing addon failed, error: {msg}")
 

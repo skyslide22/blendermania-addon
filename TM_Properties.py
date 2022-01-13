@@ -848,7 +848,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
     CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redrawPanel)
     NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
-    ST_addonUpdateDLError     : StringProperty(     name="Status",  default="", update=redrawPanel)
+    ST_addonUpdateDLmsg     : StringProperty(     name="Status",  default="", update=redrawPanel)
     CB_addonUpdateDLshow      : BoolProperty(       default=False,  update=redrawPanel)
     CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redrawPanel)
     NU_addonUpdateNewVersion  : IntVectorProperty(default=(0,0,0), size=3,  update=redrawPanel)
