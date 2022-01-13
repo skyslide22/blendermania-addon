@@ -95,9 +95,14 @@ class TM_OT_Settings_UpdateAddon(Operator):
         
     def execute(self, context):
         if saveBlendFile():
-          # if isAddonsFolderLinkedWithDevEnvi():
-          #     makeReportPopup("dev environment, operator not executed", ["enable manually in TM_Settings.py:103"])
-          #     return {"FINISHED"}
+            if isAddonsFolderLinkedWithDevEnvi():
+                makeReportPopup(
+                    "dev environment, operator not executed", 
+                    ["enable manually in TM_Settings.py:103"],
+                    accept_callback=updateAddon,
+                    accept_text="OVERWRITE LOCAL FILES"
+                    )
+                return {"FINISHED"}
 
             updateAddon()
         else:

@@ -853,6 +853,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redrawPanel)
     NU_addonUpdateNewVersion  : IntVectorProperty(default=(0,0,0), size=3,  update=redrawPanel)
 
+    #panel
+    CB_panelReportAccept : BoolProperty(default=False)
 
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)

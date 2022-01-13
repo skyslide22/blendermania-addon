@@ -2120,7 +2120,7 @@ def makeToast(title: str, text: str, baloon_icon: str="Info", duration: float=50
     subprocess.call(cmd)
 
 
-def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str='INFO'):
+def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str='INFO', accept_callback:callable=None, accept_text:str="OK"):
     """create a small info(text) popup in blender, write infos to a file on desktop"""
     frameinfo   = getframeinfo(currentframe().f_back)
     line        = str(frameinfo.lineno)
@@ -2129,11 +2129,21 @@ def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str=
 
     title = str(title)
 
+    tm_props = getTmProps()
+    tm_props.CB_panelReportAccept = False
+
     def draw(self, context):
         # self.layout.label(text=f"This report is saved at: {desktopPath} as {fileName}.txt", icon="FILE_TEXT")
         for info in infos:
             self.layout.label(text=str(info))
         
+        if accept_callback:
+            self.layout.separator(factor=UI_SPACER_FACTOR)
+            self.layout.prop(tm_props, "CB_panelReportAccept", text=accept_text)
+            if tm_props.CB_panelReportAccept:
+                accept_callback()
+            
+
     bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
     
 
