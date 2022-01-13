@@ -235,7 +235,7 @@ class TM_PT_Settings(Panel):
         if isSelectedNadeoIniFilepathValid():
             op_row = box.row()
             op_row.enabled = tm_props.CB_nadeoImporterDLRunning is False
-
+            op_row.scale_y = 1.5
             if not tm_props.CB_nadeoImporterIsInstalled:
                 row = box.row()
                 row.alert = True
@@ -265,25 +265,22 @@ class TM_PT_Settings(Panel):
 
 
 
+        envi         = tm_props.LI_DL_TextureEnvi if isGameTypeManiaPlanet() else "Stadium"
         dlTexRunning = tm_props.CB_DL_TexturesRunning is False
 
         box = layout.box()
-        row=box.row()
+        col = box.column(align=True)
+        row = col.row()
         row.label(text="Game textures for materials")
 
-        col = box.column(align=True)
-        col.enabled = dlTexRunning
-
-        if isGameTypeManiaPlanet():
-            col.row().prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon="WORLD")
-
-        envi = tm_props.LI_DL_TextureEnvi if isGameTypeManiaPlanet() else "Stadium"
-
-        row = box.row()
-        # row.scale_y=1.5
+        row = col.row(align=True)
         row.enabled = dlTexRunning
+        row.scale_y = 1.5
         row.operator("view3d.tm_installgametextures", text=f"Install {envi} textures", icon="TEXTURE")
 
+        if isGameTypeManiaPlanet():
+            row = col.row(align=True)
+            row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon="WORLD")
 
         dlTexError          = tm_props.ST_DL_TexturesErrors
         statusText          = "Downloading..." if not dlTexRunning else "Done" if not dlTexError else dlTexError

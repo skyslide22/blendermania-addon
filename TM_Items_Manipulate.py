@@ -133,11 +133,12 @@ class TM_PT_ObjectManipulations(Panel):
         
         # collection box
         col_box = layout.box()
-        row = col_box.row()
+        col = col_box.column(align=True)
+        row = col.row()
         row.alignment = "CENTER"
         row.label(text=current_collection_name)
 
-        row = col_box.row()
+        row = col.row()
         row.prop(tm_props, "LI_xml_waypointtype", text="")
         
 
@@ -184,22 +185,23 @@ class TM_PT_ObjectManipulations(Panel):
             obj_name_with_prefix= obj.name
             obj_name_raw        = cleanObjNameFromSpecialProps(obj.name)
 
-        row = obj_box.row()
+        col = obj_box.column(align=True)
+        row = col.row()
         row.alignment = "CENTER"
         row.label(text=f"{obj_name_raw}")
 
-        row = obj_box.row(align=True)
+        row = col.row(align=True)
         
         isEnabled = obj_name_with_prefix.startswith("_ignore_")
-        row.operator(f"view3d.tm_toggleobjectsignore", text=f"_ignore_", icon="X" if isEnabled else "NONE")
+        row.operator(f"view3d.tm_toggleobjectsignore", text=f"ignore", icon="CHECKMARK" if isEnabled else "CHECKBOX_DEHLT")
 
 
         if isGameTypeTrackmania2020():
             isEnabled = obj_name_with_prefix.startswith("_notvisible_")
-            row.operator("view3d.tm_toggleobjectnotvisible", text=f"_notvisible_", icon="X" if isEnabled else "NONE")
+            row.operator("view3d.tm_toggleobjectnotvisible", text=f"notvisible", icon="CHECKMARK" if isEnabled else "CHECKBOX_DEHLT")
 
             isEnabled = obj_name_with_prefix.startswith("_notcollidable_")
-            row.operator("view3d.tm_toggleobjectnotcollidable", text=f"_notcollidable_", icon="X" if isEnabled else "NONE")
+            row.operator("view3d.tm_toggleobjectnotcollidable", text=f"notcollidable", icon="CHECKMARK" if isEnabled else "CHECKBOX_DEHLT")
 
 
         layout.separator(factor=UI_SPACER_FACTOR)
