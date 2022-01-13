@@ -37,9 +37,6 @@ def getAddonPath() -> str:
 def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
 
-def isAddonsFolderLinkedWithDevEnvi() -> bool:
-    return os.path.exists(getAddonPath() + ".git")
-
 def getDocumentsPath() -> str:
     documentsPath = os.path.expanduser("~/Documents/")
     # if can't find Documents in default windows path - try to locate it with SHGetFolderPathW
@@ -57,6 +54,9 @@ def getDocumentsPath() -> str:
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
 UI_SPACER_FACTOR        = 1.0
+
+# check if blender is opened by a dev (from vscode..?)
+BLENDER_INSTANCE_IS_DEV = os.path.exists(getAddonPath() + ".git")
 
 URL_DOCUMENTATION       = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
 URL_BUG_REPORT          = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
@@ -2120,7 +2120,7 @@ def makeToast(title: str, text: str, baloon_icon: str="Info", duration: float=50
     subprocess.call(cmd)
 
 
-def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str='INFO', accept_callback:callable=None, accept_text:str="OK"):
+def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str='INFO'):
     """create a small info(text) popup in blender, write infos to a file on desktop"""
     frameinfo   = getframeinfo(currentframe().f_back)
     line        = str(frameinfo.lineno)
@@ -2129,21 +2129,11 @@ def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str=
 
     title = str(title)
 
-    tm_props = getTmProps()
-    tm_props.CB_panelReportAccept = False
-
     def draw(self, context):
         # self.layout.label(text=f"This report is saved at: {desktopPath} as {fileName}.txt", icon="FILE_TEXT")
         for info in infos:
             self.layout.label(text=str(info))
-        
-        if accept_callback:
-            self.layout.separator(factor=UI_SPACER_FACTOR)
-            self.layout.prop(tm_props, "CB_panelReportAccept", text=accept_text)
-            if tm_props.CB_panelReportAccept:
-                accept_callback()
             
-
     bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
     
 

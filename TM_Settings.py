@@ -95,14 +95,9 @@ class TM_OT_Settings_UpdateAddon(Operator):
         
     def execute(self, context):
         if saveBlendFile():
-            if isAddonsFolderLinkedWithDevEnvi():
-                makeReportPopup(
-                    "dev environment, operator not executed", 
-                    ["enable manually in TM_Settings.py:103"],
-                    accept_callback=updateAddon,
-                    accept_text="OVERWRITE LOCAL FILES"
-                    )
-                return {"FINISHED"}
+            # if isAddonsFolderLinkedWithDevEnvi():
+            #     makeReportPopup("dev environment, operator not executed", ["enable manually in TM_Settings.py:103"])
+            #     return {"FINISHED"}
 
             updateAddon()
         else:
@@ -131,7 +126,12 @@ class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
     def execute(self, context):
         update_available = AddonUpdate.checkForNewRelease()
         if not update_available:
-            makeReportPopup("No update available")
+            makeReportPopup(
+                "No update available", 
+                [
+                    f"your version: {AddonUpdate.addon_version}",
+                    f"new version: {AddonUpdate.new_addon_version}",
+                ])
         return {"FINISHED"}
 
 
@@ -180,6 +180,7 @@ class TM_PT_Settings(Panel):
             next_version = tuple(tm_props.NU_addonUpdateNewVersion)
 
             col = box.column(align=True)
+            col.alert = BLENDER_INSTANCE_IS_DEV
             row = col.row(align=True)
             row.scale_y = 1.5
             row.enabled = tm_props.CB_addonUpdateDLshow is False
