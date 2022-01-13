@@ -1985,26 +1985,18 @@ def debugALL() -> None:
             ])
     
 
-class CustomIcons:
-    icon_collection    = bpy.utils.previews.new()
-    icon_source_folder = os.path.join(os.path.dirname(__file__), "icons")
+
+preview_collections = {}
+
+path_icons = os.path.join(os.path.dirname(__file__), "icons")
+preview_collection = bpy.utils.previews.new()
+
+def getIcon(icon: str) -> object:
+    if icon not in preview_collection.keys():
+        preview_collection.load(icon, os.path.join(path_icons, icon + ".png"), "IMAGE")
+    return preview_collection[icon].icon_id
 
 
-
-
-def getIcon(icon: str="MANIAPLANET") -> int:
-    """return icon for ui layout"""
-    icons = CustomIcons.icon_collection
-
-    if icon not in icons:
-        icons.load(
-            icon, 
-            os.path.join(CustomIcons.icon_source_folder, icon + ".png"), "IMAGE"
-        )
-
-    icon = icons[icon].icon_id # int
-
-    return icon
 
 
 def getPathOfCustomIcon(name:str) -> str:
