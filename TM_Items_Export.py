@@ -294,9 +294,9 @@ def exportAndOrConvert()->None:
         and objnameLower.startswith("_") is False:
             obj.name = "_trigger_"
 
-        if "skip" in objnameLower\
+        if "ignore" in objnameLower\
         and objnameLower.startswith("_") is False:
-            obj.name = "_skip_"+obj.name
+            obj.name = "_ignore_"+obj.name
 
         if "notvisible" in objnameLower\
         and objnameLower.startswith("_") is False:

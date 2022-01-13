@@ -43,7 +43,7 @@ This addon is for Blender 2.93+, it will simplify all necessary steps and help y
 - - \_trigger\_whatever  (no uvs, no materials, the mesh which triggers the waypoint)
 - - \_notvisible\_whatever  (the mesh will not be visible, but will be collidable)
 - - \_notcollidable\_whatever  (the mesh will be visible but not collidable, the player will be able to go through it.)
-- - \_skip\_whatever  (mesh will be completely ignored during the import process.)
+- - \_ignore\_whatever  (mesh will be completely ignored during the import process.)
 - - whatever_Lod0 (optional, highpoly version, visible when near)
 - - whatever_Lod1 (optional, lowpoly  version, visible when far away)
 - choose the waypoint type for your collection by rightclick, color:

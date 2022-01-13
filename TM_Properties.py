@@ -269,7 +269,7 @@ def getWayPointVariations() -> list:
         icon = col + COLLECTION_COLOR_TAG_YELLOW
     ).add(
         id   = "None",
-        name = "None",
+        name = "Default",
         desc = "Object will not be a waypoint",
         icon = "CUBE" 
     ).toList()
@@ -794,25 +794,34 @@ def getMaterialGameplayIds(self, context)->None:
 
 def getCarNames() -> list:
     return EnumProps().add(
-        id   = "Stadium",
-        name = "Stadium",
+        id   = ADDON_ITEM_FILEPATH_CAR_STADIUM,
+        name = "Car Stadium",
         desc = "Stadium",
-        icon = getIcon("ENVI_STADIUM")
+        # icon = getIcon("ENVI_STADIUM")
     ).add(
-        id   = "Canyon",
-        name = "Canyon",
+        id   = ADDON_ITEM_FILEPATH_CAR_CANYON,
+        name = "Car Canyon",
         desc = "Canyon",
-        icon = getIcon("ENVI_CANYON")
+        # icon = getIcon("ENVI_CANYON")
     ).add(
-        id   = "Valley",
-        name = "Valley",
+        id   = ADDON_ITEM_FILEPATH_CAR_VALLEY,
+        name = "Car Valley",
         desc = "Valley",
-        icon = getIcon("ENVI_VALLEY")
+        # icon = getIcon("ENVI_VALLEY")
     ).add(
-        id   = "Lagoon",
-        name = "Lagoon",
+        id   = ADDON_ITEM_FILEPATH_CAR_LAGOON,
+        name = "Car Lagoon",
         desc = "Lagoon",
-        icon = getIcon("ENVI_LAGOON")
+        # icon = getIcon("ENVI_LAGOON")
+    ).toList()
+
+
+def getTriggerNames() -> list:
+    return EnumProps().add(
+        id   = ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8,
+        name = "Wall 32x8",
+        desc = "Wall 32x8",
+        # icon = "SELECT_INTERSECT"
     ).toList()
 
 
@@ -837,10 +846,12 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_nadeoImporterDLError     : StringProperty(name="Status",  default="", update=redrawPanel)
     CB_nadeoImporterDLshow      : BoolProperty(  default=False,  update=redrawPanel)
 
-    CB_addonUpdateDLRunning   : BoolProperty(  default=False,  update=redrawPanel)
-    NU_addonUpdateDLProgress  : FloatProperty( min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
-    ST_addonUpdateDLError     : StringProperty(name="Status",  default="", update=redrawPanel)
-    CB_addonUpdateDLshow      : BoolProperty(  default=False,  update=redrawPanel)
+    CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redrawPanel)
+    NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
+    ST_addonUpdateDLError     : StringProperty(     name="Status",  default="", update=redrawPanel)
+    CB_addonUpdateDLshow      : BoolProperty(       default=False,  update=redrawPanel)
+    CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redrawPanel)
+    NU_addonUpdateNewVersion  : IntVectorProperty(default=(0,0,0), size=3,  update=redrawPanel)
 
 
     #export
@@ -961,7 +972,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_DL_TexturesShow     : BoolProperty(default=False,                      update=redrawPanel)
 
     # cars
-    LI_items_cars : EnumProperty(name="Car", items=getCarNames())
+    LI_items_cars     : EnumProperty(name="Car",     items=getCarNames())
+    LI_items_triggers : EnumProperty(name="Trigger", items=getTriggerNames())
 
 
 class TM_Properties_LinkedMaterials(PropertyGroup):

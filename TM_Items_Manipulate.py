@@ -30,25 +30,46 @@ class TM_OT_Items_ObjectManipulationAddTriggerItem(Operator):
         addTriggerItemToSelectedCollection()
         return {"FINISHED"}
 
-class TM_OT_Items_ObjectManipulationToggleSkip(Operator):
-    bl_idname = "view3d.tm_toggleobjectskip"
-    bl_description = "Toggle _skip_ on selected object"
+class TM_OT_Items_ObjectManipulationToggleIgnore(Operator):
+    bl_idname = "view3d.tm_toggleobjectsignore"
+    bl_description = "Toggle _ignore_ on selected object"
     bl_icon = 'ADD'
-    bl_label = "Toggle _skip_"
+    bl_label = "Toggle _ignore_"
    
     def execute(self, context):
         if len(bpy.context.selected_objects) == 1:
             obj = bpy.context.selected_objects[0]
-            isEnabled = obj.name.startswith("_skip_")
+            isEnabled = obj.name.startswith("_ignore_")
 
             obj.name = obj.name.replace("_notvisible_", "").replace("_notcollidable_", "")
 
             if isEnabled:
-                obj.name = obj.name.replace("_skip_", "")
+                obj.name = obj.name.replace("_ignore_", "")
             else:
-                obj.name = "_skip_"+obj.name
+                obj.name = "_ignore_"+obj.name
         
         return {"FINISHED"}
+
+
+class TM_OT_Items_CollectionManipulationToggleIgnore(Operator):
+    bl_idname = "view3d.tm_togglecollectionignore"
+    bl_description = "Toggle _ignore_ on selected collection"
+    bl_icon = 'ADD'
+    bl_label = "Toggle _ignore_"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            obj = bpy.context.selected_objects[0]
+            col = obj.users_collection[0]
+            isEnabled = col.name.startswith("_ignore_")
+
+            if isEnabled:
+                col.name = col.name.replace("_ignore_", "")
+            else:
+                col.name = "_ignore_"+col.name
+        
+        return {"FINISHED"}
+
 
 class TM_OT_Items_ObjectManipulationToggleNotvisible(Operator):
     bl_idname = "view3d.tm_toggleobjectnotvisible"
@@ -61,7 +82,7 @@ class TM_OT_Items_ObjectManipulationToggleNotvisible(Operator):
             obj = bpy.context.selected_objects[0]
             isEnabled = obj.name.startswith("_notvisible_")
 
-            obj.name = obj.name.replace("_skip_", "").replace("_notcollidable_", "")
+            obj.name = obj.name.replace("_ignore_", "").replace("_notcollidable_", "")
 
             if isEnabled:
                 obj.name = obj.name.replace("_notvisible_", "")
@@ -81,7 +102,7 @@ class TM_OT_Items_ObjectManipulationToggleNotcollidable(Operator):
             obj = bpy.context.selected_objects[0]
             isEnabled = obj.name.startswith("_notcollidable_")
 
-            obj.name = obj.name.replace("_skip_", "").replace("_notvisible_", "")
+            obj.name = obj.name.replace("_ignore_", "").replace("_notvisible_", "")
 
             if isEnabled:
                 obj.name = obj.name.replace("_notcollidable_", "")
@@ -107,32 +128,20 @@ class TM_PT_ObjectManipulations(Panel):
         layout.enabled = len(bpy.context.selected_objects) > 0
         tm_props = getTmProps()
         
-        collection      = getActiveCollectionOfSelectedObject()
-        collection_name = collection.name if collection is not None else "Select any object !"
-
-        # layout.separator(factor=UI_SPACER_FACTOR)
-
-        # row = layout.row()
-        # row.scale_y = .5
-        # # row.alignment = "CENTER"
-        # row.label(text="Collection to manipulate:")
+        current_collection      = getActiveCollectionOfSelectedObject()
+        current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
         
-        box = layout.box()
-        row = box.row()
+        # collection box
+        col_box = layout.box()
+        row = col_box.row()
         row.alignment = "CENTER"
-        row.label(text=collection_name)
+        row.label(text=current_collection_name)
 
-        # layout.separator(factor=UI_SPACER_FACTOR)
+        row = col_box.row()
+        row.prop(tm_props, "LI_xml_waypointtype", text="")
+        
 
-        row = layout.row()
-        col = row.column()
-        col.label(text="Waypoint")
-        col = row.column()
-        col.scale_x = 1.5
-        col.prop(tm_props, "LI_xml_waypointtype", text="")
-
-        current_collection = getActiveCollectionOfSelectedObject()
-
+        
         # check if collection is a waypoint
         if current_collection is not None:
             if getWaypointTypeOfCollection(current_collection) != "None":
@@ -141,48 +150,59 @@ class TM_PT_ObjectManipulations(Panel):
                 
 
                 if has_spawn_item is False:
-                    box = layout.box()
-                    row = box.row()
+                    row = col_box.row()
                     row.alert = True
                     row.scale_y = .75
+                    row.alignment = "CENTER"
                     row.label(text="Spawn object not found!")
-                    row = box.row()
-                    row.operator("view3d.tm_createsocketitemincollection", text="Add _socket_ to collection", icon="ADD")
-                    row = box.row()
-                    row.prop(tm_props, "LI_items_cars")
+                    row = col_box.row(align=True)
+                    row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon="ADD")
+                    row.prop(tm_props, "LI_items_cars", text="")
                     
                 
                 if has_trigger_item is False:
-                    box = layout.box()
-                    row = box.row()
+                    row = col_box.row()
                     row.alert = True
                     row.scale_y = .75
+                    row.alignment = "CENTER"
                     row.label(text="Trigger object not found!")
-                    row = box.row()
-                    row.operator("view3d.tm_createtriggeritemincollection", text="Add _trigger_ to collection", icon="ADD")
+                    row = col_box.row(align=True)
+                    row.operator("view3d.tm_createtriggeritemincollection", text="Add trigger", icon="ADD")
+                    row.prop(tm_props, "LI_items_triggers", text="")
+
+
+        # layout.separator(factor=UI_SPACER_FACTOR)
+        
+        # object box
+        obj_box = layout.box()
+
+        obj                 = None
+        obj_name_raw        = "Select any object !"
+        obj_name_with_prefix= "Select any object !"
+        if bpy.context.selected_objects:
+            obj                 = bpy.context.selected_objects[0]
+            obj_name_with_prefix= obj.name
+            obj_name_raw        = cleanObjNameFromSpecialProps(obj.name)
+
+        row = obj_box.row()
+        row.alignment = "CENTER"
+        row.label(text=f"{obj_name_raw}")
+
+        row = obj_box.row(align=True)
+        
+        isEnabled = obj_name_with_prefix.startswith("_ignore_")
+        row.operator(f"view3d.tm_toggleobjectsignore", text=f"_ignore_", icon="X" if isEnabled else "NONE")
 
 
         if isGameTypeTrackmania2020():
-            obj      = None
-            obj_name = ""
-            if bpy.context.selected_objects:
-                obj      = bpy.context.selected_objects[0]
-                obj_name = obj.name
-            
-            isEnabled = obj_name.startswith("_skip_")
-            row = layout.row()
-            row.scale_y = 1
-            row.operator(f"view3d.tm_toggleobjectskip", text=f"""{'Use' if isEnabled else 'Ignore'} "{cleanObjNameFromSpecialProps(obj_name)}" during export""")
+            isEnabled = obj_name_with_prefix.startswith("_notvisible_")
+            row.operator("view3d.tm_toggleobjectnotvisible", text=f"_notvisible_", icon="X" if isEnabled else "NONE")
 
-            isEnabled = obj_name.startswith("_notvisible_")
-            row = layout.row()
-            row.scale_y = 1
-            row.operator("view3d.tm_toggleobjectnotvisible", text=f"""Mark "{cleanObjNameFromSpecialProps(obj_name)}" as {'Visible' if isEnabled else 'Not Visible'}""")
+            isEnabled = obj_name_with_prefix.startswith("_notcollidable_")
+            row.operator("view3d.tm_toggleobjectnotcollidable", text=f"_notcollidable_", icon="X" if isEnabled else "NONE")
 
-            isEnabled = obj_name.startswith("_notcollidable_")
-            row = layout.row()
-            row.scale_y = 1
-            row.operator("view3d.tm_toggleobjectnotcollidable", text=f"""Mark "{cleanObjNameFromSpecialProps(obj_name)}" as {'Collidable' if isEnabled else 'Not Collidable'}""")
+
+        layout.separator(factor=UI_SPACER_FACTOR)
 
             
 
@@ -197,7 +217,7 @@ def cleanObjNameFromSpecialProps(name: str) -> str:
     new_name = ""
     if name is not None:
         new_name = (name
-            .replace(SPECIAL_NAME_PREFIX_SKIP, "")
+            .replace(SPECIAL_NAME_PREFIX_IGNORE, "")
             .replace(SPECIAL_NAME_PREFIX_NOTVISIBLE, "")
             .replace(SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, "")
             )
@@ -213,17 +233,10 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
         return
     
     if obj_type == SPECIAL_NAME_PREFIX_TRIGGER:
-        fbx_filepath = ADDON_ITEM_FILEPATH_TRIGGER_32x8
+        fbx_filepath = getTriggerName()
     
     elif obj_type == SPECIAL_NAME_PREFIX_SOCKET:
-        envi = getCarType()
-        if   envi == "Stadium": fbx_filepath = ADDON_ITEM_FILEPATH_CAR_STADIUM
-        elif envi == "Canyon":  fbx_filepath = ADDON_ITEM_FILEPATH_CAR_CANYON
-        elif envi == "Valley":  fbx_filepath = ADDON_ITEM_FILEPATH_CAR_VALLEY
-        elif envi == "Lagoon":  fbx_filepath = ADDON_ITEM_FILEPATH_CAR_LAGOON
-        else:
-            makeReportPopup(f"Collection not supported,{envi=}, {obj_type=}")
-            return
+        fbx_filepath = getCarType()
 
     else:
         makeReportPopup(f"failed to import a obj of {obj_type=}")
