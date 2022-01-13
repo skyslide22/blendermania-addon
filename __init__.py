@@ -58,12 +58,16 @@ classes = (
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_DebugALL,
     TM_OT_Settings_UpdateAddon,
+    TM_OT_Settings_UpdateAddonResetSettings,
+    TM_OT_Settings_UpdateAddonOpenChangelog,
+    TM_OT_Settings_UpdateAddonCheckForNewRelease,
 
     # object manipulation
     TM_PT_ObjectManipulations,
     TM_OT_Items_ObjectManipulationAddSocketItem,
     TM_OT_Items_ObjectManipulationAddTriggerItem,
-    TM_OT_Items_ObjectManipulationToggleSkip,
+    TM_OT_Items_ObjectManipulationToggleIgnore,
+    TM_OT_Items_CollectionManipulationToggleIgnore,
     TM_OT_Items_ObjectManipulationToggleNotvisible,
     TM_OT_Items_ObjectManipulationToggleNotcollidable,
 
@@ -176,11 +180,10 @@ def on_startup(dummy) -> None:
     """run on blender startup, load blend file & reload current file"""
     
     # can be opened on save
-    try:
-        bpy.ops.view3d.tm_closeconvertsubpanel()
-        bpy.ops.view3d.tm_resetaddonupdatesettings()
-    except AttributeError as error:
-        pass # fails on first startup when open_mainfile used
+    bpy.ops.view3d.tm_closeconvertsubpanel()
+    bpy.ops.view3d.tm_resetaddonupdatesettings()
+
+    AddonUpdate.checkForNewRelease()
     
     # remove possible error text
     isNadeoImporterInstalled()

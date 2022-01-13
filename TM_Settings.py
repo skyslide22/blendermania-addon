@@ -95,14 +95,38 @@ class TM_OT_Settings_UpdateAddon(Operator):
         
     def execute(self, context):
         if saveBlendFile():
-            if isAddonsFolderLinkedWithDevEnvi():
-                makeReportPopup("dev environment, operator not executed", ["enable manually in TM_Settings.py:103"])
-                return {"FINISHED"}
+          # if isAddonsFolderLinkedWithDevEnvi():
+          #     makeReportPopup("dev environment, operator not executed", ["enable manually in TM_Settings.py:103"])
+          #     return {"FINISHED"}
 
             updateAddon()
         else:
             makeReportPopup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
 
+        return {"FINISHED"}
+
+
+class TM_OT_Settings_UpdateAddonOpenChangelog(Operator):
+    bl_idname = "view3d.tm_updateaddonopenchangelog"
+    bl_description = "fetch latest version from github, install, save and restart blender"
+    bl_label = "Update addon"
+    bl_options = {"REGISTER"}
+        
+    def execute(self, context):
+        openHelp("changelog")
+        return {"FINISHED"}
+
+
+class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
+    bl_idname = "view3d.tm_checkfornewaddonrelease"
+    bl_description = "check if new addon release is available"
+    bl_label = "check for new release"
+    bl_options = {"REGISTER"}
+        
+    def execute(self, context):
+        update_available = AddonUpdate.checkForNewRelease()
+        if not update_available:
+            makeReportPopup("No update available")
         return {"FINISHED"}
 
 
@@ -129,26 +153,34 @@ class TM_PT_Settings(Panel):
         layout          = self.layout
         tm_props        = getTmProps()
         
+
         box = layout.box()
+        box.separator(factor=0)
         row = box.row(align=True)
+        row.scale_y=.5
         row.alert = not is_blender_3
         row.label(text=f"Blender: {blender_version}", icon="BLENDER")
         row = box.row(align=True)
-        row.scale_y=.5
         row.label(text=f"""Addon: {addon_version}""", icon="FILE_SCRIPT")
+        row.operator("view3d.tm_checkfornewaddonrelease", text="", icon="FILE_REFRESH")
         if not is_blender_3:
             row = box.row()
             row.alert = False
             row.label(text="Blender 3.0+ required!")
 
+        update_available = tm_props.CB_addonUpdateAvailable
 
-        if True:
+        if update_available:
+
+            next_version = tuple(tm_props.NU_addonUpdateNewVersion)
+
             col = box.column(align=True)
             row = col.row(align=True)
             row.scale_y = 1.5
             row.enabled = tm_props.CB_addonUpdateDLshow is False
-            row.operator("view3d.tm_updateaddonrestartblender", text="Update addon to v2.0.1 & restart")
-
+            row.operator("view3d.tm_updateaddonrestartblender", text=f"Update to {next_version}", icon="FILE_REFRESH")
+            row = col.row(align=True)
+            row.operator("view3d.tm_updateaddonopenchangelog", text="Open changelog", icon="WORLD")
             error     = tm_props.ST_addonUpdateDLError
             show_panel = tm_props.CB_addonUpdateDLshow
 
@@ -327,14 +359,12 @@ def autoFindNadeoIni()->None:
 
 def updateAddon() -> None:
     """update the addon if a new version exist and restart blender to use new version"""    
-    addon = AddonUpdate()
-    has_new_release = addon.checkForNewRelease()
 
     # TODO create check for new update on startup && dynamic version text in UI
     # if has_new_release:
     #     addon.doUpdate()
     
-    addon.doUpdate()
+    AddonUpdate.doUpdate()
 
 
 
@@ -350,6 +380,7 @@ def openHelp(helptype: str) -> None:
     
     elif helptype == "documentation": webbrowser.open(URL_DOCUMENTATION)
     elif helptype == "github":        webbrowser.open(URL_GITHUB)
+    elif helptype == "changelog":     webbrowser.open(URL_CHANGELOG)
     elif helptype == "checkregex":    webbrowser.open(URL_REGEX)
     elif helptype == "convertreport": subprocess.Popen(['start', fixSlash(PATH_CONVERT_REPORT)], shell=True)
     

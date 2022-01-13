@@ -61,6 +61,7 @@ UI_SPACER_FACTOR        = 1.0
 URL_DOCUMENTATION       = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
 URL_BUG_REPORT          = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
 URL_GITHUB              = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
+URL_CHANGELOG           = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases"
 URL_RELEASES            = "https://api.github.com/repos/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases/latest"
 URL_REGEX               = "https://regex101.com/"
 PATH_DESKTOP            = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
@@ -125,7 +126,7 @@ WAYPOINTS["Finish"]      = COLLECTION_COLOR_TAG_RED
 SPECIAL_NAME_PREFIXES = (
     SPECIAL_NAME_PREFIX_SOCKET        := "_socket_",
     SPECIAL_NAME_PREFIX_TRIGGER       := "_trigger_",
-    SPECIAL_NAME_PREFIX_SKIP          := "_skip_",
+    SPECIAL_NAME_PREFIX_IGNORE        := "_ignore_",
     SPECIAL_NAME_PREFIX_NOTVISIBLE    := "_notvisible_",
     SPECIAL_NAME_PREFIX_NOTCOLLIDABLE := "_notcollidable_",
 )
@@ -137,7 +138,7 @@ ADDON_ITEM_FILEPATH_CAR_LAGOON  = getAddonAssetsPath() + "/item_cars/CAR_LagoonC
 ADDON_ITEM_FILEPATH_CAR_CANYON  = getAddonAssetsPath() + "/item_cars/CAR_CanyonCar_Lowpoly.fbx"
 ADDON_ITEM_FILEPATH_CAR_VALLEY  = getAddonAssetsPath() + "/item_cars/CAR_ValleyCar_Lowpoly.fbx"
 
-ADDON_ITEM_FILEPATH_TRIGGER_32x8 = getAddonAssetsPath() + "/item_triggers/TRIGGER_32x8.fbx"
+ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = getAddonAssetsPath() + "/item_triggers/TRIGGER_WALL_32x8.fbx"
 
 
 # Not all physic ids are listed in the NadeoimporterMaterialLib.txt [Maniaplanet && TM2020]
@@ -463,35 +464,41 @@ def reloadCurrentOpenedFileWithRestart() -> None:
 
 
 class AddonUpdate:
-    def __init__(self) -> None:
-        from . import bl_info
-        self.addon_version     :tuple = bl_info["version"]
-        self.new_addon_version :tuple = (0,0,0)
-        self.download_url      :str   = None
+    from . import bl_info
+    addon_version     :tuple = bl_info["version"]
+    new_addon_version :tuple = (0,0,0)
+    download_url      :str   = None
 
-    
-    def checkForNewRelease(self) -> bool:
+    def checkCanUpdate(cls) -> bool:
+        can_update = cls.new_addon_version > cls.addon_version
+        debug(f"{can_update=}")
+        return can_update
+
+    @classmethod
+    def checkForNewRelease(cls) -> bool:
         try:
             json_string = urllib.request.urlopen(URL_RELEASES).read()
             json_object = json.loads(json_string.decode('utf-8'))
             tag_name    = json_object["tag_name"].replace("v", "")
             
-            self.new_addon_version = tuple( map( int, tag_name.split(".") ))
-            self.download_url      = json_object["assets"][0]["browser_download_url"]
+            cls.new_addon_version = tuple( map( int, tag_name.split(".") ))
+            cls.download_url      = json_object["assets"][0]["browser_download_url"]
         
         except Exception as e: 
             makeReportPopup("Failed to fetch releases", ["failed to get data from github", f"error: {e}"])
         
         finally: 
-            return self.new_addon_version > self.addon_version
+            can_update = cls.checkCanUpdate(cls)
+            getTmProps().CB_addonUpdateAvailable = can_update
+            return can_update
     
-
-    def doUpdate(self) -> None:
+    @classmethod
+    def doUpdate(cls) -> None:
         debug("Update addon now")
         tm_props = getTmProps()
         filename = "blender-addon-for-trackmania-and-maniaplanet.zip"
         save_to  = getBlenderAddonsPath() + filename
-        url      = self.download_url
+        url      = cls.download_url
 
         def on_success():
             tm_props.CB_addonUpdateDLRunning = False
@@ -609,6 +616,9 @@ def isGameTypeTrackmania2020()->bool:
 
 def getCarType() -> str:
     return str(getTmProps().LI_items_cars)
+
+def getTriggerName() -> str:
+    return str(getTmProps().LI_items_triggers)
 
 def unzipNadeoImporter()->None:
     """unzips the downloaded <exe>/NadeoImporter.zip file in <exe> dir"""
@@ -973,7 +983,7 @@ def fixUvLayerNamesOfObjects(col) -> None:
         and not "socket"     in obj.name.lower() \
         and not "trigger"    in obj.name.lower() \
         and not "notvisible" in obj.name.lower() \
-        and not "skip" in obj.name.lower() \
+        and not "ignore" in obj.name.lower() \
         and len(obj.material_slots.keys()) > 0:
             uvs = obj.data.uv_layers
 
