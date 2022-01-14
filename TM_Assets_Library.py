@@ -25,8 +25,6 @@ class TM_OT_Materials_Create_Asset_Lib(Operator):
         else:
             makeReportPopup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
 
-        #?>makeReportPopup("Assets library created", ["Successfully created assets library"], "INFO")
-
         return {"FINISHED"}
 
 
