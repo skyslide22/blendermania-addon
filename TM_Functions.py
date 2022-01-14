@@ -71,6 +71,14 @@ PATH_PROGRAM_FILES_X86  = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/")
 PATH_CONVERT_REPORT     = PATH_DESKTOP + "convert_report.html"
 
 WEBSPACE_BASE_URL                = "http://images.mania.exchange/com/skyslide/"
+#replace bellow once github repo is public
+#GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet-assets/releases/download/"
+#WEBSPACE_TEXTURES_MP_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Stadium/Textures_ManiaPlanet_Stadium.zip"
+#WEBSPACE_TEXTURES_MP_VALLEY  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Valley/Textures_ManiaPlanet_Valley.zip"
+#WEBSPACE_TEXTURES_MP_STORM   = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Shootmania/Textures_ManiaPlanet_Shootmania.zip"
+#WEBSPACE_TEXTURES_MP_LAGOON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Lagoon/Textures_ManiaPlanet_Lagoon.zip"
+#WEBSPACE_TEXTURES_MP_CANYON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Canyon/Textures_ManiaPlanet_Canyon.zip"
+#WEBSPACE_TEXTURES_TM_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_TrackMania2020/Textures_TrackMania2020.zip"
 WEBSPACE_TEXTURES_MP_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Stadium.zip"
 WEBSPACE_TEXTURES_MP_VALLEY      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Valley.zip"
 WEBSPACE_TEXTURES_MP_STORM       = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Shootmania.zip"
@@ -823,7 +831,7 @@ def saveBlendFile() -> bool:
 def saveBlendFileAs(filepath: str) -> bool:
     """overwrite/save opened blend file, returns bool if saving was successfull"""
     if bpy.data.is_saved:
-        bpy.ops.wm.save_as_mainfile(filepath=filepath)
+        bpy.ops.wm.save_as_mainfile(filepath=filepath, compress=True)
         
     return bpy.data.is_saved
 
