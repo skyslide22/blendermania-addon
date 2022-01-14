@@ -25,33 +25,67 @@ class TM_OT_Materials_Create_Asset_Lib(Operator):
         else:
             makeReportPopup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
 
-        makeReportPopup("Assets library created", ["Successfully created assets library"], "INFO")
-
         return {"FINISHED"}
 
 
 
 def createAssetsLib() -> None:
-    createAssetsCatalogFile()
+    currentFile = bpy.data.filepath
 
-    getOrCreateCatalog(getTmProps().LI_gameType)
+    # clear all possible data
+    for bpy_data_iter in (
+            bpy.data.objects,
+            bpy.data.meshes,
+            bpy.data.cameras,
+            bpy.data.materials,
+            bpy.data.cameras,
+            bpy.data.armatures,
+            bpy.data.collections,
+            bpy.data.curves,
+            bpy.data.images,
+    ):
+        for id_data in bpy_data_iter:
+            bpy_data_iter.remove(id_data, do_unlink=True)
 
+    createAssetsCatalogFile(getDocPathItemsAssets())
+    
+    fileName = ""
     if isGameTypeTrackmania2020():
+        fileName = getTmProps().LI_gameType+"_assets.blend"
         generate2020Assets()
     elif isGameTypeManiaPlanet():
-        generateMPAssets()
+        fileName = getTmProps().LI_gameType+"_assets.blend"
+        generateMPAssets()  
 
-    # reload assets browser if it's on active screen
-    for area in bpy.context.screen.areas:
-        if area.type == "FILE_BROWSER":
-            override_context = bpy.context.copy()
-            override_context["area"] = area
-            bpy.ops.asset.library_refresh(override_context)
+    # save as new blend file for assets libraray
+    createFolderIfNecessary(getDocPathItemsAssets())
+    if not saveBlendFileAs(fixSlash(getDocPathItemsAssets()+"/"+fileName)):
+        makeReportPopup("Can not create new blend file", ["Something went wrong during creation of a new blend file"], "ERROR")
+
+    # reopen original file
+    bpy.ops.wm.open_mainfile(filepath=currentFile)
+
+    # add asset lib to current file
+    shouldCreate = True
+    for lib in bpy.context.preferences.filepaths.asset_libraries:
+        if lib.path == getDocPathItemsAssets():
+            shouldCreate = False
+
+    if shouldCreate:
+        bpy.ops.preferences.asset_library_add(directory=getDocPathItemsAssets())
+        for lib in bpy.context.preferences.filepaths.asset_libraries:
+            if lib.path == getDocPathItemsAssets():
+                lib.name = getTmProps().LI_gameType
+    return
    
 
 
 
 def generate2020Assets() -> None:
+    getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType)
+    getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium")
+    getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials")
+
     matList = getLinkedMaterials()
 
     for key in matList.keys():
@@ -94,73 +128,81 @@ def generate2020Assets() -> None:
             mat.asset_mark()
             key = key.lower()
             if "decal" in key:
-                uid = getOrCreateCatalog(getTmProps().LI_gameType+"/Decals")
+                uid = getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Decals")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif key.startswith("custom"):
-                uid = getOrCreateCatalog(getTmProps().LI_gameType+"/Custom")
+                uid = getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Custom")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif key.startswith("road"):
-                uid = getOrCreateCatalog(getTmProps().LI_gameType+"/Roads")
+                uid = getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Roads")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "platformtech" in key:
-                uid = getOrCreateCatalog(getTmProps().LI_gameType+"/Platform")
+                uid = getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Platform")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "specialfx" in key:
-                uid = getOrCreateCatalog(getTmProps().LI_gameType+"/SpecialFXs")
+                uid = getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/SpecialFXs")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "_sign" in key or "specialsign" in key:
-                uid = getOrCreateCatalog(getTmProps().LI_gameType+"/Signs")
+                uid = getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Signs")
                 if uid:
                     mat.asset_data.catalog_id = uid
             else:
-                uid = getOrCreateCatalog(getTmProps().LI_gameType+"/Rest")
+                uid = getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Rest")
                 if uid:
                     mat.asset_data.catalog_id = uid
 
 
 
 def generateMPAssets() -> None:
-    catalogUUID = getOrCreateCatalog(getTmProps().LI_gameType+"/"+getTmProps().LI_materialCollection)
-
-    matList = getLinkedMaterials()
-    for matItem in matList:
-        matNameNew = "MP_"+matItem.name+"_asset"
-        if matNameNew in bpy.data.materials:
+    for col in getMaterialCollectionTypes():
+        if col[0] == "Common":
             continue
+        
+        getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType)
+        catalogUUID = getOrCreateCatalog(getDocPathItemsAssets(), getTmProps().LI_gameType+"/"+col[0]+"/Materials")
 
-        mat = createMaterialAsset(matNameNew, matItem.name, (0,0,0))
-        if mat.use_nodes:
-            if (
-                "tex_D" in mat.node_tree.nodes and
-                mat.node_tree.nodes["tex_D"].image and
-                mat.node_tree.nodes["tex_D"].image.filepath
-            ):
-                bpy.ops.ed.lib_id_load_custom_preview(
-                    {"id": mat}, 
-                    filepath=mat.node_tree.nodes["tex_D"].image.filepath
-                )
-            elif (
-                "tex_I" in mat.node_tree.nodes and
-                mat.node_tree.nodes["tex_I"].image and
-                mat.node_tree.nodes["tex_I"].image.filepath
-            ):
-                bpy.ops.ed.lib_id_load_custom_preview(
-                    {"id": mat}, 
-                    filepath=mat.node_tree.nodes["tex_I"].image.filepath
-                )
-            else:
-                # short delay to let materials become registered
-                # otherwise preview is not generating
-                time.sleep(0.05)
-                bpy.ops.ed.lib_id_generate_preview({"id": mat})
+        getTmProps().LI_materialCollection = col[0]
+        gameTypeGotUpdated()
 
-            mat.asset_mark()
-            mat.asset_data.catalog_id = catalogUUID
+        matList = getLinkedMaterials()
+        for matItem in matList:
+            matNameNew = f"MP_{getTmProps().LI_materialCollection}_{matItem.name}_asset"
+            if matNameNew in bpy.data.materials:
+                continue
+
+            mat = createMaterialAsset(matNameNew, matItem.name, (0,0,0))
+            if mat.use_nodes:
+                if (
+                    "tex_D" in mat.node_tree.nodes and
+                    mat.node_tree.nodes["tex_D"].image and
+                    mat.node_tree.nodes["tex_D"].image.filepath
+                ):
+                    bpy.ops.ed.lib_id_load_custom_preview(
+                        {"id": mat}, 
+                        filepath=mat.node_tree.nodes["tex_D"].image.filepath
+                    )
+                elif (
+                    "tex_I" in mat.node_tree.nodes and
+                    mat.node_tree.nodes["tex_I"].image and
+                    mat.node_tree.nodes["tex_I"].image.filepath
+                ):
+                    bpy.ops.ed.lib_id_load_custom_preview(
+                        {"id": mat}, 
+                        filepath=mat.node_tree.nodes["tex_I"].image.filepath
+                    )
+                else:
+                    # short delay to let materials become registered
+                    # otherwise preview is not generating
+                    time.sleep(0.05)
+                    bpy.ops.ed.lib_id_generate_preview({"id": mat})
+
+                mat.asset_mark()
+                mat.asset_data.catalog_id = catalogUUID
 
     return
 
@@ -185,8 +227,8 @@ def createMaterialAsset(name: str, link: str, color: tuple[float, float, float])
         
 
 
-def createAssetsCatalogFile() -> None:
-    pathToAssets = os.path.join(Path(bpy.data.filepath).parent, "blender_assets.cats.txt")
+def createAssetsCatalogFile(path: str) -> None:
+    pathToAssets = os.path.join(path, "blender_assets.cats.txt")
     if not os.path.exists(pathToAssets):
         f = open(pathToAssets, "x")
         f.write("VERSION 1\n\n")
@@ -194,9 +236,9 @@ def createAssetsCatalogFile() -> None:
 
 
 
-def getCatalogsList() -> dict:
+def getCatalogsList(path: str) -> dict:
     catList = {}
-    with open(os.path.join(Path(bpy.data.filepath).parent, "blender_assets.cats.txt")) as f:
+    with open(os.path.join(path, "blender_assets.cats.txt")) as f:
         for line in f.readlines():
             if line.startswith(("#", "VERSION", "\n")):
                 continue
@@ -209,12 +251,12 @@ def getCatalogsList() -> dict:
 
 
 # returns catalog UUID
-def getOrCreateCatalog(name: str) -> str:
-    catList = getCatalogsList()
+def getOrCreateCatalog(path: str, name: str) -> str:
+    catList = getCatalogsList(path)
     if name in catList:
         return catList[name]
     else:
-        with open(os.path.join(Path(bpy.data.filepath).parent, "blender_assets.cats.txt"), "a") as f:
+        with open(os.path.join(path, "blender_assets.cats.txt"), "a") as f:
             uid = uuid.uuid4()
             f.write(f"{uid}:{name}:{name.replace('/', '-', -1)}\n")
             return f"{uid}"
