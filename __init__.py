@@ -28,16 +28,13 @@ from .TM_Items_UVMaps       import *
 from .TM_Items_Icon         import *
 from .TM_Items_Templates    import *
 from .TM_Items_Manipulate   import *
-from .TM_Assets_Library   import *
+from .TM_Assets_Library     import *
 
 
 
 # owner of the object eventlistener
 object_eventlistner_owner = object()
 
-# icons
-CustomIcons.icon_source_folder = os.path.join(os.path.dirname(__file__), "icons")
-CustomIcons.custom_icons = None
 
 # register order matters for UI panel ordering
 classes = (
@@ -58,12 +55,16 @@ classes = (
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_DebugALL,
     TM_OT_Settings_UpdateAddon,
+    TM_OT_Settings_UpdateAddonResetSettings,
+    TM_OT_Settings_UpdateAddonOpenChangelog,
+    TM_OT_Settings_UpdateAddonCheckForNewRelease,
 
     # object manipulation
     TM_PT_ObjectManipulations,
     TM_OT_Items_ObjectManipulationAddSocketItem,
     TM_OT_Items_ObjectManipulationAddTriggerItem,
-    TM_OT_Items_ObjectManipulationToggleSkip,
+    TM_OT_Items_ObjectManipulationToggleIgnore,
+    TM_OT_Items_CollectionManipulationToggleIgnore,
     TM_OT_Items_ObjectManipulationToggleNotvisible,
     TM_OT_Items_ObjectManipulationToggleNotcollidable,
 
@@ -161,12 +162,10 @@ def unregister():
     bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
 
     # icons
-    icons = CustomIcons.icon_collection
-    if icons is not None:
-        try:
-            bpy.utils.previews.remove(icons)
-        except KeyError as error:
-            debug("failed to unregister icons, keyerror")
+    for pcoll in preview_collections.values():
+        bpy.utils.previews.remove(pcoll)
+    
+    preview_collections.clear()
             
 
 
@@ -181,6 +180,8 @@ def on_startup(dummy) -> None:
         bpy.ops.view3d.tm_resetaddonupdatesettings()
     except AttributeError as error:
         pass # fails on first startup when open_mainfile used
+
+    AddonUpdate.checkForNewRelease()
     
     # remove possible error text
     isNadeoImporterInstalled()
