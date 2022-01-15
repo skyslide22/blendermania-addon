@@ -71,15 +71,25 @@ PATH_PROGRAM_FILES      = os.environ.get("PROGRAMFILES").replace("\\", "/")     
 PATH_PROGRAM_FILES_X86  = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
 PATH_CONVERT_REPORT     = PATH_DESKTOP + "convert_report.html"
 
-WEBSPACE_BASE_URL                = "http://images.mania.exchange/com/skyslide/"
-WEBSPACE_TEXTURES_MP_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Stadium.zip"
-WEBSPACE_TEXTURES_MP_VALLEY      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Valley.zip"
-WEBSPACE_TEXTURES_MP_STORM       = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Shootmania.zip"
-WEBSPACE_TEXTURES_MP_LAGOON      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Lagoon.zip"
-WEBSPACE_TEXTURES_MP_CANYON      = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Canyon.zip"
-WEBSPACE_TEXTURES_TM_STADIUM     = WEBSPACE_BASE_URL + "_DTextures_TrackMania2020.zip"
-WEBSPACE_NADEOIMPORTER_MP        = WEBSPACE_BASE_URL + "NadeoImporter_ManiaPlanet.zip"
-WEBSPACE_NADEOIMPORTER_TM        = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania2020.zip"
+#replace bellow once github repo is public
+#GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet-assets/releases/download/"
+#WEBSPACE_TEXTURES_MP_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Stadium/Textures_ManiaPlanet_Stadium.zip"
+#WEBSPACE_TEXTURES_MP_VALLEY  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Valley/Textures_ManiaPlanet_Valley.zip"
+#WEBSPACE_TEXTURES_MP_STORM   = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Shootmania/Textures_ManiaPlanet_Shootmania.zip"
+#WEBSPACE_TEXTURES_MP_LAGOON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Lagoon/Textures_ManiaPlanet_Lagoon.zip"
+#WEBSPACE_TEXTURES_MP_CANYON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Canyon/Textures_ManiaPlanet_Canyon.zip"
+#WEBSPACE_TEXTURES_TM_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_TrackMania2020/Textures_TrackMania2020.zip"
+#WEBSPACE_NADEOIMPORTER_MP    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_ManiaPlanet/NadeoImporter_ManiaPlanet.zip"
+#WEBSPACE_NADEOIMPORTER_TM    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_TrackMania2020/NadeoImporter_TrackMania2020.zip"
+WEBSPACE_BASE_URL             = "http://images.mania.exchange/com/skyslide/"
+WEBSPACE_TEXTURES_MP_STADIUM  = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Stadium.zip"
+WEBSPACE_TEXTURES_MP_VALLEY   = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Valley.zip"
+WEBSPACE_TEXTURES_MP_STORM    = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Shootmania.zip"
+WEBSPACE_TEXTURES_MP_LAGOON   = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Lagoon.zip"
+WEBSPACE_TEXTURES_MP_CANYON   = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Canyon.zip"
+WEBSPACE_TEXTURES_TM_STADIUM  = WEBSPACE_BASE_URL + "_DTextures_TrackMania2020.zip"
+WEBSPACE_NADEOIMPORTER_MP     = WEBSPACE_BASE_URL + "NadeoImporter_ManiaPlanet.zip"
+WEBSPACE_NADEOIMPORTER_TM     = WEBSPACE_BASE_URL + "NadeoImporter_TrackMania2020.zip"
 
 # materials map for tm 2020 (someday nadeo gonna have corrent filenames for materials...)
 MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = getAddonAssetsPath()+"/materials/materials-map-trackmania2020.json"
@@ -827,6 +837,13 @@ def saveBlendFile() -> bool:
     """overwrite/save opened blend file, returns bool if saving was successfull"""
     if bpy.data.is_saved:
         bpy.ops.wm.save_as_mainfile()
+        
+    return bpy.data.is_saved
+
+def saveBlendFileAs(filepath: str) -> bool:
+    """overwrite/save opened blend file, returns bool if saving was successfull"""
+    if bpy.data.is_saved:
+        bpy.ops.wm.save_as_mainfile(filepath=filepath, compress=True)
         
     return bpy.data.is_saved
 

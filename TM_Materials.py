@@ -83,12 +83,10 @@ class TM_PT_Materials(Panel):
         use_physicsId   = tm_props.CB_materialUsePhysicsId
         use_gameplayId  = tm_props.CB_materialUseGameplayId
 
-        box = layout.box()
-        row = box.row()
-        currentGameName = tm_props.LI_gameType
-        if isGameTypeManiaPlanet():
-            currentGameName += " - "+tm_props.LI_materialCollection
-        row.operator("view3d.tm_createassetlib", text=f"Create {currentGameName} Assets Library", icon="ADD")
+        #uncomment it during development if you need to generate new assets library file
+        #box = layout.box()
+        #row = box.row()
+        #row.operator("view3d.tm_createassetlib", text=f"Create {tm_props.LI_gameType} Assets Library", icon="ADD")
 
 
         # choose action & mat name
