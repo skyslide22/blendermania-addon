@@ -70,6 +70,7 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleSocket,
     TM_OT_Items_ObjectManipulationToggleTrigger,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
+    TM_OT_Items_ObjectManipulationRemoveCollectionScale,
 
     # export
     TM_PT_Items_Export,

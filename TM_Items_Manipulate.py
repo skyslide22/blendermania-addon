@@ -1,4 +1,5 @@
 from cgitb import text
+from os import remove
 from socket import socket
 import bpy
 from bpy.types import Panel
@@ -105,6 +106,21 @@ class TM_OT_Items_CollectionManipulationToggleIgnore(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Items_ObjectManipulationRemoveCollectionScale(Operator):
+    bl_idname = "view3d.tm_removecollectionscale"
+    bl_description = "Remove custom multi scale for collection"
+    bl_icon = 'REMOVE'
+    bl_label = "Remove custom multi scale for collection"
+   
+    def execute(self, context):
+        col = getActiveCollectionOfSelectedObject()
+        if col is not None:
+            setScaledCollectionName(col=col, remove=True)
+        else:
+            makeReportPopup("Renaming failed", ["Select any object to change its collection name"])
+        return {"FINISHED"}
+
+
 class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     bl_idname = "wm.tm_changecollectionscale"
     bl_description = "Set custom multi scale for collection"
@@ -112,7 +128,28 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     bl_label = "Set custom multi scale for collection"
    
     def execute(self, context):
-        col = getActiveCollectionOfSelectedObject()
+        col      = getActiveCollectionOfSelectedObject()
+        tm_props = getTmProps()
+        
+        scale_from     = tm_props.NU_objMplScaleFrom
+        scale_to       = tm_props.NU_objMplScaleTo
+        scale_step     = tm_props.NU_objMplScaleFactor
+
+        max_step = 1
+        steps    = 1 / scale_step
+        scales   = scale_from - scale_to
+        
+        last_step   = max_step - (steps * scales) 
+        is_invalid  = last_step <= 0.06 # if scale <= 0, object will be invisible ingame
+
+        if is_invalid:
+            makeReportPopup("Setting scales failed", [
+                f"Invalid values, atleast one scale is lower than 0!",
+                f"Last step: {last_step}"
+                ])
+            return {"FINISHED"}
+
+
         if col is not None:
             setScaledCollectionName(col=col)
         else:
@@ -125,13 +162,83 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     def draw(self, context):
         tm_props = getTmProps()
         layout   = self.layout
+        # layout.use_property_split = True
         
+        main_row = layout.row(align=True) 
+        
+        col = main_row.column(align=True)
+        row = col.row()
+        row.alignment = "CENTER"
+        row.label(text="From")
+        row = col.row()
+        row.prop(tm_props, "NU_objMplScaleFrom", text="")
+       
+        col = main_row.column(align=True)
+        row = col.row()
+        row.alignment = "CENTER"
+        row.label(text="To")
+        row = col.row()
+        row.prop(tm_props, "NU_objMplScaleTo", text="")
+       
+        col = main_row.column(align=True)
+        row = col.row()
+        row.alignment = "CENTER"
+        row.label(text="Factor")
+        row = col.row()
+        row.prop(tm_props, "NU_objMplScaleFactor", text="")
+
+
+        layout.separator(factor=UI_SPACER_FACTOR)
+
+        collection_name = getActiveCollectionOfSelectedObject().name
+
         row = layout.row()
-        row.prop(tm_props, "NU_objMplScaleFrom", text="From")
+        row.scale_y = .5
+        row.label(text="New name:")
         row = layout.row()
-        row.prop(tm_props, "NU_objMplScaleTo",   text="To")
+        row.scale_y = .5
+        row.label(text=f"{collection_name}_#SCALE_7to4_x4")
+
+        layout.separator(factor=UI_SPACER_FACTOR)
+
+        generated_files = []
+        scale_from     = tm_props.NU_objMplScaleFrom
+        scale_to       = tm_props.NU_objMplScaleTo
+        scale_step_raw = tm_props.NU_objMplScaleFactor
+        scale_step     = 1 / scale_step_raw
+        current_scale  = 1
+
+        if not (scale_from > scale_to):
+            row = layout.row()
+            row.alert = True
+            row.label(text="FROM needs to be bigger than TO")
+            return
+        
+        reverse_range = list(reversed(range(scale_to, scale_from+1)))
+        for scale in reverse_range:
+
+            raw_col_name = getCollectionNameWithoutScaleSuffix(collection_name)
+            generated_files.append([
+                f"{raw_col_name}_#{scale}.fbx    %.2f%%" % (current_scale * 100),
+                current_scale
+            ])
+            current_scale -= scale_step
+
         row = layout.row()
-        row.prop(tm_props, "NU_objMplScaleFactor", text="Factor")
+        row.scale_y = .5
+        row.label(text="Exported files like:")
+        for file in generated_files:
+            text, scale = file
+            
+            is_invalid = scale <= 0.06 # 0.0 == 0 is False for some reason
+            text       = text if not is_invalid else text + " - increase factor?"
+            
+            row = layout.row()
+            row.scale_y = .5
+            row.alert = is_invalid
+            row.label(text=text)
+
+
 
 
 
@@ -265,7 +372,12 @@ class TM_PT_ObjectManipulations(Panel):
         row.scale_y = .75
         row.label(text="Configure multi scale for export", icon="CON_SIZELIKE")
         row = scale_box.row(align=True)
-        row.operator("wm.tm_changecollectionscale", text="Set multi scale(export)", icon="ADD")
+        col = row.column(align=True)
+        col.scale_x = 1
+        col.operator("wm.tm_changecollectionscale", text="Set multi scale", icon="ADD")
+        col = row.column(align=True)
+        col.scale_x = .8
+        col.operator("view3d.tm_removecollectionscale", text="Remove", icon="REMOVE")
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
@@ -341,10 +453,24 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
 
 
 
-def setScaledCollectionName(col) -> None: 
+def getCollectionNameWithoutScaleSuffix(col_name:str) -> str:
+    return col_name.split("_#SCALE")[0]
+
+
+def setScaledCollectionName(col, remove=False) -> None: 
     tm_props     = getTmProps()
     scale_from   = tm_props.NU_objMplScaleFrom
     scale_to     = tm_props.NU_objMplScaleTo
-    scale_Factor = tm_props.NU_objMplScaleFactor
+    scale_factor = tm_props.NU_objMplScaleFactor
 
-    debug(f"\n{scale_from=}\n{scale_to=}\n{scale_Factor=}")
+    col_name_new = col.name
+
+    if "_#SCALE" in col_name_new or remove:
+        col_name_new = getCollectionNameWithoutScaleSuffix(col.name)
+    
+    if not remove:
+        col_name_new += f"_#SCALE_{scale_from}to{scale_to}_x{scale_factor}"
+
+    col.name = col_name_new
+
+    
