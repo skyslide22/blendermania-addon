@@ -1,3 +1,5 @@
+from cgitb import text
+from socket import socket
 import bpy
 from bpy.types import Panel
 from bpy.types import Operator
@@ -10,9 +12,9 @@ from .TM_Functions import *
 class TM_OT_Items_ObjectManipulationAddSocketItem(Operator):
     """open convert report"""
     bl_idname = "view3d.tm_createsocketitemincollection"
-    bl_description = "Create a _socket_ item"
+    bl_description = f"Create a {SPECIAL_NAME_PREFIX_SOCKET} item"
     bl_icon = 'ADD'
-    bl_label = "Create _socket_"
+    bl_label = f"Create {SPECIAL_NAME_PREFIX_SOCKET}"
         
     def execute(self, context):
         addSocketItemToSelectedCollection()
@@ -22,93 +24,84 @@ class TM_OT_Items_ObjectManipulationAddSocketItem(Operator):
 class TM_OT_Items_ObjectManipulationAddTriggerItem(Operator):
     """open convert report"""
     bl_idname = "view3d.tm_createtriggeritemincollection"
-    bl_description = "Create a _trigger_ item"
+    bl_description = f"Create a {SPECIAL_NAME_PREFIX_TRIGGER} item"
     bl_icon = 'ADD'
-    bl_label = "Create _trigger_"
+    bl_label = f"Create {SPECIAL_NAME_PREFIX_TRIGGER}"
         
     def execute(self, context):
         addTriggerItemToSelectedCollection()
         return {"FINISHED"}
 
+
 class TM_OT_Items_ObjectManipulationToggleIgnore(Operator):
-    bl_idname = "view3d.tm_toggleobjectsignore"
-    bl_description = "Toggle _ignore_ on selected object"
+    bl_idname = "view3d.tm_toggleobjectignore"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_IGNORE} on selected object"
     bl_icon = 'ADD'
-    bl_label = "Toggle _ignore_"
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_IGNORE}"
    
     def execute(self, context):
         if len(bpy.context.selected_objects) == 1:
-            obj = bpy.context.selected_objects[0]
-            isEnabled = obj.name.startswith("_ignore_")
-
-            obj.name = obj.name.replace("_notvisible_", "").replace("_notcollidable_", "")
-
-            if isEnabled:
-                obj.name = obj.name.replace("_ignore_", "")
-            else:
-                obj.name = "_ignore_"+obj.name
-        
+            toggleNameSpecialPrefix(bpy.context.selected_objects[0], SPECIAL_NAME_PREFIX_IGNORE)
         return {"FINISHED"}
 
 
-class TM_OT_Items_CollectionManipulationToggleIgnore(Operator):
-    bl_idname = "view3d.tm_togglecollectionignore"
-    bl_description = "Toggle _ignore_ on selected collection"
+class TM_OT_Items_ObjectManipulationToggleSocket(Operator):
+    bl_idname = "view3d.tm_toggleobjectsocket"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_SOCKET} on selected object"
     bl_icon = 'ADD'
-    bl_label = "Toggle _ignore_"
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_SOCKET}"
    
     def execute(self, context):
         if len(bpy.context.selected_objects) == 1:
-            obj = bpy.context.selected_objects[0]
-            col = obj.users_collection[0]
-            isEnabled = col.name.startswith("_ignore_")
+            toggleNameSpecialPrefix(bpy.context.selected_objects[0], SPECIAL_NAME_PREFIX_SOCKET)
+        return {"FINISHED"}
 
-            if isEnabled:
-                col.name = col.name.replace("_ignore_", "")
-            else:
-                col.name = "_ignore_"+col.name
-        
+
+class TM_OT_Items_ObjectManipulationToggleTrigger(Operator):
+    bl_idname = "view3d.tm_toggleobjecttrigger"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_TRIGGER} on selected object"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_TRIGGER}"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            toggleNameSpecialPrefix(bpy.context.selected_objects[0], SPECIAL_NAME_PREFIX_TRIGGER)
         return {"FINISHED"}
 
 
 class TM_OT_Items_ObjectManipulationToggleNotvisible(Operator):
     bl_idname = "view3d.tm_toggleobjectnotvisible"
-    bl_description = "Toggle _notvisible_ on selected object"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_NOTVISIBLE} on selected object"
     bl_icon = 'ADD'
-    bl_label = "Toggle _notvisible_"
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_NOTVISIBLE}"
    
     def execute(self, context):
         if len(bpy.context.selected_objects) == 1:
-            obj = bpy.context.selected_objects[0]
-            isEnabled = obj.name.startswith("_notvisible_")
-
-            obj.name = obj.name.replace("_ignore_", "").replace("_notcollidable_", "")
-
-            if isEnabled:
-                obj.name = obj.name.replace("_notvisible_", "")
-            else:
-                obj.name = "_notvisible_"+obj.name
-        
+            toggleNameSpecialPrefix(bpy.context.selected_objects[0], SPECIAL_NAME_PREFIX_NOTVISIBLE)
         return {"FINISHED"}
+
 
 class TM_OT_Items_ObjectManipulationToggleNotcollidable(Operator):
     bl_idname = "view3d.tm_toggleobjectnotcollidable"
-    bl_description = "Toggle _notcollidable_ on selected object"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_NOTCOLLIDABLE} on selected object"
     bl_icon = 'ADD'
-    bl_label = "Toggle _notcollidable_"
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_NOTCOLLIDABLE}"
    
     def execute(self, context):
         if len(bpy.context.selected_objects) == 1:
-            obj = bpy.context.selected_objects[0]
-            isEnabled = obj.name.startswith("_notcollidable_")
+            toggleNameSpecialPrefix(bpy.context.selected_objects[0], SPECIAL_NAME_PREFIX_NOTCOLLIDABLE)
+        return {"FINISHED"}
 
-            obj.name = obj.name.replace("_ignore_", "").replace("_notvisible_", "")
 
-            if isEnabled:
-                obj.name = obj.name.replace("_notcollidable_", "")
-            else:
-                obj.name = "_notcollidable_"+obj.name
-
+class TM_OT_Items_CollectionManipulationToggleIgnore(Operator):
+    bl_idname = "view3d.tm_togglecollectionignore"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_IGNORE} on selected collection"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_IGNORE}"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            toggleNameSpecialPrefix(getActiveCollectionOfSelectedObject(), SPECIAL_NAME_PREFIX_IGNORE)
         return {"FINISHED"}
 
 
@@ -119,7 +112,11 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     bl_label = "Set custom multi scale for collection"
    
     def execute(self, context):
-        setScaledCollectionName()
+        col = getActiveCollectionOfSelectedObject()
+        if col is not None:
+            setScaledCollectionName(col=col)
+        else:
+            makeReportPopup("Renaming failed", ["Select any object to change its collection name"])
         return {"FINISHED"}
     
     def invoke(self, context, event):
@@ -130,11 +127,11 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
         layout   = self.layout
         
         row = layout.row()
-        row.prop(tm_props, "ST_objMplScaleFrom", text="From")
+        row.prop(tm_props, "NU_objMplScaleFrom", text="From")
         row = layout.row()
-        row.prop(tm_props, "ST_objMplScaleTo",   text="To")
+        row.prop(tm_props, "NU_objMplScaleTo",   text="To")
         row = layout.row()
-        row.prop(tm_props, "ST_objMplScaleFactor", text="Factor")
+        row.prop(tm_props, "NU_objMplScaleFactor", text="Factor")
 
 
 
@@ -152,27 +149,42 @@ class TM_PT_ObjectManipulations(Panel):
         layout = self.layout
         layout.enabled = len(bpy.context.selected_objects) > 0
         tm_props = getTmProps()
+
+        true_icon  = "CHECKMARK"
+        false_icon = "CHECKBOX_DEHLT"
         
         current_collection      = getActiveCollectionOfSelectedObject()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
         
-        # collection box
+        
+        
+        # collection properties
+        # collection properties
+        # collection properties
         col_box = layout.box()
-        col = col_box.column(align=True)
-        row = col.row()
-        row.alignment = "CENTER"
-        row.label(text=current_collection_name)
 
-        row = col.row()
+        row = col_box.row()
+        col_icon = row.column(align=True)
+        col_icon.label(text="", icon="OUTLINER_COLLECTION")
+        
+        col_text = row.column(align=True)
+        col_text.label(text=f"{current_collection_name}")
+
+        col_list = col_box.column(align=True)
+        row = col_list.row(align=True)
         row.prop(tm_props, "LI_xml_waypointtype", text="")
+
+        ignore = current_collection.name.startswith(SPECIAL_NAME_PREFIX_IGNORE) if current_collection is not None else False
+        row = col_list.row(align=True)
+        row.operator(f"view3d.tm_togglecollectionignore", text=f"ignore collection during export", icon=true_icon if ignore else false_icon)
         
 
         
         # check if collection is a waypoint
         if current_collection is not None:
             if getWaypointTypeOfCollection(current_collection) != "None":
-                has_spawn_item   = checkIfCollectionHasObjectWithName(current_collection, "_socket_")
-                has_trigger_item = checkIfCollectionHasObjectWithName(current_collection, "_trigger_")
+                has_spawn_item   = checkIfCollectionHasObjectWithName(current_collection, prefix=SPECIAL_NAME_PREFIX_SOCKET)
+                has_trigger_item = checkIfCollectionHasObjectWithName(current_collection, prefix=SPECIAL_NAME_PREFIX_TRIGGER)
                 
 
                 if has_spawn_item is False:
@@ -180,7 +192,7 @@ class TM_PT_ObjectManipulations(Panel):
                     row.alert = True
                     row.scale_y = .75
                     row.alignment = "CENTER"
-                    row.label(text="Spawn object not found!")
+                    row.label(text="Spawn(_socket_) object not found!")
                     row = col_box.row(align=True)
                     row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon="ADD")
                     row.prop(tm_props, "LI_items_cars", text="")
@@ -197,41 +209,63 @@ class TM_PT_ObjectManipulations(Panel):
                     row.prop(tm_props, "LI_items_triggers", text="")
 
 
-        # layout.separator(factor=UI_SPACER_FACTOR)
         
-        # object box
+        # object properties
+        # object properties
+        # object properties
         obj_box = layout.box()
 
-        obj                 = None
-        obj_name_raw        = "Select any object !"
-        obj_name_with_prefix= "Select any object !"
+        obj          = None
+        obj_name_raw = "Select any object !"
+        obj_name= "Select any object !"
+
         if bpy.context.selected_objects:
-            obj                 = bpy.context.selected_objects[0]
-            obj_name_with_prefix= obj.name
-            obj_name_raw        = cleanObjNameFromSpecialProps(obj.name)
+            obj           = bpy.context.selected_objects[0]
+            obj_name      = obj.name
+            # obj_name_raw  = cleanObjNameFromSpecialProps(obj.name)
+            obj_name_raw  = obj_name
 
-        col = obj_box.column(align=True)
-        row = col.row()
-        row.alignment = "CENTER"
-        row.label(text=f"{obj_name_raw}")
+        ignore     = SPECIAL_NAME_PREFIX_IGNORE in obj_name
+        visible    = SPECIAL_NAME_PREFIX_NOTVISIBLE not in obj_name
+        collidable = SPECIAL_NAME_PREFIX_NOTCOLLIDABLE not in obj_name 
+        trigger    = SPECIAL_NAME_PREFIX_TRIGGER in obj_name
+        socket     = SPECIAL_NAME_PREFIX_SOCKET in obj_name
 
-        row = col.row(align=True)
         
-        isEnabled = obj_name_with_prefix.startswith("_ignore_")
-        row.operator(f"view3d.tm_toggleobjectsignore", text=f"ignore", icon="CHECKMARK" if isEnabled else "CHECKBOX_DEHLT")
+        row = obj_box.row(align=True)
+        
+        col_icon = row.column(align=True)
+        col_icon.label(text="", icon="MESH_CUBE")
+        
+        col_text = row.column(align=True)
+        col_text.label(text=f"  {obj_name_raw}")
 
+        col_btns = obj_box.column(align=True)
+        
+        # ignore
+        row = col_btns.row(align=True)
+        row.operator(f"view3d.tm_toggleobjectignore", text=f"ignore object during export", icon=true_icon if ignore else false_icon)
+
+        row = col_btns.row(align=True)
+        row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=true_icon if trigger else false_icon)
+        row.operator(f"view3d.tm_toggleobjectsocket",  text=SPECIAL_NAME_PREFIX_SOCKET,  icon=true_icon if socket  else false_icon)
 
         if isGameTypeTrackmania2020():
-            isEnabled = obj_name_with_prefix.startswith("_notvisible_")
-            row.operator("view3d.tm_toggleobjectnotvisible", text=f"notvisible", icon="CHECKMARK" if isEnabled else "CHECKBOX_DEHLT")
+            row = col_btns.row(align=True)
+            # row.enabled = not trigger and not socket
+            row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=false_icon if visible    else true_icon)
+            row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=false_icon if collidable else true_icon)
 
-            isEnabled = obj_name_with_prefix.startswith("_notcollidable_")
-            row.operator("view3d.tm_toggleobjectnotcollidable", text=f"notcollidable", icon="CHECKMARK" if isEnabled else "CHECKBOX_DEHLT")
 
-
-        layout.separator(factor=UI_SPACER_FACTOR)
-        
-        layout.operator("wm.tm_changecollectionscale", text="set scaleee")
+        # multi scale export
+        # multi scale export
+        # multi scale export
+        scale_box = layout.box()
+        row = scale_box.row(align=True)
+        row.scale_y = .75
+        row.label(text="Configure multi scale for export", icon="CON_SIZELIKE")
+        row = scale_box.row(align=True)
+        row.operator("wm.tm_changecollectionscale", text="Set multi scale(export)", icon="ADD")
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
@@ -247,12 +281,28 @@ def addTriggerItemToSelectedCollection() -> None:
 def cleanObjNameFromSpecialProps(name: str) -> str:
     new_name = ""
     if name is not None:
-        new_name = (name
-            .replace(SPECIAL_NAME_PREFIX_IGNORE, "")
-            .replace(SPECIAL_NAME_PREFIX_NOTVISIBLE, "")
-            .replace(SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, "")
-            )
+        new_name = name
+        for prefix in SPECIAL_NAME_PREFIXES:
+            if name.lower().startswith(prefix):
+                new_name = new_name.replace(prefix, "")
     return new_name
+
+
+def toggleNameSpecialPrefix(obj:object, prefix:str) -> None:
+    """switch prefix if bpy.types (collection, object, etc) .name"""
+    name = obj.name
+    had_prefix = False
+
+    for special_prefix in SPECIAL_NAME_PREFIXES:
+        if name.lower().startswith(prefix):
+            had_prefix = True
+        name = name.replace(special_prefix, "")
+    
+    new_name = name
+    if not had_prefix:
+        new_name = prefix+name
+
+    obj.name = new_name
 
 
 def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
@@ -291,4 +341,10 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
 
 
 
-def setScaledCollectionName(col) -> None: ...
+def setScaledCollectionName(col) -> None: 
+    tm_props     = getTmProps()
+    scale_from   = tm_props.NU_objMplScaleFrom
+    scale_to     = tm_props.NU_objMplScaleTo
+    scale_Factor = tm_props.NU_objMplScaleFactor
+
+    debug(f"\n{scale_from=}\n{scale_to=}\n{scale_Factor=}")

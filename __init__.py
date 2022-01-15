@@ -67,6 +67,8 @@ classes = (
     TM_OT_Items_CollectionManipulationToggleIgnore,
     TM_OT_Items_ObjectManipulationToggleNotvisible,
     TM_OT_Items_ObjectManipulationToggleNotcollidable,
+    TM_OT_Items_ObjectManipulationToggleSocket,
+    TM_OT_Items_ObjectManipulationToggleTrigger,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
 
     # export

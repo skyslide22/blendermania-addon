@@ -271,7 +271,7 @@ def getWayPointVariations() -> list:
         id   = "None",
         name = "Default",
         desc = "Object will not be a waypoint",
-        icon = "CUBE" 
+        icon = "AUTO" 
     ).toList()
 
      
@@ -856,9 +856,9 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_panelReportAccept : BoolProperty(default=False)
 
     #object manipulation
-    ST_objMplScaleFrom   : IntProperty(default=7, min=1, max=20)
-    ST_objMplScaleTo     : IntProperty(default=4, min=1, max=20)
-    ST_objMplScaleFactor : IntProperty(default=4, min=1, max=20)
+    NU_objMplScaleFrom   : IntProperty(default=7, min=1, max=20)
+    NU_objMplScaleTo     : IntProperty(default=4, min=1, max=20)
+    NU_objMplScaleFactor : IntProperty(default=4, min=1, max=20)
 
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)

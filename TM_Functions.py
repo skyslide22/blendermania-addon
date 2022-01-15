@@ -1832,17 +1832,26 @@ def onSelectObject(*args) -> None:
 
 
 
-def checkIfCollectionHasObjectWithName(col: bpy.types.Collection, infix: str) -> None:
-    objs        = col.objects
-    infix_found = False
+def checkIfCollectionHasObjectWithName(col: bpy.types.Collection, prefix:str=None, infix:str=None) -> None:
+    objs          = col.objects
+    pattern_found = False
     
+    if not prefix and not infix:
+        return True
+
     if objs:
         for obj in objs:
-            if infix.lower() in obj.name.lower():
-                infix_found = True
-                break
+
+            if infix:
+                if infix.lower() in obj.name.lower():
+                    pattern_found = True
+                    break
+            
+            if prefix:
+                if obj.name.startswith(prefix.lower()):
+                    pattern_found = True
     
-    return infix_found
+    return pattern_found
 
 
 
