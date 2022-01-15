@@ -169,7 +169,7 @@ class TM_PT_Items_Export(Panel):
 
             if isGameTypeTrackmania2020():
                 row = col.row(align=True)
-                row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Generate mesh & item gbx", toggle=True)
+                row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
 
 
 
