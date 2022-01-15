@@ -112,6 +112,31 @@ class TM_OT_Items_ObjectManipulationToggleNotcollidable(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
+    bl_idname = "wm.tm_changecollectionscale"
+    bl_description = "Set custom multi scale for collection"
+    bl_icon = 'ADD'
+    bl_label = "Set custom multi scale for collection"
+   
+    def execute(self, context):
+        setScaledCollectionName()
+        return {"FINISHED"}
+    
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        tm_props = getTmProps()
+        layout   = self.layout
+        
+        row = layout.row()
+        row.prop(tm_props, "ST_objMplScaleFrom", text="From")
+        row = layout.row()
+        row.prop(tm_props, "ST_objMplScaleTo",   text="To")
+        row = layout.row()
+        row.prop(tm_props, "ST_objMplScaleFactor", text="Factor")
+
+
 
 class TM_PT_ObjectManipulations(Panel):
     bl_label = "Object Manipulation"
@@ -205,6 +230,10 @@ class TM_PT_ObjectManipulations(Panel):
 
 
         layout.separator(factor=UI_SPACER_FACTOR)
+        
+        layout.operator("wm.tm_changecollectionscale", text="set scaleee")
+
+        layout.separator(factor=UI_SPACER_FACTOR)
 
             
 
@@ -259,3 +288,7 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
 
     for object in pre_selected_objects:
         object.select_set(True)
+
+
+
+def setScaledCollectionName(col) -> None: ...

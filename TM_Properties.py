@@ -855,6 +855,11 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     #panel
     CB_panelReportAccept : BoolProperty(default=False)
 
+    #object manipulation
+    ST_objMplScaleFrom   : IntProperty(default=7, min=1, max=20)
+    ST_objMplScaleTo     : IntProperty(default=4, min=1, max=20)
+    ST_objMplScaleFactor : IntProperty(default=4, min=1, max=20)
+
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)
     LI_exportFolderType         : EnumProperty(items=getExportFolderTypes,    name="Folder", default=0)
