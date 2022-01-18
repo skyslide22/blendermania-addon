@@ -81,6 +81,8 @@ WEBSPACE_TEXTURES_MP_CANYON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Ca
 WEBSPACE_TEXTURES_TM_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_TrackMania2020/Textures_TrackMania2020.zip"
 WEBSPACE_NADEOIMPORTER_MP    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_ManiaPlanet/NadeoImporter_ManiaPlanet.zip"
 WEBSPACE_NADEOIMPORTER_TM    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_TrackMania2020/NadeoImporter_TrackMania2020.zip"
+WEBSPACE_ASSETS_TM_STADIUM   = GITHUB_ASSETS_BASE_URL + "Assets_Library_TrackMania2020/Assets_Library_TrackMania2020.zip"
+WEBSPACE_ASSETS_MP           = GITHUB_ASSETS_BASE_URL + "Assets_Library_Maniaplanet/Assets_Library_Maniaplanet.zip"
 # WEBSPACE_BASE_URL             = "http://images.mania.exchange/com/skyslide/"
 # WEBSPACE_TEXTURES_MP_STADIUM  = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Stadium.zip"
 # WEBSPACE_TEXTURES_MP_VALLEY   = WEBSPACE_BASE_URL + "_DTextures_ManiaPlanet_Valley.zip"
@@ -688,6 +690,12 @@ def unzipGameTextures(filepath, extractTo)->None:
 
 
 
+def unzipGameAssetsLibrary(filepath: str, extractTo: str) -> None:
+    with ZipFile(filepath, 'r') as zipFile:
+        zipFile.extractall(path=extractTo)
+
+
+
 def reloadAllMaterialTextures() -> None:
     """reload all textures which ends with .dds"""
     for tex in bpy.data.images:
@@ -745,6 +753,69 @@ def installGameTextures()->None:
     tm_props.CB_DL_TexturesRunning = True
 
 
+
+
+
+
+def installGameAssetsLibrary()->None:
+    """download and install game assets library"""
+    tm_props = getTmProps()
+    url      = WEBSPACE_ASSETS_TM_STADIUM if isGameTypeTrackmania2020() else WEBSPACE_ASSETS_MP
+    
+    tm_props.CB_DL_TexturesShow = True
+
+    extractTo   = getDocPathItemsAssets()
+    filePath    = f"""{extractTo}/assets.zip"""
+    progressbar = "NU_DL_Textures"
+
+    def on_success():
+        tm_props.CB_DL_TexturesRunning = False
+        unzipGameAssetsLibrary(filePath,extractTo)
+        def run(): 
+            tm_props.CB_DL_TexturesShow = False
+        timer(run, 5)
+        addAssetsLibraryToPreferences()
+        debug(f"downloading & installing assets library of {getTmProps().LI_gameType} successful")
+
+    def on_error(msg):
+        tm_props.ST_DL_TexturesErrors = msg or "unknown error"
+        tm_props.CB_DL_TexturesRunning = False
+        debug(f"downloading & installing assets library of {getTmProps().LI_gameType} failed, error: {msg}")
+
+
+    createFolderIfNecessary( extractTo )
+    gameTexturesDownloading_True()
+
+
+
+    debug(f"try to download & install assets library of {getTmProps().LI_gameType}")
+
+    download = DownloadTMFile(url, filePath, progressbar, on_success, on_error)
+    download.start()
+    tm_props.CB_DL_TexturesRunning = True
+
+
+
+
+
+def addAssetsLibraryToPreferences() -> None:
+    shouldCreate = True
+    for lib in bpy.context.preferences.filepaths.asset_libraries:
+        if lib.path == getDocPathItemsAssets():
+            shouldCreate = False
+
+    if shouldCreate:
+        bpy.ops.preferences.asset_library_add(directory=getDocPathItemsAssets())
+        for lib in bpy.context.preferences.filepaths.asset_libraries:
+            if lib.path == getDocPathItemsAssets():
+                lib.name = getTmProps().LI_gameType
+
+    for screen in bpy.data.screens:
+        for area in screen.areas:
+            if area.type == "FILE_BROWSER":
+                for space in area.spaces:
+                    if space.type == "FILE_BROWSER":
+                        space.params.asset_library_ref = getTmProps().LI_gameType
     
 
 

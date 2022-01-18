@@ -53,6 +53,7 @@ classes = (
     TM_OT_Settings_OpenGithub,
     TM_OT_Settings_InstallNadeoImporter,
     TM_OT_Settings_InstallGameTextures,
+    TM_OT_Settings_InstallGameAssetsLIbrary,
     TM_OT_Settings_DebugALL,
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonResetSettings,

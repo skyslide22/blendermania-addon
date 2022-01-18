@@ -61,6 +61,15 @@ class TM_OT_Settings_InstallGameTextures(Operator):
         installGameTextures()
         return {"FINISHED"}
 
+class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
+    bl_idname = "view3d.tm_installgameassetslibrary"
+    bl_description = "Download assets library (download textures as well to see them in blender)"
+    bl_label = "Download Game Assets Library"
+        
+    def execute(self, context):
+        installGameAssetsLibrary()
+        return {"FINISHED"}
+
 class TM_OT_Settings_DebugALL(Operator):
     bl_idname = "view3d.tm_debugall"
     bl_description = "debug print all addon python variable values"
@@ -265,13 +274,14 @@ class TM_PT_Settings(Panel):
 
 
 
-        envi         = tm_props.LI_DL_TextureEnvi if isGameTypeManiaPlanet() else "Stadium"
+        envi         = tm_props.LI_DL_TextureEnvi if isGameTypeManiaPlanet() else getTmProps().LI_gameType
+        game         = getTmProps().LI_gameType
         dlTexRunning = tm_props.CB_DL_TexturesRunning is False
 
         box = layout.box()
         col = box.column(align=True)
         row = col.row()
-        row.label(text="Game textures for materials")
+        row.label(text="Game textures & assets library")
 
         row = col.row(align=True)
         row.enabled = dlTexRunning
@@ -281,6 +291,12 @@ class TM_PT_Settings(Panel):
         if isGameTypeManiaPlanet():
             row = col.row(align=True)
             row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon="WORLD")
+        
+        col = box.column(align=True)
+        row = col.row()
+        row.enabled = dlTexRunning
+        row.scale_y = 1
+        row.operator("view3d.tm_installgameassetslibrary", text=f"Install {game} assets library", icon="ASSET_MANAGER")
 
         dlTexError          = tm_props.ST_DL_TexturesErrors
         statusText          = "Downloading..." if not dlTexRunning else "Done" if not dlTexError else dlTexError
