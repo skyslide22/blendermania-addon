@@ -274,7 +274,7 @@ class TM_PT_Settings(Panel):
 
 
 
-        envi         = tm_props.LI_DL_TextureEnvi if isGameTypeManiaPlanet() else getTmProps().LI_gameType
+        envi         = tm_props.LI_DL_TextureEnvi #if isGameTypeManiaPlanet() else getTmProps().LI_gameType
         game         = getTmProps().LI_gameType
         dlTexRunning = tm_props.CB_DL_TexturesRunning is False
 
@@ -292,11 +292,10 @@ class TM_PT_Settings(Panel):
             row = col.row(align=True)
             row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon="WORLD")
         
-        col = box.column(align=True)
         row = col.row()
         row.enabled = dlTexRunning
-        row.scale_y = 1
-        row.operator("view3d.tm_installgameassetslibrary", text=f"Install {game} assets library", icon="ASSET_MANAGER")
+        row.scale_y = 1.5
+        row.operator("view3d.tm_installgameassetslibrary", text=f"Install asset library", icon="ASSET_MANAGER")
 
         dlTexError          = tm_props.ST_DL_TexturesErrors
         statusText          = "Downloading..." if not dlTexRunning else "Done" if not dlTexError else dlTexError

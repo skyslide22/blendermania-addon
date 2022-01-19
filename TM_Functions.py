@@ -810,13 +810,18 @@ def addAssetsLibraryToPreferences() -> None:
             if lib.path == getDocPathItemsAssets():
                 lib.name = getTmProps().LI_gameType
 
-    for screen in bpy.data.screens:
-        for area in screen.areas:
-            if area.type == "FILE_BROWSER":
-                for space in area.spaces:
-                    if space.type == "FILE_BROWSER":
-                        space.params.asset_library_ref = getTmProps().LI_gameType
-    
+    # bpy.context.screen is None when accessing from another thread
+    def run_from_blender() -> None:
+        for screen in bpy.data.screens:
+            for area in screen.areas:
+                if area.type == "FILE_BROWSER":
+                    for space in area.spaces:
+                        if space.type == "FILE_BROWSER":
+                            try:
+                                space.params.asset_library_ref = getTmProps().LI_gameType
+                            except AttributeError:
+                                pass
+    timer(run_from_blender, 1)
 
 
 
