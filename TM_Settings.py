@@ -220,12 +220,9 @@ class TM_PT_Settings(Panel):
 
         box = layout.box()
         ini = "ST_nadeoIniFile_MP" if isGameTypeManiaPlanet() else "ST_nadeoIniFile_TM"
-        row = box.row()
+        row = box.row(align=True)
         row.prop(tm_props, ini, text="Ini file")
-        row.alert=True
-
-        row = box.row()
-        row.operator("view3d.tm_autofindnadeoini", text="Try autofind Nadeo.ini", icon="VIEWZOOM")
+        row.operator("view3d.tm_autofindnadeoini", text="", icon="VIEWZOOM")
 
 
 
