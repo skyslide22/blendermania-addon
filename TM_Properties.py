@@ -55,7 +55,7 @@ def updateINI(prop) -> None:
     try:
         gameTypeGotUpdated()
     except AttributeError:
-        debug("Update nadeo ini path, can not update game type")
+        pass # debug("Error trying to change settings related to game type")
 
 
 
@@ -839,7 +839,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_gameType                 : EnumProperty(  name="Game",    items=getGameTypes(),   update=gameTypeGotUpdated)
     ST_nadeoIniFile_MP          : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
     ST_nadeoIniFile_TM          : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
-    ST_author                   : StringProperty(name="Author",  default="skyslide")
+    ST_author                   : StringProperty(name="Author",  default="")
     CB_nadeoImporterIsInstalled : BoolProperty(  name="NadeoImporter installed", default=False)
     NU_nadeoImporterDLProgress  : FloatProperty( min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
     CB_nadeoImporterDLRunning   : BoolProperty(  default=False,  update=redrawPanel)

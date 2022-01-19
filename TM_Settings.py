@@ -374,14 +374,70 @@ def autoFindNadeoIni()->None:
         tm_props.ST_nadeoIniFile_TM = ini
 
 
+def getDefaultSettingsJSON() -> dict:
+    if not doesFileExist(PATH_DEFAULT_SETTINGS_JSON):
+        debug("default settings file does not exist, create file")
+        default_settings = {
+            "author_name":        os.getlogin(), # current windows username (C:/Users/<>/...)
+            "nadeo_ini_path_tm":  "",
+            "nadeo_ini_path_mp":  "",
+        }
+        debug(default_settings, pp=True)
+        with open(PATH_DEFAULT_SETTINGS_JSON, "w") as settingsfile:
+            settingsfile.write(json.dumps(default_settings))
+    
+    with open(PATH_DEFAULT_SETTINGS_JSON, "r") as settingsfile:
+        data = settingsfile.read()
+        data = dict(json.loads(data))
+        return data
+        
+        
+
+
+def loadDefaultSettingsJSON() -> None:
+    debug("load default settings.json")
+    tm_props = getTmProps()
+    # create settings.json if not exist
+    data = getDefaultSettingsJSON()
+    author_name = data.get("author_name")
+    nadeoini_tm = data.get("nadeo_ini_path_tm")
+    nadeoini_mp = data.get("nadeo_ini_path_mp")
+
+    tm_props.ST_author          = tm_props.ST_author or author_name
+    tm_props.ST_nadeoIniFile_MP = tm_props.ST_nadeoIniFile_MP or nadeoini_mp
+    tm_props.ST_nadeoIniFile_TM = tm_props.ST_nadeoIniFile_TM or nadeoini_tm
+
+    debug("default settings loaded, data:")
+    debug("(data ignored if property in blendfile has value)")
+    debug(data, pp=True, raw=True)
+
+    if isGameTypeManiaPlanet()    and tm_props.ST_nadeoIniFile_MP == ""\
+    or isGameTypeTrackmania2020() and tm_props.ST_nadeoIniFile_TM:
+        debug("nadeo ini path not found, search now")
+        autoFindNadeoIni()
+
+
+
+def saveDefaultSettingsJSON() -> None:
+    debug("save default settings.json")
+    tm_props = getTmProps()
+    old_data = getDefaultSettingsJSON()
+    with open(PATH_DEFAULT_SETTINGS_JSON, "w+") as settingsfile:
+        new_data = {
+            "author_name"       : tm_props.ST_author or old_data["author_name"],
+            "nadeo_ini_path_mp" : tm_props.ST_nadeoIniFile_MP or old_data["nadeo_ini_path_mp"],
+            "nadeo_ini_path_tm" : tm_props.ST_nadeoIniFile_TM or old_data["nadeo_ini_path_tm"],
+        }
+        debug("new settings.json data:")
+        debug(new_data, pp=True, raw=True)
+        settingsfile.write(json.dumps(new_data))
+
+
+
+
 
 def updateAddon() -> None:
     """update the addon if a new version exist and restart blender to use new version"""    
-
-    # TODO create check for new update on startup && dynamic version text in UI
-    # if has_new_release:
-    #     addon.doUpdate()
-    
     AddonUpdate.doUpdate()
 
 

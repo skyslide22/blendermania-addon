@@ -58,18 +58,21 @@ UI_SPACER_FACTOR        = 1.0
 # check if blender is opened by a dev (from vscode..?)
 BLENDER_INSTANCE_IS_DEV = os.path.exists(getAddonPath() + ".git")
 
-URL_DOCUMENTATION       = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
-URL_BUG_REPORT          = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
-URL_GITHUB              = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
-URL_CHANGELOG           = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases"
-URL_RELEASES            = "https://api.github.com/repos/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases/latest"
-URL_REGEX               = "https://regex101.com/"
-PATH_DESKTOP            = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
-PATH_HOME               = os.path.expanduser("~")
-PATH_PROGRAM_DATA       = os.environ.get("ALLUSERSPROFILE").replace("\\", "/")   + "/"
-PATH_PROGRAM_FILES      = os.environ.get("PROGRAMFILES").replace("\\", "/")      + "/"
-PATH_PROGRAM_FILES_X86  = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
-PATH_CONVERT_REPORT     = PATH_DESKTOP + "convert_report.html"
+URL_DOCUMENTATION = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
+URL_BUG_REPORT    = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
+URL_GITHUB        = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
+URL_CHANGELOG     = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases"
+URL_RELEASES      = "https://api.github.com/repos/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases/latest"
+URL_REGEX         = "https://regex101.com/"
+
+PATH_DESKTOP               = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
+PATH_HOME                  = os.path.expanduser("~").replace("\\", "/") + "/"
+PATH_PROGRAM_DATA          = os.environ.get("ALLUSERSPROFILE").replace("\\", "/")   + "/"
+PATH_PROGRAM_FILES         = os.environ.get("PROGRAMFILES").replace("\\", "/")      + "/"
+PATH_PROGRAM_FILES_X86     = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
+PATH_CONVERT_REPORT        = PATH_DESKTOP + "convert_report.html"
+PATH_DEFAULT_SETTINGS_JSON = PATH_HOME + "blender_addon_for_tm2020_maniaplanet_settings.json"
+
 
 #replace bellow once github repo is public
 GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet-assets/releases/download/"
@@ -291,7 +294,6 @@ MATERIAL_CUSTOM_PROPERTIES = [
 
 
 
-
 nadeo_ini_settings = {}
 """Nadeo.ini parsed data
 example of the tree:
@@ -483,7 +485,7 @@ class AddonUpdate:
 
     def checkCanUpdate(cls) -> bool:
         can_update = cls.new_addon_version > cls.addon_version
-        debug(f"{can_update=}")
+        debug(f"Check if addon can update: {can_update}")
         return can_update
 
     @classmethod
@@ -1943,7 +1945,7 @@ def searchStringInFile(filepath: str, regex: str, group: int) -> list:
 
 
 debug_list = ""
-def debug(*args, pp=False, add_to_list=False, save_list_to=None, clear_list=False, open_file=False) -> None:
+def debug(*args, pp=False, raw=False, add_to_list=False, save_list_to=None, clear_list=False, open_file=False) -> None:
     """better printer, adds line and filename as prefix"""
     global debug_list
     frameinfo = getframeinfo(currentframe().f_back)
@@ -1964,6 +1966,9 @@ def debug(*args, pp=False, add_to_list=False, save_list_to=None, clear_list=Fals
     #make sure base is 40 chars long, better reading between different files
     if dashesToAdd > 0 :
         base += "-" * dashesToAdd
+
+    if raw:
+        base = ""
     
     print(base, end="")
     if add_to_list:
@@ -1971,7 +1976,7 @@ def debug(*args, pp=False, add_to_list=False, save_list_to=None, clear_list=Fals
 
     if pp is True:
         for arg in args:
-            pprint.pprint(arg)
+            pprint.pprint(arg, width=160)
             if add_to_list:
                 debug_list += pprint.pformat(arg)
     else:
@@ -1996,6 +2001,7 @@ def debug(*args, pp=False, add_to_list=False, save_list_to=None, clear_list=Fals
         debug_list = ""
 
 
+
 def debugALL() -> None:
     """print all global and addon specific bpy variable values"""
     def separator(num):
@@ -2003,8 +2009,6 @@ def debugALL() -> None:
     
     def full_debug(*args, **kwargs)->None:
         debug(*args, **kwargs, add_to_list=True)
-
-
 
     separator(5)
     full_debug("BEGIN FULL DEBUG")
