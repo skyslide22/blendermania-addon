@@ -30,7 +30,7 @@ class TM_OT_Materials_Create_Asset_Lib(Operator):
 
 
 def createAssetsLib() -> None:
-    currentFile = bpy.data.filepath
+    #currentFile = bpy.data.filepath
 
     # clear all possible data
     for bpy_data_iter in (
@@ -63,19 +63,7 @@ def createAssetsLib() -> None:
         makeReportPopup("Can not create new blend file", ["Something went wrong during creation of a new blend file"], "ERROR")
 
     # reopen original file
-    bpy.ops.wm.open_mainfile(filepath=currentFile)
-
-    # add asset lib to current file
-    shouldCreate = True
-    for lib in bpy.context.preferences.filepaths.asset_libraries:
-        if lib.path == getDocPathItemsAssets():
-            shouldCreate = False
-
-    if shouldCreate:
-        bpy.ops.preferences.asset_library_add(directory=getDocPathItemsAssets())
-        for lib in bpy.context.preferences.filepaths.asset_libraries:
-            if lib.path == getDocPathItemsAssets():
-                lib.name = getTmProps().LI_gameType
+    # bpy.ops.wm.open_mainfile(filepath=currentFile)
     return
    
 
