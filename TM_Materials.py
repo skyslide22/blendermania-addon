@@ -418,7 +418,7 @@ def createMaterialNodes(mat)->None:
     RTexture = getMatDDS(tex, "R")
     NTexture = getMatDDS(tex, "N")
     HTexture = getMatDDS(tex, "H")
-    
+
     if not isCustomMat:
         DTexture = loadDDSTextureIntoBlender(texpath=DTexture)
     ITexture = loadDDSTextureIntoBlender(texpath=ITexture)
@@ -449,6 +449,7 @@ def createMaterialNodes(mat)->None:
 
     if NTextureSuccess:
         assignTextureToImageNode(NTextureName, NODE_tex_N)
+        NODE_tex_N.image.colorspace_settings.name = "Non-Color"
 
     if HTextureSuccess:
         assignTextureToImageNode(HTextureName, NODE_tex_H)
