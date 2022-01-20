@@ -146,6 +146,11 @@ SPECIAL_NAME_PREFIXES = (
     SPECIAL_NAME_PREFIX_NOTCOLLIDABLE := "_notcollidable_",
 )
 
+SPECIAL_NAME_SUFFIXES = (
+    SPECIAL_NAME_SUFFIX_LOD0 := "_Lod0",
+    SPECIAL_NAME_SUFFIX_LOD1 := "_Lod1",
+)
+
 
 # custom items included in addon for import
 ADDON_ITEM_FILEPATH_CAR_STADIUM = getAddonAssetsPath() + "/item_cars/CAR_StadiumCar_Lowpoly.fbx"
@@ -1910,24 +1915,30 @@ def onSelectObject(*args) -> None:
 
 
 
-def checkIfCollectionHasObjectWithName(col: bpy.types.Collection, prefix:str=None, infix:str=None) -> None:
+def checkIfCollectionHasObjectWithName(col: bpy.types.Collection, prefix:str=None, infix:str=None, suffix:str=None) -> None:
     objs          = col.objects
     pattern_found = False
     
-    if not prefix and not infix:
+    if not prefix and not infix and not suffix:
         return True
 
     if objs:
         for obj in objs:
 
             if infix:
-                if infix.lower() in obj.name.lower():
+                if infix in obj.name:
                     pattern_found = True
                     break
             
             if prefix:
-                if obj.name.startswith(prefix.lower()):
+                if obj.name.startswith(prefix):
                     pattern_found = True
+                    break
+            
+            if suffix:
+                if obj.name.endswith(suffix):
+                    pattern_found = True
+                    break
     
     return pattern_found
 

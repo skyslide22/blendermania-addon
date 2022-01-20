@@ -34,6 +34,30 @@ class TM_OT_Items_ObjectManipulationAddTriggerItem(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Items_ObjectManipulationToggleLod1(Operator):
+    bl_idname = "view3d.tm_toggleobjectlod1"
+    bl_description = f"Toggle {SPECIAL_NAME_SUFFIX_LOD1} on selected object"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_SUFFIX_LOD1}"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            toggleNameSpecialSuffix(bpy.context.selected_objects[0], SPECIAL_NAME_SUFFIX_LOD1)
+        return {"FINISHED"}
+
+
+class TM_OT_Items_ObjectManipulationToggleLod0(Operator):
+    bl_idname = "view3d.tm_toggleobjectlod0"
+    bl_description = f"Toggle {SPECIAL_NAME_SUFFIX_LOD0} on selected object"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_SUFFIX_LOD0}"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            toggleNameSpecialSuffix(bpy.context.selected_objects[0], SPECIAL_NAME_SUFFIX_LOD0)
+        return {"FINISHED"}
+
+
 class TM_OT_Items_ObjectManipulationToggleIgnore(Operator):
     bl_idname = "view3d.tm_toggleobjectignore"
     bl_description = f"Toggle {SPECIAL_NAME_PREFIX_IGNORE} on selected object"
@@ -292,7 +316,6 @@ class TM_PT_ObjectManipulations(Panel):
             if getWaypointTypeOfCollection(current_collection) != "None":
                 has_spawn_item   = checkIfCollectionHasObjectWithName(current_collection, prefix=SPECIAL_NAME_PREFIX_SOCKET)
                 has_trigger_item = checkIfCollectionHasObjectWithName(current_collection, prefix=SPECIAL_NAME_PREFIX_TRIGGER)
-                
 
                 if has_spawn_item is False:
                     row = col_box.row()
@@ -303,8 +326,7 @@ class TM_PT_ObjectManipulations(Panel):
                     row = col_box.row(align=True)
                     row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon="ADD")
                     row.prop(tm_props, "LI_items_cars", text="")
-                    
-                
+                                    
                 if has_trigger_item is False:
                     row = col_box.row()
                     row.alert = True
@@ -314,6 +336,7 @@ class TM_PT_ObjectManipulations(Panel):
                     row = col_box.row(align=True)
                     row.operator("view3d.tm_createtriggeritemincollection", text="Add trigger", icon="ADD")
                     row.prop(tm_props, "LI_items_triggers", text="")
+                
 
 
         
@@ -337,6 +360,8 @@ class TM_PT_ObjectManipulations(Panel):
         collidable = SPECIAL_NAME_PREFIX_NOTCOLLIDABLE not in obj_name 
         trigger    = SPECIAL_NAME_PREFIX_TRIGGER in obj_name
         socket     = SPECIAL_NAME_PREFIX_SOCKET in obj_name
+        lod0       = SPECIAL_NAME_SUFFIX_LOD0 in obj_name
+        lod1       = SPECIAL_NAME_SUFFIX_LOD1 in obj_name
 
         
         row = obj_box.row(align=True)
@@ -352,6 +377,27 @@ class TM_PT_ObjectManipulations(Panel):
         # ignore
         row = col_btns.row(align=True)
         row.operator(f"view3d.tm_toggleobjectignore", text=f"ignore object during export", icon=true_icon if ignore else false_icon)
+
+        row = col_btns.row(align=True)
+        row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=true_icon if lod0  else false_icon)
+        row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=true_icon if lod1  else false_icon)
+
+        if current_collection is not None:
+            has_lod0_item = checkIfCollectionHasObjectWithName(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD0)
+            has_lod1_item = checkIfCollectionHasObjectWithName(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD1)
+
+            lod0_missing = has_lod0_item and not has_lod1_item
+            lod1_missing = has_lod1_item and not has_lod0_item
+
+            if lod1_missing or lod0_missing:
+                missing_lod_name = "Lod1" if lod1_missing else "Lod0"
+                found_lod_name   = "Lod1" if lod0_missing else "Lod0"
+                text             = f"{found_lod_name} also requires {missing_lod_name}"
+                row = col_btns.row(align=True)
+                row.alert = True
+                row.scale_y = .75
+                row.alignment = "CENTER"
+                row.label(text=text)
 
         row = col_btns.row(align=True)
         row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=true_icon if trigger else false_icon)
@@ -406,13 +452,30 @@ def toggleNameSpecialPrefix(obj:object, prefix:str) -> None:
     had_prefix = False
 
     for special_prefix in SPECIAL_NAME_PREFIXES:
-        if name.lower().startswith(prefix):
+        if name.startswith(prefix):
             had_prefix = True
         name = name.replace(special_prefix, "")
     
     new_name = name
     if not had_prefix:
         new_name = prefix+name
+
+    obj.name = new_name
+
+
+def toggleNameSpecialSuffix(obj:object, suffix:str) -> None:
+    """switch prefix if bpy.types (collection, object, etc) .name"""
+    name = obj.name
+    had_suffix = False
+
+    for special_suffix in SPECIAL_NAME_SUFFIXES:
+        if name.endswith(suffix):
+            had_suffix = True
+        name = name.replace(special_suffix, "")
+    
+    new_name = name
+    if not had_suffix:
+        new_name = name+suffix
 
     obj.name = new_name
 

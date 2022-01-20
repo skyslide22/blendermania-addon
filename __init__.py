@@ -70,6 +70,8 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleNotcollidable,
     TM_OT_Items_ObjectManipulationToggleSocket,
     TM_OT_Items_ObjectManipulationToggleTrigger,
+    TM_OT_Items_ObjectManipulationToggleLod0,
+    TM_OT_Items_ObjectManipulationToggleLod1,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
     TM_OT_Items_ObjectManipulationRemoveCollectionScale,
 
