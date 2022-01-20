@@ -174,6 +174,10 @@ def unregister():
             
 
 
+@persistent
+def on_save(what, idontknow) -> None: # on quit?
+    """run on blender save"""
+    saveDefaultSettingsJSON()
 
 @persistent
 def on_startup(dummy) -> None:
@@ -185,6 +189,8 @@ def on_startup(dummy) -> None:
         bpy.ops.view3d.tm_resetaddonupdatesettings()
     except AttributeError as error:
         pass # fails on first startup when open_mainfile used
+
+    loadDefaultSettingsJSON()
 
     AddonUpdate.checkForNewRelease()
     
@@ -212,5 +218,8 @@ def on_startup(dummy) -> None:
         pass # first try always fails
         # RuntimeError: subscribe_rna, missing bl_rna attribute from 'Scene' instance (may not be registered)
 
+
+
 bpy.app.handlers.load_post.append(on_startup)
+bpy.app.handlers.save_post.append(on_save)
 
