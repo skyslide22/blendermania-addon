@@ -527,11 +527,11 @@ class AddonUpdate:
         def on_success():
             tm_props.CB_addonUpdateDLRunning = False
             unzipNewAndOverwriteOldAddon(save_to)
-            tm_props.ST_addonUpdateDLmsg = "Success, restarting blender ..."
+            tm_props.ST_addonUpdateDLmsg = "Done, restarting..."
             def run(): 
                 reloadCurrentOpenedFileWithRestart()
                 
-            # timer(run, 2)
+            timer(run, 2)
             debug(f"Downloading & installing addon successful")
 
         def on_error(msg):
@@ -564,12 +564,18 @@ def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
         dst = getAddonPath()
         
         shutil.copytree(src, dst, dirs_exist_ok=False)
+        removeFolder(unzipped_at)
 
 
 
 def removeFile(file:str) -> None:
     if doesFileExist(file):
         os.remove(file)
+
+
+def removeFolder(folder:str) -> None:
+    if doesFolderExist(folder):
+        os.rmdir(folder)
 
 
 def requireValidNadeoINI(panel_instance: bpy.types.Panel) -> bool:
