@@ -10,7 +10,7 @@ bl_info = {
     "author"        : "skyslide",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 0, 0),
-    "version"       : (2, 0, 0),
+    "version"       : (2, 1, 1),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
