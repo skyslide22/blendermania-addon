@@ -563,7 +563,7 @@ def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
         src = unzipped_at + "/" + zipfolder_root
         dst = getAddonPath()
         
-        shutil.copytree(src, dst, dirs_exist_ok=False)
+        shutil.copytree(src, dst, dirs_exist_ok=True)
         removeFolder(unzipped_at)
 
 
