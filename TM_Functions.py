@@ -531,7 +531,7 @@ class AddonUpdate:
             def run(): 
                 reloadCurrentOpenedFileWithRestart()
                 
-            timer(run, 2)
+            # timer(run, 2)
             debug(f"Downloading & installing addon successful")
 
         def on_error(msg):
@@ -561,9 +561,9 @@ def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
 
         zipfile.extractall(unzipped_at)
         src = unzipped_at + "/" + zipfolder_root
-        dst = getAddonPath() + "/hello/"
-
-        shutil.copytree(src, dst, dirs_exist_ok=True)
+        dst = getAddonPath()
+        
+        shutil.copytree(src, dst, dirs_exist_ok=False)
 
 
 
