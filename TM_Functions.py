@@ -555,12 +555,12 @@ class AddonUpdate:
 
 def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
     with ZipFile(filepath, "r") as zipfile:
-        files_in_zip   = zipfile.filelist()
-        zipfolder_root = files_in_zip[0].split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet
+        files_in_zip   = zipfile.filelist
+        zipfolder_root = files_in_zip[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet
 
         for file in files_in_zip:
             file_in_zip = file
-            save_to     = file.replace(zipfolder_root, getAddonPath()).replace("/","\\")
+            save_to     = file.file.replace(zipfolder_root, getAddonPath()).replace("/","\\")
         
             try:
                 removeFile(save_to)
