@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from shutil import copyfile
+import shutil
 import subprocess
 import threading
 import urllib.request
@@ -555,19 +556,15 @@ class AddonUpdate:
 
 def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
     with ZipFile(filepath, "r") as zipfile:
-        files_in_zip   = zipfile.filelist
-        zipfolder_root = files_in_zip[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet
+        zipfolder_root = zipfile.filelist[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet
+        unzipped_at    = getAddonPath() + "TEMP_ZIP_EXTRACT"
 
-        for file in files_in_zip:
-            file_in_zip = file
-            save_to     = file.file.replace(zipfolder_root, getAddonPath()).replace("/","\\")
-        
-            try:
-                removeFile(save_to)
-                zipfile.extract(file_in_zip, save_to)
-                debug(f"yes: {file_in_zip}")
-            except FileNotFoundError as e:
-                debug(f"no:  {file_in_zip}")
+        zipfile.extractall(unzipped_at)
+        src = unzipped_at + "/" + zipfolder_root
+        dst = getAddonPath() + "/hello/"
+
+        shutil.copytree(src, dst, dirs_exist_ok=True)
+
 
 
 def removeFile(file:str) -> None:
