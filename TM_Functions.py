@@ -575,7 +575,7 @@ def removeFile(file:str) -> None:
 
 def removeFolder(folder:str) -> None:
     if doesFolderExist(folder):
-        os.rmdir(folder)
+        shutil.rmtree(folder)
 
 
 def requireValidNadeoINI(panel_instance: bpy.types.Panel) -> bool:
