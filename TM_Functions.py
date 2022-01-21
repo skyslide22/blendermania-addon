@@ -510,7 +510,11 @@ class AddonUpdate:
             can_update = cls.checkCanUpdate(cls)
             getTmProps().CB_addonUpdateAvailable = can_update
             return can_update
-    
+
+
+    # C:\Users\User>curl -I https://api.github.com/users/skyslide22
+    # HTTP/1.1 403 rate limit exceeded
+    # max 60 calls per hour
     @classmethod
     def doUpdate(cls) -> None:
         debug("Update addon now")
@@ -551,8 +555,24 @@ class AddonUpdate:
 
 def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
     with ZipFile(filepath, "r") as zipfile:
-        zipfile.extractall(path=getBlenderAddonsPath())
-        # blender-addon-for-trackmania-and-maniaplanet
+        files_in_zip   = zipfile.namelist()
+        zipfolder_root = files_in_zip[0]
+
+        for file in files_in_zip:
+            file_in_zip = file
+            save_to     = file.replace(zipfolder_root, getAddonPath()).replace("/","\\")
+        
+            try:
+                removeFile(save_to)
+                zipfile.extract(file_in_zip, save_to)
+                debug(f"yes: {file_in_zip}")
+            except FileNotFoundError as e:
+                debug(f"no:  {file_in_zip}")
+
+
+def removeFile(file:str) -> None:
+    if doesFileExist(file):
+        os.remove(file)
 
 
 def requireValidNadeoINI(panel_instance: bpy.types.Panel) -> bool:
