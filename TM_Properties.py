@@ -597,7 +597,7 @@ def revertMaterialCustomColorLiveChanges() -> None:
 def getMaterialModelTypes()->list:
     return EnumProps().add(
         id   = "TDSN",
-        name = "Files",
+        name = "TDSN",
         desc = "Raw texture (_D.dds, _S.dds, _N.dds)",
         icon = getIcon("MODEL_TDSN")
     ).add(
