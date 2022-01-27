@@ -137,9 +137,23 @@ class TM_OT_Items_ObjectManipulationRemoveCollectionScale(Operator):
     bl_label = "Remove custom multi scale for collection"
    
     def execute(self, context):
-        col = getActiveCollectionOfSelectedObject()
-        if col is not None:
-            setScaledCollectionName(col=col, remove=True)
+        tm_props        = getTmProps()
+        affect_children = tm_props.CB_objMplScaleRecursive
+        col             = getActiveCollectionOfSelectedObject()
+
+        if col is not None:    
+            child_cols = set()
+            child_cols.add(col)
+            
+            if affect_children:
+                for obj in col.all_objects:
+                    for child_col in obj.users_collection:
+                        child_cols.add(child_col)
+            
+            for child_col in child_cols:
+                setScaledCollectionName(col=child_col, remove=True)
+        
+
         else:
             makeReportPopup("Renaming failed", ["Select any object to change its collection name"])
         return {"FINISHED"}
@@ -154,7 +168,9 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     def execute(self, context):
         col      = getActiveCollectionOfSelectedObject()
         tm_props = getTmProps()
-        
+
+        affect_children = tm_props.CB_objMplScaleRecursive
+
         scale_from     = tm_props.NU_objMplScaleFrom
         scale_to       = tm_props.NU_objMplScaleTo
         scale_step     = tm_props.NU_objMplScaleFactor
@@ -175,11 +191,26 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
 
 
         if col is not None:
-            setScaledCollectionName(col=col)
+            
+            child_cols = set()
+            child_cols.add(col)
+            
+            if affect_children:
+                for obj in col.all_objects:
+                    for child_col in obj.users_collection:
+                        child_cols.add(child_col)
+            
+            for child_col in child_cols:
+                setScaledCollectionName(col=child_col)
+        
+
         else:
             makeReportPopup("Renaming failed", ["Select any object to change its collection name"])
+        
         return {"FINISHED"}
     
+
+
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
 
@@ -210,6 +241,9 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
         row.label(text="Factor")
         row = col.row()
         row.prop(tm_props, "NU_objMplScaleFactor", text="")
+        
+        row = layout.row(align=True)
+        row.prop(tm_props, "CB_objMplScaleRecursive", text="Affect child collections", icon="FOLDER_REDIRECT")
 
 
         layout.separator(factor=UI_SPACER_FACTOR)
@@ -416,14 +450,16 @@ class TM_PT_ObjectManipulations(Panel):
         scale_box = layout.box()
         row = scale_box.row(align=True)
         row.scale_y = .75
-        row.label(text="Configure multi scale for export", icon="CON_SIZELIKE")
+        row.label(text="Multi scale export", icon="CON_SIZELIKE")
         row = scale_box.row(align=True)
         col = row.column(align=True)
-        col.scale_x = 1
-        col.operator("wm.tm_changecollectionscale", text="Set multi scale", icon="ADD")
-        col = row.column(align=True)
         col.scale_x = .8
-        col.operator("view3d.tm_removecollectionscale", text="Remove", icon="REMOVE")
+        col.operator("wm.tm_changecollectionscale", text="Add", icon="ADD")
+        col = row.column(align=True)
+        col.scale_x = 1
+        row = col.row(align=True)
+        row.operator("view3d.tm_removecollectionscale", text="Remove", icon="REMOVE")
+        row.prop(tm_props, "CB_objMplScaleRecursive", text="", icon="FOLDER_REDIRECT")
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
@@ -520,7 +556,7 @@ def getCollectionNameWithoutScaleSuffix(col_name:str) -> str:
     return col_name.split("_#SCALE")[0]
 
 
-def setScaledCollectionName(col, remove=False) -> None: 
+def setScaledCollectionName(col:bpy.types.Collection, remove:bool=False) -> None: 
     tm_props     = getTmProps()
     scale_from   = tm_props.NU_objMplScaleFrom
     scale_to     = tm_props.NU_objMplScaleTo

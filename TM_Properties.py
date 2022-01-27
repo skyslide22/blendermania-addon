@@ -856,9 +856,10 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_panelReportAccept : BoolProperty(default=False)
 
     #object manipulation
-    NU_objMplScaleFrom   : IntProperty(default=7, min=1, max=20)
-    NU_objMplScaleTo     : IntProperty(default=4, min=1, max=20)
-    NU_objMplScaleFactor : IntProperty(default=4, min=1, max=20)
+    NU_objMplScaleFrom      : IntProperty(default=7, min=1, max=20)
+    NU_objMplScaleTo        : IntProperty(default=4, min=1, max=20)
+    NU_objMplScaleFactor    : IntProperty(default=4, min=1, max=20)
+    CB_objMplScaleRecursive : BoolProperty(default=True, description="Affect child collections")
 
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)

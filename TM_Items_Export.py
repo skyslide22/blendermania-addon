@@ -129,9 +129,9 @@ class TM_PT_Items_Export(Panel):
         #     row.label(text="work in progress, soon ...")
         #     return
 
-        layout.separator(factor=UI_SPACER_FACTOR)
         
         if not showConvertPanel:
+            layout.separator(factor=UI_SPACER_FACTOR)
 
             text = exportType
             icon = "EXPORT"
@@ -188,11 +188,13 @@ class TM_PT_Items_Export(Panel):
 
             # last & remaining
             if is_not_first_convert and converting:
-                # layout.row().label(text=f"""Last convert duration took: {last_convert_time}s""")
-                layout.row().label(text=f"""Like previous convert?: {remaining_time}s""")
+                row = layout.row()
+                row.scale_y = 0.2
+                row.label(text=f"""Like previous convert?: {remaining_time}s""")
 
 
-            row=layout.row(align=True)
+            col = layout.column(align=True)
+            row = col.row(align=True)
             row.alert   = atlestOneConvertFailed
             row.prop(tm_props, "NU_converted", text=f"{converted} of {convertCount}")
             row.prop(tm_props, "CB_stopAllNextConverts", icon_only=True, text="", icon="CANCEL")
@@ -202,10 +204,10 @@ class TM_PT_Items_Export(Panel):
             failed    = [f for f in failed if f!=""]
             
             #buttons OK, REPORT
-            row = layout.row(align=True)
+            row = col.row(align=True)
             row.alert = atlestOneConvertFailed
             row.enabled = True if any([convertDone, stopConverting]) else False
-            row.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="CHECKMARK")
+            row.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="NONE")
             if(failed):
                 row.operator("view3d.tm_openconvertreport",    text="Open Report",  icon="HELP")    
             
