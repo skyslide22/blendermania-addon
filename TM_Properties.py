@@ -71,15 +71,15 @@ def defaultINI(prop) -> str:
 
 def getGameTypes()->list:
     return EnumProps().add(
-        id   = "ManiaPlanet",
-        name = "ManiaPlanet",
-        desc = "ManiaPlanet game",
-        icon = getIcon("maniaplanet")
+        id   = GAMETYPE_MANIAPLANET,
+        name = GAMETYPE_MANIAPLANET,
+        desc = GAMETYPE_MANIAPLANET,
+        icon = getIcon(GAMETYPE_MANIAPLANET)
     ).add(
-        id   = "Trackmania2020",
-        name = "Trackmania2020",
-        desc = "Trackmania2020 game",
-        icon = getIcon("trackmania2020")
+        id   = GAMETYPE_TRACKMANIA2020,
+        name = GAMETYPE_TRACKMANIA2020,
+        desc = GAMETYPE_TRACKMANIA2020,
+        icon = getIcon(GAMETYPE_TRACKMANIA2020)
     ).toList()
     
 

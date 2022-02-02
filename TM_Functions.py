@@ -152,6 +152,10 @@ SPECIAL_NAME_SUFFIXES = (
     SPECIAL_NAME_SUFFIX_LOD1 := "_Lod1",
 )
 
+GAMETYPE_NAMES = (
+    GAMETYPE_TRACKMANIA2020 := "Trackmania2020",
+    GAMETYPE_MANIAPLANET    := "ManiaPlanet",
+)
 
 # custom items included in addon for import
 ADDON_ITEM_FILEPATH_CAR_STADIUM = getAddonAssetsPath() + "/item_cars/CAR_StadiumCar_Lowpoly.fbx"
@@ -1567,6 +1571,117 @@ def nadeoLibParser() -> None:
 
         setSelectedLinkedMaterialToFirst()
         return nadeoimporter_materiallib_materials
+
+
+class NadeoLibMat():
+    def __init__(self, 
+        game:str, 
+        DLibrary:str, 
+        DMaterial:str, 
+        DSurfaceId:str, 
+        DUvLayers:list, 
+        DTextures:list=None, 
+        DGameplayId:str="None") -> None:
+            self.game       = game
+            self.DLibrary   = DLibrary
+            self.DMaterial  = DMaterial
+            self.DSurfaceId = DSurfaceId
+            self.DUvLayers  = DUvLayers
+            self.DTextures  = DTextures or list() 
+            self.DGameplayId= DGameplayId
+
+    def isGameTM2020(self)      -> bool: return self.game == GAMETYPE_TRACKMANIA2020
+    def isGameManiaplanet(self) -> bool: return self.game == GAMETYPE_MANIAPLANET
+
+
+UV_LAYER_NAMES = (
+    UV_LAYER_NAME_BASEMATERIAL := "BaseMaterial",
+    UV_LAYER_NAME_LIGHTMAP     := "LightMap",
+)
+
+NADEO_MATLIB_DLIBRARYS = (
+    NADEO_MATLIB_DLIBRARY_STORM   := "Storm",
+    NADEO_MATLIB_DLIBRARY_STADIUM := "Stadium",
+    NADEO_MATLIB_DLIBRARY_CANYON  := "Canyon",
+    NADEO_MATLIB_DLIBRARY_VALLEY  := "Valley",
+    NADEO_MATLIB_DLIBRARY_LAGOON  := "Lagoon",
+)
+
+MISSING_DMATERIALS = (
+    MISSING_DMATERIALS_STADIUM_MANIAPLANET := (
+        NadeoLibMat(
+            game       = GAMETYPE_MANIAPLANET,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "StadiumWater",
+            DSurfaceId = "NotCollidable",
+            DUvLayers  = [UV_LAYER_NAME_LIGHTMAP],
+            DTextures  = ["StadiumWaterHeightPC3.dds"]
+        ),
+        NadeoLibMat(
+            game       = GAMETYPE_MANIAPLANET,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "StadiumFan",
+            DSurfaceId = "NotCollidable",
+            DUvLayers  = [UV_LAYER_NAME_LIGHTMAP],
+            DTextures  = ["StadiumFan.dds"] 
+        ),
+    ),
+    MISSING_DMATERIALS_STADIUM_TM2020 := (
+        NadeoLibMat(
+            game       = GAMETYPE_TRACKMANIA2020,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "ItemSpectator",
+            DSurfaceId = "NotCollidable",
+            DUvLayers  = [UV_LAYER_NAME_BASEMATERIAL, UV_LAYER_NAME_LIGHTMAP],
+        ),
+        NadeoLibMat(
+            game       = GAMETYPE_TRACKMANIA2020,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "NoBrake_SpecialFX",
+            DSurfaceId = "NotCollidable",
+            DUvLayers  = [UV_LAYER_NAME_BASEMATERIAL],
+        ),
+        NadeoLibMat(
+            game       = GAMETYPE_TRACKMANIA2020,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "ChronoCheckpoint",
+            DSurfaceId = "NotCollidable",
+            DUvLayers  = [UV_LAYER_NAME_BASEMATERIAL, UV_LAYER_NAME_LIGHTMAP],
+        ),
+        NadeoLibMat(
+            game       = GAMETYPE_TRACKMANIA2020,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "ChronoFinish",
+            DSurfaceId = "NotCollidable",
+            DUvLayers  = [UV_LAYER_NAME_BASEMATERIAL, UV_LAYER_NAME_LIGHTMAP],
+        ),
+        NadeoLibMat(
+            game       = GAMETYPE_TRACKMANIA2020,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "Chrono",
+            DSurfaceId = "NotCollidable",
+            DUvLayers  = [UV_LAYER_NAME_BASEMATERIAL, UV_LAYER_NAME_LIGHTMAP],
+        ),
+        NadeoLibMat(
+            game       = GAMETYPE_TRACKMANIA2020,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "Water",
+            DSurfaceId = "NotCollidable",
+            DUvLayers  = [UV_LAYER_NAME_BASEMATERIAL, UV_LAYER_NAME_LIGHTMAP],
+        ),
+        NadeoLibMat(
+            game       = GAMETYPE_TRACKMANIA2020,
+            DLibrary   = NADEO_MATLIB_DLIBRARY_STADIUM,
+            DMaterial  = "CustomGlass",
+            DSurfaceId = "Green",
+            DUvLayers  = [UV_LAYER_NAME_LIGHTMAP]
+        ),
+    )
+)
+
+# TODO implement nadeolib func to fix/add missing materials, read&write
+def writeNadeoImporterMaterialLibTXT(data) -> None:
+    ...
 
 
 
