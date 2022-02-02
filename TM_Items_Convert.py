@@ -93,9 +93,10 @@ class CONVERT_ITEM(Thread):
         
         # maniaplanet convert process
         if self.game_is_maniaplanet:
-            self.convertItemGBX()
             if not self.convert_has_failed: self.convertMeshAndShapeGBX() 
             if not self.convert_has_failed: self.hackShapeGBX()
+            if not self.convert_has_failed: self.convertItemGBX()
+            
             
         if not self.convert_has_failed:
             self.addProgressStep("Convert succeeded\n\n")
