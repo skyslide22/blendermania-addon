@@ -68,8 +68,9 @@ class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
 class TM_PT_Items_Export(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
-    bl_label = "Export & Convert FBX"
-    bl_idname = "TM_PT_Items_Export"
+    bl_label   = "Export & Convert FBX"
+    bl_idname  = "TM_PT_Items_Export"
+    bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
     def draw_header(self, context):

@@ -262,7 +262,7 @@ PANEL_CLASS_COMMON_DEFAULT_PROPS = {
     "bl_category":       "TrackmaniaAddon",
     "bl_space_type":     "VIEW_3D",
     "bl_region_type":    "UI",
-    "bl_context":        "objectmode",
+    #"bl_context":        "objectmode",
     "bl_options":        {"DEFAULT_CLOSED"}
 }
 
