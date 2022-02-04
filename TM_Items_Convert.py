@@ -118,7 +118,14 @@ class CONVERT_ITEM(Thread):
             
             self.addProgressStep("Convert failed\n\n", errors)
  
-        updateConvertStatusNumbersInUI(convert_failed=self.convert_has_failed, obj_name=self.name)
+        def updateUI() -> int:
+            try:
+                updateConvertStatusNumbersInUI(convert_failed=self.convert_has_failed, obj_name=self.name)
+                return None
+            except:
+                return 0.2
+
+        timer(updateUI, 0)
 
 
     
