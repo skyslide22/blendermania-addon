@@ -49,7 +49,8 @@ class TM_OT_Settings_InstallNadeoImporter(Operator):
     bl_label = "Check if nadeoimporter is installed"
         
     def execute(self, context):
-        installNadeoImporter()
+        # installNadeoImporter()
+        installNadeoImporterFromLocalFiles()
         return {"FINISHED"}
 
 class TM_OT_Settings_InstallGameTextures(Operator):
@@ -246,20 +247,21 @@ class TM_PT_Settings(Panel):
                 row = box.row()
                 row.alert = True
                 row.label(text="NadeoImporter.exe not installed!")
-                
-                op_row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon="IMPORT")
-
-            else:
-                op_row.operator("view3d.tm_installnadeoimporter", text="Update NadeoImporter", icon="FILE_REFRESH")
-                
             
-            error     = tm_props.ST_nadeoImporterDLError
-            show_panel = tm_props.CB_nadeoImporterDLshow
+            col = box.column(align=True)
+            row = col.row(align=True)
+            row.prop(tm_props, "LI_nadeoImporters_"+("TM" if isGameTypeTrackmania2020() else "MP"), text="")
+            row = col.row(align=True)
+            row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon="IMPORT")
 
-            if show_panel:
-                row = box.row()
-                row.alert = error != ""
-                row.prop(tm_props, "NU_nadeoImporterDLProgress", text="ERROR: " + error if error != "" else "Download progress")
+                
+            ### * replaced by local files
+            # error      = tm_props.ST_nadeoImporterDLError
+            # show_panel = tm_props.CB_nadeoImporterDLshow
+            # if show_panel:
+            #     row = box.row()
+            #     row.alert = error != ""
+            #     row.prop(tm_props, "NU_nadeoImporterDLProgress", text="ERROR: " + error if error != "" else "Download progress")
             
 
             

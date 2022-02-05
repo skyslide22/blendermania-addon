@@ -614,7 +614,7 @@ def chooseNadeoIniPathFirstMessage(panel_instance: bpy.types.Panel):
 
 
 
-def isNadeoImporterInstalled(prop="")->None:
+def isNadeoImporterInstalled(prop="") -> bool:
     filePath = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.exe" )
     exists   = os.path.isfile(filePath)
     tm_props = getTmProps()
@@ -627,8 +627,10 @@ def isNadeoImporterInstalled(prop="")->None:
 
     if exists:
         nadeoImporterInstalled_True()
+        return True
     else:
         nadeoImporterInstalled_False()
+        return False
 
 
 def nadeoImporterInstalled_True()->None:
@@ -666,12 +668,31 @@ def getCarType() -> str:
 def getTriggerName() -> str:
     return str(getTmProps().LI_items_triggers)
 
-def unzipNadeoImporter()->None:
+def unzipNadeoImporter(zipfilepath)->None:
     """unzips the downloaded <exe>/NadeoImporter.zip file in <exe> dir"""
-    nadeoImporterZip = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip" )
-    with ZipFile(nadeoImporterZip, 'r') as zipFile:
+    with ZipFile(zipfilepath, 'r') as zipFile:
         zipFile.extractall(path=getTrackmaniaEXEPath())
+    debug(f"nadeoimporter installed")
     isNadeoImporterInstalled()
+
+
+def installNadeoImporterFromLocalFiles()->None:
+    debug(f"nadeoimporter is installed: {isNadeoImporterInstalled()}")
+    tm_props  = getTmProps()
+    base_path = getAddonAssetsPath() + "/nadeoimporters/"
+
+    if isGameTypeManiaPlanet():
+        filename = tm_props.LI_nadeoImporters_MP
+        full_path= base_path + "/Maniaplanet/" + filename
+    else:
+        filename = tm_props.LI_nadeoImporters_TM
+        full_path= base_path + "/Trackmania2020/" + filename
+    
+    debug(f"install nadeoimporter: {getFilenameOfPath(full_path)}")
+    unzipNadeoImporter(zipfilepath=fixSlash(full_path))
+    
+
+        
 
 
 def installNadeoImporter()->None:
@@ -688,7 +709,7 @@ def installNadeoImporter()->None:
         def run(): 
             tm_props.CB_nadeoImporterDLshow = False
         timer(run, 5)
-        unzipNadeoImporter()
+        unzipNadeoImporter(zipfilepath=fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip" ))
         nadeoImporterInstalled_True()
         debug("nadeoimporter successfully installed")
 

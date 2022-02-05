@@ -1,5 +1,6 @@
 from pprint import pprint
 from typing import List
+from unicodedata import name
 import bpy
 import bpy.utils.previews
 from bpy.props import *
@@ -44,6 +45,22 @@ def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
     def wrapper(self, context):
         return func(self, context) if isSelectedNadeoIniFilepathValid() else ERROR_ENUM_PROPS        
     return wrapper
+
+
+def getNadeoImportersManiaplanet() -> list:
+    importers = os.listdir( getAddonAssetsPath() + "/nadeoimporters/maniaplanet/" )
+    items = EnumProps()
+    for imp in importers:
+        items.add(id=imp,name=imp.lower().replace("nadeoimporter_","v. "),desc=imp,icon="FILE_REFRESH")
+    return items.toList()
+
+
+def getNadeoImportersTrackmania2020() -> list:
+    importers = os.listdir( getAddonAssetsPath() + "/nadeoimporters/trackmania2020/" )
+    items = EnumProps()
+    for imp in importers:
+        items.add(id=imp,name=imp.lower().replace("nadeoimporter_","v. "),desc=imp,icon="FILE_REFRESH")
+    return items.toList()
 
 
 def updateINI(prop) -> None:
@@ -845,6 +862,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_nadeoImporterDLRunning   : BoolProperty(  default=False,  update=redrawPanel)
     ST_nadeoImporterDLError     : StringProperty(name="Status",  default="", update=redrawPanel)
     CB_nadeoImporterDLshow      : BoolProperty(  default=False,  update=redrawPanel)
+    LI_nadeoImporters_MP        : EnumProperty(items=getNadeoImportersManiaplanet())
+    LI_nadeoImporters_TM        : EnumProperty(items=getNadeoImportersTrackmania2020())
 
     CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redrawPanel)
     NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
