@@ -203,6 +203,7 @@ def on_startup(dummy) -> None:
     
     # remove possible error text
     isNadeoImporterInstalled()
+    updateInstalledNadeoImporterVersionInUI()
 
     # this mat is auto created by blender, remove due appearance in mat list 
     stroke_mat = bpy.data.materials.get("Dots Stroke", None)

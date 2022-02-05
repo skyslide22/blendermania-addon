@@ -1,3 +1,4 @@
+from pydoc import text
 import bpy
 import os.path
 import string
@@ -45,7 +46,7 @@ class TM_OT_Settings_OpenGithub(Operator):
 
 class TM_OT_Settings_InstallNadeoImporter(Operator):
     bl_idname = "view3d.tm_installnadeoimporter"
-    bl_description = "Open github website"
+    bl_description = "install nando importerino"
     bl_label = "Check if nadeoimporter is installed"
         
     def execute(self, context):
@@ -252,8 +253,16 @@ class TM_PT_Settings(Panel):
             row = col.row(align=True)
             row.prop(tm_props, "LI_nadeoImporters_"+("TM" if isGameTypeTrackmania2020() else "MP"), text="")
             row = col.row(align=True)
+            row.scale_y = 1.5
             row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon="IMPORT")
-
+            
+            if isGameTypeManiaPlanet():
+                current_importer = tm_props.ST_nadeoImporter_MP_current 
+            else:
+                current_importer = tm_props.ST_nadeoImporter_TM_current 
+            row = col.row()
+            row.alignment = "CENTER"
+            row.label(text=f"""(current {current_importer})""")
                 
             ### * replaced by local files
             # error      = tm_props.ST_nadeoImporterDLError
@@ -282,14 +291,14 @@ class TM_PT_Settings(Panel):
         row = col.row()
         row.label(text="Game textures & assets library")
 
+        if isGameTypeManiaPlanet():
+            row = col.row(align=True)
+            row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon="WORLD")
+
         row = col.row(align=True)
         row.enabled = dlTexRunning
         row.scale_y = 1.5
         row.operator("view3d.tm_installgametextures", text=f"Install {envi} textures", icon="TEXTURE")
-
-        if isGameTypeManiaPlanet():
-            row = col.row(align=True)
-            row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon="WORLD")
         
         row = col.row()
         row.enabled = dlTexRunning

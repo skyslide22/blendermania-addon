@@ -673,7 +673,32 @@ def unzipNadeoImporter(zipfilepath)->None:
     with ZipFile(zipfilepath, 'r') as zipFile:
         zipFile.extractall(path=getTrackmaniaEXEPath())
     debug(f"nadeoimporter installed")
+    updateInstalledNadeoImporterVersionInUI()
+
+
+def updateInstalledNadeoImporterVersionInUI():
+    tm_props = getTmProps()
+    version  = "None"
+    if isSelectedNadeoIniFilepathValid():
+        imp_path =getNadeoImporterPath()
+        if doesFileExist(imp_path):
+            process  = subprocess.Popen([
+                f"""powershell.exe""",
+                f"""(Get-Item "{imp_path}").VersionInfo.FileVersion"""
+            ], stdout=subprocess.PIPE)
+            result  = process.communicate()
+            version = result[0].decode("ascii")
+            version = version.replace("\r\n", "")
+            version = version.replace(".", "_")
+            version = version[:-5] # remove hh:mm and keep yy:mm:dd
+
+    if isGameTypeTrackmania2020():
+        tm_props.ST_nadeoImporter_TM_current = version
+    else:
+        tm_props.ST_nadeoImporter_MP_current = version
+    
     isNadeoImporterInstalled()
+
 
 
 def installNadeoImporterFromLocalFiles()->None:
@@ -692,9 +717,7 @@ def installNadeoImporterFromLocalFiles()->None:
     unzipNadeoImporter(zipfilepath=fixSlash(full_path))
     
 
-        
-
-
+# * Not used anymore
 def installNadeoImporter()->None:
     tm_props    = getTmProps()
     filePath    = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip")
@@ -717,7 +740,6 @@ def installNadeoImporter()->None:
         tm_props.ST_nadeoImporterDLError = msg or "unknown error"
         tm_props.CB_nadeoImporterDLRunning = False
         debug(f"nadeoimporter not installed, error: {msg}")
-
         nadeoImporterInstalled_False()
 
 
