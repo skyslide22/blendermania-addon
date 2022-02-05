@@ -301,8 +301,9 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
 
 
 class TM_PT_ObjectManipulations(Panel):
-    bl_label = "Object Manipulation"
-    bl_idname = "TM_PT_ObjectManipulations"
+    bl_label   = "Object Manipulation"
+    bl_idname  = "TM_PT_ObjectManipulations"
+    bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     
     def draw_header(self, context):

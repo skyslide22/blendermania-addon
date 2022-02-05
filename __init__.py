@@ -28,6 +28,7 @@ from .TM_Items_UVMaps       import *
 from .TM_Items_Icon         import *
 from .TM_Items_Templates    import *
 from .TM_Items_Manipulate   import *
+from .TM_UV_Manipulate      import *
 from .TM_Assets_Library     import *
 
 
@@ -74,6 +75,10 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleLod1,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
     TM_OT_Items_ObjectManipulationRemoveCollectionScale,
+
+    # uv manipulation
+    TM_PT_UVManipulations,
+    TM_OT_Items_UVManipulationsFollowActiveQuadsForFaceLoop,
 
     # export
     TM_PT_Items_Export,

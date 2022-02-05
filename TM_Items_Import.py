@@ -65,8 +65,9 @@ class TM_OT_Items_Import(Operator):
         
 
 class TM_PT_Items_Import(Panel):
-    bl_label = "Import FBX"
-    bl_idname = "TM_PT_Items_Import"
+    bl_label   = "Import FBX"
+    bl_idname  = "TM_PT_Items_Import"
+    bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
 
