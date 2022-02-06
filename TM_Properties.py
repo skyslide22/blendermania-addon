@@ -48,26 +48,40 @@ def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
 
 
 def getNadeoImportersManiaplanet() -> list:
-    importers = os.listdir( getAddonAssetsPath() + "/nadeoimporters/maniaplanet/" )
+    importers = ["NadeoImporter_2019_10_09.zip"]
+    isFirst = True
+
     items = EnumProps()
     for imp in importers:
+        name = " (lateset)" if isFirst else ""
+
         items.add(
             id=imp,
-            name=imp.lower().replace("nadeoimporter_","v. ").replace(".zip", ""),
+            name=imp.lower().replace("nadeoimporter_","v. ").replace(".zip", "")+name,
             desc=imp,
             icon="FILE_REFRESH")
+
+        isFirst = False
+    
     return items.toList()
 
 
 def getNadeoImportersTrackmania2020() -> list:
-    importers = os.listdir( getAddonAssetsPath() + "/nadeoimporters/trackmania2020/" )
+    importers = ["NadeoImporter_2021_10_15.zip", "NadeoImporter_2021_07_07.zip"]
+    isFirst = True
+
     items = EnumProps()
     for imp in importers:
+        name = " (lateset)" if isFirst else ""
+
         items.add(
             id=imp,
-            name=imp.lower().replace("nadeoimporter_","v. ").replace(".zip", ""),
+            name=imp.lower().replace("nadeoimporter_","v. ").replace(".zip", "")+name,
             desc=imp,
             icon="FILE_REFRESH")
+
+        isFirst = False
+
     return items.toList()
 
 
