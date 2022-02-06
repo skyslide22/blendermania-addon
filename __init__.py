@@ -16,7 +16,7 @@ bl_info = {
     "category"      : "Generic"
 }                    
 
-
+from .TM_BugHelp            import *
 from .TM_Functions          import *
 from .TM_Settings           import *
 from .TM_Properties         import *
@@ -112,6 +112,11 @@ classes = (
     TM_OT_Materials_Create_Asset_Lib,
     TM_OT_Materials_ClearBaseMaterial,
     TM_OT_Materials_RevertCustomColor,
+    
+    # bughelp
+    TM_OT_ImportSomeFile,
+    TM_PT_BugHelper,
+    TM_OT_ImportSomeData,
 
     # cars
     TM_OT_Items_Cars_Import,
@@ -198,6 +203,8 @@ def on_startup(dummy) -> None:
         pass # fails on first startup when open_mainfile used
 
     loadDefaultSettingsJSON()
+
+    isNinjaRipperInstalled()
 
     AddonUpdate.checkForNewRelease()
     
