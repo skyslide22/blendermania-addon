@@ -38,6 +38,9 @@ def getAddonPath() -> str:
 def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
 
+def getAddonAssetsAddonsPath() -> str:
+    return getAddonPath() + "/assets/addons/"
+
 def getDocumentsPath() -> str:
     documentsPath = os.path.expanduser("~/Documents/")
     # if can't find Documents in default windows path - try to locate it with SHGetFolderPathW

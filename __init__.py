@@ -10,7 +10,7 @@ bl_info = {
     "author"        : "skyslide",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 0, 0),
-    "version"       : (2, 2, 0),
+    "version"       : (2, 3, 0),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
@@ -198,9 +198,12 @@ def on_startup(dummy) -> None:
         pass # fails on first startup when open_mainfile used
 
     loadDefaultSettingsJSON()
-
     AddonUpdate.checkForNewRelease()
     
+    # external addons
+    installUvPackerAddon()
+    #* ... ninjaripper?
+
     # remove possible error text
     isNadeoImporterInstalled()
     updateInstalledNadeoImporterVersionInUI()

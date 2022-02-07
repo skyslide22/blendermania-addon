@@ -3,6 +3,7 @@ import bpy
 import os.path
 import string
 import webbrowser
+import addon_utils
 from pprint import pprint
 from bpy.types import (
     Panel,
@@ -449,6 +450,25 @@ def updateAddon() -> None:
     AddonUpdate.doUpdate()
 
 
+
+
+UVPACKER_ADDON_NAME = "UV-Packer"
+
+def installUvPackerAddon() -> None:
+    addon_is_installed = False
+    for mod in addon_utils.modules():
+        if(mod.bl_info.get('name') == UVPACKER_ADDON_NAME):
+            addon_is_installed = True
+    
+    debug(f"UVPacker addon installed: {addon_is_installed}")
+    if not addon_is_installed:
+        debug(f"install now")
+        bpy.ops.preferences.addon_install(filepath=getAddonAssetsAddonsPath() + 'UV-Packer-Blender-Addon_1.01.00.zip', overwrite=True)
+        debug(f"installed")
+
+    debug(f"enable addon")
+    bpy.ops.preferences.addon_enable(module=UVPACKER_ADDON_NAME)
+    debug(f"addon enabled")
 
 
 
