@@ -463,7 +463,7 @@ def installUvPackerAddon() -> None:
     debug(f"UVPacker addon installed: {addon_is_installed}")
     if not addon_is_installed:
         debug(f"install now")
-        bpy.ops.preferences.addon_install(filepath=getAddonAssetsAddonsPath() + 'UV-Packer-Blender-Addon_1.01.00.zip', overwrite=True)
+        bpy.ops.preferences.addon_install(filepath=getAddonAssetsAddonsPath() + 'UV-Packer-Blender-Addon_1.01.01.zip', overwrite=True)
         debug(f"installed")
 
     debug(f"enable addon")

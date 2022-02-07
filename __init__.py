@@ -198,8 +198,12 @@ def on_startup(dummy) -> None:
         pass # fails on first startup when open_mainfile used
 
     loadDefaultSettingsJSON()
-    AddonUpdate.checkForNewRelease()
     
+    @newThread
+    def checkUpdate():
+        AddonUpdate.checkForNewRelease()
+    checkUpdate()
+
     # external addons
     installUvPackerAddon()
     #* ... ninjaripper?

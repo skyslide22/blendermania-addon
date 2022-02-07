@@ -468,6 +468,12 @@ def createFolderIfNecessary(path) -> None:
         os.makedirs(path)
 
 
+def newThread(func):
+    """decorator, runs func in new thread"""
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread.start()
+    return wrapper
 
 
 
@@ -516,7 +522,15 @@ class AddonUpdate:
         
         finally: 
             can_update = cls.checkCanUpdate(cls)
-            getTmProps().CB_addonUpdateAvailable = can_update
+
+            def update(): # if run in new thread, bpy.context is blocking randomly, bruteforce here
+                try:
+                    getTmProps().CB_addonUpdateAvailable = can_update
+                    return 0
+                except AttributeError:
+                    return 0.1
+            
+            timer(update, 0)
             return can_update
 
 
@@ -2260,16 +2274,6 @@ class Timer():
         current_time = time.perf_counter()
         self.timer_stopped = True
         return current_time - self.start_time 
-
-
-
-
-def newThread(func):
-    """decorator, runs func in new thread"""
-    def wrapper(*args, **kwargs):
-        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
-        thread.start()
-    return wrapper
 
 
 
