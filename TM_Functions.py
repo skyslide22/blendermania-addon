@@ -391,7 +391,9 @@ def getNadeoIniData(setting: str) -> str:
     if setting not in possible_settings:
         raise KeyError(f"Something is wrong with your Nadeo.ini File! {setting=} not found!")
     
-    try: data = nadeo_ini_settings[setting]
+    data = None
+    try: 
+        data = nadeo_ini_settings[setting]
     
     except KeyError:
         debug(f"failed to find {setting} in nadeo ini, try parse now")
@@ -2131,7 +2133,7 @@ def debug(*args, pp=False, raw=False, add_to_list=False, save_list_to=None, clea
         debug_list += "\n"
 
     if save_list_to is not None:
-        with open(save_list_to, "w") as f:
+        with open(fixSlash(save_list_to), "w") as f:
             f.write(debug_list)
         if open_file:
             p = subprocess.Popen(f"notepad {save_list_to}")

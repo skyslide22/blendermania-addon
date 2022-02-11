@@ -250,9 +250,8 @@ def exportAndOrConvert()->None:
     generateBaseMaterialCubeProjects = tm_props.CB_uv_genBaseMaterialCubeMap
 
     exportFilePathBase  = ""
-    exportPathType      = tm_props.LI_exportFolderType
-    exportPathCustom    = tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM
-    exportPathCustom    = fixSlash(getAbspath(exportPathCustom)) # ../../myproject=> C:/Users.../Work/Items/myproject
+    exportPathType      = fixSlash(getAbspath(tm_props.LI_exportFolderType))
+    exportPathCustom    = fixSlash(getAbspath(tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM))
     
     if str(exportPathType).lower() != "custom":
         envi = exportPathType if str(exportPathType).lower() != "base" else ""
@@ -277,25 +276,12 @@ def exportAndOrConvert()->None:
         # rename lazy names (spawn, trigger, notvisible, notcollidable)
         objnameLower = obj.name.lower()
 
-        if "socket" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_socket_start"
-        
-        if "trigger" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_trigger_"
-
-        if "ignore" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_ignore_"+obj.name
-
-        if "notvisible" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_notvisible_"+obj.name
-
-        if "notcollidable" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_notcollidable_"+obj.name
+        if objnameLower.startswith("_") is False:
+            if "socket" in objnameLower:        obj.name = "_socket_start"
+            if "trigger" in objnameLower:       obj.name = "_trigger_"
+            if "ignore" in objnameLower:        obj.name = "_ignore_"+obj.name
+            if "notvisible" in objnameLower:    obj.name = "_notvisible_"+obj.name
+            if "notcollidable" in objnameLower: obj.name = "_notcollidable_"+obj.name
 
 
         # save material as json in the exported fbx file (for import? later) 
