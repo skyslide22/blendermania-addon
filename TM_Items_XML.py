@@ -413,7 +413,7 @@ def generateMeshXML(exported_fbx: exportFBXModel) -> str:
         GAME_IS_TM      = mat.gameType.lower() == "trackmania2020"
         GAME_IS_MP      = mat.gameType.lower() == "maniaplanet"
         PHYSICSID       = mat.physicsId
-        USE_PHYSICSID   = mat.usePhysicsId
+        USE_PHYSICSID   = mat.usePhysicsId and PHYSICSID # can be empty
         GAMEPLAYID      = mat.gameplayId
         USE_GAMEPLAYID  = mat.useGameplayId
         MODEL           = mat.model
