@@ -2158,7 +2158,7 @@ def debugALL() -> None:
     full_debug("programDataPath:         ", PATH_PROGRAM_DATA)
     full_debug("programFilesPath:        ", PATH_PROGRAM_FILES)
     full_debug("programFilesX86Path:     ", PATH_PROGRAM_FILES_X86)
-    full_debug("website_convertreport:   ", PATH_CONVERT_REPORT)
+    full_debug("path_convertreport:      ", PATH_CONVERT_REPORT)
     separator(1)
     from . import bl_info
     full_debug("addon version:           ", bl_info["version"])
@@ -2167,7 +2167,16 @@ def debugALL() -> None:
     full_debug("blender install path:    ", bpy.app.binary_path)
     full_debug("blender opened file:     ", bpy.context.blend_data.filepath)
     full_debug("nadeoimporter version:   ", getInstalledNadeoImporterVersion())
-    separator(1)
+    separator(3)
+
+    full_debug("default settings json:   ")
+    if doesFileExist(PATH_DEFAULT_SETTINGS_JSON):
+        with open(PATH_DEFAULT_SETTINGS_JSON, "r") as f:
+            data = json.loads(f.read())
+            full_debug(data, pp=True, raw=True)
+    else:
+        full_debug(f"not found: {PATH_DEFAULT_SETTINGS_JSON}", raw=True)
+    separator(3)
 
     full_debug("tm_props:")
     tm_props        = getTmProps()
