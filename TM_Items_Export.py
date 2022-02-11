@@ -35,18 +35,6 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
 
         return {"FINISHED"}
     
-    
-class TM_OT_Items_Export_OpenConvertReport(Operator):
-    """open convert report"""
-    bl_idname = "view3d.tm_openconvertreport"
-    bl_description = "Open the error report in browser"
-    bl_icon = 'MATERIAL'
-    bl_label = "Open convert report"
-        
-    def execute(self, context):
-        openHelp("convertreport")
-        return {"FINISHED"}
-
 
 class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
     """open convert report"""
@@ -210,7 +198,7 @@ class TM_PT_Items_Export(Panel):
             row.enabled = True if any([convertDone, stopConverting]) else False
             row.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="NONE")
             if(failed):
-                row.operator("view3d.tm_openconvertreport",    text="Open Report",  icon="HELP")    
+                row.operator("view3d.tm_execute_help", text="Open Report",  icon="HELP").command = "open_convertreport"    
             
 
             #result of fails

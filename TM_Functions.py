@@ -161,10 +161,11 @@ GAMETYPE_NAMES = (
 )
 
 # custom items included in addon for import
-ADDON_ITEM_FILEPATH_CAR_STADIUM = getAddonAssetsPath() + "/item_cars/CAR_StadiumCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_LAGOON  = getAddonAssetsPath() + "/item_cars/CAR_LagoonCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_CANYON  = getAddonAssetsPath() + "/item_cars/CAR_CanyonCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_VALLEY  = getAddonAssetsPath() + "/item_cars/CAR_ValleyCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM = getAddonAssetsPath() + "/item_cars/CAR_Trackmania2020_StadiumCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM    = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_StadiumCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_LagoonCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_CanyonCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_ValleyCar_Lowpoly.fbx"
 
 ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = getAddonAssetsPath() + "/item_triggers/TRIGGER_WALL_32x8.fbx"
 
@@ -693,8 +694,7 @@ def unzipNadeoImporter(zipfilepath)->None:
     updateInstalledNadeoImporterVersionInUI()
 
 
-def updateInstalledNadeoImporterVersionInUI():
-    tm_props = getTmProps()
+def getInstalledNadeoImporterVersion() -> str:
     version  = "None"
     if isSelectedNadeoIniFilepathValid():
         imp_path =getNadeoImporterPath()
@@ -708,6 +708,12 @@ def updateInstalledNadeoImporterVersionInUI():
             version = version.replace("\r\n", "")
             version = version.replace(".", "_")
             version = version[:-5] # remove hh:mm and keep yy:mm:dd
+    return version
+    
+
+def updateInstalledNadeoImporterVersionInUI():
+    tm_props = getTmProps()
+    version  = getInstalledNadeoImporterVersion()
 
     if isGameTypeTrackmania2020():
         tm_props.ST_nadeoImporter_TM_current = version
@@ -2158,6 +2164,7 @@ def debugALL() -> None:
     full_debug("blender file version:    ", bpy.app.version_file)
     full_debug("blender install path:    ", bpy.app.binary_path)
     full_debug("blender opened file:     ", bpy.context.blend_data.filepath)
+    full_debug("nadeoimporter version:   ", getInstalledNadeoImporterVersion())
     separator(1)
 
     full_debug("tm_props:")
@@ -2197,12 +2204,14 @@ def debugALL() -> None:
 
 
     separator(5)
+    if nadeo_ini_settings == {}:
+        parseNadeoIniFile()
     full_debug("nadeoIniSettings:        ")
-    full_debug(nadeo_ini_settings, pp=True)
+    full_debug(nadeo_ini_settings, pp=True, raw=True)
 
     separator(1)
     full_debug("nadeoLibMaterials:       ")
-    full_debug(nadeoimporter_materiallib_materials, pp=True)
+    full_debug(nadeoimporter_materiallib_materials, pp=True, raw=True)
 
     separator(3)
     full_debug("END DEBUG PRINT")

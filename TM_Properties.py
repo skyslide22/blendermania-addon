@@ -833,25 +833,30 @@ def getMaterialGameplayIds(self, context)->None:
 
 def getCarNames() -> list:
     return EnumProps().add(
-        id   = ADDON_ITEM_FILEPATH_CAR_STADIUM,
+    #     id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM,
+    #     name = "Car Stadium",
+    #     desc = "Stadium",
+    #     icon = getIcon("TRACKMANIA2020")
+    # ).add(
+        id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM,
         name = "Car Stadium",
         desc = "Stadium",
-        # icon = getIcon("ENVI_STADIUM")
+        icon = getIcon("MANIAPLANET")
     ).add(
-        id   = ADDON_ITEM_FILEPATH_CAR_CANYON,
+        id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON,
         name = "Car Canyon",
         desc = "Canyon",
-        # icon = getIcon("ENVI_CANYON")
+        icon = getIcon("MANIAPLANET")
     ).add(
-        id   = ADDON_ITEM_FILEPATH_CAR_VALLEY,
+        id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY,
         name = "Car Valley",
         desc = "Valley",
-        # icon = getIcon("ENVI_VALLEY")
+        icon = getIcon("MANIAPLANET")
     ).add(
-        id   = ADDON_ITEM_FILEPATH_CAR_LAGOON,
+        id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON,
         name = "Car Lagoon",
         desc = "Lagoon",
-        # icon = getIcon("ENVI_LAGOON")
+        icon = getIcon("MANIAPLANET")
     ).toList()
 
 

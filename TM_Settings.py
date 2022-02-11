@@ -9,8 +9,9 @@ from bpy.types import (
     Panel,
     Operator,
     AddonPreferences,
-    PropertyGroup
+    PropertyGroup,
 )
+from bpy.props import StringProperty
 
 from .TM_Functions      import *
 from .TM_Items_Convert  import *
@@ -27,23 +28,18 @@ class TM_OT_Settings_AutoFindNadeoIni(Operator):
         return {"FINISHED"}
 
 
-class TM_OT_Settings_OpenDocumentation(Operator):
-    bl_idname = "view3d.tm_opendoc"
-    bl_description = "Open the documentation website"
-    bl_label = "Open Documentation"
+class TM_OT_Settings_ExecuteHelp(Operator):
+    bl_idname = "view3d.tm_execute_help"
+    bl_description = "Execute help"
+    bl_label = "Execute help"
+
+    command: StringProperty("")
         
     def execute(self, context):
-        openHelp("documentation")
+        openHelp(self.command)
         return {"FINISHED"}
 
-class TM_OT_Settings_OpenGithub(Operator):
-    bl_idname = "view3d.tm_opengithub"
-    bl_description = "Open github website"
-    bl_label = "Open github website"
-        
-    def execute(self, context):
-        openHelp("github")
-        return {"FINISHED"}
+
 
 class TM_OT_Settings_InstallNadeoImporter(Operator):
     bl_idname = "view3d.tm_installnadeoimporter"
@@ -73,14 +69,6 @@ class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
         installGameAssetsLibrary()
         return {"FINISHED"}
 
-class TM_OT_Settings_DebugALL(Operator):
-    bl_idname = "view3d.tm_debugall"
-    bl_description = "debug print all addon python variable values"
-    bl_label = "Debug print"
-        
-    def execute(self, context):
-        debugALL()
-        return {"FINISHED"}
 
 
 class TM_OT_Settings_UpdateAddonResetSettings(Operator):
@@ -117,16 +105,6 @@ class TM_OT_Settings_UpdateAddon(Operator):
 
         return {"FINISHED"}
 
-
-class TM_OT_Settings_UpdateAddonOpenChangelog(Operator):
-    bl_idname = "view3d.tm_updateaddonopenchangelog"
-    bl_description = "fetch latest version from github, install, save and restart blender"
-    bl_label = "Update addon"
-    bl_options = {"REGISTER"}
-        
-    def execute(self, context):
-        openHelp("changelog")
-        return {"FINISHED"}
 
 
 class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
@@ -198,7 +176,7 @@ class TM_PT_Settings(Panel):
             row.enabled = tm_props.CB_addonUpdateDLshow is False
             row.operator("view3d.tm_updateaddonrestartblender", text=f"Update to {next_version}", icon="FILE_REFRESH")
             row = col.row(align=True)
-            row.operator("view3d.tm_updateaddonopenchangelog", text="Open changelog", icon="WORLD")
+            row.operator("view3d.tm_execute_help", text="Open changelog", icon="WORLD").command = "open_changelog"
             dl_msg     = tm_props.ST_addonUpdateDLmsg
             show_panel = tm_props.CB_addonUpdateDLshow
 
@@ -208,10 +186,14 @@ class TM_PT_Settings(Panel):
                 row.prop(tm_props, "NU_addonUpdateDLProgress", text=f"{dl_msg}" if dl_msg else "Download progress")
 
 
-        row = box.row(align=True)
-        row.operator("view3d.tm_opendoc",      text="Help",         )#icon="URL")
-        row.operator("view3d.tm_opengithub",   text="Github",       )#icon="FILE_SCRIPT")
-        row.operator("view3d.tm_debugall",     text="Debug",        )#icon="FILE_TEXT")
+        col = box.column(align=True)
+        row = col.row(align=True)
+        row.operator("view3d.tm_execute_help", text="Github",      ).command = "open_github"
+        row.operator("view3d.tm_execute_help", text="Debug",       ).command = "debug_all"
+        row.operator("view3d.tm_execute_help", text="Help",        ).command = "open_documentation"
+        row = col.row(align=True)
+        row.operator("view3d.tm_execute_help", text="Open Assets", ).command = "open_assets"
+        row.operator("view3d.tm_execute_help", text="Open Work",   ).command = "open_work"
 
 
         row = layout.row()
@@ -476,18 +458,21 @@ def openHelp(helptype: str) -> None:
     """open exporer or webbrowser by given helptype"""
     cmd = "" #+path
     
-    if   helptype == "workitemsfolder": cmd += getDocPathWorkItems()
-    elif helptype == "itemsfolder":     cmd += getDocPathItems()
-    elif helptype == "assetfolder":     cmd += getDocPathItemsAssets()
+    if   helptype == "open_work":           cmd = getDocPathWorkItems()
+    elif helptype == "open_items":          cmd = getDocPathItems()
+    elif helptype == "open_assets":         cmd = getDocPathItemsAssets()
+    elif helptype == "debug_all":           debugALL()
+    elif helptype == "open_documentation":  webbrowser.open(URL_DOCUMENTATION)
+    elif helptype == "open_github":         webbrowser.open(URL_GITHUB)
+    elif helptype == "open_convertreport":  subprocess.Popen(['start', fixSlash(PATH_CONVERT_REPORT)], shell=True)
+    elif helptype == "open_changelog":      webbrowser.open(URL_CHANGELOG)
+    elif helptype == "checkregex":          webbrowser.open(URL_REGEX)
     
-    elif helptype == "documentation": webbrowser.open(URL_DOCUMENTATION)
-    elif helptype == "github":        webbrowser.open(URL_GITHUB)
-    elif helptype == "changelog":     webbrowser.open(URL_CHANGELOG)
-    elif helptype == "checkregex":    webbrowser.open(URL_REGEX)
-    elif helptype == "convertreport": subprocess.Popen(['start', fixSlash(PATH_CONVERT_REPORT)], shell=True)
-    
-        
-    if cmd != "":
+    else:
+        debug(f"Help command not found, {helptype=}")
+        return
+
+    if cmd:        
         cmd = f'explorer "{cmd}"'
         cmd = cmd.replace("/", "\\")
         cmd = cmd.replace("\\\\", "\\")

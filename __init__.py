@@ -50,15 +50,12 @@ classes = (
     # settings
     TM_PT_Settings,
     TM_OT_Settings_AutoFindNadeoIni,
-    TM_OT_Settings_OpenDocumentation,
-    TM_OT_Settings_OpenGithub,
+    TM_OT_Settings_ExecuteHelp,
     TM_OT_Settings_InstallNadeoImporter,
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_InstallGameAssetsLIbrary,
-    TM_OT_Settings_DebugALL,
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonResetSettings,
-    TM_OT_Settings_UpdateAddonOpenChangelog,
     TM_OT_Settings_UpdateAddonCheckForNewRelease,
 
     # object manipulation
@@ -83,7 +80,6 @@ classes = (
     # export
     TM_PT_Items_Export,
     TM_OT_Items_Export_ExportAndOrConvert,
-    TM_OT_Items_Export_OpenConvertReport,
     TM_OT_Items_Export_CloseConvertSubPanel,
 
     # import

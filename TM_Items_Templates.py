@@ -21,20 +21,14 @@ class TM_OT_Items_Cars_Import(Operator):
     bl_label = "Car Spawns"
     bl_options = {"REGISTER", "UNDO"} #without, ctrl+Z == crash
 
-    cars: EnumProperty(items=[
-        ("CAR_StadiumCar_Lowpoly",  "Stadium Car",  "", "AUTO", 0),
-        ("CAR_CanyonCar_Lowpoly",   "Canyon Car",   "", "AUTO", 1),
-        ("CAR_ValleyCar_Lowpoly",   "Valley Car",   "", "AUTO", 2),
-        ("CAR_LagoonCar_Lowpoly",   "Lagoon Car",   "", "AUTO", 3),
-    ])
+    cars: EnumProperty(items=getCarNames())
 
     def execute(self, context):
-        car     = self.properties.cars
-        carPath = f"""{getAddonPath()}assets/item_cars/{car}.fbx"""
+        carpath = self.properties.cars
         deselectAllObjects()
         
         bpy.ops.import_scene.fbx(
-            filepath=carPath 
+            filepath=carpath 
         )
 
         for obj in bpy.context.selected_objects:
