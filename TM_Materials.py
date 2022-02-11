@@ -408,7 +408,7 @@ def createMaterialNodes(mat)->None:
     debug(f"material link is :  {mat.link}")
     debug(f"material is a link: {isLinkedMat}")
 
-    if isLinkedMat: tex = getDocPathItemsAssetsTextures() + mat.environment + "/" + mat.link
+    if isLinkedMat: tex = getGameDocPathItemsAssetsTextures() + mat.environment + "/" + mat.link
     else:           tex = re.sub(r"_?(i|d)\.dds$", "", mat.baseTexture, flags=re.IGNORECASE)
 
     if not isCustomMat:
@@ -520,7 +520,7 @@ def loadDDSTextureIntoBlender(texpath: str) -> tuple:
         
         else:
             debug(f"texture already loaded: { texName }")
-            bpy.ops.file.find_missing_files( directory=getDocPathItemsAssetsTextures() )
+            bpy.ops.file.find_missing_files( directory=getGameDocPathItemsAssetsTextures() )
 
         return True, texName
     
@@ -651,14 +651,14 @@ def assignMatJSONpropsToMat(mat) -> bool:
 
     btex  = getattr(DICT, "baseTexture", "")
     envi  = getattr(DICT, "environment", "")
-    root  = getDocPathItemsAssetsTextures()
+    root  = getGameDocPathItemsAssetsTextures()
     root  = root + envi + "/"
 
-    tex_d_path = getattr(DICT, "tex_d_path", False) or getDocPath() + btex + "_D.dds"
-    tex_i_path = getattr(DICT, "tex_i_path", False) or getDocPath() + btex + "_I.dds"
-    tex_r_path = getattr(DICT, "tex_r_path", False) or getDocPath() + btex + "_R.dds"
-    tex_n_path = getattr(DICT, "tex_n_path", False) or getDocPath() + btex + "_N.dds"
-    tex_h_path = getattr(DICT, "tex_h_path", False) or getDocPath() + btex + "_H.dds"
+    tex_d_path = getattr(DICT, "tex_d_path", False) or getGameDocPath() + btex + "_D.dds"
+    tex_i_path = getattr(DICT, "tex_i_path", False) or getGameDocPath() + btex + "_I.dds"
+    tex_r_path = getattr(DICT, "tex_r_path", False) or getGameDocPath() + btex + "_R.dds"
+    tex_n_path = getattr(DICT, "tex_n_path", False) or getGameDocPath() + btex + "_N.dds"
+    tex_h_path = getattr(DICT, "tex_h_path", False) or getGameDocPath() + btex + "_H.dds"
 
     test_d_path_as_link = root + tex_d_path.split("/")[-1]
     test_i_path_as_link = root + tex_i_path.split("/")[-1]

@@ -256,7 +256,7 @@ def exportAndOrConvert()->None:
     
     if str(exportPathType).lower() != "custom":
         envi = exportPathType if str(exportPathType).lower() != "base" else ""
-        exportFilePathBase = getDocPathWorkItems() + envi
+        exportFilePathBase = getGameDocPathWorkItems() + envi
     
     elif str(exportPathType).lower() == "custom":
         exportFilePathBase = exportPathCustom

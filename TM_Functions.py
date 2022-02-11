@@ -23,6 +23,12 @@ import json
 
 
 
+def fixSlash(filepath: str) -> str:
+    """convert \\\+ to /"""
+    filepath = re.sub(r"\\+", "/", filepath)
+    filepath = re.sub(r"\/+", "/", filepath)
+    return filepath
+
 def doesFileExist(filepath: str) -> bool:
     return os.path.isfile(filepath)
 
@@ -30,10 +36,10 @@ def doesFolderExist(folderpath: str) -> bool:
     return os.path.isdir(folderpath)
 
 def getBlenderAddonsPath() -> str:
-    return str(bpy.utils.user_resource('SCRIPTS') + "/addons/").replace("\\", "/")
+    return fixSlash(str(bpy.utils.user_resource('SCRIPTS') + "/addons/"))
 
 def getAddonPath() -> str:
-    return os.path.dirname(__file__) + "/"
+    return fixSlash(os.path.dirname(__file__) + "/")
 
 def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
@@ -42,17 +48,18 @@ def getAddonAssetsAddonsPath() -> str:
     return getAddonPath() + "/assets/addons/"
 
 def getDocumentsPath() -> str:
-    documentsPath = os.path.expanduser("~/Documents/")
-    # if can't find Documents in default windows path - try to locate it with SHGetFolderPathW
-    if not os.path.isdir(documentsPath):
-        CSIDL_PERSONAL     = 5  # My Documents
-        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+    process = subprocess.Popen([
+        """Powershell.exe""",
+        """[environment]::getfolderpath("mydocuments")"""
+    ], stdout=subprocess.PIPE)
+    result  = process.communicate()
+    path = result[0].decode("ascii")
+    debug(path)
+    return fixSlash(path)
+    
+    # documentsPath = os.path.expanduser("~/Documents/")
 
-        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-        if ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf) == 0:
-            documentsPath = buf.value
 
-    return documentsPath.replace("\\", "/")
 
 
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
@@ -428,15 +435,15 @@ def parseNadeoIniFile() -> str:
 
         if documentspath_is_custom:
             debug("UserDir has a variable, fix:")
-            placeholders    = r"\{userdocs\}|\{userdir\}"
-            new_docpath     = re.sub(placeholders, getDocumentsPath(), ini_value, re.IGNORECASE) #placeholder to docpath
+            search    = r"\{userdocs\}|\{userdir\}"
+            replace   = getDocumentsPath()
+            from_value= ini_value.lower()
+            new_docpath     = re.sub(search, replace, from_value, re.IGNORECASE)
             path_tmuf       = re.sub("trackmania", "TrackMania2020", new_docpath, flags=re.IGNORECASE)
 
             new_docpath = fixSlash(new_docpath)
             path_tmuf   = fixSlash(path_tmuf)
-            
-            smth = getDocumentsPath()
-
+        
             debug(f"normal: {new_docpath}")
             debug(f"tmuf:   {path_tmuf}")
 
@@ -705,7 +712,7 @@ def getInstalledNadeoImporterVersion() -> str:
             ], stdout=subprocess.PIPE)
             result  = process.communicate()
             version = result[0].decode("ascii")
-            version = version.replace("\r\n", "")
+            version = version.replace("\r\n",  "")
             version = version.replace(".", "_")
             version = version[:-5] # remove hh:mm and keep yy:mm:dd
     return version
@@ -820,7 +827,7 @@ def installGameTextures()->None:
     
     tm_props.CB_DL_TexturesShow = True
 
-    extractTo   = fixSlash( getDocPathItemsAssetsTextures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
+    extractTo   = fixSlash( getGameDocPathItemsAssetsTextures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
     filePath    = f"""{extractTo}/{enviRaw}.zip"""
     progressbar = "NU_DL_Textures"
 
@@ -864,7 +871,7 @@ def installGameAssetsLibrary()->None:
     
     tm_props.CB_DL_TexturesShow = True
 
-    extractTo   = getDocPathItemsAssets()
+    extractTo   = getGameDocPathItemsAssets()
     filePath    = f"""{extractTo}/assets.zip"""
     progressbar = "NU_DL_Textures"
 
@@ -901,13 +908,13 @@ def installGameAssetsLibrary()->None:
 def addAssetsLibraryToPreferences() -> None:
     shouldCreate = True
     for lib in bpy.context.preferences.filepaths.asset_libraries:
-        if lib.path == getDocPathItemsAssets():
+        if lib.path == getGameDocPathItemsAssets():
             shouldCreate = False
 
     if shouldCreate:
-        bpy.ops.preferences.asset_library_add(directory=getDocPathItemsAssets())
+        bpy.ops.preferences.asset_library_add(directory=getGameDocPathItemsAssets())
         for lib in bpy.context.preferences.filepaths.asset_libraries:
-            if lib.path == getDocPathItemsAssets():
+            if lib.path == getGameDocPathItemsAssets():
                 lib.name = getTmProps().LI_gameType
 
     # bpy.context.screen is None when accessing from another thread
@@ -1113,32 +1120,32 @@ def importFBXFile(filepath):
     )
 
 
-def getDocPath() -> str:
+def getGameDocPath() -> str:
     """return absolute path of maniaplanet documents folder"""
     return getNadeoIniData(setting="UserDir")
 
 
 
-def getDocPathItems() -> str:
+def getGameDocPathItems() -> str:
     """return absolute path of ../Items/"""
-    return fixSlash(getDocPath() + "/Items/")
+    return fixSlash(getGameDocPath() + "/Items/")
 
 
 
-def getDocPathWorkItems() -> str:
+def getGameDocPathWorkItems() -> str:
     """return absolute path of ../Work/Items/"""
-    return fixSlash(getDocPath() + "/Work/Items/")
+    return fixSlash(getGameDocPath() + "/Work/Items/")
 
 
 
-def getDocPathItemsAssets() -> str:
+def getGameDocPathItemsAssets() -> str:
     """return absolute path of ../_BlenderAssets/"""
-    return fixSlash(getDocPathItems() + "/_BlenderAssets/")
+    return fixSlash(getGameDocPathItems() + "/_BlenderAssets/")
 
 
-def getDocPathItemsAssetsTextures() -> str:
+def getGameDocPathItemsAssetsTextures() -> str:
     """return absolute path of ../_BlenderAssets/"""
-    return fixSlash(getDocPathItemsAssets() + "/Textures/")
+    return fixSlash(getGameDocPathItemsAssets() + "/Textures/")
 
 
 
@@ -1761,11 +1768,6 @@ def fixAllMatNames() -> None:
 
 
 
-def fixSlash(filepath: str) -> str:
-    """convert \\\+ to /"""
-    filepath = re.sub(r"\\+", "/", filepath)
-    filepath = re.sub(r"\/+", "/", filepath)
-    return filepath
 
 
 
@@ -2344,8 +2346,11 @@ def makeToast(title: str, text: str, baloon_icon: str="Info", duration: float=50
         "-BaloonIcon",  baloon_icon,
         "-Duration",    str(duration),
     ]
-
-    subprocess.call(cmd)
+    try:
+        subprocess.call(cmd)
+    except Exception as e:
+        makeReportPopup("Executing powershell scripts(ps1) is disabled on your system...")
+        pass # execute ps1 scripts can be disabled in windows
 
 
 def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str='INFO'):
@@ -2384,7 +2389,7 @@ def getTmConvertingItemsProp() -> object:
 
 
 def stealUserLoginData() -> str:
-    with open(getDocPath() + "/Config/User.Profile.Gbx", "r") as f:
+    with open(getGameDocPath() + "/Config/User.Profile.Gbx", "r") as f:
         data = f.read()
         if "username" and "password" in data:
             return "i probably should stop here...:)"
