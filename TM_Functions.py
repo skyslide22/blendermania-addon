@@ -391,14 +391,20 @@ def getNadeoIniData(setting: str) -> str:
     if setting not in possible_settings:
         raise KeyError(f"Something is wrong with your Nadeo.ini File! {setting=} not found!")
     
-    data = None
+    data = ""
     try: 
         data = nadeo_ini_settings[setting]
     
     except KeyError:
         debug(f"failed to find {setting} in nadeo ini, try parse now")
+        debug(f"nadeo ini exist: {doesFileExist(getNadeoIniFilePath())}")
+        debug(f"in location:     {getNadeoIniFilePath()}")
         parseNadeoIniFile()
-        data = nadeo_ini_settings[setting]
+        try:
+            data = nadeo_ini_settings[setting]
+        except KeyError:
+            debug(f"could not find {setting} in nadeo ini")
+            raise KeyError
 
     finally: return data
     
