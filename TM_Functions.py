@@ -52,8 +52,8 @@ def getDocumentsPath() -> str:
         """Powershell.exe""",
         """[environment]::getfolderpath("mydocuments")"""
     ], stdout=subprocess.PIPE)
-    result  = process.communicate()
-    path = result[0].decode("ascii")
+    result  = process.communicate() # (b"C:\Users\User\Documents\r\n", None)
+    path = result[0].decode("ascii").replace("\r\n",  "") 
     debug(path)
     return fixSlash(path)
     
