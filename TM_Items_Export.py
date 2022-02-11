@@ -249,18 +249,16 @@ def exportAndOrConvert()->None:
     fixLightmap                      = tm_props.CB_uv_fixLightMap
     generateBaseMaterialCubeProjects = tm_props.CB_uv_genBaseMaterialCubeMap
 
-    exportFilePathBase  = ""
-    exportPathType      = fixSlash(getAbspath(tm_props.LI_exportFolderType))
-    exportPathCustom    = fixSlash(getAbspath(tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM))
-    
-    if str(exportPathType).lower() != "custom":
-        envi = exportPathType if str(exportPathType).lower() != "base" else ""
-        exportFilePathBase = getGameDocPathWorkItems() + envi
-    
-    elif str(exportPathType).lower() == "custom":
-        exportFilePathBase = exportPathCustom
+    export_path_base      = "/"
+    export_path_custom    = tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM
+    export_path_custom    = fixSlash(getAbspath(export_path_custom) + "/")
+    export_path_is_custom = tm_props.LI_exportFolderType == "Custom"
 
-    exportFilePathBase += "/"
+    if export_path_is_custom:
+        export_path_base = export_path_custom
+    else:
+        export_path_base = getGameDocPathWorkItems()
+
     fixAllColNames() #[a-zA-Z0-9_-#] only
 
 
@@ -301,7 +299,7 @@ def exportAndOrConvert()->None:
 
         deselectAllObjects()
 
-        exportFilePath = f"{exportFilePathBase}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
+        exportFilePath = f"{export_path_base}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
         FBX_exportFilePath = fixSlash(exportFilePath + ".fbx")
 
     

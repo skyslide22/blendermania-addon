@@ -34,7 +34,7 @@ class CONVERT_ITEM(Thread):
         
         # relative (Items/...) & absolute (C:/Users...) fbx filepaths
         self.fbx_filepath           = fixSlash( fbxfilepath ) 
-        self.fbx_filepath_relative  = "Items/" + fbxfilepath.split("/Work/Items/")[-1] 
+        self.fbx_filepath_relative  = fixSlash("Items/" + fbxfilepath.split("/Work/Items/")[-1]) 
         
         # xm filepaths located in next to the fbx file
         self.xml_meshparams_filepath    = self.fbx_filepath.replace(".fbx", ".MeshParams.xml")
@@ -134,7 +134,7 @@ class CONVERT_ITEM(Thread):
         """convert fbx to shape/mesh.gbx"""
         self.addProgressStep(f"""Convert .fbx to .Mesh.gbx and Shape.gbx""")
         
-        cmd = f"{getNadeoImporterPath()} Mesh {self.fbx_filepath_relative}" # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
+        cmd = f"""{getNadeoImporterPath()} Mesh "{self.fbx_filepath_relative}" """ # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
         self.addProgressStep(f"""Command: {cmd}""")
         
         convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -157,7 +157,7 @@ class CONVERT_ITEM(Thread):
         """convert fbx to item.gbx"""
         self.addProgressStep(f"""Convert .fbx to .Item.gbx""")
         
-        cmd = f"{getNadeoImporterPath()} Item {self.xml_item_filepath_relative}" # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
+        cmd = f"""{getNadeoImporterPath()} Item "{self.xml_item_filepath_relative}" """ # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
         self.addProgressStep(f"""Command: {cmd}""")
 
         convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
