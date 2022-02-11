@@ -314,7 +314,10 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
     items_convert_index = {}
     counter = 0
 
-    atleast_one_convert_failed = False
+    fail_count    = 0
+    success_count = 0
+    atleast_one_convert_failed = fail_count > 0
+    
 
     for exported_fbx in fbxfilepaths:
         name = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
@@ -349,9 +352,9 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         icon                = "CHECKMARK" if not failed else "FILE_FONT"
         current_item_index  = items_convert_index[ name ] # number
 
-        if failed:
-            atleast_one_convert_failed = True
-        
+        if failed: fail_count    += 1
+        else:      success_count += 1
+
         tm_props_convertingItems[ current_item_index ].name             = name
         tm_props_convertingItems[ current_item_index ].icon             = icon
         tm_props_convertingItems[ current_item_index ].failed           = failed
@@ -371,8 +374,8 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
                 tm_props.NU_currentConvertDuration = convertDurationTime
                 
                 if notify:
-                    convert_count    = tm_props.NU_convertedRaw
-                    convert_errors   = tm_props.NU_convertedError
+                    convert_count    = fail_count + success_count
+                    convert_errors   = fail_count
                     convert_duration = tm_props.NU_currentConvertDuration
 
                     if atleast_one_convert_failed:
@@ -387,7 +390,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
                     makeToast(title, text, icon, 7000)
 
             except AttributeError:
-                time.sleep(.1)
+                time.sleep(.02)
                 inner()
         inner()
 
