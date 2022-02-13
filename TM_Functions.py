@@ -60,6 +60,13 @@ def getDocumentsPath() -> str:
     # documentsPath = os.path.expanduser("~/Documents/")
 
 
+# windows filepaths can not be longer than 260chars, 
+# allow 32.000+ by adding this to path, like //?/C:/Users/<500 random chars>/myfile.txt
+EXCEED_260_PATH_LIMIT = "\\\\?\\" 
+def longPath(path: str) -> str:
+    path = re.sub(r"/+|\\+", r"\\", path)
+    path = EXCEED_260_PATH_LIMIT + path
+    return path
 
 
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
@@ -561,7 +568,7 @@ class AddonUpdate:
         save_to  = getBlenderAddonsPath() + filename
         url      = cls.download_url
 
-        def on_success():
+        def on_success(msg):
             tm_props.CB_addonUpdateDLRunning = False
             unzipNewAndOverwriteOldAddon(save_to)
             tm_props.ST_addonUpdateDLmsg = "Done, restarting..."
@@ -596,9 +603,13 @@ def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
         zipfolder_root = zipfile.filelist[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet
         unzipped_at    = getAddonPath() + "TEMP_ZIP_EXTRACT"
 
-        zipfile.extractall(unzipped_at)
-        src = unzipped_at + "/" + zipfolder_root
-        dst = getAddonPath()
+        zipfile.extractall( longPath(unzipped_at) )
+        src = longPath(unzipped_at + "/" + zipfolder_root)
+        dst = longPath(getAddonPath())
+        # dst = longPath(getAddonPath() + "test")
+
+        debug(src, raw=True)
+        debug(dst, raw=True)
         
         shutil.copytree(src, dst, dirs_exist_ok=True)
         removeFolder(unzipped_at)
@@ -704,7 +715,7 @@ def getTriggerName() -> str:
 def unzipNadeoImporter(zipfilepath)->None:
     """unzips the downloaded <exe>/NadeoImporter.zip file in <exe> dir"""
     with ZipFile(zipfilepath, 'r') as zipFile:
-        zipFile.extractall(path=getTrackmaniaEXEPath())
+        zipFile.extractall(path=longPath(getTrackmaniaEXEPath()))
     debug(f"nadeoimporter installed")
     updateInstalledNadeoImporterVersionInUI()
 
@@ -800,14 +811,14 @@ def installNadeoImporter()->None:
 def unzipGameTextures(filepath, extractTo)->None:
     """unzip downloaded game textures zip file in /items/_BA..."""
     with ZipFile(filepath, 'r') as zipFile:
-        zipFile.extractall(path=extractTo)
+        zipFile.extractall(path=longPath(extractTo))
     reloadAllMaterialTextures()
 
 
 
 def unzipGameAssetsLibrary(filepath: str, extractTo: str) -> None:
     with ZipFile(filepath, 'r') as zipFile:
-        zipFile.extractall(path=extractTo)
+        zipFile.extractall(path=longPath(extractTo))
 
 
 

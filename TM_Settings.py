@@ -147,6 +147,9 @@ class TM_PT_Settings(Panel):
         is_blender_3    = blender_version[0] >= 3
         layout          = self.layout
         tm_props        = getTmProps()
+
+        if BLENDER_INSTANCE_IS_DEV:
+            layout.operator("view3d.tm_execute_help", text="(dev!) execute test function", icon="HELP").command = "testfunc"
         
 
         box = layout.box()
@@ -467,6 +470,7 @@ def openHelp(helptype: str) -> None:
     elif helptype == "open_convertreport":  subprocess.Popen(['start', fixSlash(PATH_CONVERT_REPORT)], shell=True)
     elif helptype == "open_changelog":      webbrowser.open(URL_CHANGELOG)
     elif helptype == "checkregex":          webbrowser.open(URL_REGEX)
+    elif helptype == "testfunc":            unzipNewAndOverwriteOldAddon(filepath=getBlenderAddonsPath() + "blender-addon-for-trackmania-and-maniaplanet.zip")
     
     else:
         debug(f"Help command not found, {helptype=}")
