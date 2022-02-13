@@ -833,11 +833,11 @@ def getMaterialGameplayIds(self, context)->None:
 
 def getCarNames() -> list:
     return EnumProps().add(
-    #     id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM,
-    #     name = "Car Stadium",
-    #     desc = "Stadium",
-    #     icon = getIcon("TRACKMANIA2020")
-    # ).add(
+        id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM,
+        name = "Car Stadium",
+        desc = "Stadium",
+        icon = getIcon("TRACKMANIA2020")
+    ).add(
         id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM,
         name = "Car Stadium",
         desc = "Stadium",
