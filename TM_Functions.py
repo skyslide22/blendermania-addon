@@ -3,6 +3,7 @@ from enum import Enum
 from shutil import copyfile
 import shutil
 import subprocess
+import tempfile
 import threading
 import urllib.request
 import urllib.error
@@ -600,8 +601,8 @@ class AddonUpdate:
 
 def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
     with ZipFile(filepath, "r") as zipfile:
-        zipfolder_root = zipfile.filelist[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet
-        unzipped_at    = getAddonPath() + "TEMP_ZIP_EXTRACT"
+        zipfolder_root = zipfile.filelist[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet + -master?
+        unzipped_at    = fixSlash(tempfile.gettempdir() + "/TM_ADDON_123")
 
         zipfile.extractall( longPath(unzipped_at) )
         src = longPath(unzipped_at + "/" + zipfolder_root)
