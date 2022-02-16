@@ -48,7 +48,8 @@ def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
 
 
 def getNadeoImportersManiaplanet() -> list:
-    importers = ["NadeoImporter_2019_10_09.zip"]
+    # importers = ["NadeoImporter_2019_10_09.zip"]
+    importers = ["2019_10_09.zip"]
     isFirst = True
 
     items = EnumProps()
@@ -67,7 +68,8 @@ def getNadeoImportersManiaplanet() -> list:
 
 
 def getNadeoImportersTrackmania2020() -> list:
-    importers = ["NadeoImporter_2021_10_15.zip", "NadeoImporter_2021_07_07.zip"]
+    # importers = ["NadeoImporter_2021_10_15.zip", "NadeoImporter_2021_07_07.zip"]
+    importers = ["2021_10_15.zip", "2021_07_07.zip"]
     isFirst = True
 
     items = EnumProps()
