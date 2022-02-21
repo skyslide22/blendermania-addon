@@ -541,18 +541,29 @@ class AddonUpdate:
             cls.new_addon_version = tuple( map( int, tag_name.split(".") ))
             cls.download_url      = json_object["assets"][0]["browser_download_url"]
         
-        except Exception as e: 
-            makeReportPopup("Failed to fetch releases", ["failed to get data from github", f"error: {e}"])
-        
+        except Exception as e:
+            pass
+
         finally: 
             can_update = cls.checkCanUpdate(cls)
-
+            max_trys   = 10
+            try_count  = 0
             def update(): # if run in new thread, bpy.context is blocking randomly, bruteforce here
+                nonlocal max_trys
+                nonlocal try_count
+                
+                if try_count > 10:
+                    return None
+
+                try_count += 1
                 try:
+                    debug(f"try update CB_addonUpdateAvailable")
                     getTmProps().CB_addonUpdateAvailable = can_update
-                    return 0
+                    debug(f"success {can_update=}")
+                    return None
                 except AttributeError:
-                    return 0.1
+                    debug(f"failed {can_update=}")
+                    return 1
             
             timer(update, 0)
             return can_update
