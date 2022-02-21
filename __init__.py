@@ -72,6 +72,9 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleLod1,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
     TM_OT_Items_ObjectManipulationRemoveCollectionScale,
+    TM_OT_Items_ToggleLightType,
+    TM_OT_Items_ToggleNightOnly,
+    TM_OT_Items_RenameObject,
 
     # uv manipulation
     TM_PT_UVManipulations,

@@ -72,7 +72,7 @@ class TM_PT_Items_ItemXML(Panel):
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
         row.prop(tm_props, "CB_xml_genItemXML",         text="",    icon_only=True, icon="CHECKMARK",)
-        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="",            icon_only=True, icon="FILE_REFRESH")
+        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="",    icon_only=True, icon="FILE_REFRESH")
         row=layout.row()
     
     def draw(self, context):
@@ -193,30 +193,31 @@ class TM_PT_Items_MeshXML(Panel):
 
 
 
-            #--- multi scales
-            layout.separator(factor=UI_SPACER_FACTOR)
-            layout.row().prop(tm_props, "CB_useMultiScaleExport", toggle=True, icon="SORTSIZE")
+            # #--- multi scales
+            # layout.separator(factor=UI_SPACER_FACTOR)
+            # layout.row().prop(tm_props, "CB_useMultiScaleExport", toggle=True, icon="SORTSIZE")
             
-            row = layout.row(align=True)            
-            col = row.column()
-            col.prop(tm_props, "CB_overwriteMultiScaleFactor", toggle=True, icon="LINENUMBERS_ON")
+            # row = layout.row(align=True)            
+            # col = row.column()
+            # col.prop(tm_props, "CB_overwriteMultiScaleFactor", toggle=True, icon="LINENUMBERS_ON")
             
-            col = row.column()
-            col.enabled = True if tm_props.CB_overwriteMultiScaleFactor else False
-            col.prop(tm_props, "NU_multiScaleExportFactor", text="x =")
+            # col = row.column()
+            # col.enabled = True if tm_props.CB_overwriteMultiScaleFactor else False
+            # col.prop(tm_props, "NU_multiScaleExportFactor", text="x =")
             
             
-            layout.separator(factor=UI_SPACER_FACTOR)
+            # layout.separator(factor=UI_SPACER_FACTOR)
             
             
             #--- object scale
             row = layout.row(align=True)
             
-            col = row.column()
-            col.enabled = True if tm_props.CB_useMultiScaleExport is False else False
+            col = row.column(align=True)
+            # col.enabled = True if tm_props.CB_useMultiScaleExport is False else False
+            col.enabled = True
             col.prop(tm_props, "CB_xml_scale", toggle=True, icon="OBJECT_ORIGIN")
 
-            col = row.column()
+            col = row.column(align=True)
             col.enabled = False if not tm_props.CB_xml_scale else True
             col.prop(tm_props, "NU_xml_scale", text="")
 
@@ -224,11 +225,11 @@ class TM_PT_Items_MeshXML(Panel):
             #--- light power
             row = layout.row(align=True)
 
-            col = row.column()
+            col = row.column(align=True)
             col.enabled = True
             col.prop(tm_props, "CB_xml_lightPower",    text="Light Power", icon="OUTLINER_OB_LIGHT")
             
-            col = row.column()
+            col = row.column(align=True)
             col.enabled = False if not tm_props.CB_xml_lightPower else True
             col.prop(tm_props, "NU_xml_lightPower", text="")
 
@@ -236,11 +237,11 @@ class TM_PT_Items_MeshXML(Panel):
             #--- light color
             row = layout.row(align=True)
 
-            col = row.column()
+            col = row.column(align=True)
             col.enabled = True
             col.prop(tm_props, "CB_xml_lightGlobColor", text="Light Color", icon="COLORSET_13_VEC")
             
-            col = row.column()
+            col = row.column(align=True)
             col.enabled = False if not tm_props.CB_xml_lightGlobColor else True
             col.prop(tm_props, "NU_xml_lightGlobColor", text="")
             
@@ -248,11 +249,11 @@ class TM_PT_Items_MeshXML(Panel):
             #--- light distance
             row = layout.row(align=True)
 
-            col = row.column()
+            col = row.column(align=True)
             col.enabled = True
             col.prop(tm_props, "CB_xml_lightGlobDistance", text="Light Radius", icon="LIGHT_SUN")
             
-            col = row.column()
+            col = row.column(align=True)
             col.enabled = False if not tm_props.CB_xml_lightGlobDistance else True
             col.prop(tm_props, "NU_xml_lightGlobDistance", text="")
             
