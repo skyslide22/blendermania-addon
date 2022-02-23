@@ -6,7 +6,6 @@ from bpy.types import (
 import webbrowser
 
 from .TM_Functions      import *
-from .TM_Items_Convert  import *
 
 
 NINJA_RIPPER_17_ADDON_NAME = "ninjaripper-blender-import-main"
