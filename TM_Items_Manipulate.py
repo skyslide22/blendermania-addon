@@ -527,7 +527,7 @@ class TM_PT_ObjectManipulations(Panel):
         row.operator("view3d.tm_togglelighttype", text="Spot" , icon=spot_icon ).light_type = "SPOT"
         row.operator("view3d.tm_togglelighttype", text="Point", icon=point_icon).light_type = "POINT"
 
-        use_night_only = (obj.type == "LIGHT") and obj.data.night_only if obj is not None else False
+        use_night_only= is_light and obj.data.night_only
         night_icon    = true_icon if     use_night_only and is_light else false_icon
         nightday_icon = true_icon if not use_night_only and is_light else false_icon
         row = col.row(align=True)
