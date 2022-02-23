@@ -48,7 +48,8 @@ def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
 
 
 def getNadeoImportersManiaplanet() -> list:
-    importers = ["NadeoImporter_2019_10_09.zip"]
+    # importers = ["NadeoImporter_2019_10_09.zip"]
+    importers = ["2019_10_09.zip"]
     isFirst = True
 
     items = EnumProps()
@@ -67,7 +68,8 @@ def getNadeoImportersManiaplanet() -> list:
 
 
 def getNadeoImportersTrackmania2020() -> list:
-    importers = ["NadeoImporter_2021_10_15.zip", "NadeoImporter_2021_07_07.zip"]
+    # importers = ["NadeoImporter_2021_10_15.zip", "NadeoImporter_2021_07_07.zip"]
+    importers = ["2021_10_15.zip", "2021_07_07.zip"]
     isFirst = True
 
     items = EnumProps()
@@ -413,8 +415,8 @@ def getWorkItemsRootFolderNames(s,c) -> list:
     """return all root folders of ../Work/Items/foldernames[]"""
     rootFolderNames = []
     
-    for folder in os.listdir( getDocPathWorkItems() ):
-        if os.path.isdir( getDocPathWorkItems() + folder ):
+    for folder in os.listdir( getGameDocPathWorkItems() ):
+        if os.path.isdir( getGameDocPathWorkItems() + folder ):
             rootFolderNames.append(3*(folder,))    
     
     return rootFolderNames
@@ -833,25 +835,30 @@ def getMaterialGameplayIds(self, context)->None:
 
 def getCarNames() -> list:
     return EnumProps().add(
-        id   = ADDON_ITEM_FILEPATH_CAR_STADIUM,
+        id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM,
         name = "Car Stadium",
         desc = "Stadium",
-        # icon = getIcon("ENVI_STADIUM")
+        icon = getIcon("TRACKMANIA2020")
     ).add(
-        id   = ADDON_ITEM_FILEPATH_CAR_CANYON,
+        id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM,
+        name = "Car Stadium",
+        desc = "Stadium",
+        icon = getIcon("MANIAPLANET")
+    ).add(
+        id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON,
         name = "Car Canyon",
         desc = "Canyon",
-        # icon = getIcon("ENVI_CANYON")
+        icon = getIcon("MANIAPLANET")
     ).add(
-        id   = ADDON_ITEM_FILEPATH_CAR_VALLEY,
+        id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY,
         name = "Car Valley",
         desc = "Valley",
-        # icon = getIcon("ENVI_VALLEY")
+        icon = getIcon("MANIAPLANET")
     ).add(
-        id   = ADDON_ITEM_FILEPATH_CAR_LAGOON,
+        id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON,
         name = "Car Lagoon",
         desc = "Lagoon",
-        # icon = getIcon("ENVI_LAGOON")
+        icon = getIcon("MANIAPLANET")
     ).toList()
 
 

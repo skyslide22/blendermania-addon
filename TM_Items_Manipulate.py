@@ -297,7 +297,67 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
             row.label(text=text)
 
 
+class TM_OT_Items_ToggleLightType(Operator):
+    bl_idname = "view3d.tm_togglelighttype"
+    bl_description = f"Toggle light type"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle light type"
+    
+    light_type: bpy.props.StringProperty()
 
+    def execute(self, context):
+        toggleLightType(bpy.context.object, self.light_type)
+        return {"FINISHED"}
+
+class TM_OT_Items_ToggleNightOnly(Operator):
+    bl_idname = "view3d.tm_togglenightonly"
+    bl_description = f"Toggle night only"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle night only"
+    
+    night_only: bpy.props.BoolProperty()
+
+    def execute(self, context):
+        toggleLightNightOnly(bpy.context.object, self.night_only)
+        return {"FINISHED"}
+
+class TM_OT_Items_RenameObject(Operator):
+    bl_idname = "wm.tm_renameobject"
+    bl_description = f"Rename object"
+    bl_icon = 'ADD'
+    bl_label = f"Rename object"
+    
+    obj_name: bpy.props.StringProperty()
+    col_name: bpy.props.StringProperty()
+    new_name: bpy.props.StringProperty()
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        tm_props = getTmProps()
+        layout   = self.layout
+        # layout.use_property_split = True
+        
+        obj_name = self.obj_name if self.obj_name else self.col_name
+        obj_type = "collection" if self.col_name else "object"
+        obj_icon = "OUTLINER_COLLECTION" if obj_type == "collection" else "MESH_CUBE"
+
+        row = layout.row()
+        row.label(text=f"Rename {obj_type} {obj_name}", icon=obj_icon)
+        
+        row = layout.row()
+        row.prop(self, "new_name", text="Name")
+
+
+    def execute(self, context):
+        if self.obj_name:
+            obj = bpy.data.objects[self.obj_name]
+            renameObject(obj, self.new_name)
+        if self.col_name:
+            col = bpy.data.collections[self.col_name]
+            renameObject(col, self.new_name)
+        return {"FINISHED"}
 
 
 class TM_PT_ObjectManipulations(Panel):
@@ -334,7 +394,9 @@ class TM_PT_ObjectManipulations(Panel):
         col_icon.label(text="", icon="OUTLINER_COLLECTION")
         
         col_text = row.column(align=True)
-        col_text.label(text=f"{current_collection_name}")
+        row = col_text.row(align=True)
+        row.label(text=f"{current_collection_name}")
+        row.operator("wm.tm_renameobject", text="", icon="GREASEPENCIL").col_name = current_collection.name
 
         col_list = col_box.column(align=True)
         row = col_list.row(align=True)
@@ -405,7 +467,9 @@ class TM_PT_ObjectManipulations(Panel):
         col_icon.label(text="", icon="MESH_CUBE")
         
         col_text = row.column(align=True)
-        col_text.label(text=f"  {obj_name_raw}")
+        row = col_text.row(align=True)
+        row.label(text=f"  {obj_name_raw}")
+        row.operator("wm.tm_renameobject", text="", icon="GREASEPENCIL").obj_name = obj_name
 
         col_btns = obj_box.column(align=True)
         
@@ -444,6 +508,44 @@ class TM_PT_ObjectManipulations(Panel):
             row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=false_icon if visible    else true_icon)
             row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=false_icon if collidable else true_icon)
 
+        
+
+        # lights
+        # lights
+        # lights
+        light_box = layout.box()
+        obj = bpy.context.object
+        # light_box.label(text="Light properties", icon="OUTLINER_OB_LIGHT")
+
+        col      = light_box.column(align=True)
+        is_light = (obj.type == "LIGHT") if obj is not None else False 
+        light_box.enabled = is_light
+        
+        spot_icon  = true_icon if is_light and obj.data.type == "SPOT"  else false_icon
+        point_icon = true_icon if is_light and obj.data.type == "POINT" else false_icon
+        row = col.row(align=True)
+        row.operator("view3d.tm_togglelighttype", text="Spot" , icon=spot_icon ).light_type = "SPOT"
+        row.operator("view3d.tm_togglelighttype", text="Point", icon=point_icon).light_type = "POINT"
+
+        use_night_only = (obj.type == "LIGHT") and obj.data.night_only if obj is not None else False
+        night_icon    = true_icon if     use_night_only and is_light else false_icon
+        nightday_icon = true_icon if not use_night_only and is_light else false_icon
+        row = col.row(align=True)
+        row.operator("view3d.tm_togglenightonly", text="Day+Night" , icon=nightday_icon).night_only = False
+        row.operator("view3d.tm_togglenightonly", text="Night only", icon=night_icon   ).night_only = True
+
+        row = col.row(align=True)
+        row.label(text="Color", icon="COLORSET_13_VEC")
+        row.prop(bpy.context.object.data, "color",  text="") if is_light else row.label(text="NOT A LIGHT")
+        
+        row = col.row(align=True)
+        row.label(text="Power", icon="LIGHT_SUN")
+        row.prop(bpy.context.object.data, "energy", text="") if is_light else row.label(text="NOT A LIGHT")
+        
+        row = col.row(align=True)
+        row.label(text="Radius", icon="LIGHT_POINT")
+        row.row().prop(bpy.context.object.data, "shadow_soft_size", text="") if is_light else row.label(text="NOT A LIGHT")
+
 
         # multi scale export
         # multi scale export
@@ -461,8 +563,6 @@ class TM_PT_ObjectManipulations(Panel):
         row = col.row(align=True)
         row.operator("view3d.tm_removecollectionscale", text="Remove", icon="REMOVE")
         row.prop(tm_props, "CB_objMplScaleRecursive", text="", icon="FOLDER_REDIRECT")
-
-        layout.separator(factor=UI_SPACER_FACTOR)
 
             
 
@@ -574,3 +674,14 @@ def setScaledCollectionName(col:bpy.types.Collection, remove:bool=False) -> None
     col.name = col_name_new
 
     
+
+def toggleLightType(obj: bpy.types.Object, type: str) -> None:
+    obj.data.type = type
+
+
+def toggleLightNightOnly(obj: bpy.types.Object, value: bool) -> None:
+    obj.data.night_only = value
+
+
+def renameObject(obj: bpy.types, name: str) -> None:
+    obj.name = name

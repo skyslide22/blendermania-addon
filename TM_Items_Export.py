@@ -35,18 +35,6 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
 
         return {"FINISHED"}
     
-    
-class TM_OT_Items_Export_OpenConvertReport(Operator):
-    """open convert report"""
-    bl_idname = "view3d.tm_openconvertreport"
-    bl_description = "Open the error report in browser"
-    bl_icon = 'MATERIAL'
-    bl_label = "Open convert report"
-        
-    def execute(self, context):
-        openHelp("convertreport")
-        return {"FINISHED"}
-
 
 class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
     """open convert report"""
@@ -210,7 +198,7 @@ class TM_PT_Items_Export(Panel):
             row.enabled = True if any([convertDone, stopConverting]) else False
             row.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="NONE")
             if(failed):
-                row.operator("view3d.tm_openconvertreport",    text="Open Report",  icon="HELP")    
+                row.operator("view3d.tm_execute_help", text="Open Report",  icon="HELP").command = "open_convertreport"    
             
 
             #result of fails
@@ -261,19 +249,16 @@ def exportAndOrConvert()->None:
     fixLightmap                      = tm_props.CB_uv_fixLightMap
     generateBaseMaterialCubeProjects = tm_props.CB_uv_genBaseMaterialCubeMap
 
-    exportFilePathBase  = ""
-    exportPathType      = tm_props.LI_exportFolderType
-    exportPathCustom    = tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM
-    exportPathCustom    = fixSlash(getAbspath(exportPathCustom)) # ../../myproject=> C:/Users.../Work/Items/myproject
-    
-    if str(exportPathType).lower() != "custom":
-        envi = exportPathType if str(exportPathType).lower() != "base" else ""
-        exportFilePathBase = getDocPathWorkItems() + envi
-    
-    elif str(exportPathType).lower() == "custom":
-        exportFilePathBase = exportPathCustom
+    export_path_base      = "/"
+    export_path_custom    = tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM
+    export_path_custom    = fixSlash(getAbspath(export_path_custom) + "/")
+    export_path_is_custom = tm_props.LI_exportFolderType == "Custom"
 
-    exportFilePathBase += "/"
+    if export_path_is_custom:
+        export_path_base = export_path_custom
+    else:
+        export_path_base = getGameDocPathWorkItems()
+
     fixAllColNames() #[a-zA-Z0-9_-#] only
 
 
@@ -289,25 +274,12 @@ def exportAndOrConvert()->None:
         # rename lazy names (spawn, trigger, notvisible, notcollidable)
         objnameLower = obj.name.lower()
 
-        if "socket" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_socket_start"
-        
-        if "trigger" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_trigger_"
-
-        if "ignore" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_ignore_"+obj.name
-
-        if "notvisible" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_notvisible_"+obj.name
-
-        if "notcollidable" in objnameLower\
-        and objnameLower.startswith("_") is False:
-            obj.name = "_notcollidable_"+obj.name
+        if objnameLower.startswith("_") is False:
+            if "socket" in objnameLower:        obj.name = "_socket_start"
+            if "trigger" in objnameLower:       obj.name = "_trigger_"
+            if "ignore" in objnameLower:        obj.name = "_ignore_"+obj.name
+            if "notvisible" in objnameLower:    obj.name = "_notvisible_"+obj.name
+            if "notcollidable" in objnameLower: obj.name = "_notcollidable_"+obj.name
 
 
         # save material as json in the exported fbx file (for import? later) 
@@ -327,7 +299,7 @@ def exportAndOrConvert()->None:
 
         deselectAllObjects()
 
-        exportFilePath = f"{exportFilePathBase}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
+        exportFilePath = f"{export_path_base}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
         FBX_exportFilePath = fixSlash(exportFilePath + ".fbx")
 
     

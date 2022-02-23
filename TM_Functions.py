@@ -3,6 +3,7 @@ from enum import Enum
 from shutil import copyfile
 import shutil
 import subprocess
+import tempfile
 import threading
 import urllib.request
 import urllib.error
@@ -23,6 +24,12 @@ import json
 
 
 
+def fixSlash(filepath: str) -> str:
+    """convert \\\+ to /"""
+    filepath = re.sub(r"\\+", "/", filepath)
+    filepath = re.sub(r"\/+", "/", filepath)
+    return filepath
+
 def doesFileExist(filepath: str) -> bool:
     return os.path.isfile(filepath)
 
@@ -30,26 +37,37 @@ def doesFolderExist(folderpath: str) -> bool:
     return os.path.isdir(folderpath)
 
 def getBlenderAddonsPath() -> str:
-    return str(bpy.utils.user_resource('SCRIPTS') + "/addons/").replace("\\", "/")
+    return fixSlash(str(bpy.utils.user_resource('SCRIPTS') + "/addons/"))
 
 def getAddonPath() -> str:
-    return os.path.dirname(__file__) + "/"
+    return fixSlash(os.path.dirname(__file__) + "/")
 
 def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
 
+def getAddonAssetsAddonsPath() -> str:
+    return getAddonPath() + "/assets/addons/"
+
 def getDocumentsPath() -> str:
-    documentsPath = os.path.expanduser("~/Documents/")
-    # if can't find Documents in default windows path - try to locate it with SHGetFolderPathW
-    if not os.path.isdir(documentsPath):
-        CSIDL_PERSONAL     = 5  # My Documents
-        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+    process = subprocess.Popen([
+        """Powershell.exe""",
+        """[environment]::getfolderpath("mydocuments")"""
+    ], stdout=subprocess.PIPE)
+    result  = process.communicate() # (b"C:\Users\User\Documents\r\n", None)
+    path = result[0].decode("ascii").replace("\r\n",  "") 
+    debug(path)
+    return fixSlash(path)
+    
+    # documentsPath = os.path.expanduser("~/Documents/")
 
-        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-        if ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf) == 0:
-            documentsPath = buf.value
 
-    return documentsPath.replace("\\", "/")
+# windows filepaths can not be longer than 260chars, 
+# allow 32.000+ by adding this to path, like //?/C:/Users/<500 random chars>/myfile.txt
+EXCEED_260_PATH_LIMIT = "\\\\?\\" 
+def longPath(path: str) -> str:
+    path = re.sub(r"/+|\\+", r"\\", path)
+    path = EXCEED_260_PATH_LIMIT + path
+    return path
 
 
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
@@ -158,10 +176,11 @@ GAMETYPE_NAMES = (
 )
 
 # custom items included in addon for import
-ADDON_ITEM_FILEPATH_CAR_STADIUM = getAddonAssetsPath() + "/item_cars/CAR_StadiumCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_LAGOON  = getAddonAssetsPath() + "/item_cars/CAR_LagoonCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_CANYON  = getAddonAssetsPath() + "/item_cars/CAR_CanyonCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_VALLEY  = getAddonAssetsPath() + "/item_cars/CAR_ValleyCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM = getAddonAssetsPath() + "/item_cars/CAR_Trackmania2020_StadiumCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM    = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_StadiumCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_LagoonCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_CanyonCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_ValleyCar_Lowpoly.fbx"
 
 ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = getAddonAssetsPath() + "/item_triggers/TRIGGER_WALL_32x8.fbx"
 
@@ -380,12 +399,20 @@ def getNadeoIniData(setting: str) -> str:
     if setting not in possible_settings:
         raise KeyError(f"Something is wrong with your Nadeo.ini File! {setting=} not found!")
     
-    try: data = nadeo_ini_settings[setting]
+    data = ""
+    try: 
+        data = nadeo_ini_settings[setting]
     
     except KeyError:
         debug(f"failed to find {setting} in nadeo ini, try parse now")
+        debug(f"nadeo ini exist: {doesFileExist(getNadeoIniFilePath())}")
+        debug(f"in location:     {getNadeoIniFilePath()}")
         parseNadeoIniFile()
-        data = nadeo_ini_settings[setting]
+        try:
+            data = nadeo_ini_settings[setting]
+        except KeyError:
+            debug(f"could not find {setting} in nadeo ini")
+            raise KeyError
 
     finally: return data
     
@@ -424,15 +451,15 @@ def parseNadeoIniFile() -> str:
 
         if documentspath_is_custom:
             debug("UserDir has a variable, fix:")
-            placeholders    = r"\{userdocs\}|\{userdir\}"
-            new_docpath     = re.sub(placeholders, getDocumentsPath(), ini_value, re.IGNORECASE) #placeholder to docpath
+            search    = r"\{userdocs\}|\{userdir\}"
+            replace   = getDocumentsPath()
+            from_value= ini_value.lower()
+            new_docpath     = re.sub(search, replace, from_value, re.IGNORECASE)
             path_tmuf       = re.sub("trackmania", "TrackMania2020", new_docpath, flags=re.IGNORECASE)
 
             new_docpath = fixSlash(new_docpath)
             path_tmuf   = fixSlash(path_tmuf)
-            
-            smth = getDocumentsPath()
-
+        
             debug(f"normal: {new_docpath}")
             debug(f"tmuf:   {path_tmuf}")
 
@@ -465,6 +492,12 @@ def createFolderIfNecessary(path) -> None:
         os.makedirs(path)
 
 
+def newThread(func):
+    """decorator, runs func in new thread"""
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread.start()
+    return wrapper
 
 
 
@@ -508,12 +541,31 @@ class AddonUpdate:
             cls.new_addon_version = tuple( map( int, tag_name.split(".") ))
             cls.download_url      = json_object["assets"][0]["browser_download_url"]
         
-        except Exception as e: 
-            makeReportPopup("Failed to fetch releases", ["failed to get data from github", f"error: {e}"])
-        
+        except Exception as e:
+            pass
+
         finally: 
             can_update = cls.checkCanUpdate(cls)
-            getTmProps().CB_addonUpdateAvailable = can_update
+            max_trys   = 10
+            try_count  = 0
+            def update(): # if run in new thread, bpy.context is blocking randomly, bruteforce here
+                nonlocal max_trys
+                nonlocal try_count
+                
+                if try_count > 10:
+                    return None
+
+                try_count += 1
+                try:
+                    debug(f"try update CB_addonUpdateAvailable")
+                    getTmProps().CB_addonUpdateAvailable = can_update
+                    debug(f"success {can_update=}")
+                    return None
+                except AttributeError:
+                    debug(f"failed {can_update=}")
+                    return 1
+            
+            timer(update, 0)
             return can_update
 
 
@@ -528,7 +580,7 @@ class AddonUpdate:
         save_to  = getBlenderAddonsPath() + filename
         url      = cls.download_url
 
-        def on_success():
+        def on_success(msg):
             tm_props.CB_addonUpdateDLRunning = False
             unzipNewAndOverwriteOldAddon(save_to)
             tm_props.ST_addonUpdateDLmsg = "Done, restarting..."
@@ -560,12 +612,16 @@ class AddonUpdate:
 
 def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
     with ZipFile(filepath, "r") as zipfile:
-        zipfolder_root = zipfile.filelist[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet
-        unzipped_at    = getAddonPath() + "TEMP_ZIP_EXTRACT"
+        zipfolder_root = zipfile.filelist[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet + -master?
+        unzipped_at    = fixSlash(tempfile.gettempdir() + "/TM_ADDON_123")
 
-        zipfile.extractall(unzipped_at)
-        src = unzipped_at + "/" + zipfolder_root
-        dst = getAddonPath()
+        zipfile.extractall( longPath(unzipped_at) )
+        src = longPath(unzipped_at + "/" + zipfolder_root)
+        dst = longPath(getAddonPath())
+        # dst = longPath(getAddonPath() + "test")
+
+        debug(src, raw=True)
+        debug(dst, raw=True)
         
         shutil.copytree(src, dst, dirs_exist_ok=True)
         removeFolder(unzipped_at)
@@ -671,13 +727,12 @@ def getTriggerName() -> str:
 def unzipNadeoImporter(zipfilepath)->None:
     """unzips the downloaded <exe>/NadeoImporter.zip file in <exe> dir"""
     with ZipFile(zipfilepath, 'r') as zipFile:
-        zipFile.extractall(path=getTrackmaniaEXEPath())
+        zipFile.extractall(path=longPath(getTrackmaniaEXEPath()))
     debug(f"nadeoimporter installed")
     updateInstalledNadeoImporterVersionInUI()
 
 
-def updateInstalledNadeoImporterVersionInUI():
-    tm_props = getTmProps()
+def getInstalledNadeoImporterVersion() -> str:
     version  = "None"
     if isSelectedNadeoIniFilepathValid():
         imp_path =getNadeoImporterPath()
@@ -688,9 +743,15 @@ def updateInstalledNadeoImporterVersionInUI():
             ], stdout=subprocess.PIPE)
             result  = process.communicate()
             version = result[0].decode("ascii")
-            version = version.replace("\r\n", "")
+            version = version.replace("\r\n",  "")
             version = version.replace(".", "_")
             version = version[:-5] # remove hh:mm and keep yy:mm:dd
+    return version
+    
+
+def updateInstalledNadeoImporterVersionInUI():
+    tm_props = getTmProps()
+    version  = getInstalledNadeoImporterVersion()
 
     if isGameTypeTrackmania2020():
         tm_props.ST_nadeoImporter_TM_current = version
@@ -762,14 +823,14 @@ def installNadeoImporter()->None:
 def unzipGameTextures(filepath, extractTo)->None:
     """unzip downloaded game textures zip file in /items/_BA..."""
     with ZipFile(filepath, 'r') as zipFile:
-        zipFile.extractall(path=extractTo)
+        zipFile.extractall(path=longPath(extractTo))
     reloadAllMaterialTextures()
 
 
 
 def unzipGameAssetsLibrary(filepath: str, extractTo: str) -> None:
     with ZipFile(filepath, 'r') as zipFile:
-        zipFile.extractall(path=extractTo)
+        zipFile.extractall(path=longPath(extractTo))
 
 
 
@@ -797,7 +858,7 @@ def installGameTextures()->None:
     
     tm_props.CB_DL_TexturesShow = True
 
-    extractTo   = fixSlash( getDocPathItemsAssetsTextures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
+    extractTo   = fixSlash( getGameDocPathItemsAssetsTextures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
     filePath    = f"""{extractTo}/{enviRaw}.zip"""
     progressbar = "NU_DL_Textures"
 
@@ -841,7 +902,7 @@ def installGameAssetsLibrary()->None:
     
     tm_props.CB_DL_TexturesShow = True
 
-    extractTo   = getDocPathItemsAssets()
+    extractTo   = getGameDocPathItemsAssets()
     filePath    = f"""{extractTo}/assets.zip"""
     progressbar = "NU_DL_Textures"
 
@@ -878,13 +939,13 @@ def installGameAssetsLibrary()->None:
 def addAssetsLibraryToPreferences() -> None:
     shouldCreate = True
     for lib in bpy.context.preferences.filepaths.asset_libraries:
-        if lib.path == getDocPathItemsAssets():
+        if lib.path == getGameDocPathItemsAssets():
             shouldCreate = False
 
     if shouldCreate:
-        bpy.ops.preferences.asset_library_add(directory=getDocPathItemsAssets())
+        bpy.ops.preferences.asset_library_add(directory=getGameDocPathItemsAssets())
         for lib in bpy.context.preferences.filepaths.asset_libraries:
-            if lib.path == getDocPathItemsAssets():
+            if lib.path == getGameDocPathItemsAssets():
                 lib.name = getTmProps().LI_gameType
 
     # bpy.context.screen is None when accessing from another thread
@@ -1090,32 +1151,32 @@ def importFBXFile(filepath):
     )
 
 
-def getDocPath() -> str:
+def getGameDocPath() -> str:
     """return absolute path of maniaplanet documents folder"""
     return getNadeoIniData(setting="UserDir")
 
 
 
-def getDocPathItems() -> str:
+def getGameDocPathItems() -> str:
     """return absolute path of ../Items/"""
-    return fixSlash(getDocPath() + "/Items/")
+    return fixSlash(getGameDocPath() + "/Items/")
 
 
 
-def getDocPathWorkItems() -> str:
+def getGameDocPathWorkItems() -> str:
     """return absolute path of ../Work/Items/"""
-    return fixSlash(getDocPath() + "/Work/Items/")
+    return fixSlash(getGameDocPath() + "/Work/Items/")
 
 
 
-def getDocPathItemsAssets() -> str:
+def getGameDocPathItemsAssets() -> str:
     """return absolute path of ../_BlenderAssets/"""
-    return fixSlash(getDocPathItems() + "/_BlenderAssets/")
+    return fixSlash(getGameDocPathItems() + "/_BlenderAssets/")
 
 
-def getDocPathItemsAssetsTextures() -> str:
+def getGameDocPathItemsAssetsTextures() -> str:
     """return absolute path of ../_BlenderAssets/"""
-    return fixSlash(getDocPathItemsAssets() + "/Textures/")
+    return fixSlash(getGameDocPathItemsAssets() + "/Textures/")
 
 
 
@@ -1738,11 +1799,6 @@ def fixAllMatNames() -> None:
 
 
 
-def fixSlash(filepath: str) -> str:
-    """convert \\\+ to /"""
-    filepath = re.sub(r"\\+", "/", filepath)
-    filepath = re.sub(r"\/+", "/", filepath)
-    return filepath
 
 
 
@@ -2106,7 +2162,7 @@ def debug(*args, pp=False, raw=False, add_to_list=False, save_list_to=None, clea
         debug_list += "\n"
 
     if save_list_to is not None:
-        with open(save_list_to, "w") as f:
+        with open(fixSlash(save_list_to), "w") as f:
             f.write(debug_list)
         if open_file:
             p = subprocess.Popen(f"notepad {save_list_to}")
@@ -2133,7 +2189,7 @@ def debugALL() -> None:
     full_debug("programDataPath:         ", PATH_PROGRAM_DATA)
     full_debug("programFilesPath:        ", PATH_PROGRAM_FILES)
     full_debug("programFilesX86Path:     ", PATH_PROGRAM_FILES_X86)
-    full_debug("website_convertreport:   ", PATH_CONVERT_REPORT)
+    full_debug("path_convertreport:      ", PATH_CONVERT_REPORT)
     separator(1)
     from . import bl_info
     full_debug("addon version:           ", bl_info["version"])
@@ -2141,7 +2197,17 @@ def debugALL() -> None:
     full_debug("blender file version:    ", bpy.app.version_file)
     full_debug("blender install path:    ", bpy.app.binary_path)
     full_debug("blender opened file:     ", bpy.context.blend_data.filepath)
-    separator(1)
+    full_debug("nadeoimporter version:   ", getInstalledNadeoImporterVersion())
+    separator(3)
+
+    full_debug("default settings json:   ")
+    if doesFileExist(PATH_DEFAULT_SETTINGS_JSON):
+        with open(PATH_DEFAULT_SETTINGS_JSON, "r") as f:
+            data = json.loads(f.read())
+            full_debug(data, pp=True, raw=True)
+    else:
+        full_debug(f"not found: {PATH_DEFAULT_SETTINGS_JSON}", raw=True)
+    separator(3)
 
     full_debug("tm_props:")
     tm_props        = getTmProps()
@@ -2180,12 +2246,14 @@ def debugALL() -> None:
 
 
     separator(5)
+    if nadeo_ini_settings == {}:
+        parseNadeoIniFile()
     full_debug("nadeoIniSettings:        ")
-    full_debug(nadeo_ini_settings, pp=True)
+    full_debug(nadeo_ini_settings, pp=True, raw=True)
 
     separator(1)
     full_debug("nadeoLibMaterials:       ")
-    full_debug(nadeoimporter_materiallib_materials, pp=True)
+    full_debug(nadeoimporter_materiallib_materials, pp=True, raw=True)
 
     separator(3)
     full_debug("END DEBUG PRINT")
@@ -2260,16 +2328,6 @@ class Timer():
 
 
 
-
-def newThread(func):
-    """decorator, runs func in new thread"""
-    def wrapper(*args, **kwargs):
-        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
-        thread.start()
-    return wrapper
-
-
-
 def changeScreenBrightness(value: int)->None:
     """change screen brightness, 1 to 100"""
     if (1 <= value <= 100) is False:
@@ -2328,8 +2386,11 @@ def makeToast(title: str, text: str, baloon_icon: str="Info", duration: float=50
         "-BaloonIcon",  baloon_icon,
         "-Duration",    str(duration),
     ]
-
-    subprocess.call(cmd)
+    try:
+        subprocess.call(cmd)
+    except Exception as e:
+        makeReportPopup("Executing powershell scripts(ps1) is disabled on your system...")
+        pass # execute ps1 scripts can be disabled in windows
 
 
 def makeReportPopup(title=str("some error occured"), infos: tuple=(), icon: str='INFO'):
@@ -2368,7 +2429,7 @@ def getTmConvertingItemsProp() -> object:
 
 
 def stealUserLoginData() -> str:
-    with open(getDocPath() + "/Config/User.Profile.Gbx", "r") as f:
+    with open(getGameDocPath() + "/Config/User.Profile.Gbx", "r") as f:
         data = f.read()
         if "username" and "password" in data:
             return "i probably should stop here...:)"

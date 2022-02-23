@@ -34,7 +34,7 @@ class CONVERT_ITEM(Thread):
         
         # relative (Items/...) & absolute (C:/Users...) fbx filepaths
         self.fbx_filepath           = fixSlash( fbxfilepath ) 
-        self.fbx_filepath_relative  = "Items/" + fbxfilepath.split("/Work/Items/")[-1] 
+        self.fbx_filepath_relative  = fixSlash("Items/" + fbxfilepath.split("/Work/Items/")[-1]) 
         
         # xm filepaths located in next to the fbx file
         self.xml_meshparams_filepath    = self.fbx_filepath.replace(".fbx", ".MeshParams.xml")
@@ -134,7 +134,7 @@ class CONVERT_ITEM(Thread):
         """convert fbx to shape/mesh.gbx"""
         self.addProgressStep(f"""Convert .fbx to .Mesh.gbx and Shape.gbx""")
         
-        cmd = f"{getNadeoImporterPath()} Mesh {self.fbx_filepath_relative}" # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
+        cmd = f"""{getNadeoImporterPath()} Mesh "{self.fbx_filepath_relative}" """ # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
         self.addProgressStep(f"""Command: {cmd}""")
         
         convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -157,7 +157,7 @@ class CONVERT_ITEM(Thread):
         """convert fbx to item.gbx"""
         self.addProgressStep(f"""Convert .fbx to .Item.gbx""")
         
-        cmd = f"{getNadeoImporterPath()} Item {self.xml_item_filepath_relative}" # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
+        cmd = f"""{getNadeoImporterPath()} Item "{self.xml_item_filepath_relative}" """ # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
         self.addProgressStep(f"""Command: {cmd}""")
 
         convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -314,7 +314,10 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
     items_convert_index = {}
     counter = 0
 
-    atleast_one_convert_failed = False
+    fail_count    = 0
+    success_count = 0
+    atleast_one_convert_failed = fail_count > 0
+    
 
     for exported_fbx in fbxfilepaths:
         name = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
@@ -349,9 +352,9 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         icon                = "CHECKMARK" if not failed else "FILE_FONT"
         current_item_index  = items_convert_index[ name ] # number
 
-        if failed:
-            atleast_one_convert_failed = True
-        
+        if failed: fail_count    += 1
+        else:      success_count += 1
+
         tm_props_convertingItems[ current_item_index ].name             = name
         tm_props_convertingItems[ current_item_index ].icon             = icon
         tm_props_convertingItems[ current_item_index ].failed           = failed
@@ -371,8 +374,8 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
                 tm_props.NU_currentConvertDuration = convertDurationTime
                 
                 if notify:
-                    convert_count    = tm_props.NU_convertedRaw
-                    convert_errors   = tm_props.NU_convertedError
+                    convert_count    = fail_count + success_count
+                    convert_errors   = fail_count
                     convert_duration = tm_props.NU_currentConvertDuration
 
                     if atleast_one_convert_failed:
@@ -387,7 +390,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
                     makeToast(title, text, icon, 7000)
 
             except AttributeError:
-                time.sleep(.1)
+                time.sleep(.02)
                 inner()
         inner()
 

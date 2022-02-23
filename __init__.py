@@ -10,7 +10,7 @@ bl_info = {
     "author"        : "skyslide",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 0, 0),
-    "version"       : (2, 2, 0),
+    "version"       : (2, 3, 1),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
@@ -50,15 +50,12 @@ classes = (
     # settings
     TM_PT_Settings,
     TM_OT_Settings_AutoFindNadeoIni,
-    TM_OT_Settings_OpenDocumentation,
-    TM_OT_Settings_OpenGithub,
+    TM_OT_Settings_ExecuteHelp,
     TM_OT_Settings_InstallNadeoImporter,
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_InstallGameAssetsLIbrary,
-    TM_OT_Settings_DebugALL,
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonResetSettings,
-    TM_OT_Settings_UpdateAddonOpenChangelog,
     TM_OT_Settings_UpdateAddonCheckForNewRelease,
 
     # object manipulation
@@ -75,6 +72,9 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleLod1,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
     TM_OT_Items_ObjectManipulationRemoveCollectionScale,
+    TM_OT_Items_ToggleLightType,
+    TM_OT_Items_ToggleNightOnly,
+    TM_OT_Items_RenameObject,
 
     # uv manipulation
     TM_PT_UVManipulations,
@@ -83,7 +83,6 @@ classes = (
     # export
     TM_PT_Items_Export,
     TM_OT_Items_Export_ExportAndOrConvert,
-    TM_OT_Items_Export_OpenConvertReport,
     TM_OT_Items_Export_CloseConvertSubPanel,
 
     # import
@@ -203,11 +202,17 @@ def on_startup(dummy) -> None:
         pass # fails on first startup when open_mainfile used
 
     loadDefaultSettingsJSON()
-
     isNinjaRipperInstalled()
-
-    AddonUpdate.checkForNewRelease()
     
+    @newThread
+    def checkUpdate():
+        AddonUpdate.checkForNewRelease()
+    checkUpdate()
+
+    # external addons
+    installUvPackerAddon()
+    #* ... ninjaripper?
+
     # remove possible error text
     isNadeoImporterInstalled()
     updateInstalledNadeoImporterVersionInUI()
