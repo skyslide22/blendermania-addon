@@ -363,7 +363,6 @@ class TM_OT_Items_RenameObject(Operator):
 class TM_PT_ObjectManipulations(Panel):
     bl_label   = "Object Manipulation"
     bl_idname  = "TM_PT_ObjectManipulations"
-    bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     
     def draw_header(self, context):
@@ -508,14 +507,22 @@ class TM_PT_ObjectManipulations(Panel):
             row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=false_icon if visible    else true_icon)
             row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=false_icon if collidable else true_icon)
 
+        # obj_box.separator(factor=UI_SPACER_FACTOR)
+        col = obj_box.column(align=True)
+        row = col.row(align=True)
+        editmode = obj.mode == "EDIT"
+        row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth")
+        row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat")
+        row= col.row(align=True)
+        row.prop(obj.data, "use_auto_smooth", toggle=True, icon=true_icon if obj.data.use_auto_smooth else false_icon)
+        row.prop(obj.data, "auto_smooth_angle", text="")
+
         
 
         # lights
         # lights
         # lights
         light_box = layout.box()
-        obj = bpy.context.object
-        # light_box.label(text="Light properties", icon="OUTLINER_OB_LIGHT")
 
         col      = light_box.column(align=True)
         is_light = (obj.type == "LIGHT") if obj is not None else False 
