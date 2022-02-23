@@ -561,7 +561,7 @@ def saveMatPropsAsJSONinMat(mat) -> None:
     DICT = {}
     
     # material not created with this addon, no need to save it
-    if mat.name.startswith(("TM_", "MP_")) is False:
+    if mat is None or mat.name.startswith(("TM_", "MP_")) is False:
         return
 
     mat.surfaceColor = mat.diffuse_color[:3]
