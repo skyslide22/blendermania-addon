@@ -508,53 +508,55 @@ class TM_PT_ObjectManipulations(Panel):
             row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=false_icon if collidable else true_icon)
 
         # obj_box.separator(factor=UI_SPACER_FACTOR)
-        col = obj_box.column(align=True)
-        row = col.row(align=True)
-        editmode = obj.mode == "EDIT"
-        row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth")
-        row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat")
-        row= col.row(align=True)
-        innercol = row.column(align=True)
-        innercol.scale_x = 1.2
-        innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=true_icon if obj.data.use_auto_smooth else false_icon)
-        innercol = row.column(align=True)
-        innercol.prop(obj.data, "auto_smooth_angle", text="")
+        if obj and obj.type == "MESH":
+            col = obj_box.column(align=True)
+            row = col.row(align=True)
+            editmode = obj.mode == "EDIT"
+            row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth")
+            row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat")
+            row= col.row(align=True)
+            innercol = row.column(align=True)
+            innercol.scale_x = 1.2
+            innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=true_icon if obj.data.use_auto_smooth else false_icon)
+            innercol = row.column(align=True)
+            innercol.prop(obj.data, "auto_smooth_angle", text="")
 
         
 
         # lights
         # lights
         # lights
-        light_box = layout.box()
+        if obj and obj.type == "LIGHT":
+            light_box = layout.box()
 
-        col      = light_box.column(align=True)
-        is_light = (obj.type == "LIGHT") if obj is not None else False 
-        light_box.enabled = is_light
-        
-        spot_icon  = true_icon if is_light and obj.data.type == "SPOT"  else false_icon
-        point_icon = true_icon if is_light and obj.data.type == "POINT" else false_icon
-        row = col.row(align=True)
-        row.operator("view3d.tm_togglelighttype", text="Spot" , icon=spot_icon ).light_type = "SPOT"
-        row.operator("view3d.tm_togglelighttype", text="Point", icon=point_icon).light_type = "POINT"
+            col      = light_box.column(align=True)
+            is_light = (obj.type == "LIGHT") if obj is not None else False 
+            light_box.enabled = is_light
+            
+            spot_icon  = true_icon if is_light and obj.data.type == "SPOT"  else false_icon
+            point_icon = true_icon if is_light and obj.data.type == "POINT" else false_icon
+            row = col.row(align=True)
+            row.operator("view3d.tm_togglelighttype", text="Spot" , icon=spot_icon ).light_type = "SPOT"
+            row.operator("view3d.tm_togglelighttype", text="Point", icon=point_icon).light_type = "POINT"
 
-        use_night_only= is_light and obj.data.night_only
-        night_icon    = true_icon if     use_night_only and is_light else false_icon
-        nightday_icon = true_icon if not use_night_only and is_light else false_icon
-        row = col.row(align=True)
-        row.operator("view3d.tm_togglenightonly", text="Day+Night" , icon=nightday_icon).night_only = False
-        row.operator("view3d.tm_togglenightonly", text="Night only", icon=night_icon   ).night_only = True
+            use_night_only= is_light and obj.data.night_only
+            night_icon    = true_icon if     use_night_only and is_light else false_icon
+            nightday_icon = true_icon if not use_night_only and is_light else false_icon
+            row = col.row(align=True)
+            row.operator("view3d.tm_togglenightonly", text="Day+Night" , icon=nightday_icon).night_only = False
+            row.operator("view3d.tm_togglenightonly", text="Night only", icon=night_icon   ).night_only = True
 
-        row = col.row(align=True)
-        row.label(text="Color", icon="COLORSET_13_VEC")
-        row.prop(bpy.context.object.data, "color",  text="") if is_light else row.label(text="NOT A LIGHT")
-        
-        row = col.row(align=True)
-        row.label(text="Power", icon="LIGHT_SUN")
-        row.prop(bpy.context.object.data, "energy", text="") if is_light else row.label(text="NOT A LIGHT")
-        
-        row = col.row(align=True)
-        row.label(text="Radius", icon="LIGHT_POINT")
-        row.row().prop(bpy.context.object.data, "shadow_soft_size", text="") if is_light else row.label(text="NOT A LIGHT")
+            row = col.row(align=True)
+            row.label(text="Color", icon="COLORSET_13_VEC")
+            row.prop(bpy.context.object.data, "color",  text="") if is_light else row.label(text="NOT A LIGHT")
+            
+            row = col.row(align=True)
+            row.label(text="Power", icon="LIGHT_SUN")
+            row.prop(bpy.context.object.data, "energy", text="") if is_light else row.label(text="NOT A LIGHT")
+            
+            row = col.row(align=True)
+            row.label(text="Radius", icon="LIGHT_POINT")
+            row.row().prop(bpy.context.object.data, "shadow_soft_size", text="") if is_light else row.label(text="NOT A LIGHT")
 
 
         # multi scale export
