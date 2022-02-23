@@ -514,8 +514,11 @@ class TM_PT_ObjectManipulations(Panel):
         row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth")
         row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat")
         row= col.row(align=True)
-        row.prop(obj.data, "use_auto_smooth", toggle=True, icon=true_icon if obj.data.use_auto_smooth else false_icon)
-        row.prop(obj.data, "auto_smooth_angle", text="")
+        innercol = row.column(align=True)
+        innercol.scale_x = 1.2
+        innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=true_icon if obj.data.use_auto_smooth else false_icon)
+        innercol = row.column(align=True)
+        innercol.prop(obj.data, "auto_smooth_angle", text="")
 
         
 
