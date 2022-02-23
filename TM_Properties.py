@@ -948,7 +948,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_importFolderRecursive  : BoolProperty(name="Recursive", default=False)
 
     #ninjaripper
-    CB_ninjarip_isInstalled : BoolProperty(default=False)
+    CB_ninjarip_17_isInstalled: BoolProperty(default=False)
 
     #icons
     CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redrawPanel)
