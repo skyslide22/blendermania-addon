@@ -309,6 +309,7 @@ class TM_OT_Items_ToggleLightType(Operator):
         toggleLightType(bpy.context.object, self.light_type)
         return {"FINISHED"}
 
+
 class TM_OT_Items_ToggleNightOnly(Operator):
     bl_idname = "view3d.tm_togglenightonly"
     bl_description = f"Toggle night only"
@@ -321,11 +322,40 @@ class TM_OT_Items_ToggleNightOnly(Operator):
         toggleLightNightOnly(bpy.context.object, self.night_only)
         return {"FINISHED"}
 
+
+class TM_OT_Items_EditUVMap(Operator):
+    bl_idname = "view3d.tm_edituvmap"
+    bl_description = f"Edit uv map"
+    bl_icon = 'ADD'
+    bl_label = f"Edit uv map"
+    
+    uv_name: bpy.props.StringProperty()
+
+    def execute(self, context):
+        col = getActiveCollectionOfSelectedObject()
+        editUVMap(col, self.uv_name)
+        return {"FINISHED"}
+
+
+class TM_OT_Items_ShowUVMap(Operator):
+    bl_idname = "view3d.tm_showuvmap"
+    bl_description = f"Show uv map"
+    bl_icon = 'ADD'
+    bl_label = f"Show uv map"
+    
+    uv_name: bpy.props.StringProperty()
+
+    def execute(self, context):
+        col = getActiveCollectionOfSelectedObject()
+        showUVMap(col, self.uv_name)
+        return {"FINISHED"}
+
+
 class TM_OT_Items_RenameObject(Operator):
     bl_idname = "wm.tm_renameobject"
-    bl_description = f"Rename object"
+    bl_description = f"Rename"
     bl_icon = 'ADD'
-    bl_label = f"Rename object"
+    bl_label = f"Rename"
     
     obj_name: bpy.props.StringProperty()
     col_name: bpy.props.StringProperty()
@@ -394,45 +424,69 @@ class TM_PT_ObjectManipulations(Panel):
         
         col_text = row.column(align=True)
         row = col_text.row(align=True)
-        row.label(text=f"{current_collection_name}")
-        row.operator("wm.tm_renameobject", text="", icon="GREASEPENCIL").col_name = current_collection.name
+        row.label(text=current_collection_name.split("_#SCALE")[0] + "")
+        row.operator("wm.tm_renameobject", text="", icon="GREASEPENCIL").col_name = current_collection_name
+
+        if current_collection is None:
+            return
 
         col_list = col_box.column(align=True)
         row = col_list.row(align=True)
         row.prop(tm_props, "LI_xml_waypointtype", text="")
 
-        ignore = current_collection.name.startswith(SPECIAL_NAME_PREFIX_IGNORE) if current_collection is not None else False
+        ignore = current_collection_name.startswith(SPECIAL_NAME_PREFIX_IGNORE)
         row = col_list.row(align=True)
         row.operator(f"view3d.tm_togglecollectionignore", text=f"ignore collection during export", icon=true_icon if ignore else false_icon)
         
 
         
-        # check if collection is a waypoint
-        if current_collection is not None:
-            if getWaypointTypeOfCollection(current_collection) != "None":
-                has_spawn_item   = checkIfCollectionHasObjectWithName(current_collection, prefix=SPECIAL_NAME_PREFIX_SOCKET)
-                has_trigger_item = checkIfCollectionHasObjectWithName(current_collection, prefix=SPECIAL_NAME_PREFIX_TRIGGER)
 
-                if has_spawn_item is False:
-                    row = col_box.row()
-                    row.alert = True
-                    row.scale_y = .75
-                    row.alignment = "CENTER"
-                    row.label(text="Spawn(_socket_) object not found!")
-                    row = col_box.row(align=True)
-                    row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon="ADD")
-                    row.prop(tm_props, "LI_items_cars", text="")
-                                    
-                if has_trigger_item is False:
-                    row = col_box.row()
-                    row.alert = True
-                    row.scale_y = .75
-                    row.alignment = "CENTER"
-                    row.label(text="Trigger object not found!")
-                    row = col_box.row(align=True)
-                    row.operator("view3d.tm_createtriggeritemincollection", text="Add trigger", icon="ADD")
-                    row.prop(tm_props, "LI_items_triggers", text="")
-                
+        if getWaypointTypeOfCollection(current_collection) != "None":
+            has_spawn_item   = checkIfCollectionHasObjectWithName(current_collection, prefix=SPECIAL_NAME_PREFIX_SOCKET)
+            has_trigger_item = checkIfCollectionHasObjectWithName(current_collection, prefix=SPECIAL_NAME_PREFIX_TRIGGER)
+
+            if has_spawn_item is False:
+                row = col_box.row()
+                row.alert = True
+                row.scale_y = .75
+                row.alignment = "CENTER"
+                row.label(text="Spawn(_socket_) object not found!")
+                row = col_box.row(align=True)
+                row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon="ADD")
+                row.prop(tm_props, "LI_items_cars", text="")
+                                
+            if has_trigger_item is False:
+                row = col_box.row()
+                row.alert = True
+                row.scale_y = .75
+                row.alignment = "CENTER"
+                row.label(text="Trigger object not found!")
+                row = col_box.row(align=True)
+                row.operator("view3d.tm_createtriggeritemincollection", text="Add trigger", icon="ADD")
+                row.prop(tm_props, "LI_items_triggers", text="")
+            
+        # col_box.separator(factor=.2)
+        active_uvlayer_is_basematerial = True
+        objs    = getAllVisibleMeshObjsOfCol(current_collection)
+        base_uv = objs[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
+        if base_uv:
+            active_uvlayer_is_basematerial = base_uv.active is True
+        
+        icon_basematerial = "HIDE_OFF" if     active_uvlayer_is_basematerial else "HIDE_ON"
+        icon_lightmap     = "HIDE_OFF" if not active_uvlayer_is_basematerial else "HIDE_ON"
+        col = col_box.column(align=True)
+        row = col.row(align=True)
+        # row.scale_y = .5
+        row.label(text="UVMap display & edit")
+        row = col.row(align=False)
+        uv_row = row.column(align=True).row(align=True)
+        uv_row.operator("view3d.tm_showuvmap", text="BaseMaterial", icon=icon_basematerial).uv_name = UV_LAYER_NAME_BASEMATERIAL
+        uv_row.operator("view3d.tm_edituvmap", text="",             icon="GREASEPENCIL"   ).uv_name = UV_LAYER_NAME_BASEMATERIAL
+        uv_row = row.column(align=True).row(align=True)
+        uv_row.operator("view3d.tm_showuvmap", text="LightMap",     icon=icon_lightmap ).uv_name = UV_LAYER_NAME_LIGHTMAP
+        uv_row.operator("view3d.tm_edituvmap", text="",             icon="GREASEPENCIL").uv_name = UV_LAYER_NAME_LIGHTMAP
+        row = col.row(align=True)
+        row.prop(tm_props, "LI_workspaces", text="")
 
 
         
@@ -521,6 +575,7 @@ class TM_PT_ObjectManipulations(Panel):
             innercol = row.column(align=True)
             innercol.prop(obj.data, "auto_smooth_angle", text="")
 
+        
         
 
         # lights
@@ -697,3 +752,49 @@ def toggleLightNightOnly(obj: bpy.types.Object, value: bool) -> None:
 
 def renameObject(obj: bpy.types, name: str) -> None:
     obj.name = name
+
+
+
+def showUVMap(col: bpy.types.Collection, uv_name: str) -> None:
+    objs = getAllVisibleMeshObjsOfCol(col)
+
+    if not objs:
+        return makeReportPopup(f"Uvlayer not found", f"No object has uvlayer with name '{uv_name}'")
+    
+    for obj in objs:
+        uvs = obj.data.uv_layers
+        preferred_uv = uvs.get(uv_name)
+        
+        if preferred_uv:
+            preferred_uv.active = True
+
+
+
+
+def editUVMap(col: bpy.types.Collection, uv_name: str) -> None:
+    objs = getAllVisibleMeshObjsOfCol(col)
+    debug("1")
+
+    if not objs:
+        return makeReportPopup(f"No object selected", f"Select normal mesh objects... ")
+    
+    for obj in objs:
+        selectObj(obj)
+    preferred_workspace_name = "UV Editing"
+    
+
+
+    workspace = bpy.data.workspaces.get(preferred_workspace_name)
+
+    if workspace is not None:
+        bpy.context.window.workspace = workspace
+
+    else:
+        workspace_path = getAddonAssetsBlendsPath() + "uvedit_workspace.blend"
+        success = bpy.ops.workspace.append_activate(
+            idname=preferred_workspace_name, 
+            filepath=workspace_path)
+        debug(success)
+    
+    showUVMap(col, uv_name)
+    editmode()

@@ -46,7 +46,10 @@ def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
 
 def getAddonAssetsAddonsPath() -> str:
-    return getAddonPath() + "/assets/addons/"
+    return getAddonAssetsPath() + "/addons/"
+
+def getAddonAssetsBlendsPath() -> str:
+    return getAddonAssetsPath() + "/blends/"
 
 def getDocumentsPath() -> str:
     process = subprocess.Popen([
@@ -1426,6 +1429,13 @@ def unsetActiveObject() -> None:
     """unset active object, deselect all"""
     bpy.context.view_layer.objects.active = None
     deselectAllObjects()
+
+
+def getAllVisibleMeshObjsOfCol(col: bpy.types.Collection) -> list:
+    return [obj for obj in col.objects 
+        if obj.type == "MESH" 
+        and obj.visible_get()
+        and obj.name.startswith("_") is False]
 
 
 def getMasterCollection()->object:

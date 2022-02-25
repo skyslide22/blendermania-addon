@@ -872,7 +872,22 @@ def getTriggerNames() -> list:
 
 
 
+def getWorkspaceNames(self, context) -> list:
+    default    = None
+    workspaces = [w.name for w in bpy.data.workspaces]
+    enums = EnumProps()
+    
+    # filter so a "UV" workspace is the default
+    for wspace in workspaces:
+        if "UV" in wspace:
+            workspaces.remove(wspace)
+            workspaces.insert(0, wspace) 
+            break
 
+    for wspace in workspaces:
+        enums.add(wspace, "Workspace: "+wspace, wspace, "GREASEPENCIL")
+    
+    return enums.toList()
 
 
 #? CB = CheckBox => BoolProperty
@@ -967,6 +982,9 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_uv_genBaseMaterialCubeMap    : BoolProperty(name="Generate BaseMaterial with Cube Project",  default=False,      update=redrawPanel)
     NU_uv_cubeProjectSize           : FloatProperty(name="Cube Project",                            default=0.2,        min=0, max=100)
     
+    #workspaces
+    LI_workspaces : EnumProperty(items=getWorkspaceNames, name="Workspace", default=3)
+
     #xml
     CB_xml_syncGridLevi     : BoolProperty(name="Sync Grid & Levi steps",   default=True)
     CB_xml_overwriteMeshXML : BoolProperty(name="Overwrite Mesh XML",       default=True, update=redrawPanel)

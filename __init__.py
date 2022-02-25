@@ -75,6 +75,8 @@ classes = (
     TM_OT_Items_ToggleLightType,
     TM_OT_Items_ToggleNightOnly,
     TM_OT_Items_RenameObject,
+    TM_OT_Items_EditUVMap,
+    TM_OT_Items_ShowUVMap,
 
     # uv manipulation
     TM_PT_UVManipulations,
