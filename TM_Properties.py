@@ -873,7 +873,6 @@ def getTriggerNames() -> list:
 
 
 def getWorkspaceNames(self, context) -> list:
-    default    = None
     workspaces = [w.name for w in bpy.data.workspaces]
     enums = EnumProps()
     

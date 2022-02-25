@@ -485,8 +485,8 @@ class TM_PT_ObjectManipulations(Panel):
         uv_row = row.column(align=True).row(align=True)
         uv_row.operator("view3d.tm_showuvmap", text="LightMap",     icon=icon_lightmap ).uv_name = UV_LAYER_NAME_LIGHTMAP
         uv_row.operator("view3d.tm_edituvmap", text="",             icon="GREASEPENCIL").uv_name = UV_LAYER_NAME_LIGHTMAP
-        row = col.row(align=True)
-        row.prop(tm_props, "LI_workspaces", text="")
+        # row = col.row(align=True)
+        # row.prop(tm_props, "LI_workspaces", text="")
 
 
         
@@ -762,6 +762,7 @@ def showUVMap(col: bpy.types.Collection, uv_name: str) -> None:
         return makeReportPopup(f"Uvlayer not found", f"No object has uvlayer with name '{uv_name}'")
     
     for obj in objs:
+        addBasematerialAndLightmap(obj)
         uvs = obj.data.uv_layers
         preferred_uv = uvs.get(uv_name)
         
@@ -770,31 +771,57 @@ def showUVMap(col: bpy.types.Collection, uv_name: str) -> None:
 
 
 
+def addBasematerialAndLightmap(obj: bpy.types.Object) -> None:
+    uvs = obj.data.uv_layers
+
+    is_lightmap     = lambda uv: uv.name.lower() == UV_LAYER_NAME_LIGHTMAP
+    is_basematerial = lambda uv: uv.name.lower() == UV_LAYER_NAME_BASEMATERIAL
+
+    for uvlayer in uvs:
+        # uvlayer name is case sensitive, correnct name 
+        if is_lightmap(uvlayer):     
+            uvlayer.name = UV_LAYER_NAME_LIGHTMAP 
+        if is_basematerial(uvlayer): 
+            uvlayer.name = UV_LAYER_NAME_BASEMATERIAL 
+
+    
+    if len(uvs) == 0: uvs.new(do_init=True)
+    if len(uvs) == 1: uvs.new(do_init=True)
+
+    for i, uvlayer in enumerate(uvs):
+        if i == 0:
+            if not is_basematerial(uvlayer):
+                uvlayer.name = UV_LAYER_NAME_BASEMATERIAL
+        if i == 1:
+            if not is_lightmap(uvlayer):
+                uvlayer.name = UV_LAYER_NAME_LIGHTMAP
+        if i > 1:
+            break
+
+
+
 
 def editUVMap(col: bpy.types.Collection, uv_name: str) -> None:
     objs = getAllVisibleMeshObjsOfCol(col)
-    debug("1")
 
     if not objs:
         return makeReportPopup(f"No object selected", f"Select normal mesh objects... ")
     
+    deselectAllObjects()
     for obj in objs:
         selectObj(obj)
+
     preferred_workspace_name = "UV Editing"
-    
-
-
     workspace = bpy.data.workspaces.get(preferred_workspace_name)
-
+    
     if workspace is not None:
         bpy.context.window.workspace = workspace
 
-    else:
+    else: # import workspace from blend file and switch to it
         workspace_path = getAddonAssetsBlendsPath() + "uvedit_workspace.blend"
-        success = bpy.ops.workspace.append_activate(
+        bpy.ops.workspace.append_activate(
             idname=preferred_workspace_name, 
             filepath=workspace_path)
-        debug(success)
     
     showUVMap(col, uv_name)
     editmode()
