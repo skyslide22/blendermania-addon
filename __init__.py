@@ -200,7 +200,23 @@ def on_startup(dummy) -> None:
     try:
         bpy.ops.view3d.tm_closeconvertsubpanel()
         bpy.ops.view3d.tm_resetaddonupdatesettings()
+
+        # so grid_subdivisions is editable
+        bpy.context.scene.unit_settings.system = 'NONE'
+        
+        # ui grid scale
+        screens = bpy.data.screens
+        for screen in screens:
+            for area in screen.areas:
+                if area.type == 'VIEW_3D':
+                    for space in area.spaces:
+                        if space.type == 'VIEW_3D':
+                            space.overlay.grid_scale = 32
+                            space.overlay.grid_subdivisions = 1
+
+                    
     except AttributeError as error:
+        debug(error)
         pass # fails on first startup when open_mainfile used
 
     loadDefaultSettingsJSON()
