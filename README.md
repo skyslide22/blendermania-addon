@@ -1,10 +1,12 @@
 # Blender Addon for Trackmania and ManiaPlanet
 This addon is for Blender 3.0+, it will simplify all necessary steps and help you with:
-- creating icons from different perspectives
-- creating materials which have the game textures applied in blender automatically (if downloaded)
-- download and install the game textures(zip/dds) and the nadeoimporter.exe with one click
-- export your blocks with one click in the right folders (collections are exported, not the objects!)
-- convert your exported blocks with one click, with progressbar and error reporting
+- creating icons
+- creating materials for the games
+- install NadeoImporter.exe with one click
+- install textures with one click
+- install assets with one click
+- export items(collections) as .fbx
+- convert exported .fbx files to .gbx (game format)
 - documentation (in dev...) https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/
 
 ## Todo list
@@ -17,30 +19,31 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 
 
 ## How to install
-- download the repository as zip
-- go to blender 2.93+, edit > preferences > addons > install from file (the zip file)
+- download the latest version on the right side of this website
+- go to blender, top left cornder > edit > preferences > addons > install from file (the latest release zip file you downloaded)
 - enable addon
-- addon is in the 3d viewport
-- open the right panel (N KEY) and then choose the tab TrackmaniaAddon (90° rotated)
+- addon can be found in any 3d viewport window
+- open the right panel with <kbd>N</kbd> and then choose the tab TrackmaniaAddon (90° rotated)
 
 ## How to set it up
-- set your author name
+- set your author name, displayed on IX
 - choose between maniaplanet and trackmania2020
-- select the Nadeo.ini file of your game, try automatic search...
-- download the nadeoimporter for your game
-- optionally download the textures for your game/environment
+- select the Nadeo.ini file of your game (Where ManiaPlanet.exe or Trackmania.exe is...
+- install the latest NadeoImporter (shipped with the addon)
+- optionally download the textures/assets-library for your game/environment
 
 ## Materials
 - materials contain the information for the textures
 - you can have multiple materials for any object
 - assign the geometry in editmode to the selected material
 - materials needs to be created with my addon
+- materials can be found in the installed assets library, open a asset browser window for that
 
 ## Collections (your objects)
 - your objects need to be in a collection, always
-- the objectnames do not matter at all, except the special ones
-- the collection name is the actual name of your object
 - collections can be nested, tree is used for exporting (folders in Work/Items/)
+- the collection name is the actual name of your object
+- the object names do not matter at all, except the special ones
 - special objects are:
 - - \_socket\_whatever   (no uvs, no materials, spawn of your waypoint)
 - - \_trigger\_whatever  (no uvs, no materials, the mesh which triggers the waypoint)
@@ -49,11 +52,7 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 - - \_ignore\_whatever  (mesh will be completely ignored during the import process.)
 - - whatever_Lod0 (optional, highpoly version, visible when near)
 - - whatever_Lod1 (optional, lowpoly  version, visible when far away)
-- choose the waypoint type for your collection by rightclick, color:
-- - blue:   checkpoint
-- - red:    finish
-- - green:  start
-- - yellow: multilap (startfinish)
+- change the waypoint of your collection in the "Object Manipulation" panel
 
 ## Export & Convert
 - you can choose between export and export & convert
@@ -61,29 +60,17 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 - export visible will export all visible objects (the collection(s))
 - export selected will export all selected objects (the collection(s))
 - & convert will convert the fbx to GameBox (gbx)
-- this addon does not convert fbx to gbx, nadeoimporter.exe is required & used for this!
+- this addon does not convert fbx to gbx, NadeImporter.exe is required & used for this!
 - collections with names which start with \_ignore will not be exported, even if visible or selected
-- collections can have different scales, using the following syntax:
-- - \<yourcollectionname\>\_#SCALE\_\<from:number\>to\<to:number\>\_x\<step:number\>
-- - example: deco_tree_normal_#SCALE_7to2_x6
-- - will result in:
-- - - deco_tree_normal_#7.fbx - size 6/6 (100%)
-- - - deco_tree_normal_#6.fbx - size 5/6 (83.33%)
-- - - deco_tree_normal_#5.fbx - size 4/6 (66,66%)
-- - - deco_tree_normal_#4.fbx - size 3/6 (50%)
-- - - deco_tree_normal_#3.fbx - size 2/6 (33%)
-- - - deco_tree_normal_#2.fbx - size 1/6 (16.66%)
-- - may be useful for decoration(plants, trees, letters, sings...)
-- - 7 and 2 are free choosen, you can use any numbers
-- - 7 is the convention in the trackmania2 rpg titlepack for scaling
+- collections can be exported with multiple scales, no need to duplicate:
 
 ## Uvmaps
 - most materials require the BaseMateral & LightMap uvlayer
-- basematerial stores the texture information
+- basematerial stores the texture information, overlapping does not matter
 - lightmap stores the uv data for lightmap calculation
-- lightmap is corrupt if any uv islands overlap
-- fast lightmap generation can be done with KEY U > "smart uv project"
-- the blender build in KEY U > "lightmap pack" is totally wrong, do not use it!
+- lightmap should not have any overlapping uv islands
+- fast lightmap generation can be done with <kbd>U</kbd> > "Smart uv project"
+- the blender build in <kbd>U</kbd> > "lightmap pack" is totally wrong, do not use it!
 
 contact me on discord, in the #importer-help channel, http://discord.mania.exchange
 
