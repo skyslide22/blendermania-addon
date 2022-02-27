@@ -20,7 +20,7 @@ class EnumProps():
         self.index= 0
         self._list= []
 
-    def add(self, id:str, name:str, desc:str, icon:str="NONE"):
+    def add(self, id:str, name:str, desc:str="", icon:str="NONE"):
         self._list.append(
             (id, name, desc, icon, self.index)
         )
@@ -889,6 +889,29 @@ def getWorkspaceNames(self, context) -> list:
     return enums.toList()
 
 
+def getSimpleOrAdvancedXML() -> list:
+    return EnumProps().add(
+        "simple",
+        "Simple",
+        "Minimal settings",
+    ).add(
+        "advanced",
+        "Advanced",
+        "Advanced settings"
+    ).toList()
+
+
+def getSimpleGridParams() -> list:
+    grids = [0, 0.5, 1, 2, 4, 8, 16, 32]
+    enums = EnumProps()
+    for grid in grids:
+        enums.add(str(grid), str(grid))
+    return enums.toList()
+
+
+
+
+
 #? CB = CheckBox => BoolProperty
 #? LI = List     => EnumProperty
 #? NU = Number   => IntProperty, FloatProperty
@@ -912,12 +935,9 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
 
     CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redrawPanel)
     NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
-    ST_addonUpdateDLmsg     : StringProperty(     name="Status",  default="", update=redrawPanel)
+    ST_addonUpdateDLmsg       : StringProperty(     name="Status",  default="", update=redrawPanel)
     CB_addonUpdateDLshow      : BoolProperty(       default=False,  update=redrawPanel)
     CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redrawPanel)
-
-    #panel
-    CB_panelReportAccept : BoolProperty(default=False)
 
     #object manipulation
     NU_objMplScaleFrom      : IntProperty(default=7, min=1, max=20)
@@ -985,6 +1005,9 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_workspaces : EnumProperty(items=getWorkspaceNames, name="Workspace", default=3)
 
     #xml
+    LI_xml_simpleOrAdvanced : EnumProperty(items=getSimpleOrAdvancedXML())
+    LI_xml_simpleGridXY     : EnumProperty(items=getSimpleGridParams())
+    LI_xml_simpleGridZ      : EnumProperty(items=getSimpleGridParams())
     CB_xml_syncGridLevi     : BoolProperty(name="Sync Grid & Levi steps",   default=True)
     CB_xml_overwriteMeshXML : BoolProperty(name="Overwrite Mesh XML",       default=True, update=redrawPanel)
     CB_xml_overwriteItemXML : BoolProperty(name="Overwrite Item XML",       default=True, update=redrawPanel)
@@ -1013,7 +1036,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     NU_xml_leviY            : FloatProperty(name="Y Levitation",    default=8.0,  min=0, max=256, step=100)
     NU_xml_leviYoffset      : FloatProperty(name="Y Offset",        default=0.0,  min=0, max=256, step=100)
     CB_xml_ghostMode        : BoolProperty(name="Ghostmode",        default=True)
-    CB_xml_autoRot          : BoolProperty(name="Autorot",          default=False)
+    CB_xml_autoRot          : BoolProperty(name="Auto rotation",    default=False, description="Grid needs to be set to 0")
     CB_xml_oneAxisRot       : BoolProperty(name="OneAxisRot",       default=False)
     CB_xml_notOnItem        : BoolProperty(name="Not on Item",      default=True)
     CB_xml_pivots           : BoolProperty(name="Pivots (ingame Q Key)",default=False)
