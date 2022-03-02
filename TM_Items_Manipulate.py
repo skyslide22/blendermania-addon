@@ -468,9 +468,10 @@ class TM_PT_ObjectManipulations(Panel):
         # col_box.separator(factor=.2)
         active_uvlayer_is_basematerial = True
         objs    = getAllVisibleMeshObjsOfCol(current_collection)
-        base_uv = objs[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
-        if base_uv:
-            active_uvlayer_is_basematerial = base_uv.active is True
+        if len(objs) > 0:
+            base_uv = objs[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
+            if base_uv:
+                active_uvlayer_is_basematerial = base_uv.active is True
         
         icon_basematerial = "HIDE_OFF" if     active_uvlayer_is_basematerial else "HIDE_ON"
         icon_lightmap     = "HIDE_OFF" if not active_uvlayer_is_basematerial else "HIDE_ON"
