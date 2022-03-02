@@ -1,22 +1,9 @@
 
-from sys import flags
 import bpy
-import os.path
 import re
-import shutil
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
-from bpy.props import (
-    StringProperty,
-    BoolProperty,
-    PointerProperty,
-    CollectionProperty
-)
 from bpy.types import (
     Panel,
     Operator,
-    AddonPreferences,
-    PropertyGroup
 )
 from .TM_Functions import *
 
@@ -81,15 +68,45 @@ class TM_PT_Items_ItemXML(Panel):
         tm_props        = getTmProps()
         tm_props_pivots = getTmPivotProps()
         
-        if tm_props.CB_showConvertPanel:
+        if tm_props.CB_showConvertPanel \
+        or tm_props.CB_xml_genItemXML is False:
             return
-    
-        if tm_props.CB_xml_genItemXML is True:
+        
+        
+        display_type = tm_props.LI_xml_simpleOrAdvanced
+        display_simple = display_type.upper() == "SIMPLE"
+        
+        layout.label(text="Placement paramters:")
+
+        row = layout.row(align=True)
+        row.prop(tm_props, "LI_xml_simpleOrAdvanced", expand=True)
+
+        if isGameTypeManiaPlanet():
+            row = layout.row()
+            row.prop(tm_props, "LI_materialCollection", text="Envi")
+
+        if display_simple:
+            main_col = layout.column(align=True)
             
-            if isGameTypeManiaPlanet():
-                row = layout.row()
-                row.prop(tm_props, "LI_materialCollection", text="Envi")
+            x_row = main_col.row(align=True)
+            x_row.label(text="", icon ="AXIS_TOP")
+            x_row.prop(tm_props, "LI_xml_simpleGridXY", expand=True)
             
+            z_row = main_col.row(align=True)
+            z_row.label(text="", icon="AXIS_FRONT")
+            z_row.prop(tm_props, "LI_xml_simpleGridZ", expand=True)
+
+            gridXYis0 = tm_props.LI_xml_simpleGridXY == "0"
+            gridZis0  = tm_props.LI_xml_simpleGridZ  == "0"
+            row = main_col.row(align=True)
+            row_ghost = row.column(align=True).row(align=True)
+            row.prop(tm_props, "CB_xml_ghostMode",   icon="GHOST_DISABLED")
+            row_autorot = row.column(align=True).row(align=True)
+            row_autorot.enabled = gridXYis0 and gridZis0
+            row_autorot.prop(tm_props, "CB_xml_autoRot", icon="GIZMO")
+
+
+        else: # advanced
             layout.row().prop(tm_props, "CB_xml_syncGridLevi", icon="UV_SYNC_SELECT")
             sync = tm_props.CB_xml_syncGridLevi
             
@@ -184,80 +201,58 @@ class TM_PT_Items_MeshXML(Panel):
         layout = self.layout
         tm_props        = getTmProps()
         
+        
         if tm_props.CB_showConvertPanel:
             return
     
-        if tm_props.CB_xml_genItemXML is True:
-            
-            layout.row().label(text="Overwrite object settings:")
+        if tm_props.CB_xml_genItemXML is False:
+            return
+        
+
+        layout.label(text="Overwrite all objects/lights settings:")
+
+        #--- object scale
+        row = layout.row(align=True)
+        col = row.column(align=True)
+        col.enabled = True
+        col.prop(tm_props, "CB_xml_scale", toggle=True, icon="OBJECT_ORIGIN", text="Object scale")
+        col = row.column(align=True)
+        col.enabled = False if not tm_props.CB_xml_scale else True
+        # col.scale_x = .75
+        col.prop(tm_props, "NU_xml_scale", text="")
+
+        
+        #--- light power
+        col_light = layout.column(align=True)
+        row = col_light.row(align=True)
+        col = row.column(align=True)
+        col.enabled = True
+        col.prop(tm_props, "CB_xml_lightPower", icon="OUTLINER_OB_LIGHT", text="Light power")
+        col = row.column(align=True)
+        col.enabled = False if not tm_props.CB_xml_lightPower else True
+        col.prop(tm_props, "NU_xml_lightPower", text="")
 
 
-
-            # #--- multi scales
-            # layout.separator(factor=UI_SPACER_FACTOR)
-            # layout.row().prop(tm_props, "CB_useMultiScaleExport", toggle=True, icon="SORTSIZE")
-            
-            # row = layout.row(align=True)            
-            # col = row.column()
-            # col.prop(tm_props, "CB_overwriteMultiScaleFactor", toggle=True, icon="LINENUMBERS_ON")
-            
-            # col = row.column()
-            # col.enabled = True if tm_props.CB_overwriteMultiScaleFactor else False
-            # col.prop(tm_props, "NU_multiScaleExportFactor", text="x =")
-            
-            
-            # layout.separator(factor=UI_SPACER_FACTOR)
-            
-            
-            #--- object scale
-            row = layout.row(align=True)
-            
-            col = row.column(align=True)
-            # col.enabled = True if tm_props.CB_useMultiScaleExport is False else False
-            col.enabled = True
-            col.prop(tm_props, "CB_xml_scale", toggle=True, icon="OBJECT_ORIGIN")
-
-            col = row.column(align=True)
-            col.enabled = False if not tm_props.CB_xml_scale else True
-            col.prop(tm_props, "NU_xml_scale", text="")
-
-            
-            #--- light power
-            row = layout.row(align=True)
-
-            col = row.column(align=True)
-            col.enabled = True
-            col.prop(tm_props, "CB_xml_lightPower",    text="Light Power", icon="OUTLINER_OB_LIGHT")
-            
-            col = row.column(align=True)
-            col.enabled = False if not tm_props.CB_xml_lightPower else True
-            col.prop(tm_props, "NU_xml_lightPower", text="")
-
-
-            #--- light color
-            row = layout.row(align=True)
-
-            col = row.column(align=True)
-            col.enabled = True
-            col.prop(tm_props, "CB_xml_lightGlobColor", text="Light Color", icon="COLORSET_13_VEC")
-            
-            col = row.column(align=True)
-            col.enabled = False if not tm_props.CB_xml_lightGlobColor else True
-            col.prop(tm_props, "NU_xml_lightGlobColor", text="")
-            
-            
-            #--- light distance
-            row = layout.row(align=True)
-
-            col = row.column(align=True)
-            col.enabled = True
-            col.prop(tm_props, "CB_xml_lightGlobDistance", text="Light Radius", icon="LIGHT_SUN")
-            
-            col = row.column(align=True)
-            col.enabled = False if not tm_props.CB_xml_lightGlobDistance else True
-            col.prop(tm_props, "NU_xml_lightGlobDistance", text="")
-            
-            
+        #--- light color
+        row = col_light.row(align=True)
+        col = row.column(align=True)
+        col.enabled = True
+        col.prop(tm_props, "CB_xml_lightGlobColor", icon="COLORSET_13_VEC", text="Light color")
+        col = row.column(align=True)
+        col.enabled = False if not tm_props.CB_xml_lightGlobColor else True
+        col.prop(tm_props, "NU_xml_lightGlobColor", text="")
+        
+        
+        #--- light distance
+        row = col_light.row(align=True)
+        col = row.column(align=True)
+        col.enabled = True
+        col.prop(tm_props, "CB_xml_lightGlobDistance", icon="LIGHT_SUN", text="Light radius")
+        col = row.column(align=True)
+        col.enabled = False if not tm_props.CB_xml_lightGlobDistance else True
+        col.prop(tm_props, "NU_xml_lightGlobDistance", text="")
+        
+        
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
@@ -281,14 +276,16 @@ def generateItemXML(exported_fbx: exportFBXModel) -> str:
 
     FILENAME_NO_EXT = re.sub(r"\..*$", "", fileNameOfPath(fbxfilepath), flags=re.IGNORECASE)
 
+    use_simple_ui = tm_props.LI_xml_simpleOrAdvanced.upper() == "SIMPLE"
+
     AUTHOR              = tm_props.ST_author
     COLLECTION          = tm_props.LI_materialCollection if isGameTypeManiaPlanet() else "Stadium"
-    GRID_H_STEP         = tm_props.NU_xml_gridX
-    GRID_V_STEP         = tm_props.NU_xml_gridY
+    GRID_H_STEP         = tm_props.NU_xml_gridX if not use_simple_ui else tm_props.LI_xml_simpleGridXY
+    GRID_V_STEP         = tm_props.NU_xml_gridY if not use_simple_ui else tm_props.LI_xml_simpleGridZ
     GRID_H_OFFSET       = tm_props.NU_xml_gridXoffset
     GRID_V_OFFSET       = tm_props.NU_xml_gridYoffset
-    LEVI_H_STEP         = tm_props.NU_xml_leviX
-    LEVI_V_STEP         = tm_props.NU_xml_leviY
+    LEVI_H_STEP         = tm_props.NU_xml_leviX if not use_simple_ui else tm_props.LI_xml_simpleGridXY
+    LEVI_V_STEP         = tm_props.NU_xml_leviY if not use_simple_ui else tm_props.LI_xml_simpleGridZ
     LEVI_H_OFFSET       = tm_props.NU_xml_leviXoffset
     LEVI_V_OFFSET       = tm_props.NU_xml_leviXoffset
     AUTO_ROTATION       = tm_props.CB_xml_autoRot
