@@ -404,9 +404,6 @@ class TM_PT_ObjectManipulations(Panel):
         layout = self.layout
         layout.enabled = len(bpy.context.selected_objects) > 0
         tm_props = getTmProps()
-
-        true_icon  = "CHECKMARK"
-        false_icon = "CHECKBOX_DEHLT"
         
         current_collection      = getActiveCollectionOfSelectedObject()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
@@ -436,7 +433,7 @@ class TM_PT_ObjectManipulations(Panel):
 
         ignore = current_collection_name.startswith(SPECIAL_NAME_PREFIX_IGNORE)
         row = col_list.row(align=True)
-        row.operator(f"view3d.tm_togglecollectionignore", text=f"ignore collection during export", icon=true_icon if ignore else false_icon)
+        row.operator(f"view3d.tm_togglecollectionignore", text=f"ignore collection during export", icon=ICON_TRUE if ignore else ICON_FALSE)
         
 
         
@@ -528,11 +525,11 @@ class TM_PT_ObjectManipulations(Panel):
         
         # ignore
         row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjectignore", text=f"ignore object during export", icon=true_icon if ignore else false_icon)
+        row.operator(f"view3d.tm_toggleobjectignore", text=f"ignore object during export", icon=ICON_TRUE if ignore else ICON_FALSE)
 
         row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=true_icon if lod0  else false_icon)
-        row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=true_icon if lod1  else false_icon)
+        row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=ICON_TRUE if lod0  else ICON_FALSE)
+        row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=ICON_TRUE if lod1  else ICON_FALSE)
 
         if current_collection is not None:
             has_lod0_item = checkIfCollectionHasObjectWithName(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD0)
@@ -552,14 +549,14 @@ class TM_PT_ObjectManipulations(Panel):
                 row.label(text=text)
 
         row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=true_icon if trigger else false_icon)
-        row.operator(f"view3d.tm_toggleobjectsocket",  text=SPECIAL_NAME_PREFIX_SOCKET,  icon=true_icon if socket  else false_icon)
+        row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=ICON_TRUE if trigger else ICON_FALSE)
+        row.operator(f"view3d.tm_toggleobjectsocket",  text=SPECIAL_NAME_PREFIX_SOCKET,  icon=ICON_TRUE if socket  else ICON_FALSE)
 
         if isGameTypeTrackmania2020():
             row = col_btns.row(align=True)
             # row.enabled = not trigger and not socket
-            row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=false_icon if visible    else true_icon)
-            row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=false_icon if collidable else true_icon)
+            row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=ICON_FALSE if visible    else ICON_TRUE)
+            row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=ICON_FALSE if collidable else ICON_TRUE)
 
         # obj_box.separator(factor=UI_SPACER_FACTOR)
         if obj and obj.type == "MESH":
@@ -571,7 +568,7 @@ class TM_PT_ObjectManipulations(Panel):
             row= col.row(align=True)
             innercol = row.column(align=True)
             innercol.scale_x = 1.2
-            innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=true_icon if obj.data.use_auto_smooth else false_icon)
+            innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=ICON_TRUE if obj.data.use_auto_smooth else ICON_FALSE)
             innercol = row.column(align=True)
             innercol.prop(obj.data, "auto_smooth_angle", text="")
 
@@ -588,15 +585,15 @@ class TM_PT_ObjectManipulations(Panel):
             is_light = (obj.type == "LIGHT") if obj is not None else False 
             light_box.enabled = is_light
             
-            spot_icon  = true_icon if is_light and obj.data.type == "SPOT"  else false_icon
-            point_icon = true_icon if is_light and obj.data.type == "POINT" else false_icon
+            spot_icon  = ICON_TRUE if is_light and obj.data.type == "SPOT"  else ICON_FALSE
+            point_icon = ICON_TRUE if is_light and obj.data.type == "POINT" else ICON_FALSE
             row = col.row(align=True)
             row.operator("view3d.tm_togglelighttype", text="Spot" , icon=spot_icon ).light_type = "SPOT"
             row.operator("view3d.tm_togglelighttype", text="Point", icon=point_icon).light_type = "POINT"
 
             use_night_only= is_light and obj.data.night_only
-            night_icon    = true_icon if     use_night_only and is_light else false_icon
-            nightday_icon = true_icon if not use_night_only and is_light else false_icon
+            night_icon    = ICON_TRUE if     use_night_only and is_light else ICON_FALSE
+            nightday_icon = ICON_TRUE if not use_night_only and is_light else ICON_FALSE
             row = col.row(align=True)
             row.operator("view3d.tm_togglenightonly", text="Day+Night" , icon=nightday_icon).night_only = False
             row.operator("view3d.tm_togglenightonly", text="Night only", icon=night_icon   ).night_only = True

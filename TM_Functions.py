@@ -75,7 +75,10 @@ def longPath(path: str) -> str:
 
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
-UI_SPACER_FACTOR        = 1.0
+
+UI_SPACER_FACTOR = 1.0
+ICON_TRUE        = "CHECKMARK"
+ICON_FALSE       = "CHECKBOX_DEHLT"
 
 # check if blender is opened by a dev (from vscode..?)
 BLENDER_INSTANCE_IS_DEV = os.path.exists(getAddonPath() + ".git")

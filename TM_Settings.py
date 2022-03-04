@@ -141,15 +141,15 @@ class TM_PT_Settings(Panel):
 
 
     def draw(self, context):
-
         blender_version = bpy.app.version
+
         addon_version   = bl_info["version"]
         is_blender_3    = blender_version[0] >= 3
         layout          = self.layout
         tm_props        = getTmProps()
 
-        if BLENDER_INSTANCE_IS_DEV:
-            layout.operator("view3d.tm_execute_help", text="(dev!) execute test function", icon="HELP").command = "testfunc"
+        # if BLENDER_INSTANCE_IS_DEV:
+        #     layout.operator("view3d.tm_execute_help", text="(dev!) execute test function", icon="HELP").command = "testfunc"
         
 
         box = layout.box()

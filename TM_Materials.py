@@ -97,9 +97,9 @@ class TM_PT_Materials(Panel):
     
         layout.row().prop(tm_props, "ST_materialAddName")
 
-        row = layout.row()
-        row.enabled = True if not tm_props.CB_converting else False
-        row.prop(tm_props, "LI_gameType", text="Game")
+        # row = layout.row()
+        # row.enabled = True if not tm_props.CB_converting else False
+        # row.prop(tm_props, "LI_gameType", text="Game")
 
 
 
@@ -109,13 +109,15 @@ class TM_PT_Materials(Panel):
             row = layout.row()
             row.prop(tm_props, "LI_materialCollection", text="Collection")
             
-            # physics id
+            enable = True if use_physicsId else False
+            icon   = ICON_TRUE if enable else ICON_FALSE
+
             row = layout.row(align=True)
             col = row.column()
-            col.enabled = True if use_physicsId else False
+            col.enabled = enable
             col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
             col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon="HIDE_OFF")
+            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=icon)
             
             layout.separator(factor=UI_SPACER_FACTOR)
 
@@ -140,7 +142,7 @@ class TM_PT_Materials(Panel):
                 if row.alert:
                     row=layout.row()
                     row.alert = True
-                    row.label(text=".dds file in Documents/Items/")
+                    row.label(text=".dds file in Documents/Maniaplanet/Items/")
 
                 # model
                 row = layout.row()
@@ -160,41 +162,48 @@ class TM_PT_Materials(Panel):
 
 
         elif isGameTypeTrackmania2020():
-            # Link
-            row = layout.row()
-            row.prop_search(
-                tm_props, "ST_selectedLinkedMat", # value of selection
-                context.scene, "tm_props_linkedMaterials", # list to search in 
-                icon="MATERIAL") 
-            
             # physics id
+            enable = True if use_physicsId else False
+            icon   = ICON_TRUE if enable else ICON_FALSE
+
             row = layout.row(align=True)
             col = row.column()
-            col.enabled = True if use_physicsId else False
+            col.enabled = enable
             col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
             col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon="CHECKMARK")
+            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=icon)
 
             # gameplay id
+            enable = True if use_gameplayId else False
+            icon   = ICON_TRUE if enable else ICON_FALSE
+            
             row = layout.row(align=True)
             col = row.column()
-            col.enabled = True if use_gameplayId else False
+            col.enabled = enable
             col.prop(tm_props, "LI_materialGameplayId", text="Gameplay")
             col = row.column()
-            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon="CHECKMARK")
+            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon=icon)
 
             # custom color for materials starts with "custom"
             mat_uses_custom_color = tm_props.ST_selectedLinkedMat.lower().startswith("custom")
 
             row = layout.row(align=True)
-            row.enabled = mat_uses_custom_color
+            row.alert = mat_uses_custom_color
             col = row.column()
+            col.scale_x = .55
             col.label(text="Color")
             col = row.column()
             col.prop(tm_props, "NU_materialCustomColor", text="")
             if action_is_update:
                 row.operator("view3d.tm_revertcustomcolor", icon="FILE_REFRESH", text="")
-
+            
+            # Link
+            row = layout.row()
+            row.prop_search(
+                tm_props, "ST_selectedLinkedMat", # value of selection
+                context.scene, "tm_props_linkedMaterials", # list to search in 
+                icon="LINKED",
+                text="Link") 
 
 
         row = layout.row()
