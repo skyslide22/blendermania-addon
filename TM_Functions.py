@@ -83,7 +83,8 @@ ICON_FALSE       = "CHECKBOX_DEHLT"
 # check if blender is opened by a dev (from vscode..?)
 BLENDER_INSTANCE_IS_DEV = os.path.exists(getAddonPath() + ".git")
 
-URL_DOCUMENTATION = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
+# URL_DOCUMENTATION = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
+URL_DOCUMENTATION = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/wiki/01.-Install-&-Configuration"
 URL_BUG_REPORT    = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
 URL_GITHUB        = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
 URL_CHANGELOG     = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases"

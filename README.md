@@ -7,8 +7,7 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 - install assets with one click
 - export items(collections) as .fbx
 - convert exported .fbx files to .gbx (game format)
-- documentation (deprecated) https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/
-- documentation (in dev...) https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/wiki
+- documentation https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/wiki
 
 ## Todo list
 - https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/projects/1
