@@ -495,13 +495,15 @@ class TM_PT_ObjectManipulations(Panel):
 
         obj          = None
         obj_name_raw = "Select any object !"
-        obj_name= "Select any object !"
+        obj_name     = "Select any object !"
 
         if bpy.context.selected_objects:
             obj           = bpy.context.selected_objects[0]
             obj_name      = obj.name
             # obj_name_raw  = cleanObjNameFromSpecialProps(obj.name)
             obj_name_raw  = obj_name
+
+        is_light   = (obj.type == "LIGHT") if obj is not None else False 
 
         ignore     = SPECIAL_NAME_PREFIX_IGNORE in obj_name
         visible    = SPECIAL_NAME_PREFIX_NOTVISIBLE not in obj_name
@@ -528,50 +530,51 @@ class TM_PT_ObjectManipulations(Panel):
         row = col_btns.row(align=True)
         row.operator(f"view3d.tm_toggleobjectignore", text=f"ignore object during export", icon=ICON_TRUE if ignore else ICON_FALSE)
 
-        row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=ICON_TRUE if lod0  else ICON_FALSE)
-        row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=ICON_TRUE if lod1  else ICON_FALSE)
-
-        if current_collection is not None:
-            has_lod0_item = checkIfCollectionHasObjectWithName(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD0)
-            has_lod1_item = checkIfCollectionHasObjectWithName(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD1)
-
-            lod0_missing = has_lod0_item and not has_lod1_item
-            lod1_missing = has_lod1_item and not has_lod0_item
-
-            if lod1_missing or lod0_missing:
-                missing_lod_name = "Lod1" if lod1_missing else "Lod0"
-                found_lod_name   = "Lod1" if lod0_missing else "Lod0"
-                text             = f"{found_lod_name} also requires {missing_lod_name}"
-                row = col_btns.row(align=True)
-                row.alert = True
-                row.scale_y = .75
-                row.alignment = "CENTER"
-                row.label(text=text)
-
-        row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=ICON_TRUE if trigger else ICON_FALSE)
-        row.operator(f"view3d.tm_toggleobjectsocket",  text=SPECIAL_NAME_PREFIX_SOCKET,  icon=ICON_TRUE if socket  else ICON_FALSE)
-
-        if isGameTypeTrackmania2020():
+        if not is_light:
             row = col_btns.row(align=True)
-            # row.enabled = not trigger and not socket
-            row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=ICON_FALSE if visible    else ICON_TRUE)
-            row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=ICON_FALSE if collidable else ICON_TRUE)
+            row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=ICON_TRUE if lod0  else ICON_FALSE)
+            row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=ICON_TRUE if lod1  else ICON_FALSE)
 
-        # obj_box.separator(factor=UI_SPACER_FACTOR)
-        if obj and obj.type == "MESH":
-            col = obj_box.column(align=True)
-            row = col.row(align=True)
-            editmode = obj.mode == "EDIT"
-            row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth")
-            row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat")
-            row= col.row(align=True)
-            innercol = row.column(align=True)
-            innercol.scale_x = 1.2
-            innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=ICON_TRUE if obj.data.use_auto_smooth else ICON_FALSE)
-            innercol = row.column(align=True)
-            innercol.prop(obj.data, "auto_smooth_angle", text="")
+            if current_collection is not None:
+                has_lod0_item = checkIfCollectionHasObjectWithName(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD0)
+                has_lod1_item = checkIfCollectionHasObjectWithName(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD1)
+
+                lod0_missing = has_lod0_item and not has_lod1_item
+                lod1_missing = has_lod1_item and not has_lod0_item
+
+                if lod1_missing or lod0_missing:
+                    missing_lod_name = "Lod1" if lod1_missing else "Lod0"
+                    found_lod_name   = "Lod1" if lod0_missing else "Lod0"
+                    text             = f"{found_lod_name} also requires {missing_lod_name}"
+                    row = col_btns.row(align=True)
+                    row.alert = True
+                    row.scale_y = .75
+                    row.alignment = "CENTER"
+                    row.label(text=text)
+
+            row = col_btns.row(align=True)
+            row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=ICON_TRUE if trigger else ICON_FALSE)
+            row.operator(f"view3d.tm_toggleobjectsocket",  text=SPECIAL_NAME_PREFIX_SOCKET,  icon=ICON_TRUE if socket  else ICON_FALSE)
+
+            if isGameTypeTrackmania2020():
+                row = col_btns.row(align=True)
+                # row.enabled = not trigger and not socket
+                row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=ICON_FALSE if visible    else ICON_TRUE)
+                row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=ICON_FALSE if collidable else ICON_TRUE)
+
+            # obj_box.separator(factor=UI_SPACER_FACTOR)
+            if obj and obj.type == "MESH":
+                col = obj_box.column(align=True)
+                row = col.row(align=True)
+                editmode = obj.mode == "EDIT"
+                row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth")
+                row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat")
+                row= col.row(align=True)
+                innercol = row.column(align=True)
+                innercol.scale_x = 1.2
+                innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=ICON_TRUE if obj.data.use_auto_smooth else ICON_FALSE)
+                innercol = row.column(align=True)
+                innercol.prop(obj.data, "auto_smooth_angle", text="")
 
         
         
@@ -579,11 +582,11 @@ class TM_PT_ObjectManipulations(Panel):
         # lights
         # lights
         # lights
-        if obj and obj.type == "LIGHT":
+        if is_light:
             light_box = layout.box()
 
             col      = light_box.column(align=True)
-            is_light = (obj.type == "LIGHT") if obj is not None else False 
+
             light_box.enabled = is_light
             
             spot_icon  = ICON_TRUE if is_light and obj.data.type == "SPOT"  else ICON_FALSE
