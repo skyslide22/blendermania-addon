@@ -17,7 +17,10 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 - 1h30m workshop by Juice & Ealipse https://www.youtube.com/watch?v=EIJKl_q6w10 
 - fyi: detailed tutorial video by me(skyslide) is on the todo list... (2025) </sarcasm>
 
+## Contact
 Contact us(skyslide, Juice) on discord:
 - ManiaExchange http://discord.mania.exchange #importer-help
 - Trackmania Scenery Hub https://discord.gg/yMSnpjUPEG #blender-plugin (prefer this server)
+
+![addon image](https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/wiki/img/wheretofind.jpg)
 
