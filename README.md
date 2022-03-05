@@ -12,7 +12,7 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 ## Todo list
 - https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/projects/1
 
-# Video Turorials 
+## Video Turorials 
 - video by MattDTO: https://www.youtube.com/watch?v=JXINd6oBTw4
 - 1h30m workshop by Juice & Ealipse https://www.youtube.com/watch?v=EIJKl_q6w10 
 - fyi: detailed tutorial video by me(skyslide) is on the todo list... (2025) </sarcasm>
