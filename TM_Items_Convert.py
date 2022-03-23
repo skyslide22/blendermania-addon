@@ -270,7 +270,7 @@ def updateConvertStatusNumbersInUI(convert_failed: bool, obj_name: str) -> None:
         tm_props.ST_convertedErrorList += f"%%%{obj_name}"
 
     tm_props.NU_convertedRaw += 1
-    tm_props.NU_converted     = tm_props.NU_convertedRaw / tm_props.NU_convertCount * 100
+    tm_props.NU_converted     = int(tm_props.NU_convertedRaw / tm_props.NU_convertCount * 100)
 
 
 
@@ -282,15 +282,18 @@ def updateConvertTimes()->None:
     convert_is_done              = tm_props.CB_converting is False
     last_convert_duration        = tm_props.NU_lastConvertDuration
     convert_started_at           = tm_props.NU_convertStartedAt
-    convert_duration_since_start = time.perf_counter() - convert_started_at - 1
+    convert_start_now            = int(time.perf_counter())
+    convert_duration_since_start = convert_start_now - convert_started_at
 
     remaining_time = last_convert_duration - convert_duration_since_start
 
     if last_convert_duration == -1 or convert_is_done or converts_cancelled:
         return
 
-    tm_props.NU_convertDurationSinceStart = convert_duration_since_start 
-    tm_props.NU_remainingConvertTime      = remaining_time 
+    # debug(f"conv dura: start={convert_started_at}, current?={convert_start_now}, elapsed?={convert_duration_since_start}")
+
+    tm_props.NU_convertDurationSinceStart = int(convert_duration_since_start) 
+    tm_props.NU_remainingConvertTime      = int(remaining_time) 
 
 
 @newThread
@@ -303,8 +306,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
     notify   = tm_props.CB_notifyPopupWhenDone
 
     tm_props.CB_showConvertPanel = True
-    tm_props.NU_convertStartedAt = time.perf_counter()
-
+    tm_props.NU_convertStartedAt = int(time.perf_counter())
 
     timer = Timer(callback=updateConvertTimes)
     timer.start()
@@ -359,7 +361,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         tm_props_convertingItems[ current_item_index ].icon             = icon
         tm_props_convertingItems[ current_item_index ].failed           = failed
         tm_props_convertingItems[ current_item_index ].converted        = True
-        tm_props_convertingItems[ current_item_index ].convert_duration = current_convert_timer.stop()
+        tm_props_convertingItems[ current_item_index ].convert_duration = int(current_convert_timer.stop())
 
         if tm_props.CB_stopAllNextConverts is True:
             debug("Convert stopped, aborted by user (UI CHECKBOX)")
@@ -371,7 +373,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
             try:
                 convertDurationTime = math.ceil(timer.stop())
                 tm_props.CB_converting = False
-                tm_props.NU_currentConvertDuration = convertDurationTime
+                tm_props.NU_currentConvertDuration = int(convertDurationTime)
                 
                 if notify:
                     convert_count    = fail_count + success_count
@@ -389,8 +391,9 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
 
                     makeToast(title, text, icon, 7000)
 
-            except AttributeError:
+            except AttributeError as err:
                 time.sleep(.02)
+                debug(err)
                 inner()
         inner()
 

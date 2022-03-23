@@ -2335,10 +2335,10 @@ class Timer():
             bpy.app.timers.register(callback_wapper, first_interval=self.interval)
 
 
-    def stop(self) -> float:
+    def stop(self) -> int:
         current_time = time.perf_counter()
         self.timer_stopped = True
-        return current_time - self.start_time 
+        return int(current_time - self.start_time) 
 
 
 
