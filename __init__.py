@@ -49,6 +49,9 @@ classes = (
 
     # settings
     TM_PT_Settings,
+    TM_PT_Settings_BlenderRelated,
+    TM_PT_Settings_NadeoImporter,
+    TM_PT_Settings_Textures,
     TM_OT_Settings_AutoFindNadeoIni,
     TM_OT_Settings_ExecuteHelp,
     TM_OT_Settings_InstallNadeoImporter,
@@ -205,14 +208,7 @@ def on_startup(dummy) -> None:
         bpy.context.scene.unit_settings.system = 'NONE'
         
         # ui grid scale
-        screens = bpy.data.screens
-        for screen in screens:
-            for area in screen.areas:
-                if area.type == 'VIEW_3D':
-                    for space in area.spaces:
-                        if space.type == 'VIEW_3D':
-                            space.overlay.grid_scale = 32
-                            space.overlay.grid_subdivisions = 1
+
 
                     
     except AttributeError as error:

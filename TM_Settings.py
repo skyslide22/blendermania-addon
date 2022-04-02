@@ -206,36 +206,73 @@ class TM_PT_Settings(Panel):
         row.enabled = True if not tm_props.CB_converting else False
         row.prop(tm_props, "LI_gameType", text="Game")
 
-        box = layout.box()
         ini = "ST_nadeoIniFile_MP" if isGameTypeManiaPlanet() else "ST_nadeoIniFile_TM"
-        row = box.row(align=True)
+        row = layout.row(align=True)
         row.prop(tm_props, ini, text="Ini file")
         row.operator("view3d.tm_autofindnadeoini", text="", icon="VIEWZOOM")
 
 
+class TM_PT_Settings_BlenderRelated(Panel):
+    # region bl_
+    """Creates a Panel in the Object properties window"""
+    bl_category = 'ManiaPlanetAddon'
+    bl_label = "Blender related settings"
+    bl_idname = "TM_PT_Settings_BlenderRelated"
+    bl_parent_id = "TM_PT_Settings"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = "objectmode"
+    # endregion
+    
+    def draw(self, context):
+
+        layout = self.layout
+        tm_props        = getTmProps()
+        tm_props_pivots = getTmPivotProps()
+
+        col = layout.column(align=True)
+        row = col.row()
+        row.label(text="Grid")
+        row.prop(tm_props, "LI_blenderGridSize", expand=True)
+
+        row = col.row()
+        row.label(text="Divide")
+        row.prop(tm_props, "LI_blenderGridSizeDivision", expand=True)
 
 
-        # layout.row().separator(factor=UI_SPACER_FACTOR)
 
+class TM_PT_Settings_NadeoImporter(Panel):
+    # region bl_
+    """Creates a Panel in the Object properties window"""
+    bl_category = 'ManiaPlanetAddon'
+    bl_label = "NadeoImporter"
+    bl_idname = "TM_PT_Settings_NadeoImporter"
+    bl_parent_id = "TM_PT_Settings"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = "objectmode"
+    # endregion
+    
+    def draw(self, context):
 
-
+        layout = self.layout
+        tm_props        = getTmProps()
+        tm_props_pivots = getTmPivotProps()
 
         if not isSelectedNadeoIniFilepathValid():
             requireValidNadeoINI(self)
             return
 
-
-        box = layout.box()
         if isSelectedNadeoIniFilepathValid():
-            op_row = box.row()
+            op_row = layout.row()
             op_row.enabled = tm_props.CB_nadeoImporterDLRunning is False
             op_row.scale_y = 1.5
             if not tm_props.CB_nadeoImporterIsInstalled:
-                row = box.row()
+                row = layout.row()
                 row.alert = True
                 row.label(text="NadeoImporter.exe not installed!")
             
-            col = box.column(align=True)
+            col = layout.column(align=True)
             row = col.row(align=True)
             row.prop(tm_props, "LI_nadeoImporters_"+("TM" if isGameTypeTrackmania2020() else "MP"), text="")
             row = col.row(align=True)
@@ -249,31 +286,37 @@ class TM_PT_Settings(Panel):
             row = col.row()
             row.alignment = "CENTER"
             row.label(text=f"""(current {current_importer})""")
-                
-            ### * replaced by local files
-            # error      = tm_props.ST_nadeoImporterDLError
-            # show_panel = tm_props.CB_nadeoImporterDLshow
-            # if show_panel:
-            #     row = box.row()
-            #     row.alert = error != ""
-            #     row.prop(tm_props, "NU_nadeoImporterDLProgress", text="ERROR: " + error if error != "" else "Download progress")
-            
-
-            
-
-        # layout.separator(factor=UI_SPACER_FACTOR)
 
 
 
 
+class TM_PT_Settings_Textures(Panel):
+    # region bl_
+    """Creates a Panel in the Object properties window"""
+    bl_category = 'ManiaPlanetAddon'
+    bl_label = "Textures"
+    bl_idname = "TM_PT_Settings_Textures"
+    bl_parent_id = "TM_PT_Settings"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = "objectmode"
+    # endregion
+    
+    def draw(self, context):
 
+        layout = self.layout
+        tm_props        = getTmProps()
+        tm_props_pivots = getTmPivotProps()
+
+        if not isSelectedNadeoIniFilepathValid():
+            requireValidNadeoINI(self)
+            return
 
         envi         = tm_props.LI_DL_TextureEnvi #if isGameTypeManiaPlanet() else getTmProps().LI_gameType
         game         = getTmProps().LI_gameType
         dlTexRunning = tm_props.CB_DL_TexturesRunning is False
 
-        box = layout.box()
-        col = box.column(align=True)
+        col = layout.column(align=True)
         row = col.row()
         row.label(text="Game textures & assets library")
 
@@ -296,16 +339,11 @@ class TM_PT_Settings(Panel):
         showDLProgressbar   = tm_props.CB_DL_TexturesShow
 
         if showDLProgressbar:
-            row=box.row()
+            row=layout.row()
             row.enabled = False
             row.prop(tm_props, "NU_DL_Textures", text=statusText)
 
         layout.separator(factor=UI_SPACER_FACTOR)
-
-
-
-
-
 
 
 
@@ -394,13 +432,17 @@ def loadDefaultSettingsJSON() -> None:
     tm_props = getTmProps()
     # create settings.json if not exist
     data = getDefaultSettingsJSON()
-    author_name = data.get("author_name")
-    nadeoini_tm = data.get("nadeo_ini_path_tm")
-    nadeoini_mp = data.get("nadeo_ini_path_mp")
+    author_name   = data.get("author_name")
+    nadeoini_tm   = data.get("nadeo_ini_path_tm")
+    nadeoini_mp   = data.get("nadeo_ini_path_mp")
+    grid_size     = data.get("blender_grid_size")
+    grid_division = data.get("blender_grid_division")
 
-    tm_props.ST_author          = tm_props.ST_author or author_name
-    tm_props.ST_nadeoIniFile_MP = tm_props.ST_nadeoIniFile_MP or nadeoini_mp
-    tm_props.ST_nadeoIniFile_TM = tm_props.ST_nadeoIniFile_TM or nadeoini_tm
+    tm_props.ST_author                  = tm_props.ST_author or author_name
+    tm_props.ST_nadeoIniFile_MP         = tm_props.ST_nadeoIniFile_MP or nadeoini_mp
+    tm_props.ST_nadeoIniFile_TM         = tm_props.ST_nadeoIniFile_TM or nadeoini_tm
+    tm_props.LI_blenderGridSize         = grid_size     or tm_props.LI_blenderGridSize 
+    tm_props.LI_blenderGridSizeDivision = grid_division or tm_props.LI_blenderGridSizeDivision 
 
     debug("default settings loaded, data:")
     debug("(data ignored if property in blendfile has value)")
@@ -419,9 +461,11 @@ def saveDefaultSettingsJSON() -> None:
     old_data = getDefaultSettingsJSON()
     with open(PATH_DEFAULT_SETTINGS_JSON, "w+") as settingsfile:
         new_data = {
-            "author_name"       : tm_props.ST_author or old_data["author_name"],
-            "nadeo_ini_path_mp" : tm_props.ST_nadeoIniFile_MP or old_data["nadeo_ini_path_mp"],
-            "nadeo_ini_path_tm" : tm_props.ST_nadeoIniFile_TM or old_data["nadeo_ini_path_tm"],
+            "author_name"           : tm_props.ST_author or old_data["author_name"],
+            "nadeo_ini_path_mp"     : tm_props.ST_nadeoIniFile_MP or old_data["nadeo_ini_path_mp"],
+            "nadeo_ini_path_tm"     : tm_props.ST_nadeoIniFile_TM or old_data["nadeo_ini_path_tm"],
+            "blender_grid_size"     : tm_props.LI_blenderGridSize or old_data["blender_grid_size"],
+            "blender_grid_division" : tm_props.LI_blenderGridSizeDivision or old_data["blender_grid_division"],
         }
         debug("new settings.json data:")
         debug(new_data, pp=True, raw=True)

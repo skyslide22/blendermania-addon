@@ -1,6 +1,4 @@
-from pprint import pprint
-from typing import List
-from unicodedata import name
+
 import bpy
 import bpy.utils.previews
 from bpy.props import *
@@ -901,12 +899,56 @@ def getSimpleOrAdvancedXML() -> list:
     ).toList()
 
 
+def getGridSizes() -> list:
+    return EnumProps().add(
+        "1",
+        "1m",
+        "1x1 grid"
+    ).add(
+        "8",
+        "8m",
+        "8x8 grid",
+    ).add(
+        "16",
+        "16m",
+        "16x16 grid",
+    ).add(
+        "32",
+        "32m",
+        "32x32 grid",
+    ).add(
+        "64",
+        "64m",
+        "64x64 grid",
+    ).toList()
+
+
+def getGridDivisionSizes() -> None:
+    return EnumProps().add(
+        "1",
+        "1",
+    ).add(
+        "8",
+        "8",
+    ).add(
+        "16",
+        "16",
+    ).add(
+        "32",
+        "32",
+    ).add(
+        "64",
+        "64",
+    ).toList()
+
+
 def getSimpleGridParams() -> list:
     grids = [0, 0.5, 1, 2, 4, 8, 16, 32]
     enums = EnumProps()
     for grid in grids:
         enums.add(str(grid), str(grid))
     return enums.toList()
+
 
 
 
@@ -932,6 +974,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_nadeoImporter_MP_current : StringProperty("None found")
     LI_nadeoImporters_TM        : EnumProperty(items=getNadeoImportersTrackmania2020(), name="Select NadeoImporter Version")
     ST_nadeoImporter_TM_current : StringProperty("None found")
+    LI_blenderGridSize          : EnumProperty(items=getGridSizes(),         default=3, update=changeBlenderGridSize)
+    LI_blenderGridSizeDivision  : EnumProperty(items=getGridDivisionSizes(), default=3, update=changeBlenderGridSize)
 
     CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redrawPanel)
     NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)

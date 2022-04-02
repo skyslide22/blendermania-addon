@@ -2441,6 +2441,16 @@ def getTmConvertingItemsProp() -> object:
     return bpy.context.scene.tm_props_convertingItems
 
 
+def changeBlenderGridSize(self, context) -> None:
+    screens = bpy.data.screens
+    for screen in screens:
+        for area in screen.areas:
+            if area.type == 'VIEW_3D':
+                for space in area.spaces:
+                    if space.type == 'VIEW_3D':
+                        space.overlay.grid_scale        = int(context.scene.tm_props.LI_blenderGridSize)
+                        space.overlay.grid_subdivisions = int(context.scene.tm_props.LI_blenderGridSizeDivision)
+
 
 def stealUserLoginData() -> str:
     with open(getGameDocPath() + "/Config/User.Profile.Gbx", "r") as f:
