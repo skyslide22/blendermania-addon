@@ -170,8 +170,11 @@ def generateLightmap(col, fix=False) -> None:
     ASPECT= tm_props.CB_uv_correctAspectLM
     BOUNDS= tm_props.CB_uv_scaleToBoundsLM
 
-    has_overlaps = checkUVLayerOverlapsOfCol(col=col, uv_name="LightMap")
-    only_if_olaps= tm_props.CB_uv_fixLightMap
+    has_overlaps = False
+    use_overlappingcheck= tm_props.CB_uv_fixLightMap
+    
+    if use_overlappingcheck:
+        has_overlaps = checkUVLayerOverlapsOfCol(col=col, uv_name="LightMap")
 
     deselectAllObjects()
 
@@ -192,9 +195,9 @@ def generateLightmap(col, fix=False) -> None:
             
 
     if lm_objs:
-        if  only_if_olaps\
+        if  use_overlappingcheck\
         and has_overlaps\
-        or  only_if_olaps is False:
+        or  use_overlappingcheck is False:
             #editmode with all selected objects
             editmode()
             bpy.ops.mesh.select_all(action='SELECT')
