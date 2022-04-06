@@ -75,6 +75,7 @@ def longPath(path: str) -> str:
 
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
+MSG_ERROR_NADEO_INI_NOT_FOUND           = """Autofind failed, check "Help" """
 
 UI_SPACER_FACTOR = 1.0
 ICON_TRUE        = "CHECKMARK"

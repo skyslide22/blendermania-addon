@@ -396,7 +396,7 @@ def autoFindNadeoIni()->None:
             break
             
     if ini == "": 
-        ini="NOT FOUND, help?"
+        ini=MSG_ERROR_NADEO_INI_NOT_FOUND
         debug("Nadeo.ini not found!")
 
     #change inifile
@@ -423,8 +423,8 @@ def getDefaultSettingsJSON() -> dict:
         data = settingsfile.read()
         data = dict(json.loads(data))
         return data
-        
-        
+
+
 
 
 def loadDefaultSettingsJSON() -> None:
@@ -432,20 +432,30 @@ def loadDefaultSettingsJSON() -> None:
     tm_props = getTmProps()
     # create settings.json if not exist
     data = getDefaultSettingsJSON()
-    author_name   = data.get("author_name")
-    nadeoini_tm   = data.get("nadeo_ini_path_tm")
-    nadeoini_mp   = data.get("nadeo_ini_path_mp")
-    grid_size     = data.get("blender_grid_size")
-    grid_division = data.get("blender_grid_division")
+    fromjson_author_name   = data.get("author_name")
+    fromjson_nadeoini_tm   = data.get("nadeo_ini_path_tm")
+    fromjson_nadeoini_mp   = data.get("nadeo_ini_path_mp")
+    fromjson_grid_size     = data.get("blender_grid_size")
+    fromjson_grid_division = data.get("blender_grid_division")
 
-    tm_props.ST_author                  = tm_props.ST_author or author_name
-    tm_props.ST_nadeoIniFile_MP         = tm_props.ST_nadeoIniFile_MP or nadeoini_mp
-    tm_props.ST_nadeoIniFile_TM         = tm_props.ST_nadeoIniFile_TM or nadeoini_tm
-    tm_props.LI_blenderGridSize         = grid_size     or tm_props.LI_blenderGridSize 
-    tm_props.LI_blenderGridSizeDivision = grid_division or tm_props.LI_blenderGridSizeDivision 
+
+    if doesFileExist(fromjson_nadeoini_tm):
+        tm_props.ST_nadeoIniFile_TM = fromjson_nadeoini_tm
+    else:
+        tm_props.ST_nadeoIniFile_TM = MSG_ERROR_NADEO_INI_NOT_FOUND
+
+
+    if doesFileExist(fromjson_nadeoini_mp):
+        tm_props.ST_nadeoIniFile_MP = fromjson_nadeoini_mp
+    else:
+        tm_props.ST_nadeoIniFile_MP = MSG_ERROR_NADEO_INI_NOT_FOUND
+    
+
+    tm_props.ST_author                  = fromjson_author_name   or tm_props.ST_author
+    tm_props.LI_blenderGridSize         = fromjson_grid_size     or tm_props.LI_blenderGridSize 
+    tm_props.LI_blenderGridSizeDivision = fromjson_grid_division or tm_props.LI_blenderGridSizeDivision 
 
     debug("default settings loaded, data:")
-    debug("(data ignored if property in blendfile has value)")
     debug(data, pp=True, raw=True)
 
     if isGameTypeManiaPlanet()    and tm_props.ST_nadeoIniFile_MP == ""\
