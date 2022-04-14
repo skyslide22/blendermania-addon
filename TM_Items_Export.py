@@ -1,3 +1,4 @@
+from typing import List
 import bpy
 import os.path
 from bpy.types import (
@@ -234,10 +235,11 @@ def exportAndOrConvert()->None:
     allObjs             = bpy.context.scene.collection.all_objects
     action              = tm_props.LI_exportType
     generateIcons       = tm_props.CB_icon_genIcons
-    exportedFBXs        = []
     invalidCollections  = []
     embeddedMaterials   = []
     pre_selected_objs   = []
+
+    exportedFBXs: List[exportFBXModel] = []
 
     selected_objects = bpy.context.selected_objects
     visible_objects  = bpy.context.visible_objects
@@ -346,15 +348,15 @@ def exportAndOrConvert()->None:
         selectAllObjectsInACollection(col=col, only_direct_children=True, exclude_infixes="_ignore, delete")
         debug(f"selected objects: {bpy.context.selected_objects}")
 
-
-
         # export, may be multiple lul
         exportFBX(fbxfilepath=FBX_exportFilePath)
         
         for exportedFBX in getDuplicateScaledExportedFBXFiles(FBX_exportFilePath, col):
 
             exportedFBXs.append(exportedFBX)
-            debug(f"exported collection <{getFilenameOfPath(exportedFBX.filepath, remove_extension=True)}>")
+
+            filename = getFilenameOfPath(exportedFBX.filepath, remove_extension=True)
+            debug(f"exported collection <{filename}> (hack physics: {exportedFBX.physic_hack})")
 
             if generateIcons:
                 generateIcon(col, exportedFBX.filepath)
@@ -402,7 +404,6 @@ def exportAndOrConvert()->None:
 
         if genItemXML: generateItemXML(exportedFBX)
         if genMeshXML: generateMeshXML(exportedFBX)
-        # if genIcon:    generateIcon(col=col)
 
 
 

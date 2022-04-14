@@ -1727,10 +1727,11 @@ NADEO_MATLIB_DLIBRARYS = (
 )
 
 class exportFBXModel:
-    def __init__(self, fbxfilepath, col, scale=1):
-        self.filepath = fbxfilepath
-        self.col      = col
-        self.scale    = scale
+    def __init__(self, fbxfilepath, col, scale=1, physic_hack=True):
+        self.filepath    = fbxfilepath
+        self.col         = col
+        self.scale       = scale
+        self.physic_hack = physic_hack
 
 
 
@@ -1739,8 +1740,27 @@ def getDuplicateScaledExportedFBXFiles(fbxfilepath: str, col: bpy.types.Collecti
     pattern   = r"_#SCALE_(\d)+to(\d)+_x(\d)+"
     data_list = re.findall(pattern, fbxfilepath, flags=re.IGNORECASE)
 
+    # physic hack is not necessary for custom textures (BaseMaterial=""...) or tm2020
+    physic_hack = False
+    if isGameTypeManiaPlanet():
+        debug(f"check if {col.name} has linked materials")
+
+        for obj in col.objects:
+            if obj.type == "MESH":
+                for mat in obj.data.materials:
+                    is_linked = mat.baseTexture == ""
+                    debug(f"check {mat.name}")
+                    if is_linked:
+                        debug("        ^^^ is linked")
+                        physic_hack = True
+                        break
+        
+        if not physic_hack:
+            debug("all materials use custom texture, no hack needed")
+
+
     new_paths = []
-    new_paths.append(exportFBXModel(fbxfilepath, col))
+    new_paths.append(exportFBXModel(fbxfilepath, col, physic_hack=physic_hack))
     
     if len(data_list) > 0:
         scale_from    = int(data_list[0][0]) 

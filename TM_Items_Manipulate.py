@@ -589,8 +589,11 @@ class TM_PT_ObjectManipulations(Panel):
 
             light_box.enabled = is_light
             
-            spot_icon  = ICON_TRUE if is_light and obj.data.type == "SPOT"  else ICON_FALSE
-            point_icon = ICON_TRUE if is_light and obj.data.type == "POINT" else ICON_FALSE
+            is_spotlight  = obj.data.type == "SPOT"
+            is_pointlight = obj.data.type == "POINT"
+
+            spot_icon  = ICON_TRUE if is_light and is_spotlight  else ICON_FALSE
+            point_icon = ICON_TRUE if is_light and is_pointlight else ICON_FALSE
             row = col.row(align=True)
             row.operator("view3d.tm_togglelighttype", text="Spot" , icon=spot_icon ).light_type = "SPOT"
             row.operator("view3d.tm_togglelighttype", text="Point", icon=point_icon).light_type = "POINT"
@@ -604,16 +607,26 @@ class TM_PT_ObjectManipulations(Panel):
 
             row = col.row(align=True)
             row.label(text="Color", icon="COLORSET_13_VEC")
-            row.prop(bpy.context.object.data, "color",  text="") if is_light else row.label(text="NOT A LIGHT")
+            row.prop(bpy.context.object.data, "color",  text="") 
             
             row = col.row(align=True)
             row.label(text="Power", icon="LIGHT_SUN")
-            row.prop(bpy.context.object.data, "energy", text="") if is_light else row.label(text="NOT A LIGHT")
+            row.prop(bpy.context.object.data, "energy", text="") 
             
             row = col.row(align=True)
             row.label(text="Radius", icon="LIGHT_POINT")
-            row.row().prop(bpy.context.object.data, "shadow_soft_size", text="") if is_light else row.label(text="NOT A LIGHT")
+            row.row().prop(bpy.context.object.data, "shadow_soft_size", text="") 
 
+            if is_spotlight:
+                row = col.row(align=True)
+                row.label(text="Outer angle", icon="LIGHT_SPOT")
+                row.row().prop(bpy.context.object.data, "spot_size", text="") 
+
+                row = col.row(align=True)
+                row.label(text="Inner angle", icon="DOT")
+                row.row().prop(bpy.context.object.data, "spot_blend", text="", slider=True) 
+
+                col.row().prop(bpy.context.object.data, "show_cone", toggle=True) 
 
         # multi scale export
         # multi scale export

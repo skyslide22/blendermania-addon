@@ -436,23 +436,46 @@ def generateMeshXML(exported_fbx: exportFBXModel) -> str:
             GAMEPLAYID_XML  = f"""GameplayId="{ GAMEPLAYID }" """ if USE_GAMEPLAYID else ""
             PHYSICSID_XML   = f"""PhysicsId="{  PHYSICSID  }" """ if USE_PHYSICSID  else ""
             CUSTOM_COLOR_XML= f"""Color="{ CUSTOM_COLOR }" """    if USE_CUSTOM_COLOR and LINK.lower().startswith("custom") else ""
-            materialsXML += f"""%TAB%<Material Name="{ NAME }" Link="{ LINK }" { CUSTOM_COLOR_XML } { PHYSICSID_XML } { GAMEPLAYID_XML } />\n"""
+            materialsXML += f"""%TAB%<Material 
+                                        Name="{ NAME }" 
+                                        Link="{ LINK }" 
+                                        { CUSTOM_COLOR_XML } 
+                                        { PHYSICSID_XML } 
+                                        { GAMEPLAYID_XML } 
+                                    />\n"""
             
         elif GAME_IS_MP:
             materialsXML += f"""%TAB%<Material Name="{ NAME }" Model="{ MODEL }" BaseTexture="{ BASETEXTURE }" PhysicsId="{ PHYSICSID }" />\n"""
 
 
     for light in lights:
+        is_spotlight = light.type == "SPOT"
+
         RADIUS      = light.data.shadow_soft_size if not GLOBAL_LIGHT_RADIUS else GLOBAL_LIGHT_RADIUS
         NAME        = light.name
         TYPE        = light.data.type    
         POWER       = light.data.energy if not GLOBAL_LIGHT_POWER else GLOBAL_LIGHT_POWER
+        OUTER_ANGLE = 0 if not is_spotlight else (light.data.spot_size / math.pi) * 180
+        INNER_ANGLE = 0 if not is_spotlight else OUTER_ANGLE * light.data.spot_blend
         NIGHT_ONLY  = "true" if light.data.night_only else "false"
         COLOR_R     = bpy.data.objects[light.name].data.color[0] 
         COLOR_G     = bpy.data.objects[light.name].data.color[1] 
         COLOR_B     = bpy.data.objects[light.name].data.color[2] 
         COLOR       = rgbToHEX([COLOR_R, COLOR_G, COLOR_B]) if not GLOBAL_LIGHT_COLOR else rgbToHEX(GLOBAL_LIGHT_COLOR)
-        lightsXML  += f"""%TAB%<Light Name="{ NAME }" Type="{ TYPE }" sRGB="{ COLOR }" Intensity="{ POWER }" Distance="{ RADIUS }" NightOnly="{ NIGHT_ONLY }" />\n"""
+
+        ANGLES_XML = f""" SpotInnerAngle="{ INNER_ANGLE }" SpotOuterAngle="{ OUTER_ANGLE }" """ if is_spotlight else ""
+
+        lightsXML  += f"""%TAB%<Light 
+                          %TAB%%TAB%Name="{ NAME }" 
+                          %TAB%%TAB%Type="{ TYPE.title() }" 
+                          %TAB%%TAB%sRGB="{ COLOR }" 
+                          %TAB%%TAB%Intensity="{ POWER }" 
+                          %TAB%%TAB%Distance="{ RADIUS }" 
+                          %TAB%%TAB%NightOnly="{ NIGHT_ONLY }"
+                          %TAB%%TAB%{ ANGLES_XML }  
+                          %TAB%%TAB%PointEmissionRadius="0"
+                          %TAB%%TAB%PointEmissionLength="0"
+                          %TAB%/>\n"""
 
     fullXML = f"""
         <?xml version="1.0" ?>

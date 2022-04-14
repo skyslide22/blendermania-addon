@@ -28,7 +28,7 @@ class ConvertResult():
 
 class CONVERT_ITEM(Thread):
     
-    def __init__(self, fbxfilepath: str, game: str) -> None:
+    def __init__(self, fbxfilepath: str, game: str, physic_hack=True) -> None:
         super(CONVERT_ITEM, self).__init__() #need to call init from Thread, otherwise error
         
         
@@ -43,10 +43,10 @@ class CONVERT_ITEM(Thread):
         
         # gbx filepaths located in Documents/Items/
         self.gbx_filepath            = self.fbx_filepath.replace("/Work/Items/", "/Items/")
-        self.gbx_mesh_filepath       = self.gbx_filepath.replace(".fbx", ".Mesh.gbx")
-        self.gbx_item_filepath       = self.gbx_filepath.replace(".fbx", ".Item.gbx")
-        self.gbx_shape_filepath      = self.gbx_filepath.replace(".fbx", ".Shape.gbx")
-        self.gbx_shape_filepath_old  = self.gbx_filepath.replace(".fbx", ".Shape.gbx.old")
+        self.gbx_mesh_filepath       = self.gbx_filepath.replace(".fbx", ".Mesh.Gbx")
+        self.gbx_item_filepath       = self.gbx_filepath.replace(".fbx", ".Item.Gbx")
+        self.gbx_shape_filepath      = self.gbx_filepath.replace(".fbx", ".Shape.Gbx")
+        self.gbx_shape_filepath_old  = self.gbx_filepath.replace(".fbx", ".Shape.Gbx.old")
         
         # name to display in UI and error report
         self.name     = self.fbx_filepath.split("/")[-1]
@@ -62,6 +62,8 @@ class CONVERT_ITEM(Thread):
         self.game = game
         self.game_is_trackmania2020 = game == "Trackmania2020"
         self.game_is_maniaplanet    = game == "ManiaPlanet"
+
+        self.physic_hack = physic_hack
 
         self.convert_is_done    = False
         self.convert_has_failed = False
@@ -87,15 +89,23 @@ class CONVERT_ITEM(Thread):
         # trackmania 2020 convert process
         if self.game_is_trackmania2020:
             self.convertItemGBX()
-            if getTmProps().CB_generateMeshAndShapeGBX:
-                if not self.convert_has_failed: self.convertMeshAndShapeGBX()
+            
+            if getTmProps().CB_generateMeshAndShapeGBX and not self.convert_has_failed:
+                self.convertMeshAndShapeGBX()
+            
+            if not self.convert_has_failed:
+                self.pascalCaseGBXfileNames()
             
         
         # maniaplanet convert process
         if self.game_is_maniaplanet:
-            if not self.convert_has_failed: self.convertMeshAndShapeGBX() 
-            if not self.convert_has_failed: self.hackShapeGBX()
-            if not self.convert_has_failed: self.convertItemGBX()
+            self.convertMeshAndShapeGBX() 
+            
+            if not self.convert_has_failed and self.physic_hack:
+                self.hackShapeGBX()
+
+            if not self.convert_has_failed: 
+                self.convertItemGBX()
             
             
         if not self.convert_has_failed:
@@ -128,13 +138,17 @@ class CONVERT_ITEM(Thread):
         timer(updateUI, 0)
 
 
+    def pascalCaseGBXfileNames(self) -> None:
+        os.rename(self.gbx_item_filepath  , re.sub(r"item\.gbx$",  "Item.Gbx",  self.gbx_item_filepath  , flags=re.IGNORECASE))
+        os.rename(self.gbx_mesh_filepath  , re.sub(r"mesh\.gbx$",  "Mesh.Gbx",  self.gbx_mesh_filepath  , flags=re.IGNORECASE))
+        os.rename(self.gbx_shape_filepath , re.sub(r"shape\.gbx$", "Shape.Gbx", self.gbx_shape_filepath , flags=re.IGNORECASE))
     
 
     def convertMeshAndShapeGBX(self) -> None:
         """convert fbx to shape/mesh.gbx"""
         self.addProgressStep(f"""Convert .fbx to .Mesh.gbx and Shape.gbx""")
         
-        cmd = f"""{getNadeoImporterPath()} Mesh "{self.fbx_filepath_relative}" """ # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
+        cmd = f""""{getNadeoImporterPath()}" Mesh "{self.fbx_filepath_relative}" """ # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
         self.addProgressStep(f"""Command: {cmd}""")
         
         convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -157,7 +171,7 @@ class CONVERT_ITEM(Thread):
         """convert fbx to item.gbx"""
         self.addProgressStep(f"""Convert .fbx to .Item.gbx""")
         
-        cmd = f"""{getNadeoImporterPath()} Item "{self.xml_item_filepath_relative}" """ # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
+        cmd = f""""{getNadeoImporterPath()}" Item "{self.xml_item_filepath_relative}" """ # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
         self.addProgressStep(f"""Command: {cmd}""")
 
         convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -330,12 +344,13 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
 
     for exported_fbx in fbxfilepaths:
         fbxfilepath = exported_fbx.filepath
+        physic_hack = exported_fbx.physic_hack
         name        = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
 
         current_convert_timer = Timer()
         current_convert_timer.start()
         
-        convertTheFBX = CONVERT_ITEM(fbxfilepath=fbxfilepath, game=game)
+        convertTheFBX = CONVERT_ITEM(fbxfilepath=fbxfilepath, game=game, physic_hack=physic_hack)
         convertTheFBX.start() #start the convert (call internal run())
         convertTheFBX.join()  #waits until the thread terminated (function/convert is done..)
         
