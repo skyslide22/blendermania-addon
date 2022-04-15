@@ -193,14 +193,26 @@ class TM_PT_Items_Export(Panel):
             failed    = str(tm_props.ST_convertedErrorList).split("%%%")
             failed    = [f for f in failed if f!=""]
             
+
             #buttons OK, REPORT
             row = col.row(align=True)
-            row.alert = atlestOneConvertFailed
-            row.enabled = True if any([convertDone, stopConverting]) else False
-            row.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="NONE")
-            if(failed):
-                row.operator("view3d.tm_execute_help", text="Open Report",  icon="HELP").command = "open_convertreport"    
+            row.alert   = atlestOneConvertFailed
+            row.scale_y = 1.25
             
+            if(failed):
+                bcol = row.column(align=True)
+                bcol.scale_x = 1.25
+                bcol.operator("view3d.tm_execute_help", text="Show errors",  icon="HELP").command = "open_convertreport"    
+            
+            bcol = row.column(align=True)
+            bcol.enabled = True # if any([convertDone, stopConverting]) else False
+            bcol.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="NONE")
+
+            bcol = row.column(align=True)
+            bcol.enabled = enableExportButton 
+            bcol.operator("view3d.tm_export", text="", icon="FILE_REFRESH")
+            
+
 
             #result of fails
             if failed:
