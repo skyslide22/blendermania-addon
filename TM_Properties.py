@@ -72,7 +72,7 @@ def getNadeoImportersTrackmania2020() -> list:
 
     items = EnumProps()
     for imp in importers:
-        name = " (lateset)" if isFirst else ""
+        name = " (latest)" if isFirst else ""
 
         items.add(
             id=imp,
