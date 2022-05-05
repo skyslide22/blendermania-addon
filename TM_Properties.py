@@ -1011,12 +1011,12 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_showConvertPanel          : BoolProperty(default=False,      update=redrawPanel)
     CB_stopAllNextConverts       : BoolProperty(default=False,      update=redrawPanel, name="Stop all next converts")
     CB_converting                : BoolProperty(default=False,      update=redrawPanel)
+    CB_convertMultiThreaded      : BoolProperty(default=False,      update=redrawPanel, description="Don't convert all at the same time (converts can be cancelled")
     CB_notifyPopupWhenDone       : BoolProperty(default=True,       name="Notify toast when done")
     NU_convertDurationSinceStart : IntProperty(min=-1,              default=-1,   update=redrawPanel)
     NU_convertStartedAt          : IntProperty(min=-1,              default=-1,   update=redrawPanel)
     NU_currentConvertDuration    : IntProperty(min=0,               default=0,    update=redrawPanel)
-    NU_lastConvertDuration       : IntProperty(min=-1,              default=-1,   update=redrawPanel)
-    NU_remainingConvertTime      : IntProperty(min=0,               default=0,    update=redrawPanel)
+    NU_prevConvertDuration       : IntProperty(min=0,               default=0,    update=redrawPanel)
     CB_generateMeshAndShapeGBX   : BoolProperty(default=True,       update=redrawPanel, description="To import your item in meshmodeler, those 2 additional files are required")
 
 
