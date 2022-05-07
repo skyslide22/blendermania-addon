@@ -2108,6 +2108,34 @@ def onSelectObject(*args) -> None:
     setActiveWaypoint()
 
 
+def getTriCountOfCollection(col: bpy.types.Collection) -> int:
+    tris = 0
+    objs = [obj for obj in col.objects if obj.type == "MESH"]
+
+    for obj in objs:
+        tris += sum([(len(poly.vertices) - 2) for poly in obj.data.polygons])
+
+    return tris
+
+
+# https://cdn.discordapp.com/attachments/905181250053107722/941599717182275594/unknown.png
+GBX_COMPRESSION_RATIO = 0.666
+TRI_TO_MEGABYTE_RATIO = 0.000066
+
+def trisToMegaByte(tri_count) -> float:
+    return (
+        tri_count 
+        * TRI_TO_MEGABYTE_RATIO 
+        * GBX_COMPRESSION_RATIO 
+        / 1024 
+        / 1024 
+        * 1000 
+        * 1000)
+
+def getEmbedSpaceOfCollection(col: bpy.types.Collection) -> float:
+    tri_count   = getTriCountOfCollection(col)
+    embed_space = trisToMegaByte(tri_count)
+    return embed_space
 
 def checkIfCollectionHasObjectWithName(col: bpy.types.Collection, prefix:str=None, infix:str=None, suffix:str=None) -> None:
     objs          = col.objects

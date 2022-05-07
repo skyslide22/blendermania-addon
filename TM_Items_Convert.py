@@ -321,6 +321,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         name = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
         item = tm_props_convertingItems.add()
         item.name = name
+        item.name_raw = exported_fbx.col.name
         items_convert_index[ name ] = counter
         counter += 1
 

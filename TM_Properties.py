@@ -1141,6 +1141,7 @@ class TM_Properties_Pivots(PropertyGroup):
 class TM_Properties_ConvertingItems(PropertyGroup):
     """trackmania properties generated for pivots (item xml)"""
     name              : StringProperty(name="ITEM NAME ... ", default="ITEM NAME ... ")
+    name_raw          : StringProperty(name="COL NAME ... ",  default="COL NAME ... ")
     icon              : StringProperty(name="Icon name",      default="TIME")
     failed            : BoolProperty(name="Convert failed?",  default=False)
     converted         : BoolProperty(name="Item converted?",  default=False)
