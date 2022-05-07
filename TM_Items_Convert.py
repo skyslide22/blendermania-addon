@@ -400,10 +400,8 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
     for threads in threads:
         thread.join()
 
-    debug("OLD: ", tm_props.NU_prevConvertDuration)
     tm_props.CB_converting = False
     tm_props.NU_prevConvertDuration = tm_props.NU_convertDurationSinceStart
-    debug("NEW: ", tm_props.NU_prevConvertDuration)
 
 
 
