@@ -66,17 +66,6 @@ class TM_OT_Items_UVManipulationsFollowActiveQuadsForFaceLoop(Operator):
         # get current selected loop
         selected_loop = [f for f in bm.faces if f.select]
 
-        # reset UV for the whole object
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.uv.reset()
-        
-        # select loop back and unwrap it
-        bpy.ops.mesh.select_all(action='DESELECT')
-        for selected_face in selected_loop:
-            selected_face.select = True
-
-        bpy.ops.uv.unwrap()
-
         # go over each face in the original loop
         for selected_face in selected_loop:
             # select perpendicular loop
