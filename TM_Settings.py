@@ -164,7 +164,7 @@ class TM_PT_Settings(Panel):
         if not is_blender_3:
             row = box.row()
             row.alert = False
-            row.label(text="Blender 3.0+ required!")
+            row.label(text="Blender 3.1+ required!")
 
         update_available = tm_props.CB_addonUpdateAvailable
 
@@ -280,12 +280,23 @@ class TM_PT_Settings_NadeoImporter(Panel):
             row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon="IMPORT")
             
             if isGameTypeManiaPlanet():
-                current_importer = tm_props.ST_nadeoImporter_MP_current 
+                current_importer = tm_props.ST_nadeoImporter_MP_current
+                latest_importer  = NADEO_IMPORTER_LATEST_VERSION_MANIAPLANET
             else:
                 current_importer = tm_props.ST_nadeoImporter_TM_current 
+                latest_importer  = NADEO_IMPORTER_LATEST_VERSION_TM2020
+
             row = col.row()
             row.alignment = "CENTER"
             row.label(text=f"""(current {current_importer})""")
+            
+            current_importer_is_not_latest = datetime.strptime(current_importer, "%Y_%m_%d") < datetime.strptime(latest_importer, "%Y_%m_%d")
+
+            if current_importer_is_not_latest:
+                row = layout.row()
+                row.alert = True
+                row.alignment = "CENTER"
+                row.label(text="Old importer in use, update!")
 
 
 
@@ -411,9 +422,11 @@ def getDefaultSettingsJSON() -> dict:
     if not doesFileExist(PATH_DEFAULT_SETTINGS_JSON):
         debug("default settings file does not exist, create file")
         default_settings = {
-            "author_name":        os.getlogin(), # current windows username (C:/Users/<>/...)
-            "nadeo_ini_path_tm":  "",
-            "nadeo_ini_path_mp":  "",
+            "author_name":            os.getlogin(), # current windows username (C:/Users/<>/...)
+            "nadeo_ini_path_tm":      "",
+            "nadeo_ini_path_mp":      "",
+            "blender_grid_size":      "",
+            "blender_grid_division" : ""
         }
         debug(default_settings, pp=True)
         with open(PATH_DEFAULT_SETTINGS_JSON, "w") as settingsfile:

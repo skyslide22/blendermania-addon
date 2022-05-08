@@ -49,7 +49,6 @@ class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
         tm_props.CB_converting            = False
         tm_props.CB_showConvertPanel      = False
         tm_props.CB_stopAllNextConverts   = False
-        tm_props.NU_lastConvertDuration   = tm_props.NU_currentConvertDuration
         tm_props.CB_uv_genBaseMaterialCubeMap = False # for stupid mistakes ... :)
         return {"FINISHED"}
 
@@ -132,8 +131,9 @@ class TM_PT_Items_Export(Panel):
             visible_objects  = bpy.context.visible_objects
 
 
-            objs = selected_objects if exportActionIsSelected else visible_objects
-            collection_count = len(getExportableCollections(objs=objs))
+            objs             = selected_objects if exportActionIsSelected else visible_objects
+            exportable_cols  = getExportableCollections(objs=objs)
+            collection_count = len(exportable_cols)
 
             plural = "s" if collection_count > 1 else ""
 
@@ -154,33 +154,52 @@ class TM_PT_Items_Export(Panel):
             row.scale_y = 1.5
             row.enabled = enableExportButton 
             row.alert   = not enableExportButton #red button, 0 selected
-            row.operator("view3d.tm_export", text=text, icon=icon)
-            row.prop(tm_props, "CB_notifyPopupWhenDone", icon_only=True, icon="INFO")
+            row.operator("view3d.tm_export", text=text,   icon=icon)
+            row.prop(tm_props, "CB_convertMultiThreaded", icon_only=True, icon="SORTTIME", invert_checkbox=True)
+            row.prop(tm_props, "CB_notifyPopupWhenDone",  icon_only=True, icon="INFO")
 
             if isGameTypeTrackmania2020():
                 row = col.row(align=True)
                 row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
+
+            if exportType == "EXPORT_CONVERT":
+                embed_space = 0
+                if enableExportButton:
+                    for col in exportable_cols:
+                        embed_space += getEmbedSpaceOfCollection(col)
+                row = layout.row()
+                row.label(text=f"Est. embed space: ~{embed_space:4.2f}mB")
 
 
 
 
         #* show convert panel and hide everything else
         else:
+            layout.separator(factor=UI_SPACER_FACTOR)
+
+            box = layout.box()
+            box.use_property_split = True
+
+            exported_cols = [bpy.data.collections[exp_col.name_raw] for exp_col in getTmConvertingItemsProp()]
+            embed_space   = 0
+            for col in exported_cols:
+                embed_space += getEmbedSpaceOfCollection(col)
+            row = box.row()
+            row.scale_y = .5
+            row.label(text=f"Embedding:")
+            row.label(text=f"~{embed_space:.2f}mB")
 
             #progress bar
             convert_duration_since_start = tm_props.NU_convertDurationSinceStart
-            last_convert_time            = tm_props.NU_lastConvertDuration
-            is_not_first_convert         = last_convert_time != -1
-            remaining_time               = tm_props.NU_remainingConvertTime
+            prev_convert_time            = tm_props.NU_prevConvertDuration
 
             # convert time since start
-            layout.row().label(text=f"""Current convert duration: {convert_duration_since_start}s""")
+            row = box.row()
+            row.scale_y = .5
+            row.label(text=f"""Duration:""")
+            row.label(text=f"""{convert_duration_since_start}s — {prev_convert_time}s?""")
 
-            # last & remaining
-            if is_not_first_convert and converting:
-                row = layout.row()
-                row.scale_y = 0.2
-                row.label(text=f"""Like previous convert?: {remaining_time}s""")
+
 
 
             col = layout.column(align=True)
@@ -403,6 +422,10 @@ def exportAndOrConvert()->None:
         tm_props.NU_convertedSuccess    = 0
         tm_props.ST_convertedErrorList  = ""
         tm_props.CB_converting          = True
+
+        tm_props.NU_convertDurationSinceStart = 0
+        tm_props.NU_convertStartedAt          = 0
+        tm_props.NU_currentConvertDuration    = 0
         
         #run convert on second thread to avoid blender to freeze
         startBatchConvert(exportedFBXs) 

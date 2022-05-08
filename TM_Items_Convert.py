@@ -291,42 +291,21 @@ def updateConvertStatusNumbersInUI(convert_failed: bool, obj_name: str) -> None:
 
 
 
-def updateConvertTimes()->None:
-    """update the remaining and elapsed time in the ui for the convert"""
-    tm_props = getTmProps()
-    
-    converts_cancelled           = tm_props.CB_stopAllNextConverts
-    convert_is_done              = tm_props.CB_converting is False
-    last_convert_duration        = tm_props.NU_lastConvertDuration
-    convert_started_at           = tm_props.NU_convertStartedAt
-    convert_start_now            = int(time.perf_counter())
-    convert_duration_since_start = convert_start_now - convert_started_at
-
-    remaining_time = last_convert_duration - convert_duration_since_start
-
-    if last_convert_duration == -1 or convert_is_done or converts_cancelled:
-        return
-
-    # debug(f"conv dura: start={convert_started_at}, current?={convert_start_now}, elapsed?={convert_duration_since_start}")
-
-    tm_props.NU_convertDurationSinceStart = int(convert_duration_since_start) 
-    tm_props.NU_remainingConvertTime      = int(remaining_time) 
-
 
 @newThread
 def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
     """convert each fbx one after one, create a new thread for it"""
     tm_props_convertingItems = getTmConvertingItemsProp()
-    tm_props = getTmProps()
-    results  = []
-    game     = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania2020"
-    notify   = tm_props.CB_notifyPopupWhenDone
+    tm_props        = getTmProps()
+    results         = []
+    game            = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania2020"
+    notify          = tm_props.CB_notifyPopupWhenDone
+    use_multithread = tm_props.CB_convertMultiThreaded 
 
     tm_props.CB_showConvertPanel = True
     tm_props.NU_convertStartedAt = int(time.perf_counter())
-
-    timer = Timer(callback=updateConvertTimes)
-    timer.start()
+    
+    startConvertTimer()
 
     tm_props_convertingItems.clear()
 
@@ -342,10 +321,17 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         name = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
         item = tm_props_convertingItems.add()
         item.name = name
+        item.name_raw = exported_fbx.col.name
         items_convert_index[ name ] = counter
         counter += 1
 
-    for exported_fbx in fbxfilepaths:
+        
+    def convertFBX(exported_fbx: exportFBXModel) -> None:
+        nonlocal items_convert_index
+        nonlocal counter
+        nonlocal fail_count
+        nonlocal success_count
+        nonlocal atleast_one_convert_failed
         fbxfilepath = exported_fbx.filepath
         physic_hack = exported_fbx.physic_hack
         name        = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
@@ -375,56 +361,81 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         if failed: fail_count    += 1
         else:      success_count += 1
 
-        tm_props_convertingItems[ current_item_index ].name             = name
-        tm_props_convertingItems[ current_item_index ].icon             = icon
-        tm_props_convertingItems[ current_item_index ].failed           = failed
-        tm_props_convertingItems[ current_item_index ].converted        = True
-        tm_props_convertingItems[ current_item_index ].convert_duration = int(current_convert_timer.stop())
+        @newThread
+        def setItemProps():
+            tm_props_convertingItems[ current_item_index ].name             = name
+            tm_props_convertingItems[ current_item_index ].icon             = icon
+            tm_props_convertingItems[ current_item_index ].failed           = failed
+            tm_props_convertingItems[ current_item_index ].converted        = True
+            tm_props_convertingItems[ current_item_index ].convert_duration = int(current_convert_timer.stop())
 
-        if tm_props.CB_stopAllNextConverts is True:
-            debug("Convert stopped, aborted by user (UI CHECKBOX)")
-            break
 
-    @newThread
-    def RandomAttributeErrorWritingToIDclassesInThisContextIsNotAllowedBlaBla():
-        def inner():
-            try:
-                convertDurationTime = math.ceil(timer.stop())
-                tm_props.CB_converting = False
-                tm_props.NU_currentConvertDuration = int(convertDurationTime)
-                
-                if notify:
-                    convert_count    = fail_count + success_count
-                    convert_errors   = fail_count
-                    convert_duration = tm_props.NU_currentConvertDuration
 
-                    if atleast_one_convert_failed:
-                        title=f"""Convert failed"""
-                        text =f"""{convert_errors} of {convert_count} converts failed\nDuration: {convert_duration}s"""
-                        icon ="Error"
-                    else:
-                        title=f"""Convert successfully"""
-                        text =f"""{convert_count} of {convert_count} items successfully converted \nDuration: {convert_duration}s"""
-                        icon ="Info"
+        try:
+            setItemProps()
+        except AttributeError as e: #bpy context assignment is not thread save
+            time.sleep(.1) 
+            setItemProps()
 
-                    makeToast(title, text, icon, 7000)
 
-            except AttributeError as err:
-                time.sleep(.02)
-                debug(err)
-                inner()
-        inner()
+    # init converts
+    # init converts
+    # init converts
 
-    # only if vscode is opened ??
-    RandomAttributeErrorWritingToIDclassesInThisContextIsNotAllowedBlaBla()
+    threads = []
+
+    if use_multithread:
+        for exported_fbx in fbxfilepaths:
+            thread = threading.Thread(target=convertFBX, args=[exported_fbx,])
+            thread.start()
+            threads.append(thread)
+
+    else:
+        for exported_fbx in fbxfilepaths:
+            convertFBX(exported_fbx)
+            if tm_props.CB_stopAllNextConverts is True:
+                debug("Convert stopped, aborted by user (UI CHECKBOX)")
+                break
 
     
+    for threads in threads:
+        thread.join()
 
+    tm_props.CB_converting = False
+    tm_props.NU_prevConvertDuration = tm_props.NU_convertDurationSinceStart
+
+
+
+    if notify:
+        convert_count    = fail_count + success_count
+        convert_errors   = fail_count
+        convert_duration = tm_props.NU_currentConvertDuration
+
+        if atleast_one_convert_failed:
+            title=f"""Convert failed"""
+            text =f"""{convert_errors} of {convert_count} converts failed\nDuration: {convert_duration}s"""
+            icon ="Error"
+        else:
+            title=f"""Convert successfully"""
+            text =f"""{convert_count} of {convert_count} items successfully converted \nDuration: {convert_duration}s"""
+            icon ="Info"
+
+        makeToast(title, text, icon, 7000)
+    
     writeConvertReport(results=results)
     
 
 
+def startConvertTimer():
+    tm_props = getTmProps()
+    def timer():
+        tm_props.NU_convertDurationSinceStart = int(time.perf_counter()) - tm_props.NU_convertStartedAt
+        if tm_props.CB_converting is False: 
+            return None
+        else: 
+           return 1
 
+    bpy.app.timers.register(timer, first_interval=1)
 
 
 
