@@ -168,7 +168,12 @@ class TM_PT_Items_Export(Panel):
                     for col in exportable_cols:
                         embed_space += getEmbedSpaceOfCollection(col)
                 row = layout.row()
-                row.label(text=f"Est. embed space: ~{embed_space:4.2f}mB")
+                
+                embed_space_1024kb = embed_space < 1.024
+                if embed_space_1024kb:
+                    embed_space *= 1000
+
+                row.label(text=f"Max. embed space: ~ {embed_space:4.2f} {'kB' if embed_space_1024kb else 'mB'}")
 
 
 
@@ -186,8 +191,11 @@ class TM_PT_Items_Export(Panel):
                 embed_space += getEmbedSpaceOfCollection(col)
             row = box.row()
             row.scale_y = .5
-            row.label(text=f"Embedding:")
-            row.label(text=f"~{embed_space:.2f}mB")
+            embed_space_1024kb = embed_space < 1.024
+            if embed_space_1024kb:
+                embed_space *= 1000
+            row.label(text="Max. embedding")
+            row.label(text=f"~ {embed_space:4.2f} {'kB' if embed_space_1024kb else 'mB'}")
 
             #progress bar
             convert_duration_since_start = tm_props.NU_convertDurationSinceStart

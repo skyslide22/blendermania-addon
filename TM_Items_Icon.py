@@ -21,9 +21,9 @@ class TM_OT_Items_Icon_Test(Operator):
         
     def execute(self, context):
         obj = bpy.context.object
-        obj_name = obj.name
 
         if obj:
+            obj_name = obj.name
             col = obj.users_collection[0]
             generateIcon(col=col, filepath="", save=False)
             selectObj(bpy.data.objects[obj_name])
