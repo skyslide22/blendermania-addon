@@ -21,12 +21,13 @@ class TM_OT_Items_Icon_Test(Operator):
         
     def execute(self, context):
         obj = bpy.context.object
+        obj_name = obj.name
 
         if obj:
             col = obj.users_collection[0]
             generateIcon(col=col, filepath="", save=False)
-            selectObj(obj)
-            setActiveObject(obj)
+            selectObj(bpy.data.objects[obj_name])
+            setActiveObject(bpy.data.objects[obj_name])
 
         else:
             makeReportPopup("Icon test failed", ["No object selected"], "ERROR")
@@ -122,7 +123,7 @@ def generateIcon(col, filepath, save=True) -> None:
     """generate icon of """
     scene           = bpy.context.scene
     col_objs        = [obj for obj in col.objects if obj.type == "MESH"]
-    tm_props        = scene.tm_props
+    tm_props        = getTmProps()
     overwrite_icon  = tm_props.CB_icon_overwriteIcons
     icon_path       = getIconPathOfFBXpath(filepath=filepath)
     icon_size       = tm_props.NU_icon_padding / 100
@@ -151,6 +152,12 @@ def generateIcon(col, filepath, save=True) -> None:
         and not "lod1" in obj.name.lower():
             if selectObj(obj):
                 setActiveObject(obj)
+
+    #! add objs to list
+    #! move camera to center of all boundboxes of objs in list
+    #! fix no shading
+    #! screenshot
+    #! camera rotation?
 
     duplicateObjects()
     joinObjects()
@@ -262,14 +269,17 @@ def getCamStyle() -> list:
     """return roation_euler list for the icon_obj"""
     tm_props = getTmProps()
     style    = tm_props.LI_icon_perspective
-
-    if style == "CLASSIC":  return   rList(35.3,    30,    -35.3)
-    if style == "TOP":      return   rList(90,      0,      0)      
-    if style == "LEFT":     return   rList(0,       0,      90)
-    if style == "RIGHT":    return   rList(0,       0,     -90)
-    if style == "BACK":     return   rList(0,       0,      180)
-    if style == "FRONT":    return   rList(0,       0,      0)
-    if style == "BOTTOM":   return   rList(-90,     0,      0)
+    if style == "CLASSIC_SE":  return   rList(-35.5,   -30,    145.5)
+    if style == "CLASSIC_SW":  return   rList(-35.5,   30,    -145.5)
+    if style == "CLASSIC_NW":  return   rList(35.5,    30,    -35.5)
+    if style == "CLASSIC_NE":  return   rList(35.5,    -30,    35.5)
+    if style == "CLASSIC":     return   rList(35.3,    30,    -35.3)
+    if style == "TOP":         return   rList(90,      0,      0)      
+    if style == "LEFT":        return   rList(0,       0,      90)
+    if style == "RIGHT":       return   rList(0,       0,     -90)
+    if style == "BACK":        return   rList(0,       0,      180)
+    if style == "FRONT":       return   rList(0,       0,      0)
+    if style == "BOTTOM":      return   rList(-90,     0,      0)
     
 
     

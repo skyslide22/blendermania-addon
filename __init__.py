@@ -73,6 +73,7 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleTrigger,
     TM_OT_Items_ObjectManipulationToggleLod0,
     TM_OT_Items_ObjectManipulationToggleLod1,
+    TM_OT_Items_ObjectManipulationToggleDoublesided,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
     TM_OT_Items_ObjectManipulationRemoveCollectionScale,
     TM_OT_Items_ToggleLightType,

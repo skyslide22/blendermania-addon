@@ -428,10 +428,25 @@ def getWorkItemsRootFolderNames(s,c) -> list:
 
 def getIconPerspectives() -> list:
     return EnumProps().add(
-        id   = "CLASSIC",
-        name = "Classic",
-        desc = "Bird view",
+        id   = "CLASSIC_SE",
+        name = "Classic_SE",
+        desc = "Bird view SE",
         icon = "FILE_TEXT",
+    ).add(
+        id   = "CLASSIC_SW",
+        name = "Classic_SW",
+        desc = "Bird view SW",
+        icon = "FILE_TEXT",
+    ).add(
+        id   = "CLASSIC_NW",
+        name = "Classic_NW",
+        desc = "Bird view NW",
+        icon = "FILE_TEXT",
+    ).add(
+        id   = "CLASSIC_NE",
+        name = "Classic_NE",
+        desc = "Bird view NE",
+        icon = "FILE_TEXT", 
     ).add(
         id   = "TOP",
         name = "Top",

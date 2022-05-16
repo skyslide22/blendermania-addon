@@ -1,6 +1,4 @@
-from cgitb import text
-from os import remove
-from socket import socket
+
 import bpy
 from bpy.types import Panel
 from bpy.types import Operator
@@ -31,6 +29,19 @@ class TM_OT_Items_ObjectManipulationAddTriggerItem(Operator):
         
     def execute(self, context):
         addTriggerItemToSelectedCollection()
+        return {"FINISHED"}
+
+
+# later... lightmap ??
+class TM_OT_Items_ObjectManipulationToggleDoublesided(Operator):
+    bl_idname = "view3d.tm_toggledoublesided"
+    bl_description = f"Toggle {SPECIAL_NAME_SUFFIX_DOUBLESIDED} on selected object"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_SUFFIX_DOUBLESIDED}"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            toggleNameSpecialSuffix(bpy.context.selected_objects[0], SPECIAL_NAME_SUFFIX_DOUBLESIDED)
         return {"FINISHED"}
 
 
@@ -505,6 +516,7 @@ class TM_PT_ObjectManipulations(Panel):
 
         is_light   = (obj.type == "LIGHT") if obj is not None else False 
 
+        doublesided= SPECIAL_NAME_SUFFIX_DOUBLESIDED in obj_name
         ignore     = SPECIAL_NAME_PREFIX_IGNORE in obj_name
         visible    = SPECIAL_NAME_PREFIX_NOTVISIBLE not in obj_name
         collidable = SPECIAL_NAME_PREFIX_NOTCOLLIDABLE not in obj_name 
@@ -528,7 +540,8 @@ class TM_PT_ObjectManipulations(Panel):
         
         # ignore
         row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjectignore", text=f"ignore object during export", icon=ICON_TRUE if ignore else ICON_FALSE)
+        row.operator(f"view3d.tm_toggleobjectignore", text=f"ignore in export", icon=ICON_TRUE if ignore      else ICON_FALSE)
+        # row.operator(f"view3d.tm_toggledoublesided",  text=f"double sided",     icon=ICON_TRUE if doublesided else ICON_FALSE)
 
         if not is_light:
             row = col_btns.row(align=True)

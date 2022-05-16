@@ -174,8 +174,9 @@ SPECIAL_NAME_PREFIXES = (
 )
 
 SPECIAL_NAME_SUFFIXES = (
-    SPECIAL_NAME_SUFFIX_LOD0 := "_Lod0",
-    SPECIAL_NAME_SUFFIX_LOD1 := "_Lod1",
+    SPECIAL_NAME_SUFFIX_LOD0        := "_Lod0",
+    SPECIAL_NAME_SUFFIX_LOD1        := "_Lod1",
+    SPECIAL_NAME_SUFFIX_DOUBLESIDED := "_DoubleSided",
 )
 
 GAMETYPE_NAMES = (
@@ -2062,15 +2063,19 @@ def getWaypointTypeOfFBXfile(filepath: str) -> str:
 
 def getWaypointTypeOfActiveObjectsCollection() -> str:
     objs = bpy.context.selected_objects
-    
-    col      = getFirstCollectionOfFirstSelectedObjects(objs)
+    col  = getFirstCollectionOfFirstSelectedObjects(objs)
+    if not col: return
     waypoint = getWaypointTypeOfCollection(col)
 
     return waypoint
 
 
 def setActiveWaypoint() -> None:
-    col      = getFirstCollectionOfFirstSelectedObjects()
+    col = getFirstCollectionOfFirstSelectedObjects()    
+    if not col: return # icon generator creates objects w/o parent
+
+    debug(f"{col=}")
+
     waypoint = getWaypointTypeOfCollection(col)
     tm_props = getTmProps()
 
