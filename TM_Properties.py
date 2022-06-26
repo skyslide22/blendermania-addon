@@ -142,6 +142,8 @@ def gameTypeGotUpdated(self=None,context=None)->None:
     if isGameTypeTrackmania2020():
         tm_props.LI_DL_TextureEnvi = "Stadium"
     
+    updateInstalledNadeoImporterVersionInUI()
+
     refreshPanels()
 
     return None
