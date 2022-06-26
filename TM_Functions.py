@@ -1619,7 +1619,7 @@ def nadeoLibParser() -> None:
     currentMat = ""
     regex_DLibrary      = r"DLibrary\t*\(([\w-]+)"                      # group 1
     regex_DMaterial     = r"DMaterial\t*\(([\w+-]+)\)"                  # group 1
-    regex_DSurfaceId    = r"DSurfaceId(\t*|\s*)\(([\w-])+\)"            # group 2
+    regex_DSurfaceId    = r"DSurfaceId(\t*|\s*)\(([\w-]+)\)"            # group 2
     regex_DTexture      = r"DTexture(\t*|\s*)\((\t*|\s*)([\w\-\.]+)\)"  # group 3
 
     selected_collection = tm_props.LI_materialCollection
