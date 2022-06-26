@@ -289,14 +289,25 @@ class TM_PT_Settings_NadeoImporter(Panel):
             row = col.row()
             row.alignment = "CENTER"
             row.label(text=f"""(current {current_importer})""")
-            
-            current_importer_is_not_latest = datetime.strptime(current_importer, "%Y_%m_%d") < datetime.strptime(latest_importer, "%Y_%m_%d")
 
-            if current_importer_is_not_latest:
+            if current_importer == "":
                 row = layout.row()
                 row.alert = True
-                row.alignment = "CENTER"
-                row.label(text="Old importer in use, update!")
+                row.label(text="No current importer found")
+            else:
+                current_importer_is_not_latest = datetime.strptime(current_importer, "%Y_%m_%d") < datetime.strptime(latest_importer, "%Y_%m_%d")
+
+                if current_importer_is_not_latest:
+                    row = layout.row()
+                    row.alert = True
+                    row.alignment = "CENTER"
+                    row.label(text="Old importer in use, update!")
+            
+            nadeo_lib_parse_failed = tm_props.CB_NadeoLibParseFailed
+            if nadeo_lib_parse_failed:
+                row = layout.row()
+                row.alert = True
+                row.label(text="Failed to parse NadeoMaterialLib.txt, syntax error?")
 
 
 

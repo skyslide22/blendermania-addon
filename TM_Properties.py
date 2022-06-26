@@ -989,6 +989,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_nadeoImporter_MP_current : StringProperty("None found")
     LI_nadeoImporters_TM        : EnumProperty(items=getNadeoImportersTrackmania2020(), name="Select NadeoImporter Version")
     ST_nadeoImporter_TM_current : StringProperty("None found")
+    CB_NadeoLibParseFailed      : BoolProperty("NadeoMatLib.txt parse attempt", default=False)
     LI_blenderGridSize          : EnumProperty(items=getGridSizes(),         default=3, update=changeBlenderGridSize)
     LI_blenderGridSizeDivision  : EnumProperty(items=getGridDivisionSizes(), default=3, update=changeBlenderGridSize)
 

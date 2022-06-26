@@ -1612,16 +1612,17 @@ def nadeoLibParser() -> None:
     global nadeoimporter_materiallib_materials 
     
     nadeolibfile = getNadeoImporterLIBPath()
+    tm_props = getTmProps()
     
     lib = {}
     currentLib = ""
     currentMat = ""
-    regex_DLibrary      = r"DLibrary\t*\((\w+)\)"           # group 1
-    regex_DMaterial     = r"DMaterial\t*\((\w+)\)"          # group 1
-    regex_DSurfaceId    = r"DSurfaceId(\t*|\s*)\((\w+)\)"   # group 2
-    regex_DTexture      = r"DTexture(\t*|\s*)\((\t*|\s*)([0-9a-zA-Z_\.]+)\)"   # group 3
+    regex_DLibrary      = r"DLibrary\t*\(([\w-]+)"                      # group 1
+    regex_DMaterial     = r"DMaterial\t*\(([\w+-]+)\)"                  # group 1
+    regex_DSurfaceId    = r"DSurfaceId(\t*|\s*)\(([\w-])+\)"            # group 2
+    regex_DTexture      = r"DTexture(\t*|\s*)\((\t*|\s*)([\w\-\.]+)\)"  # group 3
 
-    selected_collection = getTmProps().LI_materialCollection
+    selected_collection = tm_props.LI_materialCollection
     
     if not doesFileExist(nadeolibfile):
         return nadeoimporter_materiallib_materials
@@ -1676,11 +1677,13 @@ def nadeoLibParser() -> None:
                             lib[currentLib][currentMat]["Envi"]  = currentLib 
         
         nadeoimporter_materiallib_materials = lib
+        tm_props.CB_NadeoLibParseFailed = False
         
                     
     except AttributeError as e:
         debug("failed to parse nadeolib")
         debug(e)
+        tm_props.CB_NadeoLibParseFailed = True
 
     
     finally:
