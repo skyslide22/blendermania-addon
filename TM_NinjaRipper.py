@@ -35,7 +35,7 @@ class TM_OT_Ninja20Install(Operator):
 
 
 class TM_PT_NinjaImporter(Panel):
-    bl_label = "RIP Importer"
+    bl_label = "Import RIP"
     bl_idname = "TM_PT_NinjaImporter"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_options = set() # default is closed, open as default
