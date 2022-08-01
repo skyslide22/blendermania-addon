@@ -14,7 +14,8 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 
 ## Video Turorials 
 - video by MattDTO: https://www.youtube.com/watch?v=JXINd6oBTw4
-- 1h30m workshop by Juice & Ealipse https://www.youtube.com/watch?v=EIJKl_q6w10 
+- addon workshop by Juice & Ealipse https://www.youtube.com/watch?v=EIJKl_q6w10 
+- uv maps workshop by florenzius & grymlock https://www.youtube.com/watch?v=KvXMiI5LKx8
 - fyi: detailed tutorial video by me(skyslide) is on the todo list... (2025) </sarcasm>
 
 ## Contact
