@@ -1375,9 +1375,7 @@ def selectObj(obj)->bool:
 
 def deselectAllObjects() -> None:
     """deselects all objects in the scene, works only for visible ones"""
-    for obj in bpy.context.scene.objects:
-        if obj.name in bpy.context.view_layer.objects:
-            obj.select_set(False)
+    bpy.ops.object.select_all(action='DESELECT')
 
 
 

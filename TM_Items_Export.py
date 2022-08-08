@@ -125,28 +125,33 @@ class TM_PT_Items_Export(Panel):
             text = exportType
             icon = "EXPORT"
 
-            
             # get number of collections which can be exported
             selected_objects = bpy.context.selected_objects
             visible_objects  = bpy.context.visible_objects
+            objs = selected_objects if exportActionIsSelected else visible_objects
 
+            if len(visible_objects) < 500:
+                exportable_cols  = getExportableCollections(objs=objs)
+                collection_count = len(exportable_cols)
 
-            objs             = selected_objects if exportActionIsSelected else visible_objects
-            exportable_cols  = getExportableCollections(objs=objs)
-            collection_count = len(exportable_cols)
+                plural = "s" if collection_count > 1 else ""
 
-            plural = "s" if collection_count > 1 else ""
+                if exportType == "EXPORT":
+                    text=f"Export {collection_count} collection{plural}"
+
+                elif exportType == "EXPORT_CONVERT":
+                    text=f"Export & convert {collection_count} collection{plural}"
+
+                if collection_count == 0:
+                    enableExportButton = False
+            else:
+                text = "Export collections"
+                enableExportButton = True
 
             if exportType == "EXPORT":
-                icon="EXPORT"; 
-                text=f"Export {collection_count} collection{plural}"
-
+                icon="EXPORT"
             elif exportType == "EXPORT_CONVERT":
-                icon="CON_FOLLOWPATH";  
-                text=f"Export & convert {collection_count} collection{plural}"
-
-            if collection_count == 0:
-                enableExportButton = False
+                 icon="CON_FOLLOWPATH"
 
             col = layout.column(align=True)
 
@@ -162,7 +167,7 @@ class TM_PT_Items_Export(Panel):
                 row = col.row(align=True)
                 row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
 
-            if exportType == "EXPORT_CONVERT":
+            if exportType == "EXPORT_CONVERT" and len(visible_objects) < 500:
                 embed_space = 0
                 if enableExportButton:
                     for col in exportable_cols:
@@ -271,7 +276,6 @@ def exportAndOrConvert()->None:
     tm_props            = getTmProps()
     # validObjTypes       = tm_props.LI_exportValidTypes #mesh, light, empty
     useSelectedOnly     = tm_props.LI_exportWhichObjs == "SELECTED"  #only selected objects?
-    allObjs             = bpy.context.scene.collection.all_objects
     action              = tm_props.LI_exportType
     generateIcons       = tm_props.CB_icon_genIcons
     invalidCollections  = []
@@ -310,7 +314,7 @@ def exportAndOrConvert()->None:
     
     deselectAllObjects()
 
-    for obj in allObjs:
+    for obj in objs:
         
         # rename lazy names (spawn, trigger, notvisible, notcollidable)
         objnameLower = obj.name.lower()
@@ -330,14 +334,13 @@ def exportAndOrConvert()->None:
 
             saveMatPropsAsJSONinMat(mat=mat) #only string/bool/num custom props are saved in fbx...
             embeddedMaterials.append(mat)
-    
+
     debug("-----")
     for col in colsToExport:
         debug(col.name)
 
     #export each collection ...
     for col in colsToExport:
-
         deselectAllObjects()
 
         exportFilePath = f"{export_path_base}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
@@ -373,7 +376,8 @@ def exportAndOrConvert()->None:
         # all col objs parenting to an empty obj
         # move to center, unparent, export,
         # parent again, back to old origin, unparent
-        ORIGIN = createExportOriginFixer(col=col)
+        # avoid it if collection has only one object
+        ORIGIN = createExportOriginFixer(col=col) if len(col.objects) != 1 else col.objects[0]
         debug(f"origin for collection <{col.name}> is <{ORIGIN.name}>")
 
         origin_oldPos    = tuple(ORIGIN.location) #old pos of origin
@@ -381,7 +385,7 @@ def exportAndOrConvert()->None:
 
         # Lod0, Lod1 can't be childrens
         # so unparent and keep all transforms at 0,0,0
-        unparentObjsAndKeepTransform(col=col) 
+        if len(col.objects) != 1: unparentObjsAndKeepTransform(col=col) 
 
         deselectAllObjects()
         selectAllObjectsInACollection(col=col, only_direct_children=True, exclude_infixes="_ignore, delete")
@@ -403,10 +407,10 @@ def exportAndOrConvert()->None:
 
 
 
-        parentObjsToObj(col=col, obj=ORIGIN)
+        if len(col.objects) != 1: parentObjsToObj(col=col, obj=ORIGIN)
         ORIGIN.location = origin_oldPos
 
-        deleteExportOriginFixer(col=col)
+        if len(col.objects) != 1: deleteExportOriginFixer(col=col)
         
 
 
@@ -437,16 +441,6 @@ def exportAndOrConvert()->None:
         
         #run convert on second thread to avoid blender to freeze
         startBatchConvert(exportedFBXs) 
-
-
-    # generate xmls
-    for exportedFBX in exportedFBXs:
-        genItemXML = tm_props.CB_xml_genItemXML
-        genMeshXML = tm_props.CB_xml_genMeshXML
-        genIcon    = tm_props.CB_icon_genIcons
-
-        if genItemXML: generateItemXML(exportedFBX)
-        if genMeshXML: generateMeshXML(exportedFBX)
 
 
 

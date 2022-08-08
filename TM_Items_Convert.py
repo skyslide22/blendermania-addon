@@ -6,6 +6,7 @@ from threading import Thread
 import xml.etree.ElementTree as ET
 
 from .TM_Functions import *
+from .TM_Items_XML import *
 
 
 class ConvertStep():
@@ -332,6 +333,10 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         nonlocal fail_count
         nonlocal success_count
         nonlocal atleast_one_convert_failed
+
+        if tm_props.CB_xml_genItemXML: generateItemXML(exported_fbx)
+        if tm_props.CB_xml_genMeshXML: generateMeshXML(exported_fbx)
+
         fbxfilepath = exported_fbx.filepath
         physic_hack = exported_fbx.physic_hack
         name        = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
