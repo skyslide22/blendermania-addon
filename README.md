@@ -10,7 +10,8 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 - documentation https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/wiki
 
 ## Todo list
-- https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/projects/1
+- on the list: https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/projects/1
+- add your ideas: https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/discussions/11
 
 ## Video Turorials 
 - video by MattDTO: https://www.youtube.com/watch?v=JXINd6oBTw4
