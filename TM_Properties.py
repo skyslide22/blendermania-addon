@@ -1001,6 +1001,10 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_addonUpdateDLshow      : BoolProperty(       default=False,  update=redrawPanel)
     CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redrawPanel)
 
+    #map manipulation
+    ST_map_filepath           : StringProperty(name="Map path", default="",   subtype="FILE_PATH")
+
+
     #object manipulation
     NU_objMplScaleFrom      : IntProperty(default=7, min=1, max=20)
     NU_objMplScaleTo        : IntProperty(default=4, min=1, max=20)

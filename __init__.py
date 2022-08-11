@@ -29,6 +29,7 @@ from .TM_Items_Icon         import *
 from .TM_Items_Templates    import *
 from .TM_Items_Manipulate   import *
 from .TM_UV_Manipulate      import *
+from .TM_Map_Manipulate     import *
 from .TM_Assets_Library     import *
 
 
@@ -128,6 +129,10 @@ classes = (
 
     # templates
     TM_OT_Items_Envi_Template_Import,
+
+    # map
+    TM_PT_Map_Manipulate,
+    TM_OT_Map_SaveCollectionAsMap
 )
 
 
