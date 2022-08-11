@@ -85,11 +85,11 @@ ICON_FALSE       = "CHECKBOX_DEHLT"
 BLENDER_INSTANCE_IS_DEV = os.path.exists(getAddonPath() + ".git")
 
 # URL_DOCUMENTATION = "https://images.mania.exchange/com/skyslide/Blender-Addon-Tutorial/"
-URL_DOCUMENTATION = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/wiki/01.-Install-&-Configuration"
-URL_BUG_REPORT    = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
-URL_GITHUB        = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet"
-URL_CHANGELOG     = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases"
-URL_RELEASES      = "https://api.github.com/repos/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases/latest"
+URL_DOCUMENTATION = "https://github.com/skyslide22/blendermania-addon/wiki/01.-Install-&-Configuration"
+URL_BUG_REPORT    = "https://github.com/skyslide22/blendermania-addon"
+URL_GITHUB        = "https://github.com/skyslide22/blendermania-addon"
+URL_CHANGELOG     = "https://github.com/skyslide22/blendermania-addon/releases"
+URL_RELEASES      = "https://api.github.com/repos/skyslide22/blendermania-addon/releases/latest"
 URL_REGEX         = "https://regex101.com/"
 
 PATH_DESKTOP               = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
@@ -102,7 +102,7 @@ PATH_DEFAULT_SETTINGS_JSON = PATH_HOME + "blender_addon_for_tm2020_maniaplanet_s
 
 
 #replace bellow once github repo is public
-GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet-assets/releases/download/"
+GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-addon-assets/releases/download/"
 WEBSPACE_TEXTURES_MP_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Stadium/Textures_ManiaPlanet_Stadium.zip"
 WEBSPACE_TEXTURES_MP_VALLEY  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Valley/Textures_ManiaPlanet_Valley.zip"
 WEBSPACE_TEXTURES_MP_STORM   = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Shootmania/Textures_ManiaPlanet_Shootmania.zip"
@@ -585,7 +585,7 @@ class AddonUpdate:
     def doUpdate(cls) -> None:
         debug("Update addon now")
         tm_props = getTmProps()
-        filename = "blender-addon-for-trackmania-and-maniaplanet.zip"
+        filename = "blendermania-addon.zip"
         save_to  = getBlenderAddonsPath() + filename
         url      = cls.download_url
 

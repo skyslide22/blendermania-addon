@@ -549,7 +549,7 @@ def openHelp(helptype: str) -> None:
     elif helptype == "open_convertreport":  subprocess.Popen(['start', fixSlash(PATH_CONVERT_REPORT)], shell=True)
     elif helptype == "open_changelog":      webbrowser.open(URL_CHANGELOG)
     elif helptype == "checkregex":          webbrowser.open(URL_REGEX)
-    elif helptype == "testfunc":            unzipNewAndOverwriteOldAddon(filepath=getBlenderAddonsPath() + "blender-addon-for-trackmania-and-maniaplanet.zip")
+    elif helptype == "testfunc":            unzipNewAndOverwriteOldAddon(filepath=getBlenderAddonsPath() + "blendermania-addon.zip")
     
     else:
         debug(f"Help command not found, {helptype=}")

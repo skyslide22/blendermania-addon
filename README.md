@@ -1,5 +1,5 @@
 # Blender Addon for Trackmania and ManiaPlanet
-This addon is for Blender 3.0+, it will simplify all necessary steps and help you with:
+This addon is for Blender 3.1+, it will simplify all necessary steps and help you with:
 - creating icons
 - creating materials for the games
 - install NadeoImporter.exe with one click
@@ -7,11 +7,11 @@ This addon is for Blender 3.0+, it will simplify all necessary steps and help yo
 - install assets with one click
 - export items(collections) as .fbx
 - convert exported .fbx files to .gbx (game format)
-- documentation https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/wiki
+- documentation https://github.com/skyslide22/blendermania-addon/wiki
 
 ## Todo list
-- on the list: https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/projects/1
-- add your ideas: https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/discussions/11
+- on the list: https://github.com/skyslide22/blendermania-addon/projects/1
+- add your ideas: https://github.com/skyslide22/blendermania-addon/discussions/11
 
 ## Video Turorials 
 - video by MattDTO: https://www.youtube.com/watch?v=JXINd6oBTw4
@@ -24,5 +24,5 @@ Contact us(skyslide, Juice) on discord:
 - ManiaExchange http://discord.mania.exchange #importer-help
 - Trackmania Scenery Hub https://discord.gg/yMSnpjUPEG #blender-plugin (prefer this server)
 
-![addon image](https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/wiki/img/wheretofind.jpg)
+![addon image](https://github.com/skyslide22/blendermania-addon/wiki/img/wheretofind.jpg)
 
