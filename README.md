@@ -1,4 +1,6 @@
-# Blender Addon for Trackmania and ManiaPlanet
+# Blendermania 
+### A Blender Addon for Trackmania2020 and ManiaPlanet
+
 This addon is for Blender 3.1+, it will simplify all necessary steps and help you with:
 - creating icons
 - creating materials for the games
