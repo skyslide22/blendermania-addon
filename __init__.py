@@ -7,36 +7,44 @@ from bpy.app.handlers import persistent
 
 bl_info = {
     "name"          : "Trackmania Export & Convert .fbx > .gbx Addon",
-    "author"        : "skyslide",
+    "author"        : "skyslide & juice",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 1, 0),
-    "version"       : (2, 8, 2),
+    "version"       : (3, 0, 0),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
 }                    
 
-# refactored
-from .TM_Constants          import *
-from .TM_Dotnet             import *
-from .TM_UI_Map_Export      import *
+from .utils.Constants          import *
+from .utils.Functions          import *
+from .utils.Dotnet             import *
+from .utils.Properties         import *
+from .operators.OT_Map_Manipulate      import *
+from .operators.OT_NinjaRipper        import *
+from .operators.OT_Settings           import *
+from .operators.OT_Items_Export       import *
+from .operators.OT_Items_Import       import * 
+from .operators.OT_Materials          import *
+from .operators.OT_Items_XML          import *
+from .operators.OT_Items_UVMaps       import *
+from .operators.OT_Items_Icon         import *
+from .operators.OT_Items_Templates    import *
+from .operators.OT_Items_Manipulate   import *
+from .operators.OT_UV_Manipulate      import *
+from .operators.OT_Assets_Library     import *
+from .panels.PT_Map_Manipulate     import *
+from .panels.PT_NinjaRipper        import *
+from .panels.PT_Settings           import *
+from .panels.PT_Items_Export       import *
+from .panels.PT_Materials          import *
+from .panels.PT_Items_XML          import *
+from .panels.PT_Items_UVMaps       import *
+from .panels.PT_Items_Icon         import *
+from .panels.PT_Items_Manipulate   import *
+from .panels.PT_Items_Import       import *
+from .panels.PT_UV_Manipulate      import *
 
-# original
-from .TM_Constants          import *
-from .TM_NinjaRipper        import *
-from .TM_Functions          import *
-from .TM_Settings           import *
-from .TM_Properties         import *
-from .TM_Items_Export       import *
-from .TM_Items_Import       import * 
-from .TM_Materials          import *
-from .TM_Items_XML          import *
-from .TM_Items_UVMaps       import *
-from .TM_Items_Icon         import *
-from .TM_Items_Templates    import *
-from .TM_Items_Manipulate   import *
-from .TM_UV_Manipulate      import *
-from .TM_Assets_Library     import *
 
 
 
@@ -255,7 +263,7 @@ def on_startup(dummy) -> None:
             key=(bpy.types.LayerObjects, 'active'),
             owner=bpy,
             args=(),
-            notify=onSelectObject
+            notify=on_select_obj
         )
     except RuntimeError:
         pass # first try always fails

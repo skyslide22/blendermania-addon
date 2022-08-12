@@ -12,14 +12,14 @@ from bpy.props import CollectionProperty
 
 
 
-from .TM_Functions      import *
-from .TM_Items_Convert  import *
-from .TM_Items_XML      import *
-from .TM_Items_UVMaps   import *
-from .TM_Settings       import *
-from .TM_Items_Icon     import *
-from .TM_Materials      import *
-
+from ..utils.Functions      import *
+from ..utils.Constants      import * 
+from ..operators.OT_Items_Convert  import *
+from ..operators.OT_Items_XML      import *
+from ..operators.OT_Items_UVMaps   import *
+from ..operators.OT_Settings       import *
+from ..operators.OT_Items_Icon     import *
+from ..operators.OT_Materials      import *
 
 
 
@@ -32,7 +32,7 @@ class TM_OT_Items_ClearMatImportFailList(Operator):
     bl_label = "Clear failed material import list"
 
     def execute(self, context):
-        getTmProps().LI_importMatFailed = ""
+        get_global_props().LI_importMatFailed = ""
         return {"FINISHED"}
 
 
@@ -56,61 +56,13 @@ class TM_OT_Items_Import(Operator):
         if saveBlendFile():
             importFBXfilesMain(self)
         else:
-            makeReportPopup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
+            show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
         return {"FINISHED"}
 
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
         
-
-class TM_PT_Items_Import(Panel):
-    bl_label   = "Import FBX"
-    bl_idname  = "TM_PT_Items_Import"
-    bl_context = "objectmode"
-    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-
-
-    def draw_header(self, context):
-        layout = self.layout
-        layout.label(icon="IMPORT")
-
-
-    def draw(self, context):
-
-        layout = self.layout
-        tm_props  = getTmProps()
-        action    = tm_props.LI_importType
-        recursive = tm_props.CB_importFolderRecursive
-        failedMats= tm_props.LI_importMatFailed
-
-        if requireValidNadeoINI(self) is False: return
-
-        row = layout.row(align=True)
-        row.prop(tm_props, "LI_importType",            expand=False, text="Type", )
-        row.prop(tm_props, "CB_importFolderRecursive", expand=False, text="",    icon="FOLDER_REDIRECT")
-
-
-        btnText = "Import Files" if action == "FILES" else "Import Folder & Subfolders" if recursive else "Import Folder"
-        row=layout.row()
-        row.scale_y = 1.5
-        row.operator("view3d.tm_importfbx", text=btnText, icon="IMPORT")
-
-
-        if failedMats:
-            layout.separator(factor=UI_SPACER_FACTOR)
-            
-            row = layout.row()
-            row.alert = True
-            row.operator("view3d.tm_clearmatimportfails", text="OK, clear list")
-            
-            layout.label(text="Invalid imported materials:")
-            for matName in failedMats.split(";;;"): 
-                row=layout.row()
-                row.alert = True
-                row.label(text=matName)
-        
-        layout.separator(factor=UI_SPACER_FACTOR)
 
 
 
@@ -122,7 +74,7 @@ class TM_PT_Items_Import(Panel):
 
 def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
     """main func for fbx import"""
-    tm_props    = getTmProps()
+    tm_props    = get_global_props()
     action      = tm_props.LI_importType
     recursive   = recursive or tm_props.CB_importFolderRecursive
     fileList    = [] #name, relpath, abspath

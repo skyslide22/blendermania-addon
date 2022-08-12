@@ -7,10 +7,10 @@ from bpy.types import (
     Panel,
     Operator,
 )
-from .TM_Functions      import *
-from .TM_Materials      import * 
-from .TM_Items_Import   import *
-
+from ..utils.Functions      import *
+from ..utils.Constants      import * 
+from ..operators.OT_Materials      import * 
+from ..operators.OT_Items_Import   import *
 
 
 class TM_OT_Items_Cars_Import(Operator):

@@ -1,0 +1,94 @@
+import bpy
+import os.path
+import re
+import math
+import statistics as stats
+from bpy.types import (
+    Panel,
+    Operator,
+)
+from ..utils.Functions import *
+from ..utils.Constants import * 
+
+
+
+    
+class TM_PT_Items_Icon(Panel):
+    # region bl_
+    """Creates a Panel in the Object properties window"""
+    bl_category = 'ManiaPlanetAddon'
+    bl_label = "Create Icons"
+    bl_idname = "TM_PT_Items_Icon"
+    bl_parent_id = "TM_PT_Items_Export"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = "objectmode"
+    # endregion
+    
+    @classmethod
+    def poll(cls, context):
+        tm_props = get_global_props()
+        show =  not tm_props.CB_showConvertPanel \
+                and not tm_props.LI_exportType.lower() == "convert" \
+                and isSelectedNadeoIniFilepathValid()
+        return show
+    
+    def draw_header(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+        row.enabled = True if not tm_props.CB_showConvertPanel else False
+        row.prop(tm_props, "CB_icon_genIcons",         text="",    icon_only=True, icon="CHECKMARK",)
+        row.prop(tm_props, "CB_icon_overwriteIcons",    text="",    icon_only=True, icon="FILE_REFRESH")
+        row=layout.row()
+    
+    def draw(self, context):
+        scene  = context.scene
+        layout = self.layout
+        tm_props        = scene.tm_props
+        tm_props_pivots = scene.tm_props_pivots
+        useTransparentBG= scene.render.film_transparent
+
+        layout.row().label(text="Camera direction is positive Y")
+
+        row = layout.row()
+        row.prop(tm_props, "LI_icon_perspective", text="Cam")
+
+        #bpy.context.scene.view_settings.view_transform = 'Standard'
+
+        row = layout.row()
+        row.prop(scene.view_settings, "view_transform", text="Style")
+
+        row = layout.row()
+        row.prop(tm_props, "NU_icon_padding", text="Fill space", expand=True)
+
+        row = layout.row(align=True)
+        row2= row.row(align=True)
+        row2.label(text="Bground")
+        
+        row2 = row.row(align=True)
+        row2.prop(scene.render, "film_transparent", text="None", toggle=True, icon="GHOST_DISABLED")
+        
+        row3 = row.row(align=True)
+        row3.enabled = True if not useTransparentBG else False
+        row3.prop(tm_props, "NU_icon_bgColor",  text="")
+
+
+        row = layout.row(align=True)
+        row2= row.row(align=True)
+        row2.label(text="Size")
+        
+        row2 = row.row(align=True)
+        row2.prop(tm_props, "LI_icon_pxDimension", expand=True)
+
+        layout.separator(factor=UI_SPACER_FACTOR)
+
+        row = layout.row()
+        row.scale_y = 1
+        row.operator("view3d.tm_make_test_icon", text="Do a test render", icon="CAMERA_DATA")
+
+        
+        
+        
+        
+ 

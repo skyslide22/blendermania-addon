@@ -1,5 +1,4 @@
-# region imports#
-from inspect import getargs
+
 import json
 import bpy
 import re
@@ -8,9 +7,9 @@ from bpy.types import (
     Panel,
     Operator,
 )
-from .TM_Functions  import *
-from .TM_Properties import *
-# endregion imports
+from ..utils.Functions  import *
+from ..utils.Properties import *
+from ..utils.Constants  import * 
 
 class TM_OT_Materials_Create(Operator):
     bl_idname = "view3d.tm_creatematerial"
@@ -40,7 +39,7 @@ class TM_OT_Materials_ClearBaseMaterial(Operator):
     bl_description = "clear basematerial"
    
     def execute(self, context):
-        getTmProps()["ST_materialBaseTexture"] = ""
+        get_global_props()["ST_materialBaseTexture"] = ""
         context.region.tag_redraw()
         return {"FINISHED"}
 
@@ -56,171 +55,10 @@ class TM_OT_Materials_RevertCustomColor(Operator):
         return {"FINISHED"}
     
    
-class TM_PT_Materials(Panel):
-    bl_label = "Material Creation/Update"
-    bl_idname = "OBJECT_PT_TM_Materials"
-    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
-
-    def draw_header(self, context):
-        layout = self.layout
-        layout.label(icon="MATERIAL")
-    
-
-    def draw(self, context):
-
-        layout   = self.layout
-        tm_props = getTmProps()
-        
-        if requireValidNadeoINI(self) is False: return
-
-        action      = tm_props.LI_materialAction
-        mat_name     = tm_props.ST_materialAddName
-        mat_name_old  = tm_props.ST_selectedExistingMaterial
-
-        action_is_update = action == "UPDATE"
-    
-        use_physicsId   = tm_props.CB_materialUsePhysicsId
-        use_gameplayId  = tm_props.CB_materialUseGameplayId
-
-        #uncomment it during development if you need to generate new assets library file
-        #box = layout.box()
-        #row = box.row()
-        #row.operator("view3d.tm_createassetlib", text=f"Create {tm_props.LI_gameType} Assets Library", icon="ADD")
-
-
-        # choose action & mat name
-        layout.row().prop(tm_props, "LI_materialAction", expand=True)
-
-        if action_is_update:
-            layout.row().prop_search(tm_props, "ST_selectedExistingMaterial", bpy.data, "materials") 
-    
-        layout.row().prop(tm_props, "ST_materialAddName")
-
-        # row = layout.row()
-        # row.enabled = True if not tm_props.CB_converting else False
-        # row.prop(tm_props, "LI_gameType", text="Game")
-
-
-
-
-
-        if isGameTypeManiaPlanet():
-            row = layout.row()
-            row.prop(tm_props, "LI_materialCollection", text="Collection")
-            
-            enable = True if use_physicsId else False
-            icon   = ICON_TRUE if enable else ICON_FALSE
-
-            row = layout.row(align=True)
-            col = row.column()
-            col.enabled = enable
-            col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
-            col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=icon)
-            
-            layout.separator(factor=UI_SPACER_FACTOR)
-
-            # choose custom tex or linked mat
-            row = layout.row(align=True)
-            # col = row.column()
-            # col.label(text="Source:")
-
-            # col = row.column()
-            # row = col.row()
-            row.prop(tm_props, "LI_materialChooseSource", expand=True)
-            
-            using_custom_texture = tm_props.LI_materialChooseSource == "CUSTOM"
-
-            # basetexture
-            if using_custom_texture:
-                row = layout.row(align=True)
-                row.alert = True if "/Items/" not in fixSlash(tm_props.ST_materialBaseTexture) else False
-                row.prop(tm_props, "ST_materialBaseTexture", text="Location")
-                row.operator("view3d.tm_clearbasetexture", icon="X", text="")
-
-                if row.alert:
-                    row=layout.row()
-                    row.alert = True
-                    row.label(text=".dds file in Documents/Maniaplanet/Items/")
-
-                # model
-                row = layout.row()
-                row.prop(tm_props, "LI_materialModel")
-            
-
-            # link
-            else:
-                row = layout.row()
-                row.prop_search(
-                    tm_props, "ST_selectedLinkedMat", # value of selection
-                    context.scene, "tm_props_linkedMaterials", # list to search in 
-                    icon="LINKED",
-                    text="Link") 
-
-
-
-
-        elif isGameTypeTrackmania2020():
-            # physics id
-            enable = True if use_physicsId else False
-            icon   = ICON_TRUE if enable else ICON_FALSE
-
-            row = layout.row(align=True)
-            col = row.column()
-            col.enabled = enable
-            col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
-            col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=icon)
-
-            # gameplay id
-            enable = True if use_gameplayId else False
-            icon   = ICON_TRUE if enable else ICON_FALSE
-            
-            row = layout.row(align=True)
-            col = row.column()
-            col.enabled = enable
-            col.prop(tm_props, "LI_materialGameplayId", text="Gameplay")
-            col = row.column()
-            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon=icon)
-
-            # custom color for materials starts with "custom"
-            mat_uses_custom_color = tm_props.ST_selectedLinkedMat.lower().startswith("custom")
-
-            row = layout.row(align=True)
-            row.alert = mat_uses_custom_color
-            col = row.column()
-            col.scale_x = .55
-            col.label(text="Color")
-            col = row.column()
-            col.prop(tm_props, "NU_materialCustomColor", text="")
-            if action_is_update:
-                row.operator("view3d.tm_revertcustomcolor", icon="FILE_REFRESH", text="")
-            
-            # Link
-            row = layout.row()
-            row.prop_search(
-                tm_props, "ST_selectedLinkedMat", # value of selection
-                context.scene, "tm_props_linkedMaterials", # list to search in 
-                icon="LINKED",
-                text="Link") 
-
-
-        row = layout.row()
-        row.scale_y = 1.5
-
-        if action_is_update:
-            row.operator("view3d.tm_updatematerial", text=f"Update {mat_name_old}", icon="FILE_REFRESH")
-
-        else:
-            row.operator("view3d.tm_creatematerial", text=f"Create {mat_name}",    icon="ADD")
-
-
-        layout.separator(factor=UI_SPACER_FACTOR)
 
 
             
-        
 
 
 
@@ -229,7 +67,7 @@ class TM_PT_Materials(Panel):
 
 def createOrUpdateMaterial(action)->None:
     """create a export/convert ready material for TM and MP"""
-    tm_props = getTmProps()
+    tm_props = get_global_props()
     
     TM_PREFIX = "TM_"
     MP_PREFIX = "MP_"
@@ -260,7 +98,7 @@ def createOrUpdateMaterial(action)->None:
 
 
     if action == "CREATE" and matNameNew in bpy.data.materials:
-        makeReportPopup(
+        show_report_popup(
             title="Material with this name already exists", 
             infos=["Creation failed"], 
             icon= "ERROR")
@@ -285,13 +123,13 @@ def createOrUpdateMaterial(action)->None:
     MAT.surfaceColor  = matColor[:3]
 
     if action == "CREATE":
-        makeReportPopup(
+        show_report_popup(
             title=f"Material {matNameNew} successfully created!",
             icon ="CHECKMARK"
         )
         debug(f"Material {matNameNew} created")
     else: #UPDATE
-        makeReportPopup(
+        show_report_popup(
             title=f"Material {matName} sucessfully updated", 
             icon= "CHECKMARK"
         )

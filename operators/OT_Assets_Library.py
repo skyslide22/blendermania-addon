@@ -1,4 +1,4 @@
-# region imports#
+
 import bpy
 import uuid
 import time
@@ -9,10 +9,10 @@ from bpy.types import (
     Material,
 )
 
-from .TM_Functions  import *
-from .TM_Properties import *
-from .TM_Materials import *
-# endregion imports
+from ..utils.Functions          import *
+from ..utils.Properties         import *
+from ..operators.OT_Materials   import *
+from ..utils.Constants          import * 
 
 class TM_OT_Materials_Create_Asset_Lib(Operator):
     bl_idname = "view3d.tm_createassetlib"
@@ -23,7 +23,7 @@ class TM_OT_Materials_Create_Asset_Lib(Operator):
         if saveBlendFile():
             createAssetsLib()
         else:
-            makeReportPopup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
+            show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
 
         return {"FINISHED"}
 
@@ -51,16 +51,16 @@ def createAssetsLib() -> None:
     
     fileName = ""
     if isGameTypeTrackmania2020():
-        fileName = getTmProps().LI_gameType+"_assets.blend"
+        fileName = get_global_props().LI_gameType+"_assets.blend"
         generate2020Assets()
     elif isGameTypeManiaPlanet():
-        fileName = getTmProps().LI_gameType+"_assets.blend"
+        fileName = get_global_props().LI_gameType+"_assets.blend"
         generateMPAssets()  
 
     # save as new blend file for assets libraray
     createFolderIfNecessary(getGameDocPathItemsAssets())
     if not saveBlendFileAs(fixSlash(getGameDocPathItemsAssets()+"/"+fileName)):
-        makeReportPopup("Can not create new blend file", ["Something went wrong during creation of a new blend file"], "ERROR")
+        show_report_popup("Can not create new blend file", ["Something went wrong during creation of a new blend file"], "ERROR")
 
     # reopen original file
     # bpy.ops.wm.open_mainfile(filepath=currentFile)
@@ -70,9 +70,9 @@ def createAssetsLib() -> None:
 
 
 def generate2020Assets() -> None:
-    getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType)
-    getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium")
-    getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials")
+    getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType)
+    getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium")
+    getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials")
 
     matList = getLinkedMaterials()
 
@@ -116,31 +116,31 @@ def generate2020Assets() -> None:
             mat.asset_mark()
             key = key.lower()
             if "decal" in key:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Decals")
+                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Decals")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif key.startswith("custom"):
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Custom")
+                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Custom")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif key.startswith("road"):
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Roads")
+                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Roads")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "platformtech" in key:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Platform")
+                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Platform")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "specialfx" in key:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/SpecialFXs")
+                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/SpecialFXs")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "_sign" in key or "specialsign" in key:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Signs")
+                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Signs")
                 if uid:
                     mat.asset_data.catalog_id = uid
             else:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/Stadium/Materials/Rest")
+                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Rest")
                 if uid:
                     mat.asset_data.catalog_id = uid
 
@@ -151,15 +151,15 @@ def generateMPAssets() -> None:
         if col[0] == "Common":
             continue
         
-        getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType)
-        catalogUUID = getOrCreateCatalog(getGameDocPathItemsAssets(), getTmProps().LI_gameType+"/"+col[0]+"/Materials")
+        getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType)
+        catalogUUID = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/"+col[0]+"/Materials")
 
-        getTmProps().LI_materialCollection = col[0]
+        get_global_props().LI_materialCollection = col[0]
         gameTypeGotUpdated()
 
         matList = getLinkedMaterials()
         for matItem in matList:
-            matNameNew = f"MP_{getTmProps().LI_materialCollection}_{matItem.name}_asset"
+            matNameNew = f"MP_{get_global_props().LI_materialCollection}_{matItem.name}_asset"
             if matNameNew in bpy.data.materials:
                 continue
 
@@ -199,8 +199,8 @@ def generateMPAssets() -> None:
 def createMaterialAsset(name: str, link: str, color: tuple[float, float, float]) -> Material:
     MAT = bpy.data.materials.new(name=name)
 
-    MAT.gameType      = getTmProps().LI_gameType
-    MAT.environment   = getTmProps().LI_materialCollection
+    MAT.gameType      = get_global_props().LI_gameType
+    MAT.environment   = get_global_props().LI_materialCollection
     MAT.usePhysicsId  = False
     MAT.useGameplayId = False
     MAT.model         = "TDSN"

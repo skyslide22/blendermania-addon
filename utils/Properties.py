@@ -6,9 +6,10 @@ from bpy.types import (
     PropertyGroup
 )
 
-from .TM_Functions  import * 
-from .TM_Items_Icon import generateWorldNode
-from .TM_Descriptions import *
+from .Functions  import * 
+from .Constants  import * 
+from ..operators.OT_Items_Icon import generateWorldNode
+from .Descriptions import *
 
 
 
@@ -113,12 +114,12 @@ def getGameTypes()->list:
         id   = GAMETYPE_MANIAPLANET,
         name = GAMETYPE_MANIAPLANET,
         desc = GAMETYPE_MANIAPLANET,
-        icon = getIcon(GAMETYPE_MANIAPLANET)
+        icon = get_addon_icon(GAMETYPE_MANIAPLANET)
     ).add(
         id   = GAMETYPE_TRACKMANIA2020,
         name = GAMETYPE_TRACKMANIA2020,
         desc = GAMETYPE_TRACKMANIA2020,
-        icon = getIcon(GAMETYPE_TRACKMANIA2020)
+        icon = get_addon_icon(GAMETYPE_TRACKMANIA2020)
     ).toList()
     
 
@@ -133,7 +134,7 @@ def gameTypeGotUpdated(self=None,context=None)->None:
     material_physics = ERROR_ENUM_PROPS
     nadeoLibParser()
 
-    tm_props     = getTmProps()
+    tm_props     = get_global_props()
     colIsStadium = tm_props.LI_materialCollection.lower() == "stadium"
 
     if isGameTypeTrackmania2020() and not colIsStadium:
@@ -155,27 +156,27 @@ def getGameTextureZipFileNames()->list:
         id   = "Stadium",
         name = "Stadium",
         desc = "Stadium",
-        icon = getIcon("ENVI_STADIUM")
+        icon = get_addon_icon("ENVI_STADIUM")
     ).add(
         id   = "Valley",
         name = "Valley",
         desc = "Valley",
-        icon = getIcon("ENVI_VALLEY")
+        icon = get_addon_icon("ENVI_VALLEY")
     ).add(
         id   = "Canyon",
         name = "Canyon",
         desc = "Canyon",
-        icon = getIcon("ENVI_CANYON")
+        icon = get_addon_icon("ENVI_CANYON")
     ).add(
         id   = "Lagoon",
         name = "Lagoon",
         desc = "Lagoon",
-        icon = getIcon("ENVI_LAGOON")
+        icon = get_addon_icon("ENVI_LAGOON")
     ).add(
         id   = "Shootmania",
         name = "Shootmania",
         desc = "Shootmania",
-        icon = getIcon("ENVI_STORM")
+        icon = get_addon_icon("ENVI_STORM")
     ).toList()
 
 
@@ -212,27 +213,27 @@ def getExportFolderTypes(self,context)->list:
             id   = "Stadium",
             name = "Stadium",
             desc = "Stadium",
-            icon = getIcon("ENVI_STADIUM")
+            icon = get_addon_icon("ENVI_STADIUM")
         ).add(
             id   = "Valley",
             name = "Valley",
             desc = "Valley",
-            icon = getIcon("ENVI_VALLEY")
+            icon = get_addon_icon("ENVI_VALLEY")
         ).add(
             id   = "Canyon",
             name = "Canyon",
             desc = "Canyon",
-            icon = getIcon("ENVI_CANYON")
+            icon = get_addon_icon("ENVI_CANYON")
         ).add(
             id   = "Lagoon",
             name = "Lagoon",
             desc = "Lagoon",
-            icon = getIcon("ENVI_LAGOON")
+            icon = get_addon_icon("ENVI_LAGOON")
         ).add(
             id   = "Shootmania",
             name = "Shootmania",
             desc = "Shootmania",
-            icon = getIcon("ENVI_STORM")
+            icon = get_addon_icon("ENVI_STORM")
         )
     return folders.toList()
 
@@ -277,7 +278,7 @@ def getExportWhichObjTypes() -> list:
 
 
 def updateGridAndLevi(self, context) -> None:
-    tm_props = getTmProps()
+    tm_props = get_global_props()
     syncX = tm_props.NU_xml_gridAndLeviX
     syncY = tm_props.NU_xml_gridAndLeviY
     tm_props.NU_xml_gridX = syncX
@@ -318,8 +319,8 @@ def getWayPointVariations() -> list:
      
 
 def onWaypointUpdate(self,context) -> None:
-    redrawPanel(self,context)
-    setWaypointTypeOfSelectedCollection()
+    redraw_panels(self,context)
+    set_waypointtype_of_selected_collection()
 
 
 def getItemXMLCollections() -> list:
@@ -327,37 +328,37 @@ def getItemXMLCollections() -> list:
         id   = "Stadium",
         name = "Stadium",
         desc = "",
-        icon = getIcon("ENVI_STADIUM"),
+        icon = get_addon_icon("ENVI_STADIUM"),
     ).add(
         id   = "Canyon",
         name = "Canyon",
         desc = "",
-        icon = getIcon("ENVI_CANYON"),
+        icon = get_addon_icon("ENVI_CANYON"),
     ).add(
         id   = "Valley",
         name = "Valley",
         desc = "",
-        icon = getIcon("ENVI_VALLEY"),
+        icon = get_addon_icon("ENVI_VALLEY"),
     ).add(
         id   = "Lagoon",
         name = "Lagoon",
         desc = "",
-        icon = getIcon("ENVI_LAGOON"),
+        icon = get_addon_icon("ENVI_LAGOON"),
     ).add(
         id   = "Storm",
         name = "Storm",
         desc = "",
-        icon = getIcon("ENVI_STORM"),
+        icon = get_addon_icon("ENVI_STORM"),
     ).add(
         id   = "Common",
         name = "Common",
         desc = "",
-        icon = getIcon("ENVI_COMMON"),
+        icon = get_addon_icon("ENVI_COMMON"),
     ).add(
         id   = "SMCommon",
         name = "SMCommon",
         desc = "",
-        icon = getIcon("ENVI_COMMON"),
+        icon = get_addon_icon("ENVI_COMMON"),
     ).toList()
 
 
@@ -536,8 +537,8 @@ def getMaterials(self, context):
 
 
 def updateMaterialSettings(self, context):
-    tm_props    = getTmProps()
-    matToUpdate = getTmProps().ST_selectedExistingMaterial
+    tm_props    = get_global_props()
+    matToUpdate = get_global_props().ST_selectedExistingMaterial
     matToUpdate = bpy.data.materials.get(matToUpdate, None)
 
     if matToUpdate is None:
@@ -574,11 +575,11 @@ def updateMaterialSettings(self, context):
 
     
     setCurrentMatBackupColor()
-    redrawPanel(self,context)
+    redraw_panels(self,context)
 
 
 def setCurrentMatBackupColor() -> None:
-    tm_props = getTmProps()
+    tm_props = get_global_props()
     method_is_update = tm_props.LI_materialAction == "UPDATE"
 
     if method_is_update is False:
@@ -594,7 +595,7 @@ def setCurrentMatBackupColor() -> None:
 
 
 def applyMaterialLiveChanges() -> None:
-    tm_props = getTmProps()
+    tm_props = get_global_props()
     method_is_update = tm_props.LI_materialAction == "UPDATE"
 
     if method_is_update is False:
@@ -613,7 +614,7 @@ def applyMaterialLiveChanges() -> None:
 
 
 def setMaterialCustomColorLiveChanges(self, context) -> None:
-    tm_props = getTmProps()
+    tm_props = get_global_props()
     method_is_update = tm_props.LI_materialAction == "UPDATE"
 
     if method_is_update is False:
@@ -631,7 +632,7 @@ def setMaterialCustomColorLiveChanges(self, context) -> None:
 
 
 def revertMaterialCustomColorLiveChanges() -> None:
-    tm_props = getTmProps()
+    tm_props = get_global_props()
     method_is_update = tm_props.LI_materialAction == "UPDATE"
 
     if method_is_update is False:
@@ -655,32 +656,32 @@ def getMaterialModelTypes()->list:
         id   = "TDSN",
         name = "TDSN",
         desc = "Raw texture (_D.dds, _S.dds, _N.dds)",
-        icon = getIcon("MODEL_TDSN")
+        icon = get_addon_icon("MODEL_TDSN")
     ).add(
         id   = "TDOSN",
         name = "TDOSN",
         desc = "TDSN + 1bit transparency (100% or 0%)",
-        icon = getIcon("MODEL_TDOSN") 
+        icon = get_addon_icon("MODEL_TDOSN") 
     ).add(
         id   = "TDOBSN",
         name = "TDOBSN",
         desc = "TDSN + 256bit transparency (glass for example)",
-        icon = getIcon("MODEL_TDOBSN")
+        icon = get_addon_icon("MODEL_TDOBSN")
     ).add(
         id   = "TDSNI",
         name = "TDSNI",
         desc = "TDSN + glow, additional texture required: _I.dds",
-        icon = getIcon("MODEL_TDSNI")
+        icon = get_addon_icon("MODEL_TDSNI")
     ).add(
         id   = "TDSNI_NIGHT",
         name = "TDSNI_NIGHT",
         desc = "TDSNI, but only in night and sunset mood",
-        icon = getIcon("MODEL_TDSNI_NIGHT")
+        icon = get_addon_icon("MODEL_TDSNI_NIGHT")
     ).add(
         id   = "TIAdd",
         name = "TIAdd",
         desc = "Glowing 256bit transparency, only _I.dds is used",
-        icon = getIcon("MODEL_TIADD")
+        icon = get_addon_icon("MODEL_TIADD")
     ).toList()
 
 
@@ -690,32 +691,32 @@ def getMaterialCollectionTypes()->list:
         id   = "Stadium",
         name = "Stadium",
         desc = "",
-        icon = getIcon("ENVI_STADIUM"),
+        icon = get_addon_icon("ENVI_STADIUM"),
     ).add(
         id   = "Canyon",
         name = "Canyon",
         desc = "",
-        icon = getIcon("ENVI_CANYON"),
+        icon = get_addon_icon("ENVI_CANYON"),
     ).add(
         id   = "Valley",
         name = "Valley",
         desc = "",
-        icon = getIcon("ENVI_VALLEY"),
+        icon = get_addon_icon("ENVI_VALLEY"),
     ).add(
         id   = "Lagoon",
         name = "Lagoon",
         desc = "",
-        icon = getIcon("ENVI_LAGOON"),
+        icon = get_addon_icon("ENVI_LAGOON"),
     ).add(
         id   = "Storm",
         name = "Storm",
         desc = "",
-        icon = getIcon("ENVI_STORM"),
+        icon = get_addon_icon("ENVI_STORM"),
     ).add(
         id   = "Common",
         name = "Common",
         desc = "",
-        icon = getIcon("ENVI_COMMON"),
+        icon = get_addon_icon("ENVI_COMMON"),
     ).toList()
 
 
@@ -804,7 +805,7 @@ def getMaterialPhysicIds(self=None, context=None)->list:
 
 def getMaterialLinks(self, context)-> list:
     global material_links
-    tm_props = getTmProps()
+    tm_props = get_global_props()
 
     if material_links is not ERROR_ENUM_PROPS:
         return material_links
@@ -853,27 +854,27 @@ def getCarNames() -> list:
         id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM,
         name = "Car Stadium",
         desc = "Stadium",
-        icon = getIcon("TRACKMANIA2020")
+        icon = get_addon_icon("TRACKMANIA2020")
     ).add(
         id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM,
         name = "Car Stadium",
         desc = "Stadium",
-        icon = getIcon("MANIAPLANET")
+        icon = get_addon_icon("MANIAPLANET")
     ).add(
         id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON,
         name = "Car Canyon",
         desc = "Canyon",
-        icon = getIcon("MANIAPLANET")
+        icon = get_addon_icon("MANIAPLANET")
     ).add(
         id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY,
         name = "Car Valley",
         desc = "Valley",
-        icon = getIcon("MANIAPLANET")
+        icon = get_addon_icon("MANIAPLANET")
     ).add(
         id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON,
         name = "Car Lagoon",
         desc = "Lagoon",
-        icon = getIcon("MANIAPLANET")
+        icon = get_addon_icon("MANIAPLANET")
     ).toList()
 
 
@@ -983,23 +984,23 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_nadeoIniFile_TM          : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_TM"), default=defaultINI("ST_nadeoIniFile_TM"))
     ST_author                   : StringProperty(name="Author",  default="")
     CB_nadeoImporterIsInstalled : BoolProperty(  name="NadeoImporter installed", default=False)
-    NU_nadeoImporterDLProgress  : FloatProperty( min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
-    CB_nadeoImporterDLRunning   : BoolProperty(  default=False,  update=redrawPanel)
-    ST_nadeoImporterDLError     : StringProperty(name="Status",  default="", update=redrawPanel)
-    CB_nadeoImporterDLshow      : BoolProperty(  default=False,  update=redrawPanel)
+    NU_nadeoImporterDLProgress  : FloatProperty( min=0, max=100, default=0, subtype="PERCENTAGE", update=redraw_panels)
+    CB_nadeoImporterDLRunning   : BoolProperty(  default=False,  update=redraw_panels)
+    ST_nadeoImporterDLError     : StringProperty(name="Status",  default="", update=redraw_panels)
+    CB_nadeoImporterDLshow      : BoolProperty(  default=False,  update=redraw_panels)
     LI_nadeoImporters_MP        : EnumProperty(items=getNadeoImportersManiaplanet(), name="Select NadeoImporter Version")
     ST_nadeoImporter_MP_current : StringProperty("None found")
     LI_nadeoImporters_TM        : EnumProperty(items=getNadeoImportersTrackmania2020(), name="Select NadeoImporter Version")
     ST_nadeoImporter_TM_current : StringProperty("None found")
     CB_NadeoLibParseFailed      : BoolProperty("NadeoMatLib.txt parse attempt", default=False)
-    LI_blenderGridSize          : EnumProperty(items=getGridSizes(),         default=3, update=changeBlenderGridSize)
-    LI_blenderGridSizeDivision  : EnumProperty(items=getGridDivisionSizes(), default=3, update=changeBlenderGridSize)
+    LI_blenderGridSize          : EnumProperty(items=getGridSizes(),         default=3, update=apply_custom_blender_grid_size)
+    LI_blenderGridSizeDivision  : EnumProperty(items=getGridDivisionSizes(), default=3, update=apply_custom_blender_grid_size)
 
-    CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redrawPanel)
-    NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redrawPanel)
-    ST_addonUpdateDLmsg       : StringProperty(     name="Status",  default="", update=redrawPanel)
-    CB_addonUpdateDLshow      : BoolProperty(       default=False,  update=redrawPanel)
-    CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redrawPanel)
+    CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redraw_panels)
+    NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redraw_panels)
+    ST_addonUpdateDLmsg       : StringProperty(     name="Status",  default="", update=redraw_panels)
+    CB_addonUpdateDLshow      : BoolProperty(       default=False,  update=redraw_panels)
+    CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redraw_panels)
 
     #map manipulation
     ST_map_filepath           : StringProperty(name="Map path", default="",   subtype="FILE_PATH")
@@ -1024,22 +1025,22 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_overwriteMultiScaleFactor: BoolProperty(default=False, name="Step factor" , description=DESC_MULTI_SCALE_EXPORT)
     
     #convert
-    NU_convertCount              : IntProperty(min=0,               default=0, update=redrawPanel)
-    NU_convertedRaw              : IntProperty(min=0,               default=0, update=redrawPanel)
-    NU_converted                 : IntProperty(min=0, max=100,      default=0, subtype="PERCENTAGE", update=redrawPanel) 
-    NU_convertedSuccess          : IntProperty(min=0,               default=0, update=redrawPanel)
-    NU_convertedError            : IntProperty(min=0,               default=0, update=redrawPanel)
-    ST_convertedErrorList        : StringProperty(default="",       update=redrawPanel)
-    CB_showConvertPanel          : BoolProperty(default=False,      update=redrawPanel)
-    CB_stopAllNextConverts       : BoolProperty(default=False,      update=redrawPanel, name="Stop all next converts")
-    CB_converting                : BoolProperty(default=False,      update=redrawPanel)
-    CB_convertMultiThreaded      : BoolProperty(default=False,      update=redrawPanel, description="Don't convert all at the same time (converts can be cancelled")
+    NU_convertCount              : IntProperty(min=0,               default=0, update=redraw_panels)
+    NU_convertedRaw              : IntProperty(min=0,               default=0, update=redraw_panels)
+    NU_converted                 : IntProperty(min=0, max=100,      default=0, subtype="PERCENTAGE", update=redraw_panels) 
+    NU_convertedSuccess          : IntProperty(min=0,               default=0, update=redraw_panels)
+    NU_convertedError            : IntProperty(min=0,               default=0, update=redraw_panels)
+    ST_convertedErrorList        : StringProperty(default="",       update=redraw_panels)
+    CB_showConvertPanel          : BoolProperty(default=False,      update=redraw_panels)
+    CB_stopAllNextConverts       : BoolProperty(default=False,      update=redraw_panels, name="Stop all next converts")
+    CB_converting                : BoolProperty(default=False,      update=redraw_panels)
+    CB_convertMultiThreaded      : BoolProperty(default=False,      update=redraw_panels, description="Don't convert all at the same time (converts can be cancelled")
     CB_notifyPopupWhenDone       : BoolProperty(default=True,       name="Notify toast when done")
-    NU_convertDurationSinceStart : IntProperty(min=-1,              default=-1,   update=redrawPanel)
-    NU_convertStartedAt          : IntProperty(min=-1,              default=-1,   update=redrawPanel)
-    NU_currentConvertDuration    : IntProperty(min=0,               default=0,    update=redrawPanel)
-    NU_prevConvertDuration       : IntProperty(min=0,               default=0,    update=redrawPanel)
-    CB_generateMeshAndShapeGBX   : BoolProperty(default=True,       update=redrawPanel, description="To import your item in meshmodeler, those 2 additional files are required")
+    NU_convertDurationSinceStart : IntProperty(min=-1,              default=-1,   update=redraw_panels)
+    NU_convertStartedAt          : IntProperty(min=-1,              default=-1,   update=redraw_panels)
+    NU_currentConvertDuration    : IntProperty(min=0,               default=0,    update=redraw_panels)
+    NU_prevConvertDuration       : IntProperty(min=0,               default=0,    update=redraw_panels)
+    CB_generateMeshAndShapeGBX   : BoolProperty(default=True,       update=redraw_panels, description="To import your item in meshmodeler, those 2 additional files are required")
 
 
     #import
@@ -1048,23 +1049,23 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_importFolderRecursive  : BoolProperty(name="Recursive", default=False)
 
     #icons
-    CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redrawPanel)
-    CB_icon_overwriteIcons  : BoolProperty(name="Overwrite Icons",        default=True, update=redrawPanel)
+    CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redraw_panels)
+    CB_icon_overwriteIcons  : BoolProperty(name="Overwrite Icons",        default=True, update=redraw_panels)
     LI_icon_perspective     : EnumProperty(items=getIconPerspectives(),   name="Perspective")
     LI_icon_pxDimension     : EnumProperty(items=getIconPXdimensions(),   name="Size")
-    NU_icon_padding         : IntProperty(min=0, max=100,     default=80, subtype="PERCENTAGE", update=redrawPanel) 
+    NU_icon_padding         : IntProperty(min=0, max=100,     default=80, subtype="PERCENTAGE", update=redraw_panels) 
     NU_icon_bgColor         : FloatVectorProperty(name='BG Color',        subtype='COLOR', min=0, max=1, size=4, default=(1,1,1,1), update=updateWorldBG)
 
 
     #uvmaps
-    CB_uv_genLightMap               : BoolProperty(name="Generate LightMap",                        default=True,       update=redrawPanel)
-    CB_uv_fixLightMap               : BoolProperty(name="Only if LM has overlaps",                  default=True,       update=redrawPanel)
+    CB_uv_genLightMap               : BoolProperty(name="Generate LightMap",                        default=True,       update=redraw_panels)
+    CB_uv_fixLightMap               : BoolProperty(name="Only if LM has overlaps",                  default=True,       update=redraw_panels)
     NU_uv_angleLimitLM              : FloatProperty(name="Angle Limit",                             default=r(89.0),    min=0, max=r(89.0), subtype="ANGLE")
     NU_uv_islandMarginLM            : FloatProperty(name="Island Margin",                           default=0.1,        min=0, max=1)
     NU_uv_areaWeightLM              : FloatProperty(name="Area Weight",                             default=0.0,        min=0, max=1)
-    CB_uv_correctAspectLM           : BoolProperty(name="Correct Aspect",                           default=True,       update=redrawPanel)
-    CB_uv_scaleToBoundsLM           : BoolProperty(name="Scale To Bounds",                          default=False,      update=redrawPanel)
-    CB_uv_genBaseMaterialCubeMap    : BoolProperty(name="Generate BaseMaterial with Cube Project",  default=False,      update=redrawPanel)
+    CB_uv_correctAspectLM           : BoolProperty(name="Correct Aspect",                           default=True,       update=redraw_panels)
+    CB_uv_scaleToBoundsLM           : BoolProperty(name="Scale To Bounds",                          default=False,      update=redraw_panels)
+    CB_uv_genBaseMaterialCubeMap    : BoolProperty(name="Generate BaseMaterial with Cube Project",  default=False,      update=redraw_panels)
     NU_uv_cubeProjectSize           : FloatProperty(name="Cube Project",                            default=0.2,        min=0, max=100)
     
     #workspaces
@@ -1075,10 +1076,10 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_xml_simpleGridXY     : EnumProperty(items=getSimpleGridParams())
     LI_xml_simpleGridZ      : EnumProperty(items=getSimpleGridParams())
     CB_xml_syncGridLevi     : BoolProperty(name="Sync Grid & Levi steps",   default=True)
-    CB_xml_overwriteMeshXML : BoolProperty(name="Overwrite Mesh XML",       default=True, update=redrawPanel)
-    CB_xml_overwriteItemXML : BoolProperty(name="Overwrite Item XML",       default=True, update=redrawPanel)
-    CB_xml_genItemXML       : BoolProperty(name="Generate Item XML",        default=True, update=redrawPanel)
-    CB_xml_genMeshXML       : BoolProperty(name="Generate Mesh XML",        default=True, update=redrawPanel)
+    CB_xml_overwriteMeshXML : BoolProperty(name="Overwrite Mesh XML",       default=True, update=redraw_panels)
+    CB_xml_overwriteItemXML : BoolProperty(name="Overwrite Item XML",       default=True, update=redraw_panels)
+    CB_xml_genItemXML       : BoolProperty(name="Generate Item XML",        default=True, update=redraw_panels)
+    CB_xml_genMeshXML       : BoolProperty(name="Generate Mesh XML",        default=True, update=redraw_panels)
     LI_xml_meshtype         : EnumProperty( name="Type",                    items=getMeshXMLType())
     NU_xml_scale            : FloatProperty(name="Objscales",               default=1.0, min=0, max=256, step=100)
     CB_xml_scale            : BoolProperty( name="Obj Scale",               default=False)
@@ -1128,11 +1129,11 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     ST_selectedLinkedMat        : StringProperty(name="Linked mat", default="")
 
     #textures
-    LI_DL_TextureEnvi      : EnumProperty(items=getGameTextureZipFileNames(), update=redrawPanel)
-    CB_DL_TexturesRunning  : BoolProperty(name="Downloading...",              default=False, update=redrawPanel)
-    NU_DL_Textures         : FloatProperty(min=0, max=100,                    default=0, subtype="PERCENTAGE", update=redrawPanel)
+    LI_DL_TextureEnvi      : EnumProperty(items=getGameTextureZipFileNames(), update=redraw_panels)
+    CB_DL_TexturesRunning  : BoolProperty(name="Downloading...",              default=False, update=redraw_panels)
+    NU_DL_Textures         : FloatProperty(min=0, max=100,                    default=0, subtype="PERCENTAGE", update=redraw_panels)
     ST_DL_TexturesErrors   : StringProperty(name="Status",                    default="")
-    CB_DL_TexturesShow     : BoolProperty(default=False,                      update=redrawPanel)
+    CB_DL_TexturesShow     : BoolProperty(default=False,                      update=redraw_panels)
 
     # cars
     LI_items_cars     : EnumProperty(name="Car",     items=getCarNames())

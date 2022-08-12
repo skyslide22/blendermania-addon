@@ -2,8 +2,8 @@ import bpy
 import json
 import subprocess
 
-from .TM_Constants      import *
-from .TM_Functions      import *
+from .Constants      import *
+from .Functions      import *
 
 # Dotnet types
 class DotnetVector3:

@@ -8,119 +8,18 @@ from bpy.types import (
 )
 
 
-from .TM_Functions      import *
-from .TM_Items_Convert  import *
-from .TM_Items_XML      import *
+from ..utils.Functions      import *
+from ..utils.Constants      import * 
+from ..operators.OT_Items_Convert  import *
+from ..operators.OT_Items_XML      import *
 
-
-
-class TM_PT_Items_UVmaps_LightMap(Panel):
-    # region bl_
-    """Creates a Panel in the Object properties window"""
-    bl_category = 'ManiaPlanetAddon'
-    bl_label = "LightMap UVlayer"
-    bl_idname = "TM_PT_Items_UVMaps_LightMap"
-    bl_parent_id = "TM_PT_Items_Export"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_context = "objectmode"
-    # endregion
-    
-    @classmethod
-    def poll(cls, context):
-        tm_props = getTmProps()
-        show =  not tm_props.CB_showConvertPanel \
-                and not tm_props.LI_exportType.lower() == "convert" \
-                and isSelectedNadeoIniFilepathValid()
-        return (show)
-    
-    def draw_header(self, context):
-        layout = self.layout
-        tm_props = getTmProps()
-        row = layout.row(align=True)
-        row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_uv_genLightMap",         text="",    icon_only=True, icon="CHECKMARK",)
-        row.prop(tm_props, "CB_uv_fixLightMap",         text="",    icon_only=True, icon="FILE_REFRESH")
-        row=layout.row()
-    
-    def draw(self, context):
-
-        layout = self.layout
-        tm_props        = getTmProps()
-        
-        if tm_props.CB_showConvertPanel:
-            return
-    
-        if tm_props.CB_uv_genLightMap is True:
-            col = layout.column(align=True)
-            col.row(align=True).prop(tm_props, "NU_uv_angleLimitLM")
-            col.row(align=True).prop(tm_props, "NU_uv_islandMarginLM")
-            col.row(align=True).prop(tm_props, "NU_uv_areaWeightLM")
-            col.row(align=True).prop(tm_props, "CB_uv_correctAspectLM")
-            col.row(align=True).prop(tm_props, "CB_uv_scaleToBoundsLM")
-            
-                    
-        layout.separator(factor=UI_SPACER_FACTOR)
-
-
-class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
-    # region bl_
-    """Creates a Panel in the Object properties window"""
-    bl_category = 'ManiaPlanetAddon'
-    bl_label = "BaseMaterial Cube Project"
-    bl_idname = "TM_PT_Items_UVMaps_BaseMaterial_CubeProject"
-    bl_parent_id = "TM_PT_Items_Export"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_context = "objectmode"
-    # endregion
-    
-    @classmethod
-    def poll(cls, context):
-        tm_props = getTmProps()
-        show =  not tm_props.CB_showConvertPanel \
-                and not tm_props.LI_exportType.lower() == "convert" \
-                and isSelectedNadeoIniFilepathValid()
-        return (show)
-    
-    def draw_header(self, context):
-        layout = self.layout
-        tm_props = getTmProps()
-        row = layout.row(align=True)
-        row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_uv_genBaseMaterialCubeMap",  text="", icon_only=True, icon="CHECKMARK",)
-        row=layout.row()
-    
-    def draw(self, context):
-
-        layout = self.layout
-        tm_props        = getTmProps()
-        
-        if tm_props.CB_showConvertPanel:
-            return
-            
-        row = layout.row(align=True)
-        row.alert = tm_props.CB_uv_genBaseMaterialCubeMap
-        col = row.column()
-        col.label(text="This is a random generator")
-        col.label(text="Use it only in development")
-        col.separator(factor=UI_SPACER_FACTOR)
-        col.label(text="When do i use this?")
-        col.label(text="For repating textures (eg. StadiumPlatform)")
-            
-    
-        if tm_props.CB_uv_genBaseMaterialCubeMap is True:
-            row = layout.row(align=True)
-            row.prop(tm_props, "NU_uv_cubeProjectSize")
-                    
-        layout.separator(factor=UI_SPACER_FACTOR)
 
 
 
 
 def generateBaseMaterialCubeProject(col) -> None:
     """generate basematerial uvlayer with cube project method, only useful for repeating textures"""
-    tm_props    = getTmProps()
+    tm_props    = get_global_props()
     objs        = [obj for obj in col.objects if selectObj(obj)]
     bm_objs     = []
 
@@ -136,7 +35,7 @@ def generateBaseMaterialCubeProject(col) -> None:
 
         obj_uvs = [k.lower() for k in obj.data.uv_layers.keys()]
 
-        if   isVisibleObjectByName(obj.name)\
+        if   is_obj_visible_by_name(obj.name)\
         and  "basematerial" in obj_uvs:
             selectObj(obj)
             setActiveObject(obj)
@@ -158,7 +57,7 @@ def generateBaseMaterialCubeProject(col) -> None:
 
 def generateLightmap(col, fix=False) -> None:
     """generate lightmap of all mesh objects from given collection"""
-    tm_props    = getTmProps()
+    tm_props    = get_global_props()
     objs        = [obj for obj in col.all_objects if selectObj(obj)]
     lm_objs     = []
 
@@ -185,7 +84,7 @@ def generateLightmap(col, fix=False) -> None:
 
         obj_uvs = [k.lower() for k in obj.data.uv_layers.keys()]
 
-        if   isVisibleObjectByName(obj.name)\
+        if   is_obj_visible_by_name(obj.name)\
         and  "lightmap" in obj_uvs:
             selectObj(obj)
             setActiveObject(obj)
@@ -230,7 +129,7 @@ def checkUVLayerOverlapsOfCol(uv_name: str, col: bpy.types.Collection)-> bool:
     deselectAllObjects()
     
     objs = [obj for obj in col.objects  if  obj.type == "MESH" \
-                                            and isVisibleObjectByName(obj.name) \
+                                            and is_obj_visible_by_name(obj.name) \
                                             and selectObj(obj) ]
 
     objs_active_layernames = {} # { "myobj123": "BaseMaterial" }

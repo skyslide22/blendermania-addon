@@ -5,9 +5,9 @@ import subprocess
 from threading import Thread
 import xml.etree.ElementTree as ET
 
-from .TM_Functions import *
-from .TM_Items_XML import *
-
+from ..utils.Functions          import *
+from ..operators.OT_Items_XML   import *
+from ..utils.Constants          import * 
 
 class ConvertStep():
     def __init__(self, title, additional_infos: tuple=()):
@@ -91,7 +91,7 @@ class CONVERT_ITEM(Thread):
         if self.game_is_trackmania2020:
             self.convertItemGBX()
             
-            if getTmProps().CB_generateMeshAndShapeGBX and not self.convert_has_failed:
+            if get_global_props().CB_generateMeshAndShapeGBX and not self.convert_has_failed:
                 self.convertMeshAndShapeGBX()
             
             if not self.convert_has_failed:
@@ -278,7 +278,7 @@ class CONVERT_ITEM(Thread):
 
 def updateConvertStatusNumbersInUI(convert_failed: bool, obj_name: str) -> None:
     """updates the numbers for converting which are displaed in the ui panel"""
-    tm_props = getTmProps()
+    tm_props = get_global_props()
 
     if not convert_failed:
         tm_props.NU_convertedSuccess += 1
@@ -296,8 +296,8 @@ def updateConvertStatusNumbersInUI(convert_failed: bool, obj_name: str) -> None:
 @newThread
 def startBatchConvert(fbxfilepaths: list[exportFBXModel], callback: callable = None) -> None:
     """convert each fbx one after one, create a new thread for it"""
-    tm_props_convertingItems = getTmConvertingItemsProp()
-    tm_props        = getTmProps()
+    tm_props_convertingItems = get_convert_items_prop()
+    tm_props        = get_global_props()
     results         = []
     game            = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania2020"
     notify          = tm_props.CB_notifyPopupWhenDone
@@ -425,7 +425,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel], callback: callable = N
             text =f"""{convert_count} of {convert_count} items successfully converted \nDuration: {convert_duration}s"""
             icon ="Info"
 
-        makeToast(title, text, icon, 7000)
+        show_windows_toast(title, text, icon, 7000)
     
     writeConvertReport(results=results)
     if callback is not None:
@@ -434,7 +434,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel], callback: callable = N
 
 
 def startConvertTimer():
-    tm_props = getTmProps()
+    tm_props = get_global_props()
     def timer():
         tm_props.NU_convertDurationSinceStart = int(time.perf_counter()) - tm_props.NU_convertStartedAt
         if tm_props.CB_converting is False: 
@@ -544,7 +544,7 @@ def writeConvertReport(results: list) -> None:
             f.write(fullHTML)
         
     except FileNotFoundError as e:
-        makeReportPopup(
+        show_report_popup(
             "Writing file failed", 
             [
                 "Can not write report file on desktop",
