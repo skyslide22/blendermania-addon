@@ -47,7 +47,8 @@ object_eventlistner_owner = object()
 # register order matters for UI panel ordering
 classes = (
     # map
-    TMUIExportAndCreateMap,
+    OT_UIExportAndCreateMap,
+    PT_UIMapManipulation,
     
     # props (not panel)
     TM_Properties_for_Panels,

@@ -294,7 +294,7 @@ def updateConvertStatusNumbersInUI(convert_failed: bool, obj_name: str) -> None:
 
 
 @newThread
-def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
+def startBatchConvert(fbxfilepaths: list[exportFBXModel], callback: callable = None) -> None:
     """convert each fbx one after one, create a new thread for it"""
     tm_props_convertingItems = getTmConvertingItemsProp()
     tm_props        = getTmProps()
@@ -428,6 +428,8 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel]) -> None:
         makeToast(title, text, icon, 7000)
     
     writeConvertReport(results=results)
+    if callback is not None:
+        callback()
     
 
 

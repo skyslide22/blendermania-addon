@@ -182,13 +182,6 @@ class TM_PT_Items_Export(Panel):
                 row = col.row(align=True)
                 row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
 
-            col = layout.column(align=True)
-            row = col.row(align=True)
-            row.scale_y = 1.5
-            row.enabled = enableExportButton
-            row.alert   = not enableExportButton
-            row.operator("view3d.tm_save_col_as_map", text=f"{text} to the Map", icon="MOD_BUILD")
-
             if exportType == "EXPORT_CONVERT" and len(visible_objects) < 500:
                 embed_space = 0
                 if enableExportButton:
@@ -294,7 +287,7 @@ class TM_PT_Items_Export(Panel):
 
 
 
-def exportAndOrConvert()->list[ExportedItem]:
+def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
     """export&convert fbx main function, call all other functions on conditions set in UI"""
     tm_props            = getTmProps()
     exported_items      = list[ExportedItem]()
@@ -455,6 +448,9 @@ def exportAndOrConvert()->list[ExportedItem]:
 
 
     if action == "EXPORT_CONVERT":
+        def onExportCallback():
+            if callback is not None:
+                callback(exported_items)
         
         tm_props.NU_convertCount        = len(exportedFBXs)
         tm_props.NU_converted           = 0
@@ -469,7 +465,7 @@ def exportAndOrConvert()->list[ExportedItem]:
         tm_props.NU_currentConvertDuration    = 0
         
         #run convert on second thread to avoid blender to freeze
-        startBatchConvert(exportedFBXs)
+        startBatchConvert(exportedFBXs, onExportCallback)
         return exported_items
 
     return []

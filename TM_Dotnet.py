@@ -7,35 +7,33 @@ from .TM_Functions      import *
 
 # Dotnet types
 class DotnetVector3:
-    def __init__(self, x: float = 0, y: float = 0, z: float = 0) -> None:
-        self.x = x
-        self.y = y
-        self.z = z
+    def __init__(self, X: float = 0, Y: float = 0, Z: float = 0) -> None:
+        self.X = X
+        self.Y = Y
+        self.Z = Z
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 class DotnetItem:
-    def __init__(self, name: str, path: str, position: DotnetVector3, rotation: DotnetVector3 = DotnetVector3(), pivot: DotnetVector3 = DotnetVector3()):
-        self.name = name
-        self.path = path
-        self.position = position
-        self.rotation = rotation
-        self.pivot = pivot
+    def __init__(self, Name: str, Path: str, Position: DotnetVector3, Rotation: DotnetVector3 = DotnetVector3(), Pivot: DotnetVector3 = DotnetVector3()):
+        self.Name = Name
+        self.Path = Path
+        self.Position = Position
+        self.Rotation = Rotation
+        self.Pivot = Pivot
     
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 class DotnetPlaceObjectsOnMap:
-    def __init__(self, map_path: str, items: list[DotnetItem]):
-        self.map_path = map_path
-        self.items = items
+    def __init__(self, MapPath: str, Items: list[DotnetItem]):
+        self.MapPath = MapPath
+        self.Items = Items
         # TODO blocks
 
     def toJSON(self):
-        dct = self.__dict__
-        dct["MapPath"] = self.map_path
-        return json.dumps(dct, default=lambda o: o.__dict__)
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 # TODO move it to functions
 class ComplexEncoder(json.JSONEncoder):
