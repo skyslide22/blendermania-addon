@@ -16,6 +16,13 @@ bl_info = {
     "category"      : "Generic"
 }                    
 
+# refactored
+from .TM_Constants          import *
+from .TM_Dotnet             import *
+from .TM_UI_Map_Export      import *
+
+# original
+from .TM_Constants          import *
 from .TM_NinjaRipper        import *
 from .TM_Functions          import *
 from .TM_Settings           import *
@@ -29,7 +36,6 @@ from .TM_Items_Icon         import *
 from .TM_Items_Templates    import *
 from .TM_Items_Manipulate   import *
 from .TM_UV_Manipulate      import *
-from .TM_Map_Manipulate     import *
 from .TM_Assets_Library     import *
 
 
@@ -40,7 +46,9 @@ object_eventlistner_owner = object()
 
 # register order matters for UI panel ordering
 classes = (
-
+    # map
+    TMUIExportAndCreateMap,
+    
     # props (not panel)
     TM_Properties_for_Panels,
     TM_Properties_Generated,
@@ -129,10 +137,6 @@ classes = (
 
     # templates
     TM_OT_Items_Envi_Template_Import,
-
-    # map
-    TM_PT_Map_Manipulate,
-    TM_OT_Map_SaveCollectionAsMap
 )
 
 

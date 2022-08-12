@@ -8,7 +8,6 @@ from bpy.types import (
     PropertyGroup
 )
 
-
 from .TM_Functions      import *
 from .TM_Items_Convert  import *
 from .TM_Items_XML      import *
@@ -16,6 +15,22 @@ from .TM_Items_UVMaps   import *
 from .TM_Settings       import *
 from .TM_Items_Icon     import *
 from .TM_Materials      import *
+from .TM_Dotnet         import *
+from .TM_UI_Map_Export  import *
+
+class ExportedItem:
+    def __init__(self, name: str, path: str, location: list[float], rotation: list[float] = []):
+        self.name = name
+        self.path = path
+        self.location = location
+        self.rotation = rotation
+
+    def to_dotnet_item(self) -> DotnetItem:
+        return DotnetItem(
+            self.name,
+            self.path,
+            DotnetVector3(self.location[0],self.location[2], self.location[1]),
+        )
 
 
 class TM_OT_Items_Export_ExportAndOrConvert(Operator):
@@ -167,6 +182,13 @@ class TM_PT_Items_Export(Panel):
                 row = col.row(align=True)
                 row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
 
+            col = layout.column(align=True)
+            row = col.row(align=True)
+            row.scale_y = 1.5
+            row.enabled = enableExportButton
+            row.alert   = not enableExportButton
+            row.operator("view3d.tm_save_col_as_map", text=f"{text} to the Map", icon="MOD_BUILD")
+
             if exportType == "EXPORT_CONVERT" and len(visible_objects) < 500:
                 embed_space = 0
                 if enableExportButton:
@@ -179,6 +201,7 @@ class TM_PT_Items_Export(Panel):
                     embed_space *= 1000
 
                 row.label(text=f"Max. embed space: ~ {embed_space:4.2f} {'kB' if embed_space_1024kb else 'mB'}")
+
 
 
 
@@ -271,9 +294,10 @@ class TM_PT_Items_Export(Panel):
 
 
 
-def exportAndOrConvert()->None:
+def exportAndOrConvert()->list[ExportedItem]:
     """export&convert fbx main function, call all other functions on conditions set in UI"""
     tm_props            = getTmProps()
+    exported_items      = list[ExportedItem]()
     # validObjTypes       = tm_props.LI_exportValidTypes #mesh, light, empty
     useSelectedOnly     = tm_props.LI_exportWhichObjs == "SELECTED"  #only selected objects?
     action              = tm_props.LI_exportType
@@ -409,6 +433,11 @@ def exportAndOrConvert()->None:
 
         if len(col.objects) != 1: parentObjsToObj(col=col, obj=ORIGIN)
         ORIGIN.location = origin_oldPos
+        exported_items.append(ExportedItem(
+            fixSlash("Items/" + FBX_exportFilePath.split("/Work/Items/")[-1]).replace(".fbx", ".Item.Gbx"),
+            fixSlash(FBX_exportFilePath.replace("/Work/Items/", "/Items/")).replace(".fbx", ".Item.Gbx"),
+            list(origin_oldPos),
+        ))
 
         if len(col.objects) != 1: deleteExportOriginFixer(col=col)
         
@@ -440,7 +469,10 @@ def exportAndOrConvert()->None:
         tm_props.NU_currentConvertDuration    = 0
         
         #run convert on second thread to avoid blender to freeze
-        startBatchConvert(exportedFBXs) 
+        startBatchConvert(exportedFBXs)
+        return exported_items
+
+    return []
 
 
 
