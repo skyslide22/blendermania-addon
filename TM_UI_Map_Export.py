@@ -20,6 +20,9 @@ class PT_UIMapManipulation(Panel):
 
         if requireValidNadeoINI(self) is False: return
 
+        row = layout.row()
+        row.prop(tm_props, "ST_map_filepath", text="Map file")
+
         box = layout.box()
         box.operator(OT_UIExportAndCreateMap.bl_idname, text="Export selected collections and place them on a Map")
 
@@ -31,7 +34,7 @@ class OT_UIExportAndCreateMap(Operator):
         
     def execute(self, context):
         if saveBlendFile():
-            export_and_place_on_map("C:/Users/Vladimir/Documents/Trackmania/Maps/Debuger/TestMap.Map.Gbx")
+            export_and_place_on_map(getTmProps().ST_map_filepath)
         else:
             makeReportPopup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
 
