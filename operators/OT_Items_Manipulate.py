@@ -475,7 +475,7 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
     import_at    = bpy.context.selected_objects[0].location
     collection   = getActiveCollectionOfSelectedObject()
 
-    deselectAllObjects()
+    deselect_all_objects()
 
     importFBXFile(fbx_filepath)
     imported_objs = bpy.context.selected_objects
@@ -576,9 +576,9 @@ def editUVMap(col: bpy.types.Collection, uv_name: str) -> None:
     if not objs:
         return show_report_popup(f"No object selected", f"Select normal mesh objects... ")
     
-    deselectAllObjects()
+    deselect_all_objects()
     for obj in objs:
-        selectObj(obj)
+        select_obj(obj)
 
     preferred_workspace_name = "UV Editing"
     workspace = bpy.data.workspaces.get(preferred_workspace_name)

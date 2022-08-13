@@ -298,8 +298,8 @@ def openHelp(helptype: str) -> None:
     """open exporer or webbrowser by given helptype"""
     cmd = "" #+path
     
-    if   helptype == "open_work":           cmd = getGameDocPathWorkItems()
-    elif helptype == "open_items":          cmd = getGameDocPathItems()
+    if   helptype == "open_work":           cmd = get_game_doc_path_work_items()
+    elif helptype == "open_items":          cmd = get_game_doc_path_items()
     elif helptype == "open_assets":         cmd = getGameDocPathItemsAssets()
     elif helptype == "debug_all":           debug_all()
     elif helptype == "open_documentation":  webbrowser.open(URL_DOCUMENTATION)

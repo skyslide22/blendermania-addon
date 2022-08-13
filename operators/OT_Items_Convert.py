@@ -294,7 +294,7 @@ def updateConvertStatusNumbersInUI(convert_failed: bool, obj_name: str) -> None:
 
 
 @newThread
-def startBatchConvert(fbxfilepaths: list[exportFBXModel], callback: callable = None) -> None:
+def startBatchConvert(fbxfilepaths: list[ExportFBXModel], callback: callable = None) -> None:
     """convert each fbx one after one, create a new thread for it"""
     tm_props_convertingItems = get_convert_items_prop()
     tm_props        = get_global_props()
@@ -319,7 +319,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel], callback: callable = N
     
 
     for exported_fbx in fbxfilepaths:
-        name = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
+        name = get_path_filename(exported_fbx.filepath, remove_extension=True)
         item = tm_props_convertingItems.add()
         item.name = name
         item.name_raw = exported_fbx.col.name
@@ -327,7 +327,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel], callback: callable = N
         counter += 1
 
         
-    def convertFBX(exported_fbx: exportFBXModel) -> None:
+    def convertFBX(exported_fbx: ExportFBXModel) -> None:
         nonlocal items_convert_index
         nonlocal counter
         nonlocal fail_count
@@ -339,7 +339,7 @@ def startBatchConvert(fbxfilepaths: list[exportFBXModel], callback: callable = N
 
         fbxfilepath = exported_fbx.filepath
         physic_hack = exported_fbx.physic_hack
-        name        = getFilenameOfPath(exported_fbx.filepath, remove_extension=True)
+        name        = get_path_filename(exported_fbx.filepath, remove_extension=True)
 
         current_convert_timer = Timer()
         current_convert_timer.start()

@@ -1,43 +1,12 @@
 
-import bpy
 import re
-from bpy.types import (
-    Panel,
-    Operator,
-)
-from ..utils.Functions import *
-from ..utils.Constants import * 
+import bpy
+
+from .Constants import WAYPOINTS
+from .Functions import *
 
 
-    
-    
-class TM_OT_Items_ItemXML_RemovePivot(Operator):
-    bl_idname = "view3d.tm_removepivot"
-    bl_description = "Execute Order 66"
-    bl_icon = 'ADD'
-    bl_label = "Remove a pivot"
-        
-    def execute(self, context):
-        addOrRemovePivot("DEL")
-        return {"FINISHED"}
-    
-    
-class TM_OT_Items_ItemXML_AddPivot(Operator):
-    bl_idname = "view3d.tm_addpivot"
-    bl_description = "Execute Order 66"
-    bl_icon = 'ADD'
-    bl_label = "Add a pivot"
-        
-    def execute(self, context):
-        addOrRemovePivot("ADD")
-        return {"FINISHED"}
-
-
-
-
-
-
-def generateItemXML(exported_fbx: ExportFBXModel) -> str:
+def generate_item_XML(exported_fbx: ExportFBXModel) -> str:
     """generate item.xml"""
     tm_props        = get_global_props()
     tm_props_pivots = get_pivot_props()
@@ -301,12 +270,3 @@ def extendObjectPropertiesPanel_LIGHT(self, context):
     row=layout.row()
     # row.alert = True
     row.prop(context.object.data, "night_only", text="Night & Sunset only")
-
-
-
-
-
-
-
-
-

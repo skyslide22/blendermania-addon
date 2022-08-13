@@ -416,8 +416,8 @@ def getWorkItemsRootFolderNames(s,c) -> list:
     """return all root folders of ../Work/Items/foldernames[]"""
     rootFolderNames = []
     
-    for folder in os.listdir( getGameDocPathWorkItems() ):
-        if os.path.isdir( getGameDocPathWorkItems() + folder ):
+    for folder in os.listdir( get_game_doc_path_work_items() ):
+        if os.path.isdir( get_game_doc_path_work_items() + folder ):
             rootFolderNames.append(3*(folder,))    
     
     return rootFolderNames

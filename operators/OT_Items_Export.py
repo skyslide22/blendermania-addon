@@ -8,6 +8,8 @@ from bpy.types import (
     PropertyGroup
 )
 
+from ..utils.ItemsExport import export_items_collections
+
 from ..utils.Functions      import *
 from ..utils.Dotnet         import *
 from ..utils.Constants      import * 
@@ -77,6 +79,23 @@ class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
 
 
 def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
+    """ new export
+    tm_props = get_global_props()
+    
+    # take all collections or only selected
+    to_export = bpy.data.collections
+    if tm_props.LI_exportWhichObjs == "SELECTED":
+        to_export = []
+        for obj in bpy.context.selected_objects:
+            for coll in obj.users_collection:
+                if coll not in to_export:
+                    to_export.append(coll)
+    
+    export_items_collections(to_export)
+    return
+    """
+
+
     """export&convert fbx main function, call all other functions on conditions set in UI"""
     tm_props            = get_global_props()
     exported_items      = list[ExportedItem]()
@@ -88,7 +107,7 @@ def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
     embeddedMaterials   = []
     pre_selected_objs   = []
 
-    exportedFBXs: List[exportFBXModel] = []
+    exportedFBXs: List[ExportFBXModel] = []
 
     selected_objects = bpy.context.selected_objects
     visible_objects  = bpy.context.visible_objects
@@ -102,13 +121,13 @@ def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
 
     export_path_base      = "/"
     export_path_custom    = tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM
-    export_path_custom    = fixSlash(getAbspath(export_path_custom) + "/")
+    export_path_custom    = fixSlash(get_abs_path(export_path_custom) + "/")
     export_path_is_custom = tm_props.LI_exportFolderType == "Custom"
 
     if export_path_is_custom:
         export_path_base = export_path_custom
     else:
-        export_path_base = getGameDocPathWorkItems()
+        export_path_base = get_game_doc_path_work_items()
 
     fixAllColNames() #[a-zA-Z0-9_-#] only
 
@@ -118,7 +137,7 @@ def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
     if useSelectedOnly:
         pre_selected_objs = bpy.context.selected_objects.copy()
     
-    deselectAllObjects()
+    deselect_all_objects()
 
     for obj in objs:
         
@@ -147,7 +166,7 @@ def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
 
     #export each collection ...
     for col in colsToExport:
-        deselectAllObjects()
+        deselect_all_objects()
 
         exportFilePath = f"{export_path_base}{'/'.join( getCollectionHierachy(colname=col.name, hierachystart=[col.name]) )}"
         FBX_exportFilePath = fixSlash(exportFilePath + ".fbx")
@@ -193,7 +212,7 @@ def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
         # so unparent and keep all transforms at 0,0,0
         if len(col.objects) != 1: unparentObjsAndKeepTransform(col=col) 
 
-        deselectAllObjects()
+        deselect_all_objects()
         selectAllObjectsInACollection(col=col, only_direct_children=True, exclude_infixes="_ignore, delete")
         debug(f"selected objects: {bpy.context.selected_objects}")
 
@@ -204,7 +223,7 @@ def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
 
             exportedFBXs.append(exportedFBX)
 
-            filename = getFilenameOfPath(exportedFBX.filepath, remove_extension=True)
+            filename = get_path_filename(exportedFBX.filepath, remove_extension=True)
             debug(f"exported collection <{filename}> (hack physics: {exportedFBX.physic_hack})")
 
             if generateIcons:
@@ -229,10 +248,10 @@ def exportAndOrConvert(callback: callable = None)->list[ExportedItem]:
     if invalidCollections:
         show_report_popup("Invalid collections", invalidCollections)
 
-    deselectAllObjects()
+    deselect_all_objects()
     if useSelectedOnly:
         for obj in pre_selected_objs:
-            try:    selectObj(obj)
+            try:    select_obj(obj)
             except: pass
 
 
@@ -280,7 +299,7 @@ def exportFBX(fbxfilepath) -> None:
     if isGameTypeManiaPlanet():
         exportArgs["apply_scale_options"] = "FBX_SCALE_UNITS"
 
-    createFolderIfNecessary(fbxfilepath[:fbxfilepath.rfind("/")]) #deletes all after last slash
+    create_folder_if_necessary(fbxfilepath[:fbxfilepath.rfind("/")]) #deletes all after last slash
 
 
     bpy.ops.export_scene.fbx(**exportArgs) #one argument is optional, so give a modified dict and **unpack

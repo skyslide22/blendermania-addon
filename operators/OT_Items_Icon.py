@@ -26,8 +26,8 @@ class TM_OT_Items_Icon_Test(Operator):
             obj_name = obj.name
             col = obj.users_collection[0]
             generateIcon(col=col, filepath="", save=False)
-            selectObj(bpy.data.objects[obj_name])
-            setActiveObject(bpy.data.objects[obj_name])
+            select_obj(bpy.data.objects[obj_name])
+            set_active_object(bpy.data.objects[obj_name])
 
         else:
             show_report_popup("Icon test failed", ["No object selected"], "ERROR")
@@ -51,7 +51,7 @@ def generateIcon(col, filepath, save=True) -> None:
     overwrite_icon  = tm_props.CB_icon_overwriteIcons
     icon_path       = getIconPathOfFBXpath(filepath=filepath)
     icon_size       = tm_props.NU_icon_padding / 100
-    icon_name       = getFilenameOfPath(icon_path)
+    icon_name       = get_path_filename(icon_path)
     objs            = bpy.data.objects
     scene_objs      = scene.collection.objects
     scene_col       = scene.collection
@@ -68,14 +68,14 @@ def generateIcon(col, filepath, save=True) -> None:
 
 
     # MAKE ICON OBJ----------
-    deselectAllObjects()
+    deselect_all_objects()
 
     for obj in col_objs:
         if  obj.type == "MESH"\
         and is_obj_visible_by_name(obj.name)\
         and not "lod1" in obj.name.lower():
-            if selectObj(obj):
-                setActiveObject(obj)
+            if select_obj(obj):
+                set_active_object(obj)
 
     #! add objs to list
     #! move camera to center of all boundboxes of objs in list
@@ -131,7 +131,7 @@ def generateIcon(col, filepath, save=True) -> None:
     # HIDE ALL ------------------
     for obj in scene.collection.objects:
         if obj.name != icon_obj.name:
-            setActiveObject(obj)
+            set_active_object(obj)
             bpy.context.object.hide_render = True
     
 
@@ -178,8 +178,8 @@ def generateIcon(col, filepath, save=True) -> None:
 
     # CLEAN UP -----------------
     for obj in objs_to_delete:
-        deselectAllObjects()
-        setActiveObject(obj)
+        deselect_all_objects()
+        set_active_object(obj)
         debug("delete: ", obj.name)
         bpy.ops.object.delete()
     window.view_layer = current_view_layer

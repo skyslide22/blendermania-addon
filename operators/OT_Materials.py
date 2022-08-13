@@ -73,7 +73,7 @@ def createOrUpdateMaterial(action)->None:
     MP_PREFIX = "MP_"
 
     matName          = tm_props.ST_selectedExistingMaterial
-    matNameNew       = fixName( tm_props.ST_materialAddName )
+    matNameNew       = safe_name( tm_props.ST_materialAddName )
     matGameType      = tm_props.LI_gameType
     matCollection    = tm_props.LI_materialCollection
     matPhysicsId     = tm_props.LI_materialPhysicsId
@@ -446,11 +446,11 @@ def saveMatPropsAsJSONinMat(mat) -> None:
         tex_n_path = tex_n.filepath if tex_n else ""
         tex_h_path = tex_h.filepath if tex_h else ""
         
-        DICT["tex_d_path"] = getAbspath(tex_d_path)
-        DICT["tex_i_path"] = getAbspath(tex_i_path)
-        DICT["tex_r_path"] = getAbspath(tex_r_path)
-        DICT["tex_n_path"] = getAbspath(tex_n_path)
-        DICT["tex_h_path"] = getAbspath(tex_h_path)
+        DICT["tex_d_path"] = get_abs_path(tex_d_path)
+        DICT["tex_i_path"] = get_abs_path(tex_i_path)
+        DICT["tex_r_path"] = get_abs_path(tex_r_path)
+        DICT["tex_n_path"] = get_abs_path(tex_n_path)
+        DICT["tex_h_path"] = get_abs_path(tex_h_path)
 
     JSON = json.dumps(DICT)
     mat[ MAT_PROPS_AS_JSON ] = JSON

@@ -1,29 +1,13 @@
 import bpy
-import os.path
-from bpy.types import (
-    Panel,
-    Operator,
-    AddonPreferences,
-    PropertyGroup
-)
-
-
 from ..utils.Functions      import *
-from ..utils.Constants      import * 
-from ..operators.OT_Items_Convert  import *
-from ..operators.OT_Items_XML      import *
 
-
-
-
-
-def generateBaseMaterialCubeProject(col) -> None:
+def generate_base_material_cube_projection(coll: bpy.types.Collection) -> None:
     """generate basematerial uvlayer with cube project method, only useful for repeating textures"""
     tm_props    = get_global_props()
-    objs        = [obj for obj in col.objects if select_obj(obj)]
+    objs        = [obj for obj in coll.objects if select_obj(obj)]
     bm_objs     = []
 
-    debug(f"overwrite basematerial with cubeproject for <{col.name}>")
+    debug(f"overwrite basematerial with cubeproject for <{coll.name}>")
 
     CUBE_FACTOR = tm_props.NU_uv_cubeProjectSize
 
@@ -37,7 +21,6 @@ def generateBaseMaterialCubeProject(col) -> None:
 
         if   is_obj_visible_by_name(obj.name)\
         and  "basematerial" in obj_uvs:
-            select_obj(obj)
             set_active_object(obj)
             bm_objs.append(obj)
 
@@ -52,10 +35,7 @@ def generateBaseMaterialCubeProject(col) -> None:
     )
     objectmode()
 
-
-
-
-def generateLightmap(col, fix=False) -> None:
+def generate_lightmap(col, use_overlapping_check=False) -> None:
     """generate lightmap of all mesh objects from given collection"""
     tm_props    = get_global_props()
     objs        = [obj for obj in col.all_objects if select_obj(obj)]
@@ -68,12 +48,9 @@ def generateLightmap(col, fix=False) -> None:
     AREA  = tm_props.NU_uv_areaWeightLM
     ASPECT= tm_props.CB_uv_correctAspectLM
     BOUNDS= tm_props.CB_uv_scaleToBoundsLM
-
-    has_overlaps = False
-    use_overlappingcheck= tm_props.CB_uv_fixLightMap
     
-    if use_overlappingcheck:
-        has_overlaps = checkUVLayerOverlapsOfCol(col=col, uv_name="LightMap")
+    if use_overlapping_check:
+        has_overlaps = _check_uv_layer_overlaps_of_col(col=col, uv_name="LightMap")
 
     deselect_all_objects()
 
@@ -84,9 +61,8 @@ def generateLightmap(col, fix=False) -> None:
 
         obj_uvs = [k.lower() for k in obj.data.uv_layers.keys()]
 
-        if   is_obj_visible_by_name(obj.name)\
-        and  "lightmap" in obj_uvs:
-            select_obj(obj)
+        if is_obj_visible_by_name(obj.name)\
+        and "lightmap" in obj_uvs:
             set_active_object(obj)
             lm_objs.append(obj)
 
@@ -94,9 +70,9 @@ def generateLightmap(col, fix=False) -> None:
             
 
     if lm_objs:
-        if  use_overlappingcheck\
+        if  use_overlapping_check\
         and has_overlaps\
-        or  use_overlappingcheck is False:
+        or  use_overlapping_check is False:
             #editmode with all selected objects
             editmode()
             bpy.ops.mesh.select_all(action='SELECT')
@@ -119,11 +95,7 @@ def generateLightmap(col, fix=False) -> None:
         if "basematerial" in obj_uvs:
             obj.data.uv_layers.active_index = 0 #BaseMaterial
 
-    
-                        
-
-
-def checkUVLayerOverlapsOfCol(uv_name: str, col: bpy.types.Collection)-> bool:
+def _check_uv_layer_overlaps_of_col(uv_name: str, col: bpy.types.Collection)-> bool:
     """checks if uvlayer has overlapping islands, return bool"""
 
     deselect_all_objects()

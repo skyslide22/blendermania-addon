@@ -262,7 +262,7 @@ def parseNadeoIniFile() -> str:
 
 
 
-def createFolderIfNecessary(path) -> None:
+def create_folder_if_necessary(path) -> None:
     """create given folder if it does not exist."""
     if not os.path.exists(path):
         os.makedirs(path)
@@ -550,7 +550,7 @@ def installNadeoImporterFromLocalFiles()->None:
         filename = tm_props.LI_nadeoImporters_TM
         full_path= base_path + "/Trackmania2020/" + filename
     
-    debug(f"install nadeoimporter: {getFilenameOfPath(full_path)}")
+    debug(f"install nadeoimporter: {get_path_filename(full_path)}")
     unzipNadeoImporter(zipfilepath=fixSlash(full_path))
     
 
@@ -655,7 +655,7 @@ def installGameTextures()->None:
         # bpy.app.timers.register(run, first_interval=120)
 
 
-    createFolderIfNecessary( extractTo )
+    create_folder_if_necessary( extractTo )
     gameTexturesDownloading_True()
 
 
@@ -697,7 +697,7 @@ def installGameAssetsLibrary()->None:
         debug(f"downloading & installing assets library of {get_global_props().LI_gameType} failed, error: {msg}")
 
 
-    createFolderIfNecessary( extractTo )
+    create_folder_if_necessary( extractTo )
     gameTexturesDownloading_True()
 
 
@@ -872,10 +872,10 @@ def createExportOriginFixer(col, createAt=None)->object:
 
         #parent all objs to _Lod0
         if  obj is not origin_obj:
-            deselectAllObjects()
-            selectObj(obj)
-            selectObj(origin_obj)
-            setActiveObject(origin_obj)
+            deselect_all_objects()
+            select_obj(obj)
+            select_obj(origin_obj)
+            set_active_object(origin_obj)
             try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
             except: pass #RuntimeError: Error: Loop in parents
         
@@ -887,8 +887,8 @@ def createExportOriginFixer(col, createAt=None)->object:
 def unparentObjsAndKeepTransform(col)->None:
     """unparent all objects and keep transform"""
     for obj in col.all_objects:
-        deselectAllObjects()
-        setActiveObject(obj)
+        deselect_all_objects()
+        set_active_object(obj)
         bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 
 
@@ -896,10 +896,10 @@ def parentObjsToObj(col, obj):
     origin_obj = obj
     for obj in col.all_objects:
         if obj is not origin_obj:
-            deselectAllObjects()
-            selectObj(obj)
-            selectObj(origin_obj)
-            setActiveObject(origin_obj)
+            deselect_all_objects()
+            select_obj(obj)
+            select_obj(origin_obj)
+            set_active_object(origin_obj)
             try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
             except: pass #RuntimeError: Error: Loop in parents
 
@@ -908,14 +908,14 @@ def deleteExportOriginFixer(col)->None:
     """unparent all objects of a origin object"""
     for obj in col.objects:
         if not obj.name.lower().startswith("origin"):
-            deselectAllObjects()
-            setActiveObject(obj)
+            deselect_all_objects()
+            set_active_object(obj)
             bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
     
-    deselectAllObjects()
+    deselect_all_objects()
     for obj in col.objects:
         if "delete" in str(obj.name).lower():
-            setActiveObject(obj)
+            set_active_object(obj)
             deleteObj(obj)
             continue
 
@@ -933,13 +933,13 @@ def getGameDocPath() -> str:
 
 
 
-def getGameDocPathItems() -> str:
+def get_game_doc_path_items() -> str:
     """return absolute path of ../Items/"""
     return fixSlash(getGameDocPath() + "/Items/")
 
 
 
-def getGameDocPathWorkItems() -> str:
+def get_game_doc_path_work_items() -> str:
     """return absolute path of ../Work/Items/"""
     return fixSlash(getGameDocPath() + "/Work/Items/")
 
@@ -947,7 +947,7 @@ def getGameDocPathWorkItems() -> str:
 
 def getGameDocPathItemsAssets() -> str:
     """return absolute path of ../_BlenderAssets/"""
-    return fixSlash(getGameDocPathItems() + "/_BlenderAssets/")
+    return fixSlash(get_game_doc_path_items() + "/_BlenderAssets/")
 
 
 def getGameDocPathItemsAssetsTextures() -> str:
@@ -983,8 +983,8 @@ def fixUvLayerNamesOfObjects(col) -> None:
     objs = col.all_objects
 
     for obj in objs:
-        deselectAllObjects()
-        selectObj(obj) 
+        deselect_all_objects()
+        select_obj(obj) 
         
         if  obj.type == "MESH"\
         and not "socket"     in obj.name.lower() \
@@ -1033,7 +1033,7 @@ def getListOfFoldersInX(folderpath: str, prefix="") -> list:
 
 
 
-def getFilenameOfPath(filepath, remove_extension=False)->str:
+def get_path_filename(filepath: str, remove_extension=False)->str:
     filepath = fixSlash( filepath ).split("/")[-1]
     
     if remove_extension:
@@ -1116,11 +1116,11 @@ def editmode() -> None:
 
 
 def deleteObj(obj) -> None:
-    unsetActiveObject()
+    unset_active_object()
     objname = str(obj.name)
     try:
-        deselectAllObjects()  
-        setActiveObject(obj)
+        deselect_all_objects()  
+        set_active_object(obj)
         bpy.ops.object.delete()
         debug(f"object <{objname}> deleted")
         
@@ -1130,7 +1130,7 @@ def deleteObj(obj) -> None:
         
 
 
-def selectObj(obj)->bool:
+def select_obj(obj)->bool:
     """selects object, no error during view_layer=scene.view_layers[0]"""
     if obj.name in bpy.context.view_layer.objects and obj.hide_get() is False:
         obj.select_set(True)
@@ -1140,7 +1140,7 @@ def selectObj(obj)->bool:
 
 
 
-def deselectAllObjects() -> None:
+def deselect_all_objects() -> None:
     """deselects all objects in the scene, works only for visible ones"""
     bpy.ops.object.select_all(action='DESELECT')
 
@@ -1149,7 +1149,7 @@ def deselectAllObjects() -> None:
 def selectAllObjects() -> None:
     """selects all objects in the scene, works only for visible ones"""
     for obj in bpy.context.scene.objects:
-        selectObj(obj)
+        select_obj(obj)
 
 
 def selectAllGeometry() -> None:
@@ -1188,18 +1188,18 @@ def unhideSelectedObject(objs: list) -> None:
 
 
 
-def setActiveObject(obj) -> None:
+def set_active_object(obj) -> None:
     """set active object"""
     if obj.name in bpy.context.view_layer.objects:
         bpy.context.view_layer.objects.active = obj
-        selectObj(obj)
+        select_obj(obj)
     
 
 
-def unsetActiveObject() -> None:
+def unset_active_object() -> None:
     """unset active object, deselect all"""
     bpy.context.view_layer.objects.active = None
-    deselectAllObjects()
+    deselect_all_objects()
 
 
 def getAllVisibleMeshObjsOfCol(col: bpy.types.Collection) -> list:
@@ -1242,21 +1242,21 @@ def selectAllObjectsInACollection(col, only_direct_children=False, exclude_infix
     """select all objects in a collection, you may use deselectAll() before"""
     objs = col.objects if only_direct_children else col.all_objects
     
-    deselectAllObjects()
+    deselect_all_objects()
     if exclude_infixes:
         infixes = exclude_infixes.replace(" ", "").split(",")
         for obj in objs:
             for infix in infixes:
                 # debug(infix)
                 if not infix.lower() in obj.name.lower():
-                    selectObj(obj)
+                    select_obj(obj)
                 
                 else: debug(f"""infix <{infix}> is in obj name <{obj.name}>, obj ignored for export""")
         
         return
 
     for obj in objs: 
-        selectObj(obj)
+        select_obj(obj)
             
           
             
@@ -1298,6 +1298,14 @@ def getCollectionHierachy(colname: str="", objname: str="No_Name", hierachystart
     # debug(f"hierachy is {hierachy}")
     return hierachy
 
+def get_collection_hierachy(coll: str, hrch: list[str] = []) -> list:
+    for current_coll in bpy.data.collections:
+        if coll in current_coll.children.keys():
+            hrch.append(current_coll.name)
+            hrch = get_collection_hierachy(current_coll.name, hrch)
+
+    hrch.reverse()
+    return hrch
 
 def createCollectionHierachy(hierachy: list) -> object:
     """create collections hierachy from list and link root to the scene master collection"""
@@ -1461,7 +1469,7 @@ def nadeoLibParser() -> None:
         return nadeoimporter_materiallib_materials
 
 
-class exportFBXModel:
+class ExportFBXModel:
     def __init__(self, fbxfilepath, col, scale=1, physic_hack=True):
         self.filepath    = fbxfilepath
         self.col         = col
@@ -1470,7 +1478,7 @@ class exportFBXModel:
 
 
 
-def getDuplicateScaledExportedFBXFiles(fbxfilepath: str, col: bpy.types.Collection) -> list[exportFBXModel]:
+def getDuplicateScaledExportedFBXFiles(fbxfilepath: str, col: bpy.types.Collection) -> list[ExportFBXModel]:
     """modify fbx file: fix filename and duplicate to different sizes"""
     pattern   = r"_#SCALE_(\d)+to(\d)+_x(\d)+"
     data_list = re.findall(pattern, fbxfilepath, flags=re.IGNORECASE)
@@ -1495,7 +1503,7 @@ def getDuplicateScaledExportedFBXFiles(fbxfilepath: str, col: bpy.types.Collecti
 
 
     new_paths = []
-    new_paths.append(exportFBXModel(fbxfilepath, col, physic_hack=physic_hack))
+    new_paths.append(ExportFBXModel(fbxfilepath, col, physic_hack=physic_hack))
     
     if len(data_list) > 0:
         scale_from    = int(data_list[0][0]) 
@@ -1518,13 +1526,13 @@ def getDuplicateScaledExportedFBXFiles(fbxfilepath: str, col: bpy.types.Collecti
             if current_scale <= 0:
                 raise Exception(f"""
                 Atleast one exported object scale is below 0!
-                try to increase your "_x{scale_step_raw}" to x{scale_step_raw + 1} or x{scale_step_raw+2} in {getFilenameOfPath(fbxfilepath)}""")
+                try to increase your "_x{scale_step_raw}" to x{scale_step_raw + 1} or x{scale_step_raw+2} in {get_path_filename(fbxfilepath)}""")
 
             new_path = re.sub(pattern, f"_#{scale}", fbxfilepath) #_SCALE_7... to _#7
 
             debug(f"create new file: {new_path}")
             copyfile(fbxfilepath, new_path)
-            new_paths.append( exportFBXModel(new_path, col, current_scale) )
+            new_paths.append( ExportFBXModel(new_path, col, current_scale) )
             current_scale -= scale_step
         
         debug(f"remove original: {fbxfilepath}")
@@ -1534,7 +1542,7 @@ def getDuplicateScaledExportedFBXFiles(fbxfilepath: str, col: bpy.types.Collecti
 
     
     
-def fixName(name: str) -> str:
+def safe_name(name: str) -> str:
     """return modified name\n
     replace chars which are not allowed with _ or #, fix ligatures: ä, ü, ö, ß, é. \n  
     allowed chars: abcdefghijklmnopqrstuvwxyz0123456789_-#"""
@@ -1565,7 +1573,7 @@ def fixAllMatNames() -> None:
     """fixes not allowed chars for every material's name"""
     mats = bpy.data.materials
     for mat in mats:
-        mat.name = fixName(name=mat.name)
+        mat.name = safe_name(name=mat.name)
 
 
 
@@ -1576,7 +1584,7 @@ def fixAllColNames() -> None:
     """fixes name for every collection in blender"""
     cols = bpy.data.collections
     for col in cols:
-        try:    col.name = fixName(col.name)
+        try:    col.name = safe_name(col.name)
         except: pass #mastercollection etc is readonly
 
 # correct gamma the same way Blender do it
@@ -1620,7 +1628,7 @@ def refreshPanels() -> None:
             region.tag_redraw()  
 
 
-def getAbspath(path: str):
+def get_abs_path(path: str):
     return os.path.abspath(path) if path else ""
 
 
@@ -1648,7 +1656,7 @@ def getMeshObjectsOfCollection(col: bpy.types.Collection) -> list:
 
 def getDimensionOfCollection(col: bpy.types.Collection)->list:
     """return dimension(x,y,z) of all mesh obj combined in collection"""
-    deselectAllObjects()
+    deselect_all_objects()
     selectAllObjectsInACollection(col=col)
 
     minx = 0
@@ -1780,7 +1788,7 @@ def fileNameOfPath(path: str) -> str:
 
 
 def getIconPathOfFBXpath(filepath) -> str:
-    icon_path = getFilenameOfPath(filepath)
+    icon_path = get_path_filename(filepath)
     icon_path = filepath.replace(icon_path, f"/Icon/{icon_path}")
     icon_path = re.sub("fbx", "tga", icon_path, re.IGNORECASE)
     return fixSlash(icon_path)

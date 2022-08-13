@@ -107,7 +107,7 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
         
         for file in files:
             isInWorkItems = "Work/Items" in fixSlash(file) 
-            name    = getFilenameOfPath(file)
+            name    = get_path_filename(file)
             abspath = fixSlash(file)
             relpath = abspath.split("Work/Items/")[-1] if isInWorkItems else f"imported/{name}"
             fileList.append((
@@ -120,7 +120,7 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
         name, abspath, relpath = file
         relpath = fixSlash(relpath).split("/")
         
-        deselectAllObjects()
+        deselect_all_objects()
         setMasterCollectionAsActive()
         importFBXFile(filepath=abspath)
         

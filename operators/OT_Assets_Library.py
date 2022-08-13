@@ -58,7 +58,7 @@ def createAssetsLib() -> None:
         generateMPAssets()  
 
     # save as new blend file for assets libraray
-    createFolderIfNecessary(getGameDocPathItemsAssets())
+    create_folder_if_necessary(getGameDocPathItemsAssets())
     if not saveBlendFileAs(fixSlash(getGameDocPathItemsAssets()+"/"+fileName)):
         show_report_popup("Can not create new blend file", ["Something went wrong during creation of a new blend file"], "ERROR")
 

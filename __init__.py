@@ -20,6 +20,9 @@ from .utils.Constants          import *
 from .utils.Functions          import *
 from .utils.Dotnet             import *
 from .utils.Properties         import *
+from .utils.ItemsExport        import *
+from .utils.ItemsUVs           import *
+from .utils.NadeoXML           import *
 from .operators.OT_Map_Manipulate      import *
 from .operators.OT_NinjaRipper        import *
 from .operators.OT_Settings           import *
