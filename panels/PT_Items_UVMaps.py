@@ -1,18 +1,6 @@
-import bpy
-import os.path
-from bpy.types import (
-    Panel,
-    Operator,
-    AddonPreferences,
-    PropertyGroup
-)
+from bpy.types import (Panel)
 
-
-from ..utils.Functions      import *
-from ..utils.Constants      import * 
-from ..operators.OT_Items_XML      import *
-from ..operators.OT_Items_Convert  import *
-
+from ..utils.Functions import *
 
 class TM_PT_Items_UVmaps_LightMap(Panel):
     # region bl_

@@ -32,7 +32,7 @@ def fixSlash(filepath: str) -> str:
     filepath = re.sub(r"\/+", "/", filepath)
     return filepath
 
-def doesFileExist(filepath: str) -> bool:
+def is_file_exist(filepath: str) -> bool:
     return os.path.isfile(filepath)
 
 def doesFolderExist(folderpath: str) -> bool:
@@ -41,11 +41,11 @@ def doesFolderExist(folderpath: str) -> bool:
 def getBlenderAddonsPath() -> str:
     return fixSlash(str(bpy.utils.user_resource('SCRIPTS') + "/addons/"))
 
-def getAddonPath() -> str:
+def get_addon_path() -> str:
     return fixSlash(ADDON_ROOT_PATH + "/")
 
 def getAddonAssetsPath() -> str:
-    return getAddonPath() + "/assets/"
+    return get_addon_path() + "/assets/"
 
 def getAddonAssetsAddonsPath() -> str:
     return getAddonAssetsPath() + "/addons/"
@@ -182,7 +182,7 @@ def getNadeoIniData(setting: str) -> str:
     
     except KeyError:
         debug(f"failed to find {setting} in nadeo ini, try parse now")
-        debug(f"nadeo ini exist: {doesFileExist(getNadeoIniFilePath())}")
+        debug(f"nadeo ini exist: {is_file_exist(getNadeoIniFilePath())}")
         debug(f"in location:     {getNadeoIniFilePath()}")
         parseNadeoIniFile()
         try:
@@ -394,8 +394,8 @@ def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
 
         zipfile.extractall( longPath(unzipped_at) )
         src = longPath(unzipped_at + "/" + zipfolder_root)
-        dst = longPath(getAddonPath())
-        # dst = longPath(getAddonPath() + "test")
+        dst = longPath(get_addon_path())
+        # dst = longPath(get_addon_path() + "test")
 
         debug(src, raw=True)
         debug(dst, raw=True)
@@ -406,7 +406,7 @@ def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
 
 
 def removeFile(file:str) -> None:
-    if doesFileExist(file):
+    if is_file_exist(file):
         os.remove(file)
 
 
@@ -435,7 +435,7 @@ def isSelectedNadeoIniFilepathValid() -> bool:
     elif isGameTypeTrackmania2020():
             ini_path = str(tm_props.ST_nadeoIniFile_TM)
     
-    return doesFileExist(ini_path) and ini_path.lower().endswith(".ini")
+    return is_file_exist(ini_path) and ini_path.lower().endswith(".ini")
 
 
 
@@ -512,8 +512,8 @@ def unzipNadeoImporter(zipfilepath)->None:
 def getInstalledNadeoImporterVersion() -> str:
     version  = "None"
     if isSelectedNadeoIniFilepathValid():
-        imp_path =getNadeoImporterPath()
-        if doesFileExist(imp_path):
+        imp_path =get_nadeo_importer_path()
+        if is_file_exist(imp_path):
             process  = subprocess.Popen([
                 f"""powershell.exe""",
                 f"""(Get-Item "{imp_path}").VersionInfo.FileVersion"""
@@ -824,7 +824,7 @@ def timer(func, timeout) -> None:
 
 
 
-def saveBlendFile() -> bool:
+def save_blend_file() -> bool:
     """overwrite/save opened blend file, returns bool if saving was successfull"""
     if bpy.data.is_saved:
         bpy.ops.wm.save_as_mainfile()
@@ -837,89 +837,6 @@ def saveBlendFileAs(filepath: str) -> bool:
         bpy.ops.wm.save_as_mainfile(filepath=filepath, compress=True)
         
     return bpy.data.is_saved
-
-
-
-def createExportOriginFixer(col, createAt=None)->object:
-    """creates an empty, parent all objs in the collection to it"""
-    origin_obj = None
-    
-    #check if user defined a origin already
-    for obj in col.objects:
-        if obj.name.lower().startswith("origin"):
-            origin_obj = obj
-            break
-
-    #create if none is defined
-    if origin_obj is None:
-
-        if not createAt:
-            createAt = col.objects[0].location
-            for obj in col.objects:
-                if obj.type == "MESH" and is_real_object_by_name(obj.name):
-                    createAt = obj.location
-                    break
-
-        bpy.ops.object.empty_add(type='ARROWS', align='WORLD', location=createAt)
-        origin_obj = bpy.context.active_object
-        origin_obj.name = "origin_delete"
-
-        if origin_obj.name not in col.objects:
-            col.objects.link(origin_obj)
-
-
-    # parent all objects to the origins
-    for obj in col.objects:
-
-        #parent all objs to _Lod0
-        if  obj is not origin_obj:
-            deselect_all_objects()
-            select_obj(obj)
-            select_obj(origin_obj)
-            set_active_object(origin_obj)
-            try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
-            except: pass #RuntimeError: Error: Loop in parents
-        
-
-    
-    return origin_obj
-
-
-def unparentObjsAndKeepTransform(col)->None:
-    """unparent all objects and keep transform"""
-    for obj in col.all_objects:
-        deselect_all_objects()
-        set_active_object(obj)
-        bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-
-
-def parentObjsToObj(col, obj):
-    origin_obj = obj
-    for obj in col.all_objects:
-        if obj is not origin_obj:
-            deselect_all_objects()
-            select_obj(obj)
-            select_obj(origin_obj)
-            set_active_object(origin_obj)
-            try:    bpy.ops.object.parent_set(type='OBJECT', keep_transform=True)
-            except: pass #RuntimeError: Error: Loop in parents
-
-
-def deleteExportOriginFixer(col)->None:
-    """unparent all objects of a origin object"""
-    for obj in col.objects:
-        if not obj.name.lower().startswith("origin"):
-            deselect_all_objects()
-            set_active_object(obj)
-            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
-    
-    deselect_all_objects()
-    for obj in col.objects:
-        if "delete" in str(obj.name).lower():
-            set_active_object(obj)
-            deleteObj(obj)
-            continue
-
 
 def importFBXFile(filepath):
     bpy.ops.import_scene.fbx(
@@ -957,7 +874,7 @@ def getGameDocPathItemsAssetsTextures() -> str:
 
 
 
-def getNadeoImporterPath() -> str:
+def get_nadeo_importer_path() -> str:
     """return full file path of /xx/NadeoImporter.exe"""
     return fixSlash(getTrackmaniaEXEPath() + "/NadeoImporter.exe")
 
@@ -1133,7 +1050,7 @@ def deleteObj(obj) -> None:
 
 def select_obj(obj)->bool:
     """selects object, no error during view_layer=scene.view_layers[0]"""
-    if obj.name in bpy.context.view_layer.objects and obj.hide_get() is False:
+    if obj.hide_get() is False:
         obj.select_set(True)
         return True
     
@@ -1266,23 +1183,7 @@ def getCollectionNamesFromVisibleObjects() -> list:
     objs = bpy.context.scene.objects
     return [col.name for col in (obj.users_collection for obj in objs)]
 
-
-
-def getCollectionHierachyOfObjcts(objname: str, hierachystart: bool=False) -> list:
-    """returns list of parent collection of the given object name"""
-    cols    = bpy.context.scene.objects[objname].users_collection
-    colname = cols[0].name
-    
-    if hierachystart is True:
-        hierachystart = [colname]
-    else:
-        hierachystart = []
-        
-    return getCollectionHierachy(colname=cols[0].name, objname=objname, hierachystart=hierachystart)
-    
-    
-
-def getCollectionHierachy(colname: str="", objname: str="No_Name", hierachystart: list=[]) -> list:
+def get_collection_hierachy(colname: str="", hierachystart: list=[]) -> list:
     """returns list of parent collection names from given collection name,"""
     hierachy = hierachystart
     sceneCols = bpy.data.collections
@@ -1298,15 +1199,6 @@ def getCollectionHierachy(colname: str="", objname: str="No_Name", hierachystart
     hierachy.reverse()
     # debug(f"hierachy is {hierachy}")
     return hierachy
-
-def get_collection_hierachy(coll: str, hrch: list[str] = []) -> list:
-    for current_coll in bpy.data.collections:
-        if coll in current_coll.children.keys():
-            hrch.append(current_coll.name)
-            hrch = get_collection_hierachy(current_coll.name, hrch)
-
-    hrch.reverse()
-    return hrch
 
 def createCollectionHierachy(hierachy: list) -> object:
     """create collections hierachy from list and link root to the scene master collection"""
@@ -1398,7 +1290,7 @@ def nadeoLibParser() -> None:
 
     selected_collection = tm_props.LI_materialCollection
     
-    if not doesFileExist(nadeolibfile):
+    if not is_file_exist(nadeolibfile):
         return nadeoimporter_materiallib_materials
 
     
@@ -1468,79 +1360,6 @@ def nadeoLibParser() -> None:
 
         setSelectedLinkedMaterialToFirst()
         return nadeoimporter_materiallib_materials
-
-
-class ExportFBXModel:
-    def __init__(self, fbxfilepath, col, scale=1, physic_hack=True):
-        self.filepath    = fbxfilepath
-        self.col         = col
-        self.scale       = scale
-        self.physic_hack = physic_hack
-
-
-
-def getDuplicateScaledExportedFBXFiles(fbxfilepath: str, col: bpy.types.Collection) -> list[ExportFBXModel]:
-    """modify fbx file: fix filename and duplicate to different sizes"""
-    pattern   = r"_#SCALE_(\d)+to(\d)+_x(\d)+"
-    data_list = re.findall(pattern, fbxfilepath, flags=re.IGNORECASE)
-
-    # physic hack is not necessary for custom textures (BaseMaterial=""...) or tm2020
-    physic_hack = False
-    if isGameTypeManiaPlanet():
-        debug(f"check if {col.name} has linked materials")
-
-        for obj in col.objects:
-            if obj.type == "MESH":
-                for mat in obj.data.materials:
-                    is_linked = mat.baseTexture == ""
-                    debug(f"check {mat.name}")
-                    if is_linked:
-                        debug("        ^^^ is linked")
-                        physic_hack = True
-                        break
-        
-        if not physic_hack:
-            debug("all materials use custom texture, no hack needed")
-
-
-    new_paths = []
-    new_paths.append(ExportFBXModel(fbxfilepath, col, physic_hack=physic_hack))
-    
-    if len(data_list) > 0:
-        scale_from    = int(data_list[0][0]) 
-        scale_to      = int(data_list[0][1])
-        scale_step_raw= int(data_list[0][2]) 
-        scale_step    = 1 / scale_step_raw
-        current_scale = 1
-
-        # swap, always lowest to biggest
-        if scale_from > scale_to:
-            scale_from, scale_to = scale_to, scale_from
-
-        debug(f"{scale_from=}\n{scale_to=}\n{scale_step=}")
-        new_paths.clear()
-        
-        reverse_range = reversed(range(scale_from, scale_to+1))
-
-        for scale in reverse_range:
-
-            if current_scale <= 0:
-                raise Exception(f"""
-                Atleast one exported object scale is below 0!
-                try to increase your "_x{scale_step_raw}" to x{scale_step_raw + 1} or x{scale_step_raw+2} in {get_path_filename(fbxfilepath)}""")
-
-            new_path = re.sub(pattern, f"_#{scale}", fbxfilepath) #_SCALE_7... to _#7
-
-            debug(f"create new file: {new_path}")
-            copyfile(fbxfilepath, new_path)
-            new_paths.append( ExportFBXModel(new_path, col, current_scale) )
-            current_scale -= scale_step
-        
-        debug(f"remove original: {fbxfilepath}")
-        os.remove(fbxfilepath) # rm original
-
-    return new_paths
-
     
     
 def safe_name(name: str) -> str:
@@ -1598,7 +1417,7 @@ def gammaCorrected(color):
     return max(min(int(srgb * 255 + 0.5), 255), 0)
 
 
-def rgbToHEX(rgb_list: tuple, prefix: str="", correct_gamma: bool=False) -> str:
+def rgb_to_hex(rgb_list: tuple, prefix: str="", correct_gamma: bool=False) -> str:
     """convert given rgbList=(0.0, 0.5, 0.93) to hexcode """
     r = gammaCorrected(rgb_list[0]) if correct_gamma else int( rgb_list[0] * 256) - 1 
     g = gammaCorrected(rgb_list[1]) if correct_gamma else int( rgb_list[1] * 256) - 1 
@@ -1779,14 +1598,6 @@ def getFilesOfFolder(path: str, ext: str=None, recursive: bool=False)->list:
                 filepaths.append(file)
 
     return filepaths
-
-
-
-def fileNameOfPath(path: str) -> str:
-    """return <tex.dds> of C:/someFolder/anotherOne/tex.dds, path can contain \\ and /"""
-    return fixSlash(filepath=path).split("/")[-1]
-
-
 
 def getIconPathOfFBXpath(filepath) -> str:
     icon_path = get_path_filename(filepath)
@@ -2010,7 +1821,7 @@ def debug_all() -> None:
     separator(3)
 
     full_debug("default settings json:   ")
-    if doesFileExist(PATH_DEFAULT_SETTINGS_JSON):
+    if is_file_exist(PATH_DEFAULT_SETTINGS_JSON):
         with open(PATH_DEFAULT_SETTINGS_JSON, "r") as f:
             data = json.loads(f.read())
             full_debug(data, pp=True, raw=True)
@@ -2098,7 +1909,7 @@ def get_addon_icon(icon: str) -> object:
 
 def get_addon_icon_path(name:str) -> str:
     """get full path of custom icon by name"""
-    return f"""{getAddonPath()}icons/{name}"""
+    return f"""{get_addon_path()}icons/{name}"""
 
 
 
@@ -2259,7 +2070,8 @@ def is_real_object_by_name(name: str) -> bool:
     name = name.lower()
     return  not name.startswith("_")\
             or name.startswith("_notvisible_")\
-            or name.startswith("_notcollidable_")
+            or name.startswith("_notcollidable_")\
+            or name.startswith("_origin_")
 
 def is_obj_visible_by_name(name: str) -> bool:
     """check if object will be visible ingame"""

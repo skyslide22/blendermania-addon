@@ -20,7 +20,7 @@ class TM_OT_Materials_Create_Asset_Lib(Operator):
     bl_description = "Create assets library, ignores previously created materials with the same name"
    
     def execute(self, context):
-        if saveBlendFile():
+        if save_blend_file():
             createAssetsLib()
         else:
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
@@ -209,7 +209,7 @@ def createMaterialAsset(name: str, link: str, color: tuple[float, float, float])
     MAT.name          = name
     MAT.surfaceColor  = color
     
-    createMaterialNodes(MAT)
+    create_material_nodes(MAT)
     
     return MAT
         

@@ -1,21 +1,12 @@
-from pydoc import text
 import bpy
 import os.path
 import string
 import webbrowser
 import addon_utils
-from pprint import pprint
-from bpy.types import (
-    Panel,
-    Operator,
-    AddonPreferences,
-    PropertyGroup,
-)
+from bpy.types import Operator
 from bpy.props import StringProperty
 
 from ..utils.Functions      import *
-from ..utils.Constants      import * 
-from ..operators.OT_Items_Convert  import *
 
 class TM_OT_Settings_AutoFindNadeoIni(Operator):
     bl_idname = "view3d.tm_autofindnadeoini"
@@ -93,7 +84,7 @@ class TM_OT_Settings_UpdateAddon(Operator):
     bl_options = {"REGISTER"}
         
     def execute(self, context):
-        if saveBlendFile():
+        if save_blend_file():
             # if isAddonsFolderLinkedWithDevEnvi():
             #     makeReportPopup("dev environment, operator not executed", ["enable manually in TM_Settings.py:103"])
             #     return {"FINISHED"}
@@ -188,7 +179,7 @@ def autoFindNadeoIni()->None:
 
 
 def getDefaultSettingsJSON() -> dict:
-    if not doesFileExist(PATH_DEFAULT_SETTINGS_JSON):
+    if not is_file_exist(PATH_DEFAULT_SETTINGS_JSON):
         debug("default settings file does not exist, create file")
         default_settings = {
             "author_name":            os.getlogin(), # current windows username (C:/Users/<>/...)
@@ -221,13 +212,13 @@ def loadDefaultSettingsJSON() -> None:
     fromjson_grid_division = data.get("blender_grid_division")
 
 
-    if doesFileExist(fromjson_nadeoini_tm):
+    if is_file_exist(fromjson_nadeoini_tm):
         tm_props.ST_nadeoIniFile_TM = fromjson_nadeoini_tm
     else:
         tm_props.ST_nadeoIniFile_TM = MSG_ERROR_NADEO_INI_NOT_FOUND
 
 
-    if doesFileExist(fromjson_nadeoini_mp):
+    if is_file_exist(fromjson_nadeoini_mp):
         tm_props.ST_nadeoIniFile_MP = fromjson_nadeoini_mp
     else:
         tm_props.ST_nadeoIniFile_MP = MSG_ERROR_NADEO_INI_NOT_FOUND

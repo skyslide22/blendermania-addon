@@ -12,6 +12,18 @@ from ..utils.Constants      import *
 from ..operators.OT_Materials      import * 
 from ..operators.OT_Items_Import   import *
 
+# TODO add to init:
+"""
+    from .operators.OT_Items_Templates    import *
+    
+    ...
+    
+    # cars
+    TM_OT_Items_Cars_Import,
+
+    # templates
+    TM_OT_Items_Envi_Template_Import,
+"""
 
 class TM_OT_Items_Cars_Import(Operator):
     """import a dummy car for checkpoint spawn use..."""
@@ -68,7 +80,7 @@ class TM_OT_Items_Envi_Template_Import(Operator):
 
     def execute(self, context):
         envi    = self.properties.enviTemplates
-        template= f"""{getAddonPath()}assets/item_vanilla_platforms/{envi}.fbx"""
+        template= f"""{get_addon_path()}assets/item_vanilla_platforms/{envi}.fbx"""
         deselect_all_objects()
 
         abspath = template

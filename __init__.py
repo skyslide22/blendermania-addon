@@ -25,16 +25,16 @@ from .utils.Properties         import *
 from .utils.ItemsExport        import *
 from .utils.ItemsUVs           import *
 from .utils.NadeoXML           import *
-from .operators.OT_Map_Manipulate      import *
+from .utils.Models             import *
+from .utils.ItemsIcon          import *
+from .utils.NadeoImporter      import *
+from .operators.OT_Map_Manipulate     import *
 from .operators.OT_NinjaRipper        import *
 from .operators.OT_Settings           import *
 from .operators.OT_Items_Export       import *
-from .operators.OT_Items_Import       import * 
 from .operators.OT_Materials          import *
 from .operators.OT_Items_XML          import *
-from .operators.OT_Items_UVMaps       import *
 from .operators.OT_Items_Icon         import *
-from .operators.OT_Items_Templates    import *
 from .operators.OT_Items_Manipulate   import *
 from .operators.OT_UV_Manipulate      import *
 from .operators.OT_Assets_Library     import *
@@ -47,7 +47,6 @@ from .panels.PT_Items_XML          import *
 from .panels.PT_Items_UVMaps       import *
 from .panels.PT_Items_Icon         import *
 from .panels.PT_Items_Manipulate   import *
-from .panels.PT_Items_Import       import *
 from .panels.PT_UV_Manipulate      import *
 
 
@@ -114,11 +113,6 @@ classes = (
     TM_OT_Items_Export_ExportAndOrConvert,
     TM_OT_Items_Export_CloseConvertSubPanel,
 
-    # import
-    TM_PT_Items_Import,
-    TM_OT_Items_Import,
-    TM_OT_Items_ClearMatImportFailList,
-
     # xml,
     TM_PT_Items_MeshXML,
     TM_PT_Items_ItemXML,
@@ -145,12 +139,6 @@ classes = (
     TM_OT_Ninja17Install,
     TM_PT_NinjaImporter,
     TM_OT_Ninja20Install,
-
-    # cars
-    TM_OT_Items_Cars_Import,
-
-    # templates
-    TM_OT_Items_Envi_Template_Import,
 )
 
 
@@ -167,11 +155,8 @@ def register():
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=TM_Properties_ConvertingItems)
     bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=TM_Properties_LinkedMaterials)
 
-    bpy.types.DATA_PT_EEVEE_light.append(extendObjectPropertiesPanel_LIGHT)
+    bpy.types.DATA_PT_EEVEE_light.append(extend_object_properties_panel_LIGHT)
     bpy.types.Light.night_only          = BoolProperty(default=False)
-
-    bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
-    bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Cars_Import.addMenuPoint_CAR_SPAWN)
 
 
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
@@ -201,10 +186,7 @@ def unregister():
     del bpy.types.Scene.tm_props_convertingItems
     del bpy.types.Scene.tm_props_linkedMaterials
 
-    bpy.types.DATA_PT_EEVEE_light.remove(extendObjectPropertiesPanel_LIGHT)
-
-    bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Cars_Import.addMenuPoint_CAR_SPAWN)
-    bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
+    bpy.types.DATA_PT_EEVEE_light.remove(extend_object_properties_panel_LIGHT)
 
     # icons
     for pcoll in preview_collections.values():

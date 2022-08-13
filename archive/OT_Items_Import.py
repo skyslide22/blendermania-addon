@@ -14,13 +14,24 @@ from bpy.props import CollectionProperty
 
 from ..utils.Functions      import *
 from ..utils.Constants      import * 
-from ..operators.OT_Items_Convert  import *
-from ..operators.OT_Items_XML      import *
-from ..operators.OT_Items_UVMaps   import *
 from ..operators.OT_Settings       import *
 from ..operators.OT_Items_Icon     import *
 from ..operators.OT_Materials      import *
 
+"""
+ADD TO __init__
+    from .operators.OT_Items_Import       import * 
+
+    TM_OT_Items_Import,
+    TM_OT_Items_ClearMatImportFailList,
+
+    register:
+    bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
+    bpy.types.VIEW3D_MT_add.prepend(TM_OT_Items_Cars_Import.addMenuPoint_CAR_SPAWN)
+
+    bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Cars_Import.addMenuPoint_CAR_SPAWN)
+    bpy.types.VIEW3D_MT_add.remove(TM_OT_Items_Envi_Template_Import.addMenuPoint_ENVI_TEMPLATE)
+"""
 
 
 
@@ -53,7 +64,7 @@ class TM_OT_Items_Import(Operator):
     filter_glob: StringProperty(default='*.fbx', options={'HIDDEN'})
         
     def execute(self, context):
-        if saveBlendFile():
+        if save_blend_file():
             importFBXfilesMain(self)
         else:
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")

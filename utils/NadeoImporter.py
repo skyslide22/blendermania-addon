@@ -1,13 +1,31 @@
+import re
 import time
 import bpy
 import os.path
 import subprocess
-from threading import Thread
+import threading
 import xml.etree.ElementTree as ET
 
-from ..utils.Functions          import *
-from ..operators.OT_Items_XML   import *
-from ..utils.Constants          import * 
+from .Models import ExportedItem
+
+from .Constants import PATH_CONVERT_REPORT
+from ..utils.NadeoXML import generate_mesh_XML, generate_item_XML
+from ..utils.Functions import (
+    debug,
+    timer,
+    Timer,
+    fixSlash,
+    newThread,
+    is_file_exist,
+    get_addon_path,
+    get_global_props,
+    show_report_popup,
+    show_windows_toast,
+    get_path_filename,
+    get_convert_items_prop,
+    get_nadeo_importer_path,
+    isGameTypeManiaPlanet,
+)
 
 class ConvertStep():
     def __init__(self, title, additional_infos: tuple=()):
@@ -27,8 +45,7 @@ class ConvertResult():
         self.convert_steps = ()
 
 
-class CONVERT_ITEM(Thread):
-    
+class CONVERT_ITEM(threading.Thread):
     def __init__(self, fbxfilepath: str, game: str, physic_hack=True) -> None:
         super(CONVERT_ITEM, self).__init__() #need to call init from Thread, otherwise error
         
@@ -152,7 +169,7 @@ class CONVERT_ITEM(Thread):
         """convert fbx to shape/mesh.gbx"""
         self.addProgressStep(f"""Convert .fbx to .Mesh.gbx and Shape.gbx""")
         
-        cmd = f""""{getNadeoImporterPath()}" Mesh "{self.fbx_filepath_relative}" """ # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
+        cmd = f""""{get_nadeo_importer_path()}" Mesh "{self.fbx_filepath_relative}" """ # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
         self.addProgressStep(f"""Command: {cmd}""")
         
         convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -175,7 +192,7 @@ class CONVERT_ITEM(Thread):
         """convert fbx to item.gbx"""
         self.addProgressStep(f"""Convert .fbx to .Item.gbx""")
         
-        cmd = f""""{getNadeoImporterPath()}" Item "{self.xml_item_filepath_relative}" """ # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
+        cmd = f""""{get_nadeo_importer_path()}" Item "{self.xml_item_filepath_relative}" """ # ex: NadeoImporter.exe Item /Items/myblock.Item.xml
         self.addProgressStep(f"""Command: {cmd}""")
 
         convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -235,13 +252,13 @@ class CONVERT_ITEM(Thread):
     
 
     def deleteOldShapeGbx(self) -> None:
-        if doesFileExist(self.gbx_shape_filepath_old):
+        if is_file_exist(self.gbx_shape_filepath_old):
             os.remove(self.gbx_shape_filepath_old)
             self.addProgressStep(""".Shape.gbx.old deleted""")
 
 
     def deleteShapeGbx(self) -> None:
-        if doesFileExist(self.gbx_shape_filepath):
+        if is_file_exist(self.gbx_shape_filepath):
             os.remove(self.gbx_shape_filepath)
             self.addProgressStep(""".Shape.gbx deleted""")
 
@@ -290,11 +307,149 @@ def updateConvertStatusNumbersInUI(convert_failed: bool, obj_name: str) -> None:
     tm_props.NU_convertedRaw += 1
     tm_props.NU_converted     = int(tm_props.NU_convertedRaw / tm_props.NU_convertCount * 100)
 
+def _start_convert_timer():
+    tm_props = get_global_props()
+    def timer():
+        tm_props.NU_convertDurationSinceStart = int(time.perf_counter()) - tm_props.NU_convertStartedAt
+        if tm_props.CB_converting is False: 
+            return None
+        else: 
+           return 1
 
+    bpy.app.timers.register(timer, first_interval=1)
 
+def _write_convert_report(results: list) -> None:
+    """genertate status html file of converted fbx files"""
+    errors      = 0
+    converted   = len(results)
+    
+    for result in results:
+        if result.convert_has_failed:
+            errors += 1
+
+    try:
+        with open( fixSlash(PATH_CONVERT_REPORT), "w", encoding="utf-8") as f:
+            
+            resultList = ""
+            for result in results:
+
+                progress_LIs = ""
+                for step in result.convert_steps:
+
+                    sub_steps = step.additional_infos
+                    sub_steps_LIs = ""
+                    sub_steps_UL  = ""
+                    for sub_step in sub_steps:
+                        sub_steps_LIs += f"<li>{sub_step}</li>"
+                    
+                    if sub_steps_LIs:
+                        sub_steps_UL = f"<ul>{sub_steps_LIs}</ul>"
+                    
+                    progress_LIs += f"""<li class="">{step.title}{sub_steps_UL}</li> """
+
+                objName = result.relative_fbx_filepath
+                objName = objName.replace(result.name_raw, f"""<i>{result.name_raw}</i>""")
+
+                error_msg_item = result.item_error_message
+                error_msg_mesh = result.mesh_error_message
+
+                mesh_has_error = result.mesh_returncode > 0
+                item_has_error = result.item_returncode > 0
+
+                error_msg_mesh_pretty, \
+                error_msg_mesh_original = _beautify_error(error_msg_mesh) if mesh_has_error else ("", "")
+                
+                error_msg_item_pretty,\
+                error_msg_item_original = _beautify_error(error_msg_item) if item_has_error else ("", "")
+
+                html_item_error = f"""
+                    <li class="item-error"><b><h2>{error_msg_item_pretty}</h2><b> </li>
+                    <li class="item-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_item_original} </li>
+                    <hr>
+                """ if item_has_error else ""
+
+                html_mesh_error = f"""
+                    <li class="mesh-error"><b><h2>{error_msg_mesh_pretty}</h2><b> </li>
+                    <li class="mesh-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_mesh_original} </li>
+                    <hr>
+                """ if mesh_has_error else ""
+
+                resultList += f"""
+                    <li class="{"error" if result.convert_has_failed else "success"}">
+                        <ul class="result-object">
+                            <li class="item"><b>Item:</b> {objName}  </li>
+                            <hr>
+                            {html_item_error}
+                            {html_mesh_error}
+                            <li class="item-error"><b>Convert steps until convert failed:</b></li>
+                            <ul class="progress-steps">
+                                {progress_LIs}
+                            </ul>
+                        </ul>    
+                    </li>
+                    """
+            
+            fullHTML = f"""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Convert Report</title>
+                    <link rel="stylesheet" href="file://{get_addon_path()}assets/report.css">
+                </head>
+                <body>
+                    <header>
+                        <div>
+                            Failed converts: {errors} of {converted}
+                        </div>
+                    </header>
+                    <ul id="result-list">
+                    {resultList}           
+                    </ul>
+                </body>
+                </html>
+                """
+            f.write(fullHTML)
+        
+    except FileNotFoundError as e:
+        show_report_popup(
+            "Writing file failed", 
+            [
+                "Can not write report file on desktop",
+                "Try to run Blender once as admindistator" 
+            ])
+
+def _beautify_error(error: str):
+    """proper description from nadeoimporter return string"""
+    LMMissing       = "lightmap"
+    BMMissing       = "basematerial"
+    MatMissing      = "no material"
+    missingUV       = "uvlayers"
+    commonNotFound  = "common"
+    itemXMLMissing  = "item.xml"       
+    
+    error = error.replace("(b'", "")
+    error = error.replace("\\r",  "<br />")
+    error = error.replace("\\n'", "<br />")
+    error = error.replace("\\n",  "<br />")
+    error = error.replace("\\",   "/")
+    error = error.replace(", None)", "")
+        
+    prettymsg = ""
+    if LMMissing        in error.lower(): prettymsg="Lightmap uv layer is missing"
+    if BMMissing        in error.lower(): prettymsg="Basematerial uv layer is missing"
+    if MatMissing       in error.lower(): prettymsg="No material found, use atleast 1"
+    if LMMissing        in error.lower(): prettymsg="Not enough UvLayers, BaseMaterial/Lightmap missing?"
+    if missingUV        in error.lower(): prettymsg="Not enough UvLayers, BaseMaterial/Lightmap/Decal missing?"
+    if commonNotFound   in error.lower(): prettymsg="Collection COMMON not found, does meshParams.xml exist?"
+    if itemXMLMissing   in error.lower(): prettymsg="Item.xml not found, does it exists?"
+    if prettymsg == "":                   prettymsg=error 
+
+    return prettymsg, error
 
 @newThread
-def startBatchConvert(fbxfilepaths: list[ExportFBXModel], callback: callable = None) -> None:
+def start_batch_convert(items: list[ExportedItem]) -> None:
     """convert each fbx one after one, create a new thread for it"""
     tm_props_convertingItems = get_convert_items_prop()
     tm_props        = get_global_props()
@@ -306,7 +461,7 @@ def startBatchConvert(fbxfilepaths: list[ExportFBXModel], callback: callable = N
     tm_props.CB_showConvertPanel = True
     tm_props.NU_convertStartedAt = int(time.perf_counter())
     
-    startConvertTimer()
+    _start_convert_timer()
 
     tm_props_convertingItems.clear()
 
@@ -316,35 +471,32 @@ def startBatchConvert(fbxfilepaths: list[ExportFBXModel], callback: callable = N
     fail_count    = 0
     success_count = 0
     atleast_one_convert_failed = fail_count > 0
-    
 
-    for exported_fbx in fbxfilepaths:
-        name = get_path_filename(exported_fbx.filepath, remove_extension=True)
+    for item_to_convert in items:
+        name = get_path_filename(item_to_convert.fbx_path, remove_extension=True)
         item = tm_props_convertingItems.add()
         item.name = name
-        item.name_raw = exported_fbx.col.name
+        item.name_raw = item_to_convert.coll.name
         items_convert_index[ name ] = counter
         counter += 1
 
         
-    def convertFBX(exported_fbx: ExportFBXModel) -> None:
+    def convertFBX(item: ExportedItem) -> None:
         nonlocal items_convert_index
         nonlocal counter
         nonlocal fail_count
         nonlocal success_count
         nonlocal atleast_one_convert_failed
 
-        if tm_props.CB_xml_genItemXML: generateItemXML(exported_fbx)
-        if tm_props.CB_xml_genMeshXML: generateMeshXML(exported_fbx)
+        if tm_props.CB_xml_genItemXML: generate_item_XML(item)
+        if tm_props.CB_xml_genMeshXML: generate_mesh_XML(item)
 
-        fbxfilepath = exported_fbx.filepath
-        physic_hack = exported_fbx.physic_hack
-        name        = get_path_filename(exported_fbx.filepath, remove_extension=True)
+        name = get_path_filename(item.fbx_path, remove_extension=True)
 
         current_convert_timer = Timer()
         current_convert_timer.start()
         
-        convertTheFBX = CONVERT_ITEM(fbxfilepath=fbxfilepath, game=game, physic_hack=physic_hack)
+        convertTheFBX = CONVERT_ITEM(fbxfilepath=item.fbx_path, game=game, physic_hack=item.physic_hack)
         convertTheFBX.start() #start the convert (call internal run())
         convertTheFBX.join()  #waits until the thread terminated (function/convert is done..)
         
@@ -390,14 +542,14 @@ def startBatchConvert(fbxfilepaths: list[ExportFBXModel], callback: callable = N
     threads = []
 
     if use_multithread:
-        for exported_fbx in fbxfilepaths:
-            thread = threading.Thread(target=convertFBX, args=[exported_fbx,])
+        for item in items:
+            thread = threading.Thread(target=convertFBX, args=[item,])
             thread.start()
             threads.append(thread)
 
     else:
-        for exported_fbx in fbxfilepaths:
-            convertFBX(exported_fbx)
+        for item in items:
+            convertFBX(item)
             if tm_props.CB_stopAllNextConverts is True:
                 debug("Convert stopped, aborted by user (UI CHECKBOX)")
                 break
@@ -427,184 +579,4 @@ def startBatchConvert(fbxfilepaths: list[ExportFBXModel], callback: callable = N
 
         show_windows_toast(title, text, icon, 7000)
     
-    writeConvertReport(results=results)
-    if callback is not None:
-        callback()
-    
-
-
-def startConvertTimer():
-    tm_props = get_global_props()
-    def timer():
-        tm_props.NU_convertDurationSinceStart = int(time.perf_counter()) - tm_props.NU_convertStartedAt
-        if tm_props.CB_converting is False: 
-            return None
-        else: 
-           return 1
-
-    bpy.app.timers.register(timer, first_interval=1)
-
-
-
-
-
-
-def writeConvertReport(results: list) -> None:
-    """genertate status html file of converted fbx files"""
-    errors      = 0
-    converted   = len(results)
-    
-    for result in results:
-        if result.convert_has_failed:
-            errors += 1
-
-    try:
-        with open( fixSlash(PATH_CONVERT_REPORT), "w", encoding="utf-8") as f:
-            
-            resultList = ""
-            for result in results:
-
-                progress_LIs = ""
-                for step in result.convert_steps:
-
-                    sub_steps = step.additional_infos
-                    sub_steps_LIs = ""
-                    sub_steps_UL  = ""
-                    for sub_step in sub_steps:
-                        sub_steps_LIs += f"<li>{sub_step}</li>"
-                    
-                    if sub_steps_LIs:
-                        sub_steps_UL = f"<ul>{sub_steps_LIs}</ul>"
-                    
-                    progress_LIs += f"""<li class="">{step.title}{sub_steps_UL}</li> """
-
-                objName = result.relative_fbx_filepath
-                objName = objName.replace(result.name_raw, f"""<i>{result.name_raw}</i>""")
-
-                error_msg_item = result.item_error_message
-                error_msg_mesh = result.mesh_error_message
-
-                mesh_has_error = result.mesh_returncode > 0
-                item_has_error = result.item_returncode > 0
-
-                error_msg_mesh_pretty, \
-                error_msg_mesh_original = beautifyError(error_msg_mesh) if mesh_has_error else ("", "")
-                
-                error_msg_item_pretty,\
-                error_msg_item_original = beautifyError(error_msg_item) if item_has_error else ("", "")
-
-                html_item_error = f"""
-                    <li class="item-error"><b><h2>{error_msg_item_pretty}</h2><b> </li>
-                    <li class="item-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_item_original} </li>
-                    <hr>
-                """ if item_has_error else ""
-
-                html_mesh_error = f"""
-                    <li class="mesh-error"><b><h2>{error_msg_mesh_pretty}</h2><b> </li>
-                    <li class="mesh-error original"><b>Original NadeoImporter.exe response:</b> <br />{error_msg_mesh_original} </li>
-                    <hr>
-                """ if mesh_has_error else ""
-
-                resultList += f"""
-                    <li class="{"error" if result.convert_has_failed else "success"}">
-                        <ul class="result-object">
-                            <li class="item"><b>Item:</b> {objName}  </li>
-                            <hr>
-                            {html_item_error}
-                            {html_mesh_error}
-                            <li class="item-error"><b>Convert steps until convert failed:</b></li>
-                            <ul class="progress-steps">
-                                {progress_LIs}
-                            </ul>
-                        </ul>    
-                    </li>
-                    """
-            
-            fullHTML = f"""
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Convert Report</title>
-                    <link rel="stylesheet" href="file://{getAddonPath()}assets/report.css">
-                </head>
-                <body>
-                    <header>
-                        <div>
-                            Failed converts: {errors} of {converted}
-                        </div>
-                    </header>
-                    <ul id="result-list">
-                    {resultList}           
-                    </ul>
-                </body>
-                </html>
-                """
-            f.write(fullHTML)
-        
-    except FileNotFoundError as e:
-        show_report_popup(
-            "Writing file failed", 
-            [
-                "Can not write report file on desktop",
-                "Try to run Blender once as admindistator" 
-            ])
-
-
-        
-        
-def beautifyError(error: str):
-    """proper description from nadeoimporter return string"""
-    LMMissing       = "lightmap"
-    BMMissing       = "basematerial"
-    MatMissing      = "no material"
-    missingUV       = "uvlayers"
-    commonNotFound  = "common"
-    itemXMLMissing  = "item.xml"       
-    
-    error = error.replace("(b'", "")
-    error = error.replace("\\r",  "<br />")
-    error = error.replace("\\n'", "<br />")
-    error = error.replace("\\n",  "<br />")
-    error = error.replace("\\",   "/")
-    error = error.replace(", None)", "")
-        
-    prettymsg = ""
-    if LMMissing        in error.lower(): prettymsg="Lightmap uv layer is missing"
-    if BMMissing        in error.lower(): prettymsg="Basematerial uv layer is missing"
-    if MatMissing       in error.lower(): prettymsg="No material found, use atleast 1"
-    if LMMissing        in error.lower(): prettymsg="Not enough UvLayers, BaseMaterial/Lightmap missing?"
-    if missingUV        in error.lower(): prettymsg="Not enough UvLayers, BaseMaterial/Lightmap/Decal missing?"
-    if commonNotFound   in error.lower(): prettymsg="Collection COMMON not found, does meshParams.xml exist?"
-    if itemXMLMissing   in error.lower(): prettymsg="Item.xml not found, does it exists?"
-    if prettymsg == "":                   prettymsg=error 
-
-    return prettymsg, error
-
-    
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        
-        
-        
+    _write_convert_report(results=results)

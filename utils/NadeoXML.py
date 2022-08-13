@@ -1,26 +1,35 @@
 
 import re
 import bpy
+import math
 
+from .Models import ExportedItem
 from .Constants import WAYPOINTS
-from .Functions import *
+from .Functions import (
+    rgb_to_hex,
+    fixSlash,
+    safe_name,
+    get_global_props,
+    get_pivot_props,
+    is_file_exist,
+    get_path_filename,
+    isGameTypeManiaPlanet,
+    isGameTypeTrackmania2020,
+)
 
 
-def generate_item_XML(exported_fbx: ExportFBXModel) -> str:
+def generate_item_XML(item: ExportedItem) -> str:
     """generate item.xml"""
     tm_props        = get_global_props()
     tm_props_pivots = get_pivot_props()
 
-    fbxfilepath = exported_fbx.filepath
-    col         = exported_fbx.col
-
-    xmlfilepath = fbxfilepath.replace(".fbx", ".Item.xml")
+    xmlfilepath = item.fbx_path.replace(".fbx", ".Item.xml")
     overwrite   = tm_props.CB_xml_overwriteItemXML
 
     if not overwrite:
-        if doesFileExist(filepath=xmlfilepath): return
+        if is_file_exist(filepath=xmlfilepath): return
 
-    FILENAME_NO_EXT = re.sub(r"\..*$", "", fileNameOfPath(fbxfilepath), flags=re.IGNORECASE)
+    FILENAME_NO_EXT = re.sub(r"\..*$", "", get_path_filename(item.fbx_path), flags=re.IGNORECASE)
 
     use_simple_ui = tm_props.LI_xml_simpleOrAdvanced.upper() == "SIMPLE"
 
@@ -43,7 +52,7 @@ def generate_item_XML(exported_fbx: ExportFBXModel) -> str:
     GHOST_MODE          = tm_props.CB_xml_ghostMode
 
     WAYPOINT_XML = ""
-    WAYPOINT     = WAYPOINTS.get(col.color_tag, "")
+    WAYPOINT     = WAYPOINTS.get(item.coll.color_tag, "")
     
     if WAYPOINT == "None":
         WAYPOINT = ""
@@ -64,7 +73,7 @@ def generate_item_XML(exported_fbx: ExportFBXModel) -> str:
         PIVOTS_XML = f"""<Pivots>\n{ PIVOTS_XML }\n</Pivots>"""
 
 
-    filename    = get_path_filename( fbxfilepath )
+    filename    = get_path_filename(item.fbx_path)
     filename    = re.sub(r"\.(xml|fbx)", "", filename, flags=re.IGNORECASE)
 
 
@@ -101,27 +110,17 @@ def generate_item_XML(exported_fbx: ExportFBXModel) -> str:
         </Item>
     """
 
-    writeXMLFile(filepath=xmlfilepath, xmlstring=fullXML)
+    write_XML_file(filepath=xmlfilepath, xmlstring=fullXML)
 
-
-
-
-
-
-
-def generateMeshXML(exported_fbx: ExportFBXModel) -> str:
+def generate_mesh_XML(item: ExportedItem) -> str:
     """generate meshparams.xml"""
     tm_props  = get_global_props()
     overwrite = tm_props.CB_xml_overwriteMeshXML
 
-    fbxfilepath = exported_fbx.filepath
-    col         = exported_fbx.col
-    scale       = exported_fbx.scale
-
-    xmlfilepath = fbxfilepath.replace(".fbx", ".MeshParams.xml")
+    xmlfilepath = item.fbx_path.replace(".fbx", ".MeshParams.xml")
 
     if not overwrite:
-        if doesFileExist(filepath=xmlfilepath): return
+        if is_file_exist(filepath=xmlfilepath): return
 
     
     GLOBAL_LIGHT_RADIUS= tm_props.NU_xml_lightGlobDistance  if tm_props.CB_xml_lightGlobDistance    else None
@@ -131,7 +130,7 @@ def generateMeshXML(exported_fbx: ExportFBXModel) -> str:
     USE_GLOBAL_SCALE   = tm_props.CB_xml_scale is True
     GLOBAL_SCALE       = tm_props.NU_xml_scale
     
-    SCALE = scale if USE_GLOBAL_SCALE is False else GLOBAL_SCALE 
+    SCALE = item.scale if USE_GLOBAL_SCALE is False else GLOBAL_SCALE 
     
 
     COLLECTION  = ""
@@ -141,7 +140,7 @@ def generateMeshXML(exported_fbx: ExportFBXModel) -> str:
     lightsXML   = ""
 
     
-    for obj in col.objects:
+    for obj in item.coll.objects:
         
         if obj.type == "MESH":
             for matSlot in obj.material_slots:
@@ -169,7 +168,7 @@ def generateMeshXML(exported_fbx: ExportFBXModel) -> str:
         if mat.use_nodes:                       # replace with BSDF color
             MAT_COLOR = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
 
-        CUSTOM_COLOR    = rgbToHEX(MAT_COLOR, "", True) # convert to Hex with gamma correction
+        CUSTOM_COLOR    = rgb_to_hex(MAT_COLOR, "", True) # convert to Hex with gamma correction
         USE_CUSTOM_COLOR= MAT_COLOR[3] > 0              # use custom color only if material color has Alpha > 0
         if BASETEXTURE:
             BASETEXTURE = fixSlash( BASETEXTURE )
@@ -207,7 +206,7 @@ def generateMeshXML(exported_fbx: ExportFBXModel) -> str:
         COLOR_R     = bpy.data.objects[light.name].data.color[0] 
         COLOR_G     = bpy.data.objects[light.name].data.color[1] 
         COLOR_B     = bpy.data.objects[light.name].data.color[2] 
-        COLOR       = rgbToHEX([COLOR_R, COLOR_G, COLOR_B]) if not GLOBAL_LIGHT_COLOR else rgbToHEX(GLOBAL_LIGHT_COLOR)
+        COLOR       = rgb_to_hex([COLOR_R, COLOR_G, COLOR_B]) if not GLOBAL_LIGHT_COLOR else rgb_to_hex(GLOBAL_LIGHT_COLOR)
 
         ANGLES_XML = f""" SpotInnerAngle="{ INNER_ANGLE }" SpotOuterAngle="{ OUTER_ANGLE }" """ if is_spotlight else ""
 
@@ -225,7 +224,7 @@ def generateMeshXML(exported_fbx: ExportFBXModel) -> str:
 
     fullXML = f"""
         <?xml version="1.0" ?>
-        <MeshParams Scale="{ SCALE }" MeshType="Static" Collection="{ COLLECTION }" FbxFile="{ get_path_filename(fbxfilepath) }">
+        <MeshParams Scale="{ SCALE }" MeshType="Static" Collection="{ COLLECTION }" FbxFile="{ get_path_filename(item.fbx_path) }">
             <Materials>
             {materialsXML}
             </Materials>
@@ -235,38 +234,12 @@ def generateMeshXML(exported_fbx: ExportFBXModel) -> str:
         </MeshParams>
     """
     
-    writeXMLFile(filepath=xmlfilepath, xmlstring=fullXML)
+    write_XML_file(filepath=xmlfilepath, xmlstring=fullXML)
 
 
 
-def writeXMLFile(filepath, xmlstring) -> None:
+def write_XML_file(filepath, xmlstring) -> None:
     xmlstring = re.sub(r"^(\s|\t)+", "", xmlstring, flags=re.MULTILINE)
     xmlstring = xmlstring.replace("%TAB%", "\t")
     with open(filepath, "w", encoding="utf-8") as xml:
         xml.write(xmlstring)
-
-
-
-
-def addOrRemovePivot(type: str) -> None:
-    """add or remove a pivot for xml creation"""
-    tm_props        = get_global_props()
-    tm_props_pivots = get_pivot_props()
-    
-    pivotcount = len(tm_props_pivots)
-    
-    if type == "ADD":   tm_props_pivots.add()
-    if type == "DEL":   tm_props_pivots.remove(pivotcount -1)
-    
-        
-    
-
-
-
-def extendObjectPropertiesPanel_LIGHT(self, context):
-    layout = self.layout
-    # return
-    layout.split()
-    row=layout.row()
-    # row.alert = True
-    row.prop(context.object.data, "night_only", text="Night & Sunset only")

@@ -1,5 +1,7 @@
 from bpy.types import (Operator, Panel)
 
+from ..utils.Models import ExportedItem
+
 from ..utils.Dotnet         import *
 from ..utils.Functions      import *
 from ..utils.Constants      import * 
@@ -13,7 +15,7 @@ class OT_UIExportAndCreateMap(Operator):
     bl_label = "Save as map"
         
     def execute(self, context):
-        if saveBlendFile():
+        if save_blend_file():
             export_and_place_on_map(get_global_props().ST_map_filepath)
         else:
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")

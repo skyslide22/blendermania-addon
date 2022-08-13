@@ -1,24 +1,7 @@
-from typing import List
 import bpy
-import os.path
-from bpy.types import (
-    Panel,
-    Operator,
-    AddonPreferences,
-    PropertyGroup
-)
+from bpy.types import (Panel)
 
 from ..utils.Functions      import *
-from ..utils.Dotnet         import *
-from ..utils.Constants      import * 
-from ..operators.OT_Items_Convert  import *
-from ..operators.OT_Items_XML      import *
-from ..operators.OT_Items_UVMaps   import *
-from ..operators.OT_Settings       import *
-from ..operators.OT_Items_Icon     import *
-from ..operators.OT_Materials      import *
-from ..operators.OT_Map_Manipulate  import *
-
 
 class TM_PT_Items_Export(Panel):
     # region bl_

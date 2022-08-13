@@ -16,13 +16,17 @@ from bpy.props import CollectionProperty
 
 from ..utils.Functions      import *
 from ..utils.Constants      import * 
-from ..operators.OT_Items_Convert  import *
-from ..operators.OT_Items_XML      import *
-from ..operators.OT_Items_UVMaps   import *
 from ..operators.OT_Settings       import *
 from ..operators.OT_Items_Icon     import *
 from ..operators.OT_Materials      import *
 
+"""
+    ADD TO __init__
+
+    from .panels.PT_Items_Import       import *
+
+    TM_PT_Items_Import,
+"""
 
 class TM_PT_Items_Import(Panel):
     bl_label   = "Import FBX"

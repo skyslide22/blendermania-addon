@@ -280,8 +280,8 @@ ADDON_ICONS_PATH = os.path.join(os.path.dirname(__file__), os.pardir) + "/icons"
 # circular import
 from .Functions import (
     getAddonAssetsPath,
-    getAddonPath,
-    doesFileExist,
+    get_addon_path,
+    is_file_exist,
 
 )
 
@@ -294,7 +294,7 @@ ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = getAddonAssetsPath() + "/item_c
 
 
 # check if blender is opened by a dev (from vscode..?)
-BLENDER_INSTANCE_IS_DEV = os.path.exists(getAddonPath() + ".git")
+BLENDER_INSTANCE_IS_DEV = os.path.exists(get_addon_path() + ".git")
 
 # imported templates
 ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = getAddonAssetsPath() + "/item_triggers/TRIGGER_WALL_32x8.fbx"
@@ -303,7 +303,7 @@ ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = getAddonAssetsPath() + "/item_triggers/T
 MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = getAddonAssetsPath()+"/materials/materials-map-trackmania2020.json"
 MATERIALS_MAP_TM2020 = {}
 
-if doesFileExist(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
+if is_file_exist(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
     with open(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020, "r") as f:
         data = f.read()
         MATERIALS_MAP_TM2020 = json.loads(data)

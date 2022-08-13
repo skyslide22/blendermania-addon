@@ -6,12 +6,11 @@ from bpy.types import (
     PropertyGroup
 )
 
+from .ItemsIcon import generate_world_node
+
 from .Functions  import * 
 from .Constants  import * 
-from ..operators.OT_Items_Icon import generateWorldNode
 from .Descriptions import *
-
-
 
 class EnumProps():
     """this needs to be returned by bpy.props.EnumProperty"""
@@ -503,7 +502,7 @@ def updateWorldBG(s,c) -> None:
     tm_world    = "tm_icon_world"
     color       = tm_props.NU_icon_bgColor
 
-    if not tm_world in worlds: generateWorldNode() 
+    if not tm_world in worlds: generate_world_node() 
 
     def changeColor(color):
         bpy.data.worlds[tm_world].node_tree.nodes["TM_BACKGROUND"].inputs[0].default_value = color
@@ -511,7 +510,7 @@ def updateWorldBG(s,c) -> None:
     try: changeColor(color)
 
     except KeyError: 
-        generateWorldNode()
+        generate_world_node()
         changeColor(color)
 
 

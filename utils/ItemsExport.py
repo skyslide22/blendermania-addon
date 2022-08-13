@@ -4,21 +4,27 @@ import bpy
 from copy import copy
 from shutil import copyfile
 
+from .Models import ExportedItem
+from .NadeoImporter import start_batch_convert
+from .ItemsIcon import generate_collection_icon, get_icon_path_from_fbx_path
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
 from .Constants import NOT_ALLOWED_COLLECTION_NAMES
-from .Functions import create_folder_if_necessary, debug, deselect_all_objects, fixSlash, get_global_props, get_game_doc_path_work_items, get_abs_path, get_path_filename, is_real_object_by_name, isGameTypeManiaPlanet, safe_name, get_collection_hierachy, get_game_doc_path_items, select_obj, show_report_popup
-
-class ExportedItem: 
-    name:         str = ""
-    r_path:       str = "" # relative path in Items/ folder or Work/Items w/o extension
-    item_path:    str = ""
-    fbx_path:     str = ""
-    col:          bpy.types.Collection = None
-    scale:        int = 1
-    physic_hack:  True
-
-    def __init__(self, coll: bpy.types.Collection):
-        self.coll = coll
+from .Functions import (
+    create_folder_if_necessary,
+    debug,
+    deselect_all_objects,
+    fixSlash,
+    get_global_props,
+    get_game_doc_path_work_items,
+    get_abs_path,
+    is_real_object_by_name,
+    isGameTypeManiaPlanet,
+    safe_name,
+    get_collection_hierachy,
+    get_game_doc_path_items,
+    select_obj,
+    show_report_popup,
+)
 
 def _is_real_object(name: str) -> bool:
     name = name.lower()
@@ -127,15 +133,19 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
 
             new_item = copy(item)
             new_item.scale = current_scale
-            new_item.name = re.sub(pattern, f"_#{scale}", item.fbx_path)
-            new_item.r_path = re.sub(pattern, f"_#{scale}", item.fbx_path)
+            new_item.name = re.sub(pattern, f"_#{scale}", item.name)
+            new_item.r_path = re.sub(pattern, f"_#{scale}", item.r_path)
             new_item.fbx_path = re.sub(pattern, f"_#{scale}", item.fbx_path)
-            new_item.item_path = re.sub(pattern, f"_#{scale}", item.fbx_path)
+            new_item.icon_path = re.sub(pattern, f"_#{scale}", item.icon_path)
+            new_item.item_path = re.sub(pattern, f"_#{scale}", item.item_path)
 
             debug(f"create new file: {new_item.fbx_path}")
             copyfile(item.fbx_path, new_item.fbx_path)
+            copyfile(item.icon_path, new_item.icon_path)
 
             current_scale -= scale_step
+
+            items.append(new_item)
         
         debug(f"remove original: {item.fbx_path}")
         os.remove(item.fbx_path) # rm original
@@ -148,7 +158,8 @@ def _move_collection_to(coll: bpy.types.Collection, location: list[float] = [0,0
 
     # take first valid object and main one
     for obj in coll.objects:
-        if obj.type == "MESH" and is_real_object_by_name(obj.name):
+        if obj.type == "MESH" and is_real_object_by_name(obj.name)\
+        and (len(offset) == 0 or obj.name.lower().startswith("_origin_")):
             offset = [
                 obj.location[0] - location[0],
                 obj.location[1] - location[1],
@@ -195,6 +206,20 @@ def _export_item_FBX(item: ExportedItem) -> None:
 
     deselect_all_objects()
 
+def _clean_up_addon_export_settings(total: int):
+    tm_props = get_global_props()
+    tm_props.NU_convertCount        = total
+    tm_props.NU_converted           = 0
+    tm_props.NU_convertedRaw        = 0
+    tm_props.NU_convertedError      = 0
+    tm_props.NU_convertedSuccess    = 0
+    tm_props.ST_convertedErrorList  = ""
+    tm_props.CB_converting          = True
+
+    tm_props.NU_convertDurationSinceStart = 0
+    tm_props.NU_convertStartedAt          = 0
+    tm_props.NU_currentConvertDuration    = 0
+
 def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     current_selection                  = pre_selected_objs = bpy.context.selected_objects.copy()
     tm_props                           = get_global_props()
@@ -221,11 +246,12 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
                 if "trigger" in objname_lower: obj.name = "_trigger_"
         
         # fill metadata
-        hrch = map(safe_name, get_collection_hierachy(coll, [coll.name]))
+        hrch = map(safe_name, get_collection_hierachy(coll.name, [coll.name]))
         item_to_export = ExportedItem(coll)
         item_to_export.name = safe_name(coll.name)
         item_to_export.r_path = '/'.join(hrch)
         item_to_export.fbx_path = f"{export_work_path}{item_to_export.r_path}.fbx"
+        item_to_export.icon_path = get_icon_path_from_fbx_path(item_to_export.fbx_path)
         item_to_export.item_path = f"{get_game_doc_path_items()}{item_to_export.r_path}.Item.Gbx"
         item_to_export.physic_hack = _is_physic_hack_required(coll)
 
@@ -251,31 +277,16 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
         # export .fbx
         _export_item_FBX(item_to_export)
         # generate icon
-        #if generate_icons:
-        #    generateIcon(col, exportedFBX.filepath)
+        if generate_icons:
+            generate_collection_icon(coll, item_to_export.icon_path)
         # move collection back to original position
         _move_collection_by(coll, offset)
 
         items_to_export += _duplicate_scaled(item_to_export)
-        
-
-
-
 
     for obj in current_selection:
         try: select_obj(obj)
         except: pass
-        
-    tm_props.NU_convertCount        = len(items_to_export)
-    tm_props.NU_converted           = 0
-    tm_props.NU_convertedRaw        = 0
-    tm_props.NU_convertedError      = 0
-    tm_props.NU_convertedSuccess    = 0
-    tm_props.ST_convertedErrorList  = ""
-    tm_props.CB_converting          = True
 
-    tm_props.NU_convertDurationSinceStart = 0
-    tm_props.NU_convertStartedAt          = 0
-    tm_props.NU_currentConvertDuration    = 0
-        
-    # TODO start convert
+    _clean_up_addon_export_settings(len(items_to_export))
+    start_batch_convert(items_to_export)
