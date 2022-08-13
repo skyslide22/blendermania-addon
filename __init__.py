@@ -4,6 +4,8 @@ import bpy_types
 from bpy.props import *
 from bpy.app.handlers import persistent
 
+import os
+ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 bl_info = {
     "name"          : "Trackmania Export & Convert .fbx > .gbx Addon",
@@ -97,7 +99,6 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleDoublesided,
     TM_OT_Items_ObjectManipulationToggleOrigin,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
-    TM_OT_Items_ObjectManipulationRemoveCollectionScale,
     TM_OT_Items_ToggleLightType,
     TM_OT_Items_ToggleNightOnly,
     TM_OT_Items_RenameObject,

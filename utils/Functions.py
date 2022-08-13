@@ -23,6 +23,7 @@ import time
 import json
 
 from .Constants import *
+from .. import ADDON_ROOT_PATH
 
 
 def fixSlash(filepath: str) -> str:
@@ -41,7 +42,7 @@ def getBlenderAddonsPath() -> str:
     return fixSlash(str(bpy.utils.user_resource('SCRIPTS') + "/addons/"))
 
 def getAddonPath() -> str:
-    return fixSlash(os.path.dirname(__file__) + "/")
+    return fixSlash(ADDON_ROOT_PATH + "/")
 
 def getAddonAssetsPath() -> str:
     return getAddonPath() + "/assets/"
@@ -1805,7 +1806,7 @@ def getWaypointTypeOfFBXfile(filepath: str) -> str:
 
 def getWaypointTypeOfActiveObjectsCollection() -> str:
     objs = bpy.context.selected_objects
-    col  = get_collection_of_first_selected_obj(objs)
+    col  = get_collection_of_first_selected_obj()
     if not col: return
     waypoint = get_waypointtype_of_collection(col)
 

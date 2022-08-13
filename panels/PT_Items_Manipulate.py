@@ -45,40 +45,47 @@ class TM_PT_ObjectManipulations(Panel):
         if current_collection is None:
             return
 
+        ignore = current_collection_name.startswith(SPECIAL_NAME_PREFIX_IGNORE)
+
         col_list = col_box.column(align=True)
         row = col_list.row(align=True)
         row.prop(tm_props, "LI_xml_waypointtype", text="")
-
-        ignore = current_collection_name.startswith(SPECIAL_NAME_PREFIX_IGNORE)
-        row = col_list.row(align=True)
-        row.operator(f"view3d.tm_togglecollectionignore", text=f"ignore collection during export", icon=ICON_TRUE if ignore else ICON_FALSE)
-        
+        row.operator(f"view3d.tm_togglecollectionignore", text=f"Ignore Export", icon=ICON_TRUE if ignore else ICON_FALSE)
 
         
-
+        # helpers if waypoint invalid
+        # helpers if waypoint invalid
+        # helpers if waypoint invalid
         if get_waypointtype_of_collection(current_collection) != "None":
             has_spawn_item   = check_collection_has_obj_with_fix(current_collection, prefix=SPECIAL_NAME_PREFIX_SOCKET)
             has_trigger_item = check_collection_has_obj_with_fix(current_collection, prefix=SPECIAL_NAME_PREFIX_TRIGGER)
+            waypoint_type    = getWaypointTypeOfActiveObjectsCollection()
+            
+            trigger_missing = has_trigger_item is False
+            spawn_missing   = has_spawn_item   is False
 
-            if has_spawn_item is False:
-                row = col_box.row()
-                row.alert = True
-                row.scale_y = .75
-                row.alignment = "CENTER"
-                row.label(text="Spawn(_socket_) object not found!")
-                row = col_box.row(align=True)
-                row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon="ADD")
-                row.prop(tm_props, "LI_items_cars", text="")
-                                
-            if has_trigger_item is False:
-                row = col_box.row()
-                row.alert = True
-                row.scale_y = .75
-                row.alignment = "CENTER"
-                row.label(text="Trigger object not found!")
-                row = col_box.row(align=True)
-                row.operator("view3d.tm_createtriggeritemincollection", text="Add trigger", icon="ADD")
-                row.prop(tm_props, "LI_items_triggers", text="")
+            if trigger_missing or spawn_missing:
+                err_box = col_box.box()
+                err_box.alert = True
+
+                if spawn_missing:
+                    row = err_box.row()
+                    row.scale_y = .75
+                    row.label(text= waypoint_type + " requires a _socket_ object!")
+                    row = err_box.row(align=True)
+                    row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon="ADD")
+                    row.prop(tm_props, "LI_items_cars", text="")
+                                    
+                if has_trigger_item is False:
+                    row = err_box.row()
+                    row.scale_y = .75
+                    row.label(text=waypoint_type + " requires a _trigger_ object!")
+                    row = err_box.row()
+                    row.scale_y = .75
+                    row.label(text="_trigger_ should not have materials and uv maps")
+                    row = err_box.row(align=True)
+                    row.operator("view3d.tm_createtriggeritemincollection", text="Add trigger", icon="ADD")
+                    row.prop(tm_props, "LI_items_triggers", text="")
             
         # col_box.separator(factor=.2)
         active_uvlayer_is_basematerial = True
@@ -87,13 +94,29 @@ class TM_PT_ObjectManipulations(Panel):
             base_uv = objs[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
             if base_uv:
                 active_uvlayer_is_basematerial = base_uv.active is True
-        
+
+
+
+        # multi scale export
+        # multi scale export
+        # multi scale export
+        remove_scale = "_#SCALE" in current_collection_name
+        multi_scale_icon = ICON_TRUE if remove_scale else ICON_FALSE
+        text = ("Remove" if remove_scale else "Add") + " Multi Scale Export"
+
+        row = col_box.row(align=True)
+        row.operator("wm.tm_changecollectionscale", text=text, icon=multi_scale_icon).remove_scale = remove_scale
+        row.prop(tm_props, "CB_objMplScaleRecursive", text="", icon="FOLDER_REDIRECT")
+
+
+        # basematerial / lightmap
+        # basematerial / lightmap
+        # basematerial / lightmap
         icon_basematerial = "HIDE_OFF" if     active_uvlayer_is_basematerial else "HIDE_ON"
         icon_lightmap     = "HIDE_OFF" if not active_uvlayer_is_basematerial else "HIDE_ON"
         col = col_box.column(align=True)
         row = col.row(align=True)
         # row.scale_y = .5
-        row.label(text="UVMap display & edit")
         row = col.row(align=False)
         uv_row = row.column(align=True).row(align=True)
         uv_row.operator("view3d.tm_showuvmap", text="BaseMaterial", icon=icon_basematerial).uv_name = UV_LAYER_NAME_BASEMATERIAL
@@ -103,6 +126,7 @@ class TM_PT_ObjectManipulations(Panel):
         uv_row.operator("view3d.tm_edituvmap", text="",             icon="GREASEPENCIL").uv_name = UV_LAYER_NAME_LIGHTMAP
         # row = col.row(align=True)
         # row.prop(tm_props, "LI_workspaces", text="")
+
 
 
         
@@ -148,7 +172,7 @@ class TM_PT_ObjectManipulations(Panel):
         
         # ignore
         row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjectignore", text=f"No export", icon=ICON_TRUE if ignore      else ICON_FALSE)
+        row.operator(f"view3d.tm_toggleobjectignore", text=f"Ignore Export", icon=ICON_TRUE if ignore      else ICON_FALSE)
         row.operator(f"view3d.tm_toggle_origin",      text=f"_origin_",  icon=ICON_TRUE if is_origin   else ICON_FALSE)
 
         if not is_light:
@@ -174,7 +198,7 @@ class TM_PT_ObjectManipulations(Panel):
             row = col_btns.row(align=True)
             row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=ICON_TRUE if trigger else ICON_FALSE)
             row.operator(f"view3d.tm_toggleobjectsocket",  text=SPECIAL_NAME_PREFIX_SOCKET,  icon=ICON_TRUE if socket  else ICON_FALSE)
-            
+
             row = col_btns.row(align=True)
             row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=ICON_TRUE if lod0  else ICON_FALSE)
             row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=ICON_TRUE if lod1  else ICON_FALSE)
@@ -252,20 +276,5 @@ class TM_PT_ObjectManipulations(Panel):
 
                 col.row().prop(bpy.context.object.data, "show_cone", toggle=True) 
 
-        # multi scale export
-        # multi scale export
-        # multi scale export
-        scale_box = layout.box()
-        row = scale_box.row(align=True)
-        row.scale_y = .75
-        row.label(text="Multi scale export", icon="CON_SIZELIKE")
-        row = scale_box.row(align=True)
-        col = row.column(align=True)
-        col.scale_x = .8
-        col.operator("wm.tm_changecollectionscale", text="Add", icon="ADD")
-        col = row.column(align=True)
-        col.scale_x = 1
-        row = col.row(align=True)
-        row.operator("view3d.tm_removecollectionscale", text="Remove", icon="REMOVE")
-        row.prop(tm_props, "CB_objMplScaleRecursive", text="", icon="FOLDER_REDIRECT")
+
 

@@ -1,4 +1,5 @@
 
+
 import bpy
 from bpy.types import Panel
 from bpy.types import Operator
@@ -152,34 +153,6 @@ class TM_OT_Items_ObjectManipulationToggleOrigin(Operator):
         return {"FINISHED"}
 
 
-class TM_OT_Items_ObjectManipulationRemoveCollectionScale(Operator):
-    bl_idname = "view3d.tm_removecollectionscale"
-    bl_description = "Remove custom multi scale for collection"
-    bl_icon = 'REMOVE'
-    bl_label = "Remove custom multi scale for collection"
-   
-    def execute(self, context):
-        tm_props        = get_global_props()
-        affect_children = tm_props.CB_objMplScaleRecursive
-        col             = getActiveCollectionOfSelectedObject()
-
-        if col is not None:    
-            child_cols = set()
-            child_cols.add(col)
-            
-            if affect_children:
-                for obj in col.all_objects:
-                    for child_col in obj.users_collection:
-                        child_cols.add(child_col)
-            
-            for child_col in child_cols:
-                setScaledCollectionName(col=child_col, remove=True)
-        
-
-        else:
-            show_report_popup("Renaming failed", ["Select any object to change its collection name"])
-        return {"FINISHED"}
-
 
 class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     bl_idname = "wm.tm_changecollectionscale"
@@ -187,11 +160,11 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     bl_icon = 'ADD'
     bl_label = "Set custom multi scale for collection"
    
+    remove_scale: bpy.props.BoolProperty(False)
+
     def execute(self, context):
         col      = getActiveCollectionOfSelectedObject()
         tm_props = get_global_props()
-
-        affect_children = tm_props.CB_objMplScaleRecursive
 
         scale_from     = tm_props.NU_objMplScaleFrom
         scale_to       = tm_props.NU_objMplScaleTo
@@ -213,19 +186,7 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
 
 
         if col is not None:
-            
-            child_cols = set()
-            child_cols.add(col)
-            
-            if affect_children:
-                for obj in col.all_objects:
-                    for child_col in obj.users_collection:
-                        child_cols.add(child_col)
-            
-            for child_col in child_cols:
-                setScaledCollectionName(col=child_col)
-        
-
+            setScaledCollectionName(col, remove=self.remove_scale)
         else:
             show_report_popup("Renaming failed", ["Select any object to change its collection name"])
         
@@ -234,7 +195,10 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
 
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
+        if self.remove_scale:
+            return self.execute(context)
+        else:
+            return context.window_manager.invoke_props_dialog(self)
 
     def draw(self, context):
         tm_props = get_global_props()
@@ -514,24 +478,39 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
 
 
 def getCollectionNameWithoutScaleSuffix(col_name:str) -> str:
-    return col_name.split("_#SCALE")[0]
+    return 
 
 
 def setScaledCollectionName(col:bpy.types.Collection, remove:bool=False) -> None: 
-    tm_props     = get_global_props()
-    scale_from   = tm_props.NU_objMplScaleFrom
-    scale_to     = tm_props.NU_objMplScaleTo
-    scale_factor = tm_props.NU_objMplScaleFactor
+    tm_props        = get_global_props()
+    scale_from      = tm_props.NU_objMplScaleFrom
+    scale_to        = tm_props.NU_objMplScaleTo
+    scale_factor    = tm_props.NU_objMplScaleFactor
+    affect_children = tm_props.CB_objMplScaleRecursive
 
-    col_name_new = col.name
+    collections_to_scale = set()
+    collections_to_scale.add(col)
 
-    if "_#SCALE" in col_name_new or remove:
-        col_name_new = getCollectionNameWithoutScaleSuffix(col.name)
-    
-    if not remove:
-        col_name_new += f"_#SCALE_{scale_from}to{scale_to}_x{scale_factor}"
+    if affect_children:
+        for obj in col.all_objects:
+            for child_col in obj.users_collection:
+                collections_to_scale.add(child_col)
 
-    col.name = col_name_new
+
+    for col in collections_to_scale:
+        col_name_new = col.name
+
+        if "_#SCALE" in col_name_new or remove:
+            col_name_new = col.name.split("_#SCALE")[0]
+        
+        if not remove:
+            col_name_new += f"_#SCALE_{scale_from}to{scale_to}_x{scale_factor}"
+
+        col.name = col_name_new
+
+
+
+
 
     
 
