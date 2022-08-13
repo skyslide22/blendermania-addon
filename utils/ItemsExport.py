@@ -168,6 +168,33 @@ def _move_collection_by(coll: bpy.types.Collection, offset: list[float] = [0,0,0
         obj.location[1] += offset[1]
         obj.location[2] += offset[2]
 
+def _export_item_FBX(item: ExportedItem) -> None:
+    """exports fbx, creates filepath if it does not exist"""
+    create_folder_if_necessary(item.fbx_path[:item.fbx_path.rfind("/")]) #deletes all after last slash
+
+    tm_props    = get_global_props()
+    objTypes    = tm_props.LI_exportValidTypes.split("_") 
+    objTypes    = {ot for ot in objTypes} #MESH_LIGHT_EMPTY
+    exportArgs  = {
+        "filepath":             item.fbx_path,
+        "object_types":         objTypes,
+        "use_selection":        True,
+        "use_custom_props":     True,
+        "apply_unit_scale":     False,
+    }
+
+    if isGameTypeManiaPlanet():
+        exportArgs["apply_scale_options"] = "FBX_SCALE_UNITS"
+
+    deselect_all_objects()
+    for obj in item.coll.objects:
+        if not obj.name.lower().startswith(("_ignore", "delete")) :
+            select_obj(obj)
+
+    bpy.ops.export_scene.fbx(**exportArgs) #one argument is optional, so give a modified dict and **unpack
+
+    deselect_all_objects()
+
 def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     current_selection                  = pre_selected_objs = bpy.context.selected_objects.copy()
     tm_props                           = get_global_props()
@@ -222,7 +249,7 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
         # move collection to 0,0,0
         offset = _move_collection_to(coll)
         # export .fbx
-        export_item_FBX(item_to_export)
+        _export_item_FBX(item_to_export)
         # generate icon
         #if generate_icons:
         #    generateIcon(col, exportedFBX.filepath)
@@ -252,31 +279,3 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
     tm_props.NU_currentConvertDuration    = 0
         
     # TODO start convert
-
-
-def export_item_FBX(item: ExportedItem) -> None:
-    """exports fbx, creates filepath if it does not exist"""
-    create_folder_if_necessary(item.fbx_path[:item.fbx_path.rfind("/")]) #deletes all after last slash
-
-    tm_props    = get_global_props()
-    objTypes    = tm_props.LI_exportValidTypes.split("_") 
-    objTypes    = {ot for ot in objTypes} #MESH_LIGHT_EMPTY
-    exportArgs  = {
-        "filepath":             item.fbx_path,
-        "object_types":         objTypes,
-        "use_selection":        True,
-        "use_custom_props":     True,
-        "apply_unit_scale":     False,
-    }
-
-    if isGameTypeManiaPlanet():
-        exportArgs["apply_scale_options"] = "FBX_SCALE_UNITS"
-
-    deselect_all_objects()
-    for obj in item.coll.objects:
-        if not obj.name.lower().startswith(("_ignore", "delete")) :
-            select_obj(obj)
-
-    bpy.ops.export_scene.fbx(**exportArgs) #one argument is optional, so give a modified dict and **unpack
-
-    deselect_all_objects()
