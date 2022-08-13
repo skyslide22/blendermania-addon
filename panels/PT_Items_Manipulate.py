@@ -131,6 +131,7 @@ class TM_PT_ObjectManipulations(Panel):
         socket     = SPECIAL_NAME_PREFIX_SOCKET in obj_name
         lod0       = SPECIAL_NAME_SUFFIX_LOD0 in obj_name
         lod1       = SPECIAL_NAME_SUFFIX_LOD1 in obj_name
+        is_origin  = SPECIAL_NAME_INFIX_ORIGIN in obj_name
 
         
         row = obj_box.row(align=True)
@@ -147,13 +148,11 @@ class TM_PT_ObjectManipulations(Panel):
         
         # ignore
         row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjectignore", text=f"ignore in export", icon=ICON_TRUE if ignore      else ICON_FALSE)
-        # row.operator(f"view3d.tm_toggledoublesided",  text=f"double sided",     icon=ICON_TRUE if doublesided else ICON_FALSE)
+        row.operator(f"view3d.tm_toggleobjectignore", text=f"No export", icon=ICON_TRUE if ignore      else ICON_FALSE)
+        row.operator(f"view3d.tm_toggle_origin",      text=f"_origin_",  icon=ICON_TRUE if is_origin   else ICON_FALSE)
 
         if not is_light:
-            row = col_btns.row(align=True)
-            row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=ICON_TRUE if lod0  else ICON_FALSE)
-            row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=ICON_TRUE if lod1  else ICON_FALSE)
+
 
             if current_collection is not None:
                 has_lod0_item = check_collection_has_obj_with_fix(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD0)
@@ -175,6 +174,11 @@ class TM_PT_ObjectManipulations(Panel):
             row = col_btns.row(align=True)
             row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=ICON_TRUE if trigger else ICON_FALSE)
             row.operator(f"view3d.tm_toggleobjectsocket",  text=SPECIAL_NAME_PREFIX_SOCKET,  icon=ICON_TRUE if socket  else ICON_FALSE)
+            
+            row = col_btns.row(align=True)
+            row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=ICON_TRUE if lod0  else ICON_FALSE)
+            row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=ICON_TRUE if lod1  else ICON_FALSE)
+
 
             if isGameTypeTrackmania2020():
                 row = col_btns.row(align=True)

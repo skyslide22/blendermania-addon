@@ -141,6 +141,17 @@ class TM_OT_Items_CollectionManipulationToggleIgnore(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Items_ObjectManipulationToggleOrigin(Operator):
+    bl_idname = "view3d.tm_toggle_origin"
+    bl_description = f"Toggle {SPECIAL_NAME_INFIX_ORIGIN} on selected object"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_INFIX_ORIGIN}"
+   
+    def execute(self, context):
+        toggle_infix(bpy.context.selected_objects[0], SPECIAL_NAME_INFIX_ORIGIN)
+        return {"FINISHED"}
+
+
 class TM_OT_Items_ObjectManipulationRemoveCollectionScale(Operator):
     bl_idname = "view3d.tm_removecollectionscale"
     bl_description = "Remove custom multi scale for collection"
@@ -418,6 +429,19 @@ def cleanObjNameFromSpecialProps(name: str) -> str:
                 new_name = new_name.replace(prefix, "")
     return new_name
 
+
+def toggle_infix(obj: bpy.types.Object, infix: str) -> None:
+    if infix in obj.name:
+        obj.name = obj.name.replace(infix, "")
+    else:
+        prefix = "".join(re.findall(r"^_\w+_", obj.name, re.IGNORECASE ))
+
+        if prefix:
+            obj.name = obj.name.replace(prefix, prefix + infix)
+        else:
+            obj.name = infix + obj.name
+
+        
 
 def toggleNameSpecialPrefix(obj:object, prefix:str) -> None:
     """switch prefix if bpy.types (collection, object, etc) .name"""
