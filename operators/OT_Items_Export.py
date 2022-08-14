@@ -40,12 +40,5 @@ def export_and_convert():
     tm_props = get_global_props()
     
     # take all collections or only selected
-    to_export = bpy.data.collections
-    if tm_props.LI_exportWhichObjs == "SELECTED":
-        to_export = []
-        for obj in bpy.context.selected_objects:
-            for coll in obj.users_collection:
-                if coll not in to_export:
-                    to_export.append(coll)
-    
+    to_export = get_exportable_collections(bpy.context.selected_objects) if tm_props.LI_exportWhichObjs == "SELECTED" else bpy.data.collections
     return export_items_collections(to_export)

@@ -56,18 +56,6 @@ def _is_collection_exportable(coll: bpy.types.Collection)->bool:
     
     return is_exportable
 
-def _get_exportable_collections(colls: list[bpy.types.Collection])->list[bpy.types.Collection]:
-    collections:list[bpy.types.Collection] = []
-
-    for coll in colls:
-        # ignore collections which have child collections
-        if len(coll.children) > 0:
-            collections += _get_exportable_collections(coll.children)
-        elif _is_collection_exportable(coll):
-            collections.append(coll)
-
-    return collections
-
 def _fix_uv_layers_name(coll: bpy.types.Collection) -> None:
     for obj in coll.objects:
         if obj.type == "MESH" and not obj.name.startswith((
@@ -247,7 +235,10 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
     
     deselect_all_objects()
 
-    for coll in _get_exportable_collections(colls):
+    for coll in colls:
+        if not _is_collection_exportable(coll):
+            continue
+
         debug(f"Preparing <{coll.name}> for export")
         # clean up lazy names
         for obj in coll.objects:
