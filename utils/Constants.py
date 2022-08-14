@@ -220,7 +220,7 @@ DEFAULT_UVLAYER_NAMES     = ["BaseMaterial", "LightMap"]
 
 # Properties which are shared in each panel class
 PANEL_CLASS_COMMON_DEFAULT_PROPS = {
-    "bl_category":       "TrackmaniaAddon",
+    "bl_category":       "Blendermania",
     "bl_space_type":     "VIEW_3D",
     "bl_region_type":    "UI",
     #"bl_context":        "objectmode",
