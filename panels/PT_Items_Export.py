@@ -189,14 +189,25 @@ class TM_PT_Items_Export(Panel):
                 bcol.scale_x = 1.25
                 bcol.operator("view3d.tm_execute_help", text="Show errors",  icon="HELP").command = "open_convertreport"    
             
+            
+            
+            
+            
+            
+            
+            # TODO make list of last converted collections and only convert those not "selected" or "visible"
+            # TODO make list of last converted collections and only convert those not "selected" or "visible"
+            # TODO make list of last converted collections and only convert those not "selected" or "visible"
+            
             bcol = row.column(align=True)
             bcol.enabled = True # if any([convertDone, stopConverting]) else False
-            bcol.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon=ICON_SUCCESS)
+            bcol.operator("view3d.tm_closeconvertsubpanel", text="OK", icon=ICON_SUCCESS)
 
             bcol = row.column(align=True)
             bcol.enabled = enableExportButton 
-            bcol.operator("view3d.tm_export", text="", icon=ICON_IMPORT)
+            bcol.operator("view3d.tm_export", text="Convert Again", icon=ICON_CONVERT)
             
+
 
 
             #result of fails
