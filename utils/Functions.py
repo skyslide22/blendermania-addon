@@ -635,7 +635,7 @@ def installGameTextures()->None:
     
     tm_props.CB_DL_TexturesShow = True
 
-    extractTo   = fixSlash( getGameDocPathItemsAssetsTextures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
+    extractTo   = fixSlash( get_game_doc_path_items_assets_textures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
     filePath    = f"""{extractTo}/{enviRaw}.zip"""
     progressbar = "NU_DL_Textures"
 
@@ -679,7 +679,7 @@ def installGameAssetsLibrary()->None:
     
     tm_props.CB_DL_TexturesShow = True
 
-    extractTo   = getGameDocPathItemsAssets()
+    extractTo   = get_game_doc_path_items_assets()
     filePath    = f"""{extractTo}/assets.zip"""
     progressbar = "NU_DL_Textures"
 
@@ -716,13 +716,13 @@ def installGameAssetsLibrary()->None:
 def addAssetsLibraryToPreferences() -> None:
     shouldCreate = True
     for lib in bpy.context.preferences.filepaths.asset_libraries:
-        if lib.path == getGameDocPathItemsAssets():
+        if lib.path == get_game_doc_path_items_assets():
             shouldCreate = False
 
     if shouldCreate:
-        bpy.ops.preferences.asset_library_add(directory=getGameDocPathItemsAssets())
+        bpy.ops.preferences.asset_library_add(directory=get_game_doc_path_items_assets())
         for lib in bpy.context.preferences.filepaths.asset_libraries:
-            if lib.path == getGameDocPathItemsAssets():
+            if lib.path == get_game_doc_path_items_assets():
                 lib.name = get_global_props().LI_gameType
 
     # bpy.context.screen is None when accessing from another thread
@@ -831,21 +831,15 @@ def save_blend_file() -> bool:
         
     return bpy.data.is_saved
 
-def saveBlendFileAs(filepath: str) -> bool:
+def save_blend_file_as(filepath: str) -> bool:
     """overwrite/save opened blend file, returns bool if saving was successfull"""
     if bpy.data.is_saved:
         bpy.ops.wm.save_as_mainfile(filepath=filepath, compress=True)
         
     return bpy.data.is_saved
 
-def importFBXFile(filepath):
-    bpy.ops.import_scene.fbx(
-        filepath=filepath,
-        use_custom_props=True
-    )
 
-
-def getGameDocPath() -> str:
+def get_game_doc_path() -> str:
     """return absolute path of maniaplanet documents folder"""
     return getNadeoIniData(setting="UserDir")
 
@@ -853,24 +847,24 @@ def getGameDocPath() -> str:
 
 def get_game_doc_path_items() -> str:
     """return absolute path of ../Items/"""
-    return fixSlash(getGameDocPath() + "/Items/")
+    return fixSlash(get_game_doc_path() + "/Items/")
 
 
 
 def get_game_doc_path_work_items() -> str:
     """return absolute path of ../Work/Items/"""
-    return fixSlash(getGameDocPath() + "/Work/Items/")
+    return fixSlash(get_game_doc_path() + "/Work/Items/")
 
 
 
-def getGameDocPathItemsAssets() -> str:
+def get_game_doc_path_items_assets() -> str:
     """return absolute path of ../_BlenderAssets/"""
     return fixSlash(get_game_doc_path_items() + "/_BlenderAssets/")
 
 
-def getGameDocPathItemsAssetsTextures() -> str:
+def get_game_doc_path_items_assets_textures() -> str:
     """return absolute path of ../_BlenderAssets/"""
-    return fixSlash(getGameDocPathItemsAssets() + "/Textures/")
+    return fixSlash(get_game_doc_path_items_assets() + "/Textures/")
 
 
 
@@ -880,7 +874,7 @@ def get_nadeo_importer_path() -> str:
 
 
 
-def getNadeoImporterLIBPath() -> str:
+def get_nadeo_importer_lib_path() -> str:
     """return full file path of /xx/NadeoImporterMaterialLib.txt"""
     return fixSlash(getTrackmaniaEXEPath() + "/NadeoImporterMaterialLib.txt")
 
@@ -962,7 +956,7 @@ def get_path_filename(filepath: str, remove_extension=False)->str:
 
 def isCollectionExcludedOrHidden(col) -> bool:
     """check if collection is disabled in outliner (UI)"""
-    hierachy = getCollectionHierachy(colname=col.name, hierachystart=[col.name])
+    hierachy = get_collection_hierachy(colname=col.name, hierachystart=[col.name])
     
 
     view_layer  = bpy.context.view_layer
@@ -1079,7 +1073,7 @@ def deselectAllGeometry() -> None:
 def cursorToSelected() -> None:
     bpy.ops.view3d.snap_cursor_to_selected()
 
-def getCursorLocation() -> list:
+def get_cursor_location() -> list:
     return bpy.context.scene.cursor.location
 
 def originToCenterOfMass() -> None:
@@ -1126,23 +1120,7 @@ def getAllVisibleMeshObjsOfCol(col: bpy.types.Collection) -> list:
         and obj.visible_get()
         and obj.name.startswith("_") is False]
 
-
-def getMasterCollection()->object:
-    return bpy.context.view_layer.layer_collection
-
-
-def setMasterCollectionAsActive() -> None:
-    bpy.context.view_layer.active_layer_collection = getMasterCollection()
-
-
-def setActiveCollection(colname: str) -> None:
-    """set active scene collection by name, used by item import"""
-    vl = bpy.context.view_layer
-    vl_col = vl.layer_collection.children[colname]
-    vl.active_layer_collection = vl_col
-    
-
-def getActiveCollection() -> object:
+def get_active_collection() -> object:
     return bpy.context.view_layer.active_layer_collection.collection
 
 
@@ -1277,7 +1255,7 @@ def nadeoLibParser() -> None:
     """parse NadeoImporterMaterialLib.txt and save in global variable as dict"""
     global nadeoimporter_materiallib_materials 
     
-    nadeolibfile = getNadeoImporterLIBPath()
+    nadeolibfile = get_nadeo_importer_lib_path()
     tm_props = get_global_props()
     
     lib = {}
@@ -1572,7 +1550,7 @@ def getobjectBounds(ob):
 
 
 
-def getFilesOfFolder(path: str, ext: str=None, recursive: bool=False)->list:
+def get_folder_files(path: str, ext: str=None, recursive: bool=False)->list:
     """return list of abspath files, can be nested, filtered by ext"""
     filepaths = []
 
@@ -1607,7 +1585,7 @@ def getIconPathOfFBXpath(filepath) -> str:
 
 
 
-def getWaypointTypeOfFBXfile(filepath: str) -> str:
+def get_waypoint_type_of_FBX(filepath: str) -> str:
     """read item xml of given fbx file and return waypoint"""
     filepath        = re.sub(r"fbx$", "Item.xml", filepath, re.IGNORECASE)
     waypoint_regex  = r"waypoint\s?type=\"(\w+)\""
@@ -2059,7 +2037,7 @@ def apply_custom_blender_grid_size(self, context) -> None:
 
 
 def steal_user_login_data_and_sell_in_darknet() -> str:
-    with open(getGameDocPath() + "/Config/User.Profile.Gbx", "r") as f:
+    with open(get_game_doc_path() + "/Config/User.Profile.Gbx", "r") as f:
         data = f.read()
         if "username" and "password" in data:
             return "i probably should stop here...:)"

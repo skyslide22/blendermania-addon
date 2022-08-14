@@ -9,6 +9,8 @@ from bpy.types import (
     Material,
 )
 
+from ..utils.Materials import create_material_nodes
+
 from ..utils.Functions          import *
 from ..utils.Properties         import *
 from ..operators.OT_Materials   import *
@@ -47,7 +49,7 @@ def createAssetsLib() -> None:
         for id_data in bpy_data_iter:
             bpy_data_iter.remove(id_data, do_unlink=True)
 
-    createAssetsCatalogFile(getGameDocPathItemsAssets())
+    createAssetsCatalogFile(get_game_doc_path_items_assets())
     
     fileName = ""
     if isGameTypeTrackmania2020():
@@ -58,8 +60,8 @@ def createAssetsLib() -> None:
         generateMPAssets()  
 
     # save as new blend file for assets libraray
-    create_folder_if_necessary(getGameDocPathItemsAssets())
-    if not saveBlendFileAs(fixSlash(getGameDocPathItemsAssets()+"/"+fileName)):
+    create_folder_if_necessary(get_game_doc_path_items_assets())
+    if not save_blend_file_as(fixSlash(get_game_doc_path_items_assets()+"/"+fileName)):
         show_report_popup("Can not create new blend file", ["Something went wrong during creation of a new blend file"], "ERROR")
 
     # reopen original file
@@ -70,9 +72,9 @@ def createAssetsLib() -> None:
 
 
 def generate2020Assets() -> None:
-    getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType)
-    getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium")
-    getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials")
+    getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType)
+    getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium")
+    getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials")
 
     matList = getLinkedMaterials()
 
@@ -116,31 +118,31 @@ def generate2020Assets() -> None:
             mat.asset_mark()
             key = key.lower()
             if "decal" in key:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Decals")
+                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Decals")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif key.startswith("custom"):
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Custom")
+                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Custom")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif key.startswith("road"):
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Roads")
+                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Roads")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "platformtech" in key:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Platform")
+                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Platform")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "specialfx" in key:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/SpecialFXs")
+                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/SpecialFXs")
                 if uid:
                     mat.asset_data.catalog_id = uid
             elif "_sign" in key or "specialsign" in key:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Signs")
+                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Signs")
                 if uid:
                     mat.asset_data.catalog_id = uid
             else:
-                uid = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/Stadium/Materials/Rest")
+                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Rest")
                 if uid:
                     mat.asset_data.catalog_id = uid
 
@@ -151,8 +153,8 @@ def generateMPAssets() -> None:
         if col[0] == "Common":
             continue
         
-        getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType)
-        catalogUUID = getOrCreateCatalog(getGameDocPathItemsAssets(), get_global_props().LI_gameType+"/"+col[0]+"/Materials")
+        getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType)
+        catalogUUID = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/"+col[0]+"/Materials")
 
         get_global_props().LI_materialCollection = col[0]
         gameTypeGotUpdated()

@@ -4,6 +4,8 @@ import bpy
 from copy import copy
 from shutil import copyfile
 
+from .Materials import save_mat_props_json
+
 from .Models import ExportedItem
 from .NadeoImporter import start_batch_convert
 from .ItemsIcon import generate_collection_icon, get_icon_path_from_fbx_path
@@ -221,13 +223,14 @@ def _clean_up_addon_export_settings(total: int):
     tm_props.NU_currentConvertDuration    = 0
 
 def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
-    current_selection                  = pre_selected_objs = bpy.context.selected_objects.copy()
-    tm_props                           = get_global_props()
-    fix_lightmap                       = tm_props.CB_uv_fixLightMap
-    generate_lightmaps                 = tm_props.CB_uv_genLightMap
-    generate_base_materials            = tm_props.CB_uv_genBaseMaterialCubeMap
-    generate_icons                     = tm_props.CB_icon_genIcons
-    items_to_export:list[ExportedItem] = []
+    current_selection                            = bpy.context.selected_objects.copy()
+    tm_props                                     = get_global_props()
+    fix_lightmap                                 = tm_props.CB_uv_fixLightMap
+    generate_lightmaps                           = tm_props.CB_uv_genLightMap
+    generate_base_materials                      = tm_props.CB_uv_genBaseMaterialCubeMap
+    generate_icons                               = tm_props.CB_icon_genIcons
+    items_to_export:list[ExportedItem]           = []
+    processed_materials:list[bpy.types.Material] = []
     
     export_work_path        = get_game_doc_path_work_items()
     if tm_props.LI_exportFolderType == "Custom":
@@ -244,6 +247,12 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
             if objname_lower.startswith("_") is False:
                 if "socket" in objname_lower:  obj.name = "_socket_start"
                 if "trigger" in objname_lower: obj.name = "_trigger_"
+
+            for slot in obj.material_slots:
+                mat = slot.material
+                if mat in processed_materials: continue
+                save_mat_props_json(mat)
+                processed_materials.append(mat)
         
         # fill metadata
         hrch = map(safe_name, get_collection_hierachy(coll.name, [coll.name]))

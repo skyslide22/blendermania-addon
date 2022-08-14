@@ -291,7 +291,7 @@ def openHelp(helptype: str) -> None:
     
     if   helptype == "open_work":           cmd = get_game_doc_path_work_items()
     elif helptype == "open_items":          cmd = get_game_doc_path_items()
-    elif helptype == "open_assets":         cmd = getGameDocPathItemsAssets()
+    elif helptype == "open_assets":         cmd = get_game_doc_path_items_assets()
     elif helptype == "debug_all":           debug_all()
     elif helptype == "open_documentation":  webbrowser.open(URL_DOCUMENTATION)
     elif helptype == "open_github":         webbrowser.open(URL_GITHUB)

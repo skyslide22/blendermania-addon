@@ -38,6 +38,7 @@ from .operators.OT_Items_Icon         import *
 from .operators.OT_Items_Manipulate   import *
 from .operators.OT_UV_Manipulate      import *
 from .operators.OT_Assets_Library     import *
+from .operators.OT_Items_Templates    import * 
 from .panels.PT_Map_Manipulate     import *
 from .panels.PT_NinjaRipper        import *
 from .panels.PT_Settings           import *
@@ -139,6 +140,10 @@ classes = (
     TM_OT_Ninja17Install,
     TM_PT_NinjaImporter,
     TM_OT_Ninja20Install,
+
+    # templates
+    OT_ItemsCarsTemplates,
+    OT_ItemsEnviTemplates,
 )
 
 
@@ -158,6 +163,8 @@ def register():
     bpy.types.DATA_PT_EEVEE_light.append(extend_object_properties_panel_LIGHT)
     bpy.types.Light.night_only          = BoolProperty(default=False)
 
+    bpy.types.VIEW3D_MT_add.prepend(OT_ItemsCarsTemplates.add_menu_item)
+    bpy.types.VIEW3D_MT_add.prepend(OT_ItemsEnviTemplates.add_menu_item)
 
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
     bpy.types.Material.baseTexture      = StringProperty(       name="BaseTexture",         default="")
@@ -187,7 +194,9 @@ def unregister():
     del bpy.types.Scene.tm_props_linkedMaterials
 
     bpy.types.DATA_PT_EEVEE_light.remove(extend_object_properties_panel_LIGHT)
-
+    bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
+    bpy.types.VIEW3D_MT_add.remove(OT_ItemsEnviTemplates.add_menu_item)
+    
     # icons
     for pcoll in preview_collections.values():
         bpy.utils.previews.remove(pcoll)

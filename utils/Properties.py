@@ -755,11 +755,11 @@ def getMaterialPhysicIds(self=None, context=None)->list:
     if len(material_physics) > 1:
         return material_physics
     
-    #calling getNadeoImporterLIBPath while addon is registering not allowed:
+    #calling get_nadeo_importer_lib_path while addon is registering not allowed:
     #AttributeError: "_RestrictedContext" object has no attribute "scene"
     #return tuple "ERROR" the first few milliseconds to fix it
     #then assign list of physics to matPhysics, to read file only once
-    try:    libfile =  getNadeoImporterLIBPath()
+    try:    libfile =  get_nadeo_importer_lib_path()
     except  AttributeError:
         return material_physics
     
@@ -810,7 +810,7 @@ def getMaterialLinks(self, context)-> list:
         return material_links
 
 
-    try:    libfile =  getNadeoImporterLIBPath()
+    try:    libfile =  get_nadeo_importer_lib_path()
     except  AttributeError:
         return material_links
 
@@ -848,7 +848,7 @@ def getMaterialGameplayIds(self, context)->None:
     return gameplay_id_props_list.toList()
 
 
-def getCarNames() -> list:
+def get_car_names() -> list:
     return EnumProps().add(
         id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM,
         name = "Car Stadium",
@@ -1135,7 +1135,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_DL_TexturesShow     : BoolProperty(default=False,                      update=redraw_panels)
 
     # cars
-    LI_items_cars     : EnumProperty(name="Car",     items=getCarNames())
+    LI_items_cars     : EnumProperty(name="Car",     items=get_car_names())
     LI_items_triggers : EnumProperty(name="Trigger", items=getTriggerNames())
 
 
