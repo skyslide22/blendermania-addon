@@ -13,7 +13,7 @@ class TM_PT_Items_Export(Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        layout.label(icon="EXPORT")
+        layout.label(icon=ICON_EXPORT)
 
     # endregion
     def draw(self, context):
@@ -51,7 +51,7 @@ class TM_PT_Items_Export(Panel):
                 if "/Work/" not in fixSlash( getattr(tm_props, exportCustomFolderProp) ):
                     row_error= layout.row()
                     row_error.alert = True
-                    row_error.label(text="Folder has to be in /Work/Items/ ...", icon="ERROR")
+                    row_error.label(text="Folder has to be in /Work/Items/ ...", icon=ICON_ERROR)
                     row_path.alert=True
                 row_path.prop(tm_props, exportCustomFolderProp)
 
@@ -80,7 +80,7 @@ class TM_PT_Items_Export(Panel):
             visible_objects  = bpy.context.visible_objects
             objs = selected_objects if exportActionIsSelected else visible_objects
 
-            if len(visible_objects) < 500:
+            if tm_props.CB_allow_complex_panel_drawing:
                 exportable_cols  = get_exportable_collections(objs=objs)
                 collection_count = len(exportable_cols)
 
@@ -95,13 +95,13 @@ class TM_PT_Items_Export(Panel):
                 if collection_count == 0:
                     enableExportButton = False
             else:
-                text = "Export collections"
+                text = "Export Collections"
                 enableExportButton = True
 
             if exportType == "EXPORT":
-                icon="EXPORT"
+                icon=ICON_EXPORT
             elif exportType == "EXPORT_CONVERT":
-                 icon="CON_FOLLOWPATH"
+                icon=ICON_CONVERT
 
             col = layout.column(align=True)
 
@@ -110,8 +110,11 @@ class TM_PT_Items_Export(Panel):
             row.enabled = enableExportButton 
             row.alert   = not enableExportButton #red button, 0 selected
             row.operator("view3d.tm_export", text=text,   icon=icon)
-            row.prop(tm_props, "CB_convertMultiThreaded", icon_only=True, icon="SORTTIME", invert_checkbox=True)
-            row.prop(tm_props, "CB_notifyPopupWhenDone",  icon_only=True, icon="INFO")
+            
+        
+            row = col.row(align=True)
+            row.prop(tm_props, "CB_convertMultiThreaded", text="Parallel Convert", icon=ICON_PARALLEL)
+            row.prop(tm_props, "CB_notifyPopupWhenDone",  text="Notify Toast",     icon=ICON_INFO)
 
             if isGameTypeTrackmania2020():
                 row = col.row(align=True)
@@ -170,8 +173,7 @@ class TM_PT_Items_Export(Panel):
             row = col.row(align=True)
             row.alert   = atlestOneConvertFailed
             row.prop(tm_props, "NU_converted", text=f"{converted} of {convertCount}")
-            row.prop(tm_props, "CB_stopAllNextConverts", icon_only=True, text="", icon="CANCEL")
-            # row.prop(tm_props, "CB_notifyPopupWhenDone", icon_only=True, text="", icon="INFO")
+            row.prop(tm_props, "CB_stopAllNextConverts", icon_only=True, text="", icon=ICON_CANCEL)
 
             failed    = str(tm_props.ST_convertedErrorList).split("%%%")
             failed    = [f for f in failed if f!=""]
@@ -189,11 +191,11 @@ class TM_PT_Items_Export(Panel):
             
             bcol = row.column(align=True)
             bcol.enabled = True # if any([convertDone, stopConverting]) else False
-            bcol.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon="NONE")
+            bcol.operator("view3d.tm_closeconvertsubpanel", text="OK",           icon=ICON_SUCCESS)
 
             bcol = row.column(align=True)
             bcol.enabled = enableExportButton 
-            bcol.operator("view3d.tm_export", text="", icon="FILE_REFRESH")
+            bcol.operator("view3d.tm_export", text="", icon=ICON_IMPORT)
             
 
 

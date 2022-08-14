@@ -31,14 +31,15 @@ class TM_PT_Settings(Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        layout.label(icon="SETTINGS")
+        layout.label(icon=ICON_SETTINGS)
 
 
     def draw(self, context):
         blender_version = bpy.app.version
 
         addon_version   = bl_info["version"]
-        is_blender_3    = blender_version[0] >= 3
+        blender_too_old = blender_version < MIN_BLENDER_VERSION
+        
         layout          = self.layout
         tm_props        = get_global_props()
 
@@ -50,15 +51,15 @@ class TM_PT_Settings(Panel):
         box.separator(factor=0)
         row = box.row(align=True)
         row.scale_y=.5
-        row.alert = not is_blender_3
-        row.label(text=f"Blender: {blender_version}", icon="BLENDER")
+        row.alert = blender_too_old
+        row.label(text=f"Blender: {blender_version}", icon=ICON_BLENDER)
         row = box.row(align=True)
-        row.label(text=f"""Addon: {addon_version}""", icon="FILE_SCRIPT")
-        row.operator("view3d.tm_checkfornewaddonrelease", text="", icon="FILE_REFRESH")
-        if not is_blender_3:
+        row.label(text=f"""Addon: {addon_version}""", icon=ICON_ADDON)
+        row.operator("view3d.tm_checkfornewaddonrelease", text="", icon=ICON_UPDATE)
+        if blender_too_old:
             row = box.row()
             row.alert = False
-            row.label(text="Blender 3.1+ required!")
+            row.label(text=f"Blender {blender_too_old} or newer required!")
 
         update_available = tm_props.CB_addonUpdateAvailable
 
@@ -71,9 +72,9 @@ class TM_PT_Settings(Panel):
             row = col.row(align=True)
             row.scale_y = 1.5
             row.enabled = tm_props.CB_addonUpdateDLshow is False
-            row.operator("view3d.tm_updateaddonrestartblender", text=f"Update to {next_version}", icon="FILE_REFRESH")
+            row.operator("view3d.tm_updateaddonrestartblender", text=f"Update to {next_version}", icon=ICON_UPDATE)
             row = col.row(align=True)
-            row.operator("view3d.tm_execute_help", text="Open changelog", icon="WORLD").command = "open_changelog"
+            row.operator("view3d.tm_execute_help", text="Open changelog").command = "open_changelog"
             dl_msg     = tm_props.ST_addonUpdateDLmsg
             show_panel = tm_props.CB_addonUpdateDLshow
 
@@ -103,7 +104,7 @@ class TM_PT_Settings(Panel):
         ini = "ST_nadeoIniFile_MP" if isGameTypeManiaPlanet() else "ST_nadeoIniFile_TM"
         row = layout.row(align=True)
         row.prop(tm_props, ini, text="Ini file")
-        row.operator("view3d.tm_autofindnadeoini", text="", icon="VIEWZOOM")
+        row.operator("view3d.tm_autofindnadeoini", text="", icon=ICON_SEARCH)
 
 
 class TM_PT_Settings_BlenderRelated(Panel):
@@ -171,7 +172,7 @@ class TM_PT_Settings_NadeoImporter(Panel):
             row.prop(tm_props, "LI_nadeoImporters_"+("TM" if isGameTypeTrackmania2020() else "MP"), text="")
             row = col.row(align=True)
             row.scale_y = 1.5
-            row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon="IMPORT")
+            row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon=ICON_IMPORT)
             
             if isGameTypeManiaPlanet():
                 current_importer = tm_props.ST_nadeoImporter_MP_current
@@ -238,17 +239,17 @@ class TM_PT_Settings_Textures(Panel):
 
         if isGameTypeManiaPlanet():
             row = col.row(align=True)
-            row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon="WORLD")
+            row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon=ICON_ENVIRONMENT)
 
         row = col.row(align=True)
         row.enabled = dlTexRunning
         row.scale_y = 1.5
-        row.operator("view3d.tm_installgametextures", text=f"Install {envi} textures", icon="TEXTURE")
+        row.operator("view3d.tm_installgametextures", text=f"Install {envi} textures", icon=ICON_TEXTURE)
         
         row = col.row()
         row.enabled = dlTexRunning
         row.scale_y = 1.5
-        row.operator("view3d.tm_installgameassetslibrary", text=f"Install asset library", icon="ASSET_MANAGER")
+        row.operator("view3d.tm_installgameassetslibrary", text=f"Install asset library", icon=ICON_ASSETS)
 
         dlTexError          = tm_props.ST_DL_TexturesErrors
         statusText          = "Downloading..." if not dlTexRunning else "Done" if not dlTexError else dlTexError
@@ -262,3 +263,25 @@ class TM_PT_Settings_Textures(Panel):
         layout.separator(factor=UI_SPACER_FACTOR)
 
 
+
+class TM_PT_Settings_Performance(Panel):
+    bl_category = 'ManiaPlanetAddon'
+    bl_label = "Performance"
+    bl_idname = "TM_PT_Settings_Performance"
+    bl_parent_id = "TM_PT_Settings"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    
+    def draw(self, context):
+
+        layout = self.layout
+        tm_props        = get_global_props()
+
+        row = layout.row()
+        row.label(text="If blender runs slow... (many objects)")
+
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        row.prop(tm_props, "CB_allow_complex_panel_drawing", text="Limit Panel Drawing",        icon=ICON_EDIT, invert_checkbox=True)
+        row = col.row(align=True)
+        row.prop(tm_props, "CB_compress_blendfile",          text="Disable Compressing .blend", icon=ICON_COMPRESS, invert_checkbox=True)

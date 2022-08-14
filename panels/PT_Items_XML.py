@@ -35,8 +35,8 @@ class TM_PT_Items_ItemXML(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_xml_genItemXML",         text="",    icon_only=True, icon="CHECKMARK",)
-        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="",    icon_only=True, icon="FILE_REFRESH")
+        row.prop(tm_props, "CB_xml_genItemXML",         text="", icon=ICON_CHECKED,)
+        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="Overwrite", toggle=True)
         row=layout.row()
     
     def draw(self, context):
@@ -66,25 +66,25 @@ class TM_PT_Items_ItemXML(Panel):
             main_col = layout.column(align=True)
             
             x_row = main_col.row(align=True)
-            x_row.label(text="", icon ="AXIS_TOP")
+            x_row.label(text="", icon =ICON_AXIS_XY)
             x_row.prop(tm_props, "LI_xml_simpleGridXY", expand=True)
             
             z_row = main_col.row(align=True)
-            z_row.label(text="", icon="AXIS_FRONT")
+            z_row.label(text="", icon=ICON_AXIS_Z)
             z_row.prop(tm_props, "LI_xml_simpleGridZ", expand=True)
 
             gridXYis0 = tm_props.LI_xml_simpleGridXY == "0"
             gridZis0  = tm_props.LI_xml_simpleGridZ  == "0"
             row = main_col.row(align=True)
             row_ghost = row.column(align=True).row(align=True)
-            row.prop(tm_props, "CB_xml_ghostMode",   icon="GHOST_DISABLED")
+            row.prop(tm_props, "CB_xml_ghostMode",   icon=ICON_GHOSTMODE)
             row_autorot = row.column(align=True).row(align=True)
             row_autorot.enabled = gridXYis0 and gridZis0
-            row_autorot.prop(tm_props, "CB_xml_autoRot", icon="GIZMO")
+            row_autorot.prop(tm_props, "CB_xml_autoRot", icon=ICON_AUTO_ROTATION)
 
 
         else: # advanced
-            layout.row().prop(tm_props, "CB_xml_syncGridLevi", icon="UV_SYNC_SELECT")
+            layout.row().prop(tm_props, "CB_xml_syncGridLevi", icon=ICON_SYNC)
             sync = tm_props.CB_xml_syncGridLevi
             
             boxCol = layout.column(align=True)
@@ -113,25 +113,24 @@ class TM_PT_Items_ItemXML(Panel):
             
             boxCol = layout.column(align=True)
             boxRow = boxCol.row(align=True)
-            boxRow.prop(tm_props, "CB_xml_ghostMode",   icon="GHOST_DISABLED")
-            boxRow.prop(tm_props, "CB_xml_autoRot",     icon="GIZMO")
+            boxRow.prop(tm_props, "CB_xml_ghostMode",   icon=ICON_GHOSTMODE)
+            boxRow.prop(tm_props, "CB_xml_autoRot",     icon=ICON_AUTO_ROTATION)
             boxRow = boxCol.row(align=True)
-            boxRow.prop(tm_props, "CB_xml_oneAxisRot",  icon="NORMALS_FACE")
-            boxRow.prop(tm_props, "CB_xml_notOnItem",   icon="SNAP_OFF")
+            boxRow.prop(tm_props, "CB_xml_oneAxisRot",  icon=ICON_ONE_AXIS_ROTATION)
+            boxRow.prop(tm_props, "CB_xml_notOnItem",   icon=ICON_NOT_ON_ITEM)
             
             layout.separator(factor=UI_SPACER_FACTOR)
             
-            layout.row().prop(tm_props, "CB_xml_pivots",        icon="EDITMODE_HLT")
+            layout.row().prop(tm_props, "CB_xml_pivots",        icon=ICON_PIVOTS)
             
             if tm_props.CB_xml_pivots is True:
                 row = layout.row(align=True)
-                row.prop(tm_props, "CB_xml_pivotSwitch",    text="Switch")
+                row.prop(tm_props, "CB_xml_pivotSwitch",    text="Switch", expand=True, icon=ICON_SWITCH)
                 row.prop(tm_props, "NU_xml_pivotSnapDis",   text="SnapDist")
                 
                 row = layout.row(align=True)
-                row.operator("view3d.tm_addpivot",    text="Add",       icon="ADD")
-                row.operator("view3d.tm_removepivot", text="Delete",    icon="REMOVE")
-                # row.operator("view3d.removepivot", text="Del end",   icon="REMOVE")
+                row.operator("view3d.tm_addpivot",    text="Add",       icon=ICON_ADD)
+                row.operator("view3d.tm_removepivot", text="Delete",    icon=ICON_REMOVE)
                 
                 layout.separator(factor=UI_SPACER_FACTOR)
                 
@@ -169,8 +168,8 @@ class TM_PT_Items_MeshXML(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_xml_genMeshXML",         text="",            icon_only=True, icon="CHECKMARK")
-        row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="",            icon_only=True, icon="FILE_REFRESH")
+        row.prop(tm_props, "CB_xml_genMeshXML",         text="",    icon=ICON_CHECKED)
+        row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="Overwrite", toggle=True)
         row=layout.row()
 
     
@@ -192,7 +191,7 @@ class TM_PT_Items_MeshXML(Panel):
         row = layout.row(align=True)
         col = row.column(align=True)
         col.enabled = True
-        col.prop(tm_props, "CB_xml_scale", toggle=True, icon="OBJECT_ORIGIN", text="Object scale")
+        col.prop(tm_props, "CB_xml_scale", toggle=True, icon=ICON_SCALE, text="Object scale")
         col = row.column(align=True)
         col.enabled = False if not tm_props.CB_xml_scale else True
         # col.scale_x = .75
@@ -204,7 +203,7 @@ class TM_PT_Items_MeshXML(Panel):
         row = col_light.row(align=True)
         col = row.column(align=True)
         col.enabled = True
-        col.prop(tm_props, "CB_xml_lightPower", icon="OUTLINER_OB_LIGHT", text="Light power")
+        col.prop(tm_props, "CB_xml_lightPower", icon=ICON_LIGHT_POWER, text="Light power")
         col = row.column(align=True)
         col.enabled = False if not tm_props.CB_xml_lightPower else True
         col.prop(tm_props, "NU_xml_lightPower", text="")
@@ -214,7 +213,7 @@ class TM_PT_Items_MeshXML(Panel):
         row = col_light.row(align=True)
         col = row.column(align=True)
         col.enabled = True
-        col.prop(tm_props, "CB_xml_lightGlobColor", icon="COLORSET_13_VEC", text="Light color")
+        col.prop(tm_props, "CB_xml_lightGlobColor", icon=ICON_LIGHT_COLOR, text="Light color")
         col = row.column(align=True)
         col.enabled = False if not tm_props.CB_xml_lightGlobColor else True
         col.prop(tm_props, "NU_xml_lightGlobColor", text="")
@@ -224,7 +223,7 @@ class TM_PT_Items_MeshXML(Panel):
         row = col_light.row(align=True)
         col = row.column(align=True)
         col.enabled = True
-        col.prop(tm_props, "CB_xml_lightGlobDistance", icon="LIGHT_SUN", text="Light radius")
+        col.prop(tm_props, "CB_xml_lightGlobDistance", icon=ICON_LIGHT_RADIUS, text="Light radius")
         col = row.column(align=True)
         col.enabled = False if not tm_props.CB_xml_lightGlobDistance else True
         col.prop(tm_props, "NU_xml_lightGlobDistance", text="")

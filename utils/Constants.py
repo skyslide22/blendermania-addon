@@ -1,6 +1,9 @@
 import os
 import json
 
+
+MIN_BLENDER_VERSION = (3, 1, 0)
+
 DOTNET_COMMANDS = (
     PLACE_OBJECTS_ON_MAP := "place-objects-on-map",
 )
@@ -24,8 +27,83 @@ MAT_PROPS_AS_JSON = "MAT_PROPS_AS_JSON"
 
 # Panel related
 UI_SPACER_FACTOR = 1.0
-ICON_TRUE        = "CHECKMARK"
-ICON_FALSE       = "CHECKBOX_DEHLT"
+ICON_CHECKED            = "CHECKMARK"
+ICON_UNCHECKED          = "CHECKBOX_DEHLT"
+ICON_EXPORT             = "EXPORT"
+ICON_IMPORT             = "IMPORT"
+ICON_CONVERT            = "CON_FOLLOWPATH"
+ICON_UV_MAPS            = "GROUP_UVS"
+ICON_ORIGIN             = "PIVOT_CURSOR"
+ICON_TRIGGER            = "GIZMO"
+ICON_TRIGGER            = "SCREEN_BACK"
+ICON_SOCKET             = "OBJECT_ORIGIN"
+ICON_SOCKET             = "PIVOT_CURSOR"
+ICON_LOD_0              = "MESH_CIRCLE"
+ICON_LOD_0              = "THREE_DOTS"
+ICON_LOD_0              = "LIGHTPROBE_GRID"
+ICON_LOD_0              = "FILE_VOLUME"
+ICON_LOD_1              = "MESH_ICOSPHERE"
+ICON_LOD_1              = "DOT"
+ICON_LOD_1              = "FILE_3D"
+ICON_FLAT_SMOOTH        = "MOD_SMOOTH"
+ICON_SELECTED           = "VIS_SEL_10"
+ICON_VISIBLE            = "HIDE_OFF"
+ICON_HIDDEN             = "HIDE_ON"
+ICON_ADD                = "ADD"
+ICON_REMOVE             = "REMOVE"
+ICON_UPDATE             = "FILE_REFRESH"
+ICON_CANCEL             = "X"
+ICON_PARALLEL           = "SORTTIME"
+ICON_PARALLEL           = "RECOVER_LAST"
+ICON_INFO               = "INFO"
+ICON_COLLECTION         = "OUTLINER_COLLECTION"
+ICON_OBJECT             = "MESH_MONKEY"
+ICON_SCALE              = "SORTSIZE"
+ICON_BLENDER            = "BLENDER"
+ICON_ADDON              = "FILE_SCRIPT"
+ICON_DEBUG              = "FILE_TEXT"
+ICON_FOLDER             = "FILE_FOLDER"
+ICON_GRID               = "VIEW_ORTHO"
+ICON_SNAP               = "SNAP_GRID"
+ICON_TEXTURE            = "TEXTURE"
+ICON_ASSETS             = "ASSET_MANAGER"
+ICON_PERFORMANCE        = "SORTTIME"
+ICON_MAP                = "WORLD_DATA"
+ICON_MATERIAL           = "MATERIAL"
+ICON_SETTINGS           = "SETTINGS"
+ICON_NINJARIPPER        = "GHOST_DISABLED"
+ICON_RECURSIVE          = "OUTLINER"
+ICON_AUTO               = "AUTO"
+ICON_ERROR              = "ERROR"
+ICON_SUCCESS            = "CHECKMARK"
+ICON_NONE               = "NONE"
+ICON_ICON               = "OUTLINER_OB_CAMERA"
+ICON_EDIT               = "GREASEPENCIL"
+ICON_IGNORE             = "GHOST_DISABLED"
+ICON_LIGHT_SPOT         = "LIGHT_SPOT"
+ICON_LIGHT_POINT        = "LIGHT_POINT"
+ICON_LIGHT_POWER        = "OUTLINER_DATA_LIGHT"
+ICON_LIGHT_RADIUS       = "PROP_OFF"
+ICON_LIGHT_COLOR        = "KEYTYPE_KEYFRAME_VEC"
+ICON_LIGHT_RADIUS_IN    = "PROP_ON"
+ICON_LIGHT_RADIUS_OUT   = "PROP_CON"
+ICON_DAYTIME            = "LIGHT_SUN"
+ICON_AXIS_Z             = "AXIS_TOP"
+ICON_AXIS_XY            = "AXIS_FRONT"
+ICON_MAP_PASSWORD_HACK  = "KEYINGSET"
+ICON_MAP_EXPORT         = ICON_EXPORT
+ICON_GHOSTMODE          = "GHOST_DISABLED"
+ICON_AUTO_ROTATION      = "GIZMO"
+ICON_ONE_AXIS_ROTATION  = "ORIENTATION_CURSOR"
+ICON_SYNC               = "UV_SYNC_SELECT"
+ICON_NOT_ON_ITEM        = "SNAP_OFF"
+ICON_PIVOTS             = "PIVOT_ACTIVE"
+ICON_SWITCH             = "UV_SYNC_SELECT"
+ICON_LINKED             = "LINK_BLEND"
+ICON_SEARCH             = "VIEWZOOM"
+ICON_ENVIRONMENT        = "WORLD"
+ICON_COMPRESS           = "FILE_BLEND"
+
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
 MSG_ERROR_NADEO_INI_NOT_FOUND           = """Autofind failed, check "Help" """
@@ -84,12 +162,21 @@ class WaypointDict(dict):
         parent.__setitem__(key, value)
         parent.__setitem__(value, key)
 
+WAYPOINT_VALID_NAMES = (
+    WAYPOINT_NAME_START         := "Start",
+    WAYPOINT_NAME_CHECKPOINT    := "Checkpoint",
+    WAYPOINT_NAME_STARTFINISH   := "StartFinish",
+    WAYPOINT_NAME_FINISH        := "Finish",
+)
+WAYPOINT_NAME_NONE = "None"
+
+
 WAYPOINTS = WaypointDict()
-WAYPOINTS["None"]        = COLLECTION_COLOR_TAG_NONE 
-WAYPOINTS["Start"]       = COLLECTION_COLOR_TAG_GREEN 
-WAYPOINTS["Checkpoint"]  = COLLECTION_COLOR_TAG_BLUE 
-WAYPOINTS["StartFinish"] = COLLECTION_COLOR_TAG_YELLOW 
-WAYPOINTS["Finish"]      = COLLECTION_COLOR_TAG_RED 
+WAYPOINTS[WAYPOINT_NAME_NONE]        = COLLECTION_COLOR_TAG_NONE 
+WAYPOINTS[WAYPOINT_NAME_START]       = COLLECTION_COLOR_TAG_GREEN 
+WAYPOINTS[WAYPOINT_NAME_CHECKPOINT]  = COLLECTION_COLOR_TAG_BLUE 
+WAYPOINTS[WAYPOINT_NAME_STARTFINISH] = COLLECTION_COLOR_TAG_YELLOW 
+WAYPOINTS[WAYPOINT_NAME_FINISH]      = COLLECTION_COLOR_TAG_RED 
 
 
 # For waypoint import and live manipulation

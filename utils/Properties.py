@@ -58,7 +58,7 @@ def getNadeoImportersManiaplanet() -> list:
             id=imp,
             name=imp.lower().replace("nadeoimporter_","v. ").replace(".zip", "")+name,
             desc=imp,
-            icon="FILE_REFRESH")
+            icon=ICON_UPDATE)
 
         isFirst = False
     
@@ -78,7 +78,7 @@ def getNadeoImportersTrackmania2020() -> list:
             id=imp,
             name=imp.lower().replace("nadeoimporter_","v. ").replace(".zip", "")+name,
             desc=imp,
-            icon="FILE_REFRESH")
+            icon=ICON_UPDATE)
 
         isFirst = False
 
@@ -994,6 +994,10 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_NadeoLibParseFailed      : BoolProperty("NadeoMatLib.txt parse attempt", default=False)
     LI_blenderGridSize          : EnumProperty(items=getGridSizes(),         default=3, update=apply_custom_blender_grid_size)
     LI_blenderGridSizeDivision  : EnumProperty(items=getGridDivisionSizes(), default=3, update=apply_custom_blender_grid_size)
+    
+    #performance
+    CB_allow_complex_panel_drawing: BoolProperty(default=True)
+    CB_compress_blendfile:          BoolProperty(default=True)
 
     CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redraw_panels)
     NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redraw_panels)

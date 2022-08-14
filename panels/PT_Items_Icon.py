@@ -38,8 +38,8 @@ class TM_PT_Items_Icon(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_icon_genIcons",         text="",    icon_only=True, icon="CHECKMARK",)
-        row.prop(tm_props, "CB_icon_overwriteIcons",    text="",    icon_only=True, icon="FILE_REFRESH")
+        row.prop(tm_props, "CB_icon_genIcons",         text="",             icon=ICON_CHECKED,)
+        row.prop(tm_props, "CB_icon_overwriteIcons",   text="Overwrite",    toggle=True)
         row=layout.row()
     
     def draw(self, context):
@@ -85,7 +85,7 @@ class TM_PT_Items_Icon(Panel):
 
         row = layout.row()
         row.scale_y = 1
-        row.operator("view3d.tm_make_test_icon", text="Do a test render", icon="CAMERA_DATA")
+        row.operator("view3d.tm_make_test_icon", text="Do a test render", icon=ICON_ICON)
 
         
         

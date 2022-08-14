@@ -85,7 +85,7 @@ def _create_or_ipdate_material(action)->None:
         show_report_popup(
             title="Material with this name already exists", 
             infos=["Creation failed"], 
-            icon= "ERROR")
+            icon=ICON_ERROR)
         debug(f"Material {matNameNew} creation failed")
         return
 
@@ -115,7 +115,7 @@ def _create_or_ipdate_material(action)->None:
     else: #UPDATE
         show_report_popup(
             title=f"Material {matName} sucessfully updated", 
-            icon= "CHECKMARK"
+            icon=ICON_SUCCESS
         )
         debug(f"Material {matName} updated")
 

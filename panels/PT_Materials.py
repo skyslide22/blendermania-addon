@@ -22,7 +22,7 @@ class TM_PT_Materials(Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        layout.label(icon="MATERIAL")
+        layout.label(icon=ICON_MATERIAL)
     
 
     def draw(self, context):
@@ -68,14 +68,14 @@ class TM_PT_Materials(Panel):
             row.prop(tm_props, "LI_materialCollection", text="Collection")
             
             enable = True if use_physicsId else False
-            icon   = ICON_TRUE if enable else ICON_FALSE
+            icon   = ICON_CHECKED if enable else ICON_UNCHECKED
 
             row = layout.row(align=True)
             col = row.column()
             col.enabled = enable
             col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
             col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=icon)
+            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
             
             layout.separator(factor=UI_SPACER_FACTOR)
 
@@ -95,7 +95,7 @@ class TM_PT_Materials(Panel):
                 row = layout.row(align=True)
                 row.alert = True if "/Items/" not in fixSlash(tm_props.ST_materialBaseTexture) else False
                 row.prop(tm_props, "ST_materialBaseTexture", text="Location")
-                row.operator("view3d.tm_clearbasetexture", icon="X", text="")
+                row.operator("view3d.tm_clearbasetexture", icon=ICON_CANCEL, text="")
 
                 if row.alert:
                     row=layout.row()
@@ -113,7 +113,7 @@ class TM_PT_Materials(Panel):
                 row.prop_search(
                     tm_props, "ST_selectedLinkedMat", # value of selection
                     context.scene, "tm_props_linkedMaterials", # list to search in 
-                    icon="LINKED",
+                    icon=ICON_LINKED,
                     text="Link") 
 
 
@@ -122,25 +122,23 @@ class TM_PT_Materials(Panel):
         elif isGameTypeTrackmania2020():
             # physics id
             enable = True if use_physicsId else False
-            icon   = ICON_TRUE if enable else ICON_FALSE
 
             row = layout.row(align=True)
             col = row.column()
             col.enabled = enable
             col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
             col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=icon)
+            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
 
             # gameplay id
             enable = True if use_gameplayId else False
-            icon   = ICON_TRUE if enable else ICON_FALSE
             
             row = layout.row(align=True)
             col = row.column()
             col.enabled = enable
             col.prop(tm_props, "LI_materialGameplayId", text="Gameplay")
             col = row.column()
-            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon=icon)
+            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon=ICON_CHECKED)
 
             # custom color for materials starts with "custom"
             mat_uses_custom_color = tm_props.ST_selectedLinkedMat.lower().startswith("custom")
@@ -153,14 +151,14 @@ class TM_PT_Materials(Panel):
             col = row.column()
             col.prop(tm_props, "NU_materialCustomColor", text="")
             if action_is_update:
-                row.operator("view3d.tm_revertcustomcolor", icon="FILE_REFRESH", text="")
+                row.operator("view3d.tm_revertcustomcolor", icon=ICON_UPDATE, text="")
             
             # Link
             row = layout.row()
             row.prop_search(
                 tm_props, "ST_selectedLinkedMat", # value of selection
                 context.scene, "tm_props_linkedMaterials", # list to search in 
-                icon="LINKED",
+                icon=ICON_LINKED,
                 text="Link") 
 
 
@@ -168,10 +166,10 @@ class TM_PT_Materials(Panel):
         row.scale_y = 1.5
 
         if action_is_update:
-            row.operator("view3d.tm_updatematerial", text=f"Update {mat_name_old}", icon="FILE_REFRESH")
+            row.operator("view3d.tm_updatematerial", text=f"Update {mat_name_old}", icon=ICON_UPDATE)
 
         else:
-            row.operator("view3d.tm_creatematerial", text=f"Create {mat_name}",    icon="ADD")
+            row.operator("view3d.tm_creatematerial", text=f"Create {mat_name}",    icon=ICON_ADD)
 
 
         layout.separator(factor=UI_SPACER_FACTOR)

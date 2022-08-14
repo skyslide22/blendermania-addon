@@ -28,14 +28,14 @@ class TM_PT_NinjaImporter(Panel):
         row.scale_y = 1.5
 
         if NINJA_RIPPER_17_ADDON_NAME in bpy.context.preferences.addons:
-            row.operator(NINJA_RIPPER_17_ADDON_ID_NAME, text=f"Import Ninja Ripper 1.7.1 .rip files", icon="IMPORT")
+            row.operator(NINJA_RIPPER_17_ADDON_ID_NAME, text=f"Import Ninja Ripper 1.7.1 .rip files", icon=ICON_IMPORT)
         else:
-            row.operator(TM_OT_Ninja17Install.bl_idname, text=f"Install Ninja Ripper 1.7.1 addon", icon="IMPORT")
+            row.operator(TM_OT_Ninja17Install.bl_idname, text=f"Install Ninja Ripper 1.7.1 addon", icon=ICON_IMPORT)
 
         row = col.row(align=True)
         row.scale_y = 1.5
 
         if NINJA_RIPPER_18_ADDON_NAME in bpy.context.preferences.addons:
-            row.operator(NINJA_RIPPER_18_ADDON_ID_NAME, text=f"Import Ninja Ripper 2.0.x .nr files", icon="IMPORT")
+            row.operator(NINJA_RIPPER_18_ADDON_ID_NAME, text=f"Import Ninja Ripper 2.0.x .nr files", icon=ICON_IMPORT)
         else:
-            row.operator(TM_OT_Ninja20Install.bl_idname, text=f"Install Ninja Ripper 2.0.x addon", icon="IMPORT")
+            row.operator(TM_OT_Ninja20Install.bl_idname, text=f"Install Ninja Ripper 2.0.x addon", icon=ICON_IMPORT)

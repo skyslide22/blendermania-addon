@@ -78,6 +78,7 @@ classes = (
     TM_PT_Settings_BlenderRelated,
     TM_PT_Settings_NadeoImporter,
     TM_PT_Settings_Textures,
+    TM_PT_Settings_Performance,
     TM_OT_Settings_AutoFindNadeoIni,
     TM_OT_Settings_ExecuteHelp,
     TM_OT_Settings_InstallNadeoImporter,

@@ -16,6 +16,11 @@ class PT_UIMapManipulation(Panel):
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
     # endregion
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(icon=ICON_MAP)
+
     def draw(self, context):
 
         layout = self.layout

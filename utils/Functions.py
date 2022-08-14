@@ -431,7 +431,7 @@ def chooseNadeoIniPathFirstMessage(panel_instance: bpy.types.Panel):
     """create a red error text in the given panel's layout"""
     row = panel_instance.layout.row()
     row.alert = True
-    row.label(text=MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED, icon="ERROR")
+    row.label(text=MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED, icon=ICON_ERROR)
 
 
 
@@ -821,8 +821,10 @@ def save_blend_file() -> bool:
 
 def save_blend_file_as(filepath: str) -> bool:
     """overwrite/save opened blend file, returns bool if saving was successfull"""
+    tm_props = get_global_props()
+    compress = tm_props.CB_compress_blendfile
     if bpy.data.is_saved:
-        bpy.ops.wm.save_as_mainfile(filepath=filepath, compress=True)
+        bpy.ops.wm.save_as_mainfile(filepath=filepath, compress=compress)
         
     return bpy.data.is_saved
 

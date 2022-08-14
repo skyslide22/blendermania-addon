@@ -17,7 +17,7 @@ class TM_PT_UVManipulations(Panel):
     
     def draw_header(self, context):
         layout = self.layout
-        layout.label(icon="UV")
+        layout.label(icon=ICON_UV_MAPS)
 
     def draw(self, context):
         ob = bpy.context.edit_object

@@ -2,6 +2,8 @@ import bpy
 from bpy.props import EnumProperty
 from bpy.types import Operator
 
+from ..utils.Constants import ICON_AUTO, ICON_OBJECT
+
 from ..utils.ItemsImport import import_FBXs
 
 from ..utils.Functions import deselect_all_objects, get_addon_path, get_cursor_location
@@ -34,7 +36,7 @@ class OT_ItemsCarsTemplates(Operator):
     @staticmethod
     def add_menu_item(self, context):
         layout = self.layout
-        layout.operator_menu_enum("view3d.tm_importwaypointspawnhelper", "cars", icon="AUTO")
+        layout.operator_menu_enum("view3d.tm_importwaypointspawnhelper", "cars", icon=ICON_AUTO)
 
 class OT_ItemsEnviTemplates(Operator):
     """import a template for an environment, for example a StadiumPlatform object with proper materials"""
@@ -60,4 +62,4 @@ class OT_ItemsEnviTemplates(Operator):
     @staticmethod
     def add_menu_item(self, context):
         layout = self.layout
-        layout.operator_menu_enum("view3d.tm_importenvitemplate", "envi_templates", icon="CUBE")
+        layout.operator_menu_enum("view3d.tm_importenvitemplate", "envi_templates", icon=ICON_OBJECT)

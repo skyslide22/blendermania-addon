@@ -37,7 +37,7 @@ class TM_PT_Items_Import(Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        layout.label(icon="IMPORT")
+        layout.label(icon=ICON_IMPORT)
 
 
     def draw(self, context):
@@ -52,13 +52,13 @@ class TM_PT_Items_Import(Panel):
 
         row = layout.row(align=True)
         row.prop(tm_props, "LI_importType",            expand=False, text="Type", )
-        row.prop(tm_props, "CB_importFolderRecursive", expand=False, text="",    icon="FOLDER_REDIRECT")
+        row.prop(tm_props, "CB_importFolderRecursive", expand=False, text="",    icon=ICON_RECURSIVE)
 
 
         btnText = "Import Files" if action == "FILES" else "Import Folder & Subfolders" if recursive else "Import Folder"
         row=layout.row()
         row.scale_y = 1.5
-        row.operator("view3d.tm_importfbx", text=btnText, icon="IMPORT")
+        row.operator("view3d.tm_importfbx", text=btnText, icon=ICON_IMPORT)
 
 
         if failedMats:

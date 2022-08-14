@@ -229,7 +229,7 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
         row.prop(tm_props, "NU_objMplScaleFactor", text="")
         
         row = layout.row(align=True)
-        row.prop(tm_props, "CB_objMplScaleRecursive", text="Affect child collections", icon="FOLDER_REDIRECT")
+        row.prop(tm_props, "CB_objMplScaleRecursive", text="Affect child collections", icon=ICON_RECURSIVE)
 
 
         layout.separator(factor=UI_SPACER_FACTOR)
@@ -357,7 +357,7 @@ class TM_OT_Items_RenameObject(Operator):
         
         obj_name = self.obj_name if self.obj_name else self.col_name
         obj_type = "collection" if self.col_name else "object"
-        obj_icon = "OUTLINER_COLLECTION" if obj_type == "collection" else "MESH_CUBE"
+        obj_icon = ICON_COLLECTION if obj_type == "collection" else ICON_OBJECT
 
         row = layout.row()
         row.label(text=f"Rename {obj_type} {obj_name}", icon=obj_icon)
