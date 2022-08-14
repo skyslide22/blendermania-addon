@@ -123,7 +123,7 @@ classes = (
     TM_PT_Items_ItemXML,
     TM_OT_Items_ItemXML_AddPivot,
     TM_OT_Items_ItemXML_RemovePivot,
-    TM_OT_Items_ItemXML_SaveItemPlacements,
+    TM_OT_Items_ItemXML_SaveItemPlacementTemplate,
 
     # icons,
     TM_PT_Items_Icon,
@@ -165,7 +165,7 @@ def register():
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=TM_Properties_ConvertingItems)
     bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=TM_Properties_LinkedMaterials)
 
-    bpy.types.DATA_PT_EEVEE_light.append(extend_object_properties_panel_LIGHT)
+    bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)
     bpy.types.Light.night_only          = BoolProperty(default=False)
 
     bpy.types.VIEW3D_MT_add.prepend(OT_ItemsCarsTemplates.add_menu_item)
@@ -198,7 +198,7 @@ def unregister():
     del bpy.types.Scene.tm_props_convertingItems
     del bpy.types.Scene.tm_props_linkedMaterials
 
-    bpy.types.DATA_PT_EEVEE_light.remove(extend_object_properties_panel_LIGHT)
+    bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsEnviTemplates.add_menu_item)
     

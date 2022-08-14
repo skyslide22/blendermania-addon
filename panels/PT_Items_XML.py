@@ -68,11 +68,11 @@ class TM_PT_Items_ItemXML(Panel):
             main_col = layout.column(align=True)
             
             x_row = main_col.row(align=True)
-            x_row.label(text="", icon =ICON_AXIS_XY)
+            x_row.label(text="Grid "+CHAR_HORIZONTAL, )
             x_row.prop(tm_props, "LI_xml_simpleGridXY", expand=True)
             
             z_row = main_col.row(align=True)
-            z_row.label(text="", icon=ICON_AXIS_Z)
+            z_row.label(text="Grid "+CHAR_VERTICAL)
             z_row.prop(tm_props, "LI_xml_simpleGridZ", expand=True)
 
             gridXYis0 = tm_props.LI_xml_simpleGridXY == "0"
@@ -83,6 +83,9 @@ class TM_PT_Items_ItemXML(Panel):
             row_autorot = row.column(align=True).row(align=True)
             row_autorot.enabled = gridXYis0 and gridZis0
             row_autorot.prop(tm_props, "CB_xml_autoRot", icon=ICON_AUTO_ROTATION)
+
+            row = layout.row()
+            row.operator("view3d.tm_save_item_placement_template", text="Save as Template", icon=ICON_SAVE)
 
 
         elif display_advanced: # advanced
@@ -98,20 +101,24 @@ class TM_PT_Items_ItemXML(Panel):
             boxCol = layout.column(align=True)
             boxRow = boxCol.row(align=True)
             boxRow.enabled = False if sync else True
-            boxRow.prop(tm_props, "NU_xml_gridX")
-            boxRow.prop(tm_props, "NU_xml_gridY")
+            boxRow.label(text="Grid")
+            boxRow.prop(tm_props, "NU_xml_gridX", text=CHAR_HORIZONTAL)
+            boxRow.prop(tm_props, "NU_xml_gridY", text=CHAR_VERTICAL)
             boxRow = boxCol.row(align=True)
-            boxRow.prop(tm_props, "NU_xml_gridXoffset")
-            boxRow.prop(tm_props, "NU_xml_gridYoffset")
+            boxRow.label(text="Offset")
+            boxRow.prop(tm_props, "NU_xml_gridXoffset", text=CHAR_HORIZONTAL)
+            boxRow.prop(tm_props, "NU_xml_gridYoffset", text=CHAR_VERTICAL)
             
             boxCol = layout.column(align=True)
             boxRow = boxCol.row(align=True)
             boxRow.enabled = False if sync else True
-            boxRow.prop(tm_props, "NU_xml_leviX")
-            boxRow.prop(tm_props, "NU_xml_leviY")
+            boxRow.label(text="Levitation")
+            boxRow.prop(tm_props, "NU_xml_leviX", text=CHAR_HORIZONTAL)
+            boxRow.prop(tm_props, "NU_xml_leviY", text=CHAR_VERTICAL)
             boxRow = boxCol.row(align=True)
-            boxRow.prop(tm_props, "NU_xml_leviXoffset")
-            boxRow.prop(tm_props, "NU_xml_leviYoffset")
+            boxRow.label(text="Offset")
+            boxRow.prop(tm_props, "NU_xml_leviXoffset", text=CHAR_HORIZONTAL)
+            boxRow.prop(tm_props, "NU_xml_leviYoffset", text=CHAR_VERTICAL)
             
             boxCol = layout.column(align=True)
             boxRow = boxCol.row(align=True)
@@ -121,34 +128,38 @@ class TM_PT_Items_ItemXML(Panel):
             boxRow.prop(tm_props, "CB_xml_oneAxisRot",  icon=ICON_ONE_AXIS_ROTATION)
             boxRow.prop(tm_props, "CB_xml_notOnItem",   icon=ICON_NOT_ON_ITEM)
             
-            layout.separator(factor=UI_SPACER_FACTOR)
-            
-            layout.row().prop(tm_props, "CB_xml_pivots",        icon=ICON_PIVOTS)
+            pivot_col = layout.column(align=True)
+            row=pivot_col.row(align=True)
+            row.prop(tm_props, "CB_xml_pivots", text="Pivots (Placement Variants)", icon=ICON_PIVOTS)
             
             if tm_props.CB_xml_pivots is True:
-                row = layout.row(align=True)
+                row = pivot_col.row(align=True)
+                row.operator("view3d.tm_addpivot", text="Add", icon=ICON_ADD)
                 row.prop(tm_props, "CB_xml_pivotSwitch",    text="Switch", expand=True, icon=ICON_SWITCH)
                 row.prop(tm_props, "NU_xml_pivotSnapDis",   text="SnapDist")
                 
-                row = layout.row(align=True)
-                row.operator("view3d.tm_addpivot",    text="Add",       icon=ICON_ADD)
-                row.operator("view3d.tm_removepivot", text="Delete",    icon=ICON_REMOVE)
                 
-                layout.separator(factor=UI_SPACER_FACTOR)
-                
-                for i, pivot in enumerate(tm_props_pivots):
-                    boxRow = layout.row(align=True)
-                    boxRow.prop(tm_props_pivots[i], "NU_pivotX", text="X" )
-                    boxRow.prop(tm_props_pivots[i], "NU_pivotY", text="Y" )
-                    boxRow.prop(tm_props_pivots[i], "NU_pivotZ", text="Z" )
+                if len(tm_props_pivots):
+                    pivot_box = layout.box()
+                    for i, pivot in enumerate(tm_props_pivots):
+                        row = pivot_box.row(align=True)
+                        row.prop(tm_props_pivots[i], "NU_pivotX", text=CHAR_BOTTOM_LEFT )
+                        row.prop(tm_props_pivots[i], "NU_pivotY", text=CHAR_BOTTOM_RIGHT )
+                        row.prop(tm_props_pivots[i], "NU_pivotZ", text=CHAR_TOP )
+                        row.operator("view3d.tm_removepivot", text="", icon=ICON_REMOVE).pivot_index = i
+
+            row = layout.row()
+            row.operator("view3d.tm_save_item_placement_template", text="Save as Template", icon=ICON_SAVE)
 
         elif display_template:
             row = layout.row()
-            row.prop(tm_props, "LI_xml_item_template")
+            row.prop(tm_props, "LI_xml_item_template")  
+
+            selected_template_name = tm_props.LI_xml_item_template
+            row = layout.row()
+            row.operator("view3d.tm_remove_item_placement_template", text=f"Remove {selected_template_name}", icon=ICON_SAVE).template_name = selected_template_name
 
 
-        row = layout.row()
-        row.operator("view3d.tm_save_item_placements", text="Save as Template", icon=ICON_SAVE)
 
         layout.separator(factor=UI_SPACER_FACTOR)
 

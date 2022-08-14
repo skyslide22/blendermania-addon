@@ -2,6 +2,7 @@
 import re
 import bpy
 import math
+import json
 
 from .Models import ExportedItem
 from .Constants import WAYPOINTS
@@ -16,6 +17,72 @@ from .Functions import (
     isGameTypeManiaPlanet,
     isGameTypeTrackmania2020,
 )
+from .Properties import (
+    EnumProps
+)
+
+
+
+
+
+
+class ItemXMLTemplate():
+    name:           str
+    grid_xy:        float
+    grid_z:         float
+    levitation_xy:  float
+    levitation_z:   float
+    auto_rot:       bool
+    ghost_mode:     bool
+    pivots:         list[float, float, float]
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
+
+    def from_json(self, json_str) -> None:
+        ...
+
+
+ítemxml_templates:list[ItemXMLTemplate] = list()
+itemxml_templates_for_ui = EnumProps()
+
+# TODO / CONTINUE
+def add_itemxml_template(existing_template: ItemXMLTemplate = None) -> None:
+    tm_props  = get_global_props()
+    simple_ui = tm_props.LI_xml_simpleOrAdvanced == "simple"
+
+    if existing_template is None:
+        name = tm_props.LI_xml_item_template_add_name
+        sync_grid_levi = tm_props.CB_xml_syncGridLevi
+
+        grid_xy = tm_props.LI_xml_simpleGridXY
+        grid_z  = tm_props.LI_xml_simpleGridZ 
+        if simple_ui: 
+            grid_xy = tm_props.NU_xml_gridX
+            grid_z  = tm_props.LI_xml_simpleGridZ 
+        elif sync_grid_levi:
+            grid_xy = tm_props.LI_xml_simpleGridXY
+            grid_z  = tm_props.LI_xml_simpleGridZ 
+        
+        levi_xy = tm_props
+    
+        template = ItemXMLTemplate()
+        template.name           = name
+        template.grid_xy        = tm_props.LI_xml_simpleGridXY if simple_ui else tm_props.NU_xml_gridX
+        template.grid_z         = tm_props.LI_xml_simpleGridZ  if simple_ui else tm_props.NU_xml_gridY
+        template.levitation_xy  = tm_props.LI_xml_simpleGridXY if simple_ui else tm_props.NU_xml_gridAndLeviX
+        template.levitation_z   = tm_props.LI_xml_simpleGridZ  if simple_ui else tm_props.NU_xml_gridY
+        template.auto_rot       = tm_props
+        template.ghost_mode     = tm_props
+        template.pivots         = tm_props
+        
+    ítemxml_templates.append(template)
+    itemxml_templates_for_ui.add(id=template.name, name=template.name)
+
+
+def remove_itemxml_template(template_id: str) -> None:
+    ítemxml_templates.remove(template_id)
+    itemxml_templates_for_ui.remove(template_id)
 
 
 def generate_item_XML(item: ExportedItem) -> str:

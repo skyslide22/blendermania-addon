@@ -105,6 +105,13 @@ ICON_ENVIRONMENT        = "WORLD"
 ICON_COMPRESS           = "FILE_BLEND"
 ICON_SAVE               = "FILE_NEW"
 
+# https://cloford.com/resources/charcodes/utf-8_arrows.htm
+CHAR_VERTICAL   = "↕"
+CHAR_HORIZONTAL = "↔"
+CHAR_BOTTOM_RIGHT = "↘"
+CHAR_BOTTOM_LEFT  = "↙"
+CHAR_TOP          = "↑"
+
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
 MSG_ERROR_NADEO_INI_NOT_FOUND           = """Autofind failed, check "Help" """
