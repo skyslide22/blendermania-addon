@@ -18,16 +18,19 @@ bl_info = {
     "category"      : "Generic"
 }                    
 
-from .utils.Constants          import *
-from .utils.Functions          import *
-from .utils.Dotnet             import *
-from .utils.Properties         import *
-from .utils.ItemsExport        import *
-from .utils.ItemsUVs           import *
-from .utils.NadeoXML           import *
-from .utils.Models             import *
-from .utils.ItemsIcon          import *
-from .utils.NadeoImporter      import *
+from .utils.Constants     import *
+from .utils.Descriptions  import *
+from .utils.Dotnet        import *
+from .utils.Functions     import *
+from .utils.ItemsExport   import *
+from .utils.ItemsIcon     import *
+from .utils.ItemsImport   import *
+from .utils.ItemsUVs      import *
+from .utils.Materials     import *
+from .utils.Models        import *
+from .utils.NadeoImporter import *
+from .utils.NadeoXML      import *
+from .utils.Properties    import *
 from .operators.OT_Map_Manipulate     import *
 from .operators.OT_NinjaRipper        import *
 from .operators.OT_Settings           import *
