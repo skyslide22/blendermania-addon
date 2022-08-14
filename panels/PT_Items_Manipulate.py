@@ -89,7 +89,7 @@ class TM_PT_ObjectManipulations(Panel):
             
         # col_box.separator(factor=.2)
         active_uvlayer_is_basematerial = True
-        objs    = getAllVisibleMeshObjsOfCol(current_collection)
+        objs    = get_all_visible_coll_meshes(current_collection)
         if len(objs) > 0:
             base_uv = objs[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
             if base_uv:

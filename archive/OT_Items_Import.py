@@ -148,7 +148,7 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
         filecol = re.sub(r"\.\w+$", "", filecol, re.IGNORECASE)
         relpath[-1] = filecol
 
-        col  = createCollectionHierachy(relpath)
+        col  = create_collection_hierachy(relpath)
         importedCols.append(col)
         
         #each path is a list with cols
@@ -169,7 +169,7 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
         for obj in objs:
             
             if "delete" in obj.name.lower():
-                deleteObj(obj)
+                delete_obj(obj)
                 continue
 
             acol.objects.unlink(obj)
@@ -226,7 +226,7 @@ def alignCollectionsInRows(col_dict):
             
             dim_x,\
             dim_y,\
-            dim_z = getDimensionOfCollection(col)
+            dim_z = get_coll_dimension(col)
 
             #round obj dim to clostest 32^x
             pos_x = roundInterval(dim_x, BLOCK_SIZE) + BLOCK_SIZE

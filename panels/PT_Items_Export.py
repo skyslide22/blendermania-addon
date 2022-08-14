@@ -81,7 +81,7 @@ class TM_PT_Items_Export(Panel):
             objs = selected_objects if exportActionIsSelected else visible_objects
 
             if len(visible_objects) < 500:
-                exportable_cols  = getExportableCollections(objs=objs)
+                exportable_cols  = get_exportable_collections(objs=objs)
                 collection_count = len(exportable_cols)
 
                 plural = "s" if collection_count > 1 else ""

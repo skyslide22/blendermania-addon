@@ -145,7 +145,7 @@ example of a maniaplanet tree:
 
     
 
-def getNadeoIniFilePath() -> str:
+def get_nadeo_ini_path() -> str:
     if isGameTypeManiaPlanet():
         return fixSlash(get_global_props().ST_nadeoIniFile_MP)
 
@@ -155,9 +155,9 @@ def getNadeoIniFilePath() -> str:
     else: return ""
 
 
-def getTrackmaniaEXEPath() -> str:
+def get_trackmania_exe_path() -> str:
     """get absolute path of C:/...ProgrammFiles/ManiaPlanet/ or Ubisoft/games/Trackmania etc..."""
-    path = getNadeoIniFilePath()
+    path = get_nadeo_ini_path()
     path = path.split("/")
     path.pop()
     path = "/".join(path)
@@ -169,7 +169,7 @@ def resetNadeoIniSettings()->None:
     nadeo_ini_settings = {}
 
 
-def getNadeoIniData(setting: str) -> str:
+def get_nadeo_init_data(setting: str) -> str:
     """return data from parsed nadeo.ini, if keyerror, try to parse again"""
     possible_settings = ["WindowTitle", "Distro", "UserDir", "CommonDir"]
     
@@ -182,9 +182,9 @@ def getNadeoIniData(setting: str) -> str:
     
     except KeyError:
         debug(f"failed to find {setting} in nadeo ini, try parse now")
-        debug(f"nadeo ini exist: {is_file_exist(getNadeoIniFilePath())}")
-        debug(f"in location:     {getNadeoIniFilePath()}")
-        parseNadeoIniFile()
+        debug(f"nadeo ini exist: {is_file_exist(get_nadeo_ini_path())}")
+        debug(f"in location:     {get_nadeo_ini_path()}")
+        parse_nadeo_ini_file()
         try:
             data = nadeo_ini_settings[setting]
         except KeyError:
@@ -194,12 +194,12 @@ def getNadeoIniData(setting: str) -> str:
     finally: return data
     
 
-def parseNadeoIniFile() -> str:
+def parse_nadeo_ini_file() -> str:
     """parse nadeo.ini file and set data to global nadeo_ini_settings"""
     possible_settings = ["WindowTitle", "Distro", "UserDir", "CommonDir"]
     category          = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania"
     
-    ini_filepath = getNadeoIniFilePath()
+    ini_filepath = get_nadeo_ini_path()
     ini_data = configparser.ConfigParser()
     ini_data.read(ini_filepath)
     
@@ -213,7 +213,7 @@ def parseNadeoIniFile() -> str:
         
         # maniaplanet.exe path
         if ini_value.startswith("{exe}"):
-            nadeo_ini_settings[ini_key] = fixSlash( ini_value.replace("{exe}", getNadeoIniFilePath().replace("Nadeo.ini", "")) + "/" )
+            nadeo_ini_settings[ini_key] = fixSlash( ini_value.replace("{exe}", get_nadeo_ini_path().replace("Nadeo.ini", "")) + "/" )
             continue
         
         # cache and core game data
@@ -275,18 +275,6 @@ def newThread(func):
         thread = threading.Thread(target=func, args=args, kwargs=kwargs)
         thread.start()
     return wrapper
-
-
-
-def getRecentOpenedFiles() -> list[str]:
-    path_config       = bpy.utils.user_resource('CONFIG')
-    path_recent_files = os.path.join(path_config, "recent-files.txt")
-    with open(path_recent_files, "r") as f:
-        return [rfile for rfile in f.readlines()]
-
-def getCurrentOpenedBlendfilePath() -> str:
-    return bpy.data.filepath
-
 
 def reloadCurrentOpenedFileWithRestart() -> None:
     subprocess.Popen([
@@ -448,7 +436,7 @@ def chooseNadeoIniPathFirstMessage(panel_instance: bpy.types.Panel):
 
 
 def isNadeoImporterInstalled(prop="") -> bool:
-    filePath = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.exe" )
+    filePath = fixSlash( get_trackmania_exe_path() + "/NadeoImporter.exe" )
     exists   = os.path.isfile(filePath)
     tm_props = get_global_props()
     tm_props.CB_nadeoImporterIsInstalled= exists
@@ -504,7 +492,7 @@ def getTriggerName() -> str:
 def unzipNadeoImporter(zipfilepath)->None:
     """unzips the downloaded <exe>/NadeoImporter.zip file in <exe> dir"""
     with ZipFile(zipfilepath, 'r') as zipFile:
-        zipFile.extractall(path=longPath(getTrackmaniaEXEPath()))
+        zipFile.extractall(path=longPath(get_trackmania_exe_path()))
     debug(f"nadeoimporter installed")
     updateInstalledNadeoImporterVersionInUI()
 
@@ -558,7 +546,7 @@ def installNadeoImporterFromLocalFiles()->None:
 # * Not used anymore
 def installNadeoImporter()->None:
     tm_props    = get_global_props()
-    filePath    = fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip")
+    filePath    = fixSlash( get_trackmania_exe_path() + "/NadeoImporter.zip")
     progressbar = "NU_nadeoImporterDLProgress"
 
     tm_props.NU_nadeoImporterDLProgress = 0
@@ -570,7 +558,7 @@ def installNadeoImporter()->None:
         def run(): 
             tm_props.CB_nadeoImporterDLshow = False
         timer(run, 5)
-        unzipNadeoImporter(zipfilepath=fixSlash( getTrackmaniaEXEPath() + "/NadeoImporter.zip" ))
+        unzipNadeoImporter(zipfilepath=fixSlash( get_trackmania_exe_path() + "/NadeoImporter.zip" ))
         nadeoImporterInstalled_True()
         debug("nadeoimporter successfully installed")
 
@@ -841,7 +829,7 @@ def save_blend_file_as(filepath: str) -> bool:
 
 def get_game_doc_path() -> str:
     """return absolute path of maniaplanet documents folder"""
-    return getNadeoIniData(setting="UserDir")
+    return get_nadeo_init_data(setting="UserDir")
 
 
 
@@ -870,13 +858,13 @@ def get_game_doc_path_items_assets_textures() -> str:
 
 def get_nadeo_importer_path() -> str:
     """return full file path of /xx/NadeoImporter.exe"""
-    return fixSlash(getTrackmaniaEXEPath() + "/NadeoImporter.exe")
+    return fixSlash(get_trackmania_exe_path() + "/NadeoImporter.exe")
 
 
 
 def get_nadeo_importer_lib_path() -> str:
     """return full file path of /xx/NadeoImporterMaterialLib.txt"""
-    return fixSlash(getTrackmaniaEXEPath() + "/NadeoImporterMaterialLib.txt")
+    return fixSlash(get_trackmania_exe_path() + "/NadeoImporterMaterialLib.txt")
 
 
 
@@ -888,49 +876,7 @@ def rList(*rads) -> list:
     """return math.radians as list"""
     return [r(rad) for rad in rads]
 
-
-
-def fixUvLayerNamesOfObjects(col) -> None:
-    """rename/create necessary uvlayer names of an object (eg: basematerial/Uvlayer1/sdkhgkjds => BaseMaterial)"""
-    objs = col.all_objects
-
-    for obj in objs:
-        deselect_all_objects()
-        select_obj(obj) 
-        
-        if  obj.type == "MESH"\
-        and not "socket"     in obj.name.lower() \
-        and not "trigger"    in obj.name.lower() \
-        and not "notvisible" in obj.name.lower() \
-        and not "ignore" in obj.name.lower() \
-        and len(obj.material_slots.keys()) > 0:
-            uvs = obj.data.uv_layers
-
-            # create uvlayer BaseMaterial & LightMap
-            if len(uvs) == 0:
-                uvs.new(name="BaseMaterial", do_init=True)
-                uvs.new(name="LightMap",     do_init=True)
-
-            elif len(uvs) == 1:
-                if uvs[0].name.lower().startswith("light"):
-                    uvs[0].name = "LightMap"
-
-                elif not uvs[0].name.lower().startswith( ("light", "decal") )\
-                    or  uvs[0].name.lower().startswith( "base" ):
-                            uvs[0].name = "BaseMaterial"
-                            uvs.new(name="LightMap",     do_init=True)
-
-            elif len(uvs) == 2:
-                if uvs[1].name.lower().startswith( ("light", "lm") ):
-                    uvs[1].name = "LightMap"
-
-                elif uvs[0].name.lower().startswith( ("base", "bm") ):
-                    uvs[0].name = "BaseMaterial"
-
-
-
-
-def getListOfFoldersInX(folderpath: str, prefix="") -> list:
+def get_list_of_folders_in(folderpath: str, prefix="") -> list:
     """return (only) names of folders which are in the folder given as argument"""
     folders = []
     for folder in os.listdir(folderpath):
@@ -954,7 +900,7 @@ def get_path_filename(filepath: str, remove_extension=False)->str:
     return filepath
 
 
-def isCollectionExcludedOrHidden(col) -> bool:
+def is_collection_excluded_or_hidden(col) -> bool:
     """check if collection is disabled in outliner (UI)"""
     hierachy = get_collection_hierachy(colname=col.name, hierachystart=[col.name])
     
@@ -983,9 +929,7 @@ def isCollectionExcludedOrHidden(col) -> bool:
 
     return True if collection_is_excluded else False
 
-    
-
-def createCollection(name) -> object:
+def create_collection(name: str) -> object:
     """return created or existing collection"""
     all_cols = bpy.data.collections
     new_col  = None
@@ -998,27 +942,15 @@ def createCollection(name) -> object:
     return new_col
 
 
-def linkCollection(col, parentcol) -> None:
+def link_collection(coll:bpy.types.Collection, parent_col: bpy.types.Collection) -> None:
     """link collection to parentcollection"""
     all_cols = bpy.data.collections
-    try:    parentcol.children.link(col)
+    try:    parent_col.children.link(coll)
     except: ...#RuntimeError: Collection 'col' already in collection 'parentcol'
-
-
-def createUNDOstep(override) -> None:
-    """create a step which can be used in script to go back(icons etc)"""
-    bpy.ops.ed.undo_push(override)
 
 def undo() -> None:
     """do not use in a bpy.ops.execute() (ex: UI operator button)"""
     bpy.ops.ed.undo()
-
-def joinObjects() -> None:
-    bpy.ops.object.join()
-
-def duplicateObjects(linked=False) -> None:
-    bpy.ops.object.duplicate(linked=linked)
-
 
 def objectmode() -> None:
     bpy.ops.object.mode_set(mode='OBJECT')
@@ -1027,20 +959,8 @@ def editmode() -> None:
     bpy.ops.object.mode_set(mode='EDIT')
 
 
-def deleteObj(obj) -> None:
-    unset_active_object()
-    objname = str(obj.name)
-    try:
-        deselect_all_objects()  
-        set_active_object(obj)
-        bpy.ops.object.delete()
-        debug(f"object <{objname}> deleted")
-        
-    except Exception as err:
-        """reference error.. ignore."""
-        debug("error while delete obj", objname, err)
-        
-
+def delete_obj(obj: bpy.types.Object) -> None:
+    bpy.data.objects.remove(obj, do_unlink=True)
 
 def select_obj(obj)->bool:
     """selects object, no error during view_layer=scene.view_layers[0]"""
@@ -1050,55 +970,43 @@ def select_obj(obj)->bool:
     
     return False
 
-
-
 def deselect_all_objects() -> None:
     """deselects all objects in the scene, works only for visible ones"""
     bpy.ops.object.select_all(action='DESELECT')
 
-
-
-def selectAllObjects() -> None:
+def select_all_objects() -> None:
     """selects all objects in the scene, works only for visible ones"""
     for obj in bpy.context.scene.objects:
         select_obj(obj)
 
-
-def selectAllGeometry() -> None:
+def select_all_geometry() -> None:
     bpy.ops.mesh.select_all(action='SELECT')
 
-def deselectAllGeometry() -> None:
+def deselect_all_geometry() -> None:
     bpy.ops.mesh.select_all(action='DESELECT')
 
-def cursorToSelected() -> None:
+def cursor_to_selected() -> None:
     bpy.ops.view3d.snap_cursor_to_selected()
 
 def get_cursor_location() -> list:
     return bpy.context.scene.cursor.location
 
-def originToCenterOfMass() -> None:
+def origin_to_center_of_mass() -> None:
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
 
-
-
-
-def hideAllObjects() -> None:
+def hide_all_objects() -> None:
     """hide all objects in scene (obj.hide_viewport, obj.hide_render)"""
     allObjs = bpy.context.scene.objects
     for obj in allObjs:
         obj.hide_render     = True
         obj.hide_viewport   = True
 
-
-
-def unhideSelectedObject(objs: list) -> None:
+def unhide_selected_object(objs: list) -> None:
     """unhide objs in list, expect [ {"name":str, "render":bool, "viewport": bool} ]"""
     allObjs = bpy.context.scene.objects
     for obj in objs:
         allObjs[obj["name"]].hide_render    = obj["render"] 
         allObjs[obj["name"]].hide_viewport  = obj["viewport"]
-
-
 
 def set_active_object(obj) -> None:
     """set active object"""
@@ -1106,15 +1014,13 @@ def set_active_object(obj) -> None:
         bpy.context.view_layer.objects.active = obj
         select_obj(obj)
     
-
-
 def unset_active_object() -> None:
     """unset active object, deselect all"""
     bpy.context.view_layer.objects.active = None
     deselect_all_objects()
 
 
-def getAllVisibleMeshObjsOfCol(col: bpy.types.Collection) -> list:
+def get_all_visible_coll_meshes(col: bpy.types.Collection) -> list:
     return [obj for obj in col.objects 
         if obj.type == "MESH" 
         and obj.visible_get()
@@ -1124,7 +1030,7 @@ def get_active_collection() -> object:
     return bpy.context.view_layer.active_layer_collection.collection
 
 
-def getActiveCollectionOfSelectedObject() -> bpy.types.Collection:
+def get_active_collection_of_selected_object() -> bpy.types.Collection:
     objs = bpy.context.selected_objects
     col  = None
     if objs:
@@ -1134,9 +1040,9 @@ def getActiveCollectionOfSelectedObject() -> bpy.types.Collection:
         
 
 
-def selectAllObjectsInACollection(col, only_direct_children=False, exclude_infixes=None) -> None:
+def select_all_objects_in_collection(coll, only_direct_children=False, exclude_infixes=None) -> None:
     """select all objects in a collection, you may use deselectAll() before"""
-    objs = col.objects if only_direct_children else col.all_objects
+    objs = coll.objects if only_direct_children else coll.all_objects
     
     deselect_all_objects()
     if exclude_infixes:
@@ -1156,7 +1062,7 @@ def selectAllObjectsInACollection(col, only_direct_children=False, exclude_infix
             
           
             
-def getCollectionNamesFromVisibleObjects() -> list:
+def get_collection_names_from_visible_objects() -> list:
     """returns list of collection names of all visible objects in the scene"""
     objs = bpy.context.scene.objects
     return [col.name for col in (obj.users_collection for obj in objs)]
@@ -1178,7 +1084,7 @@ def get_collection_hierachy(colname: str="", hierachystart: list=[]) -> list:
     # debug(f"hierachy is {hierachy}")
     return hierachy
 
-def createCollectionHierachy(hierachy: list) -> object:
+def create_collection_hierachy(hierachy: list) -> object:
     """create collections hierachy from list and link root to the scene master collection"""
     cols        = bpy.data.collections
     currentCol  = bpy.context.scene.collection
@@ -1193,9 +1099,7 @@ def createCollectionHierachy(hierachy: list) -> object:
     return cols[hierachy[-1]]
 
 
-
-
-def getExportableCollections(objs)->set:
+def get_exportable_collections(objs)->set:
     collections = set()
 
     for obj in objs:
@@ -1214,7 +1118,7 @@ def getExportableCollections(objs)->set:
 
             if col.name.lower() in NOT_ALLOWED_COLLECTION_NAMES: continue
             if col in collections: continue
-            if isCollectionExcludedOrHidden(col): continue
+            if is_collection_excluded_or_hidden(col): continue
 
             collections.add(col)
     
@@ -1446,16 +1350,10 @@ def roundInterval(num: float, interval: int) -> int:
     
     return intVal - interval
 
-
-
-def getMeshObjectsOfCollection(col: bpy.types.Collection) -> list:
-    return [obj for obj in col.objects if obj.type == "MESH"]
-
-
-def getDimensionOfCollection(col: bpy.types.Collection)->list:
+def get_coll_dimension(coll: bpy.types.Collection)->list:
     """return dimension(x,y,z) of all mesh obj combined in collection"""
     deselect_all_objects()
-    selectAllObjectsInACollection(col=col)
+    select_all_objects_in_collection(col=coll)
 
     minx = 0
     miny = 0
@@ -1472,7 +1370,7 @@ def getDimensionOfCollection(col: bpy.types.Collection)->list:
         if obj.type != "MESH":
             continue
     
-        bounds = getobjectBounds(obj)
+        bounds = get_object_bounds(obj)
     
         oxmin = bounds[0][0]
         oxmax = bounds[1][0]
@@ -1513,40 +1411,38 @@ def getDimensionOfCollection(col: bpy.types.Collection)->list:
     return (x, y, z)
 
 
-def getobjectBounds(ob):
+def get_object_bounds(obj: bpy.types.Object):
+	obminx = obj.location.x
+	obminy = obj.location.y
+	obminz = obj.location.z
 	
-		obminx = ob.location.x
-		obminy = ob.location.y
-		obminz = ob.location.z
+	obmaxx = obj.location.x
+	obmaxy = obj.location.y
+	obmaxz = obj.location.z
 	
-		obmaxx = ob.location.x
-		obmaxy = ob.location.y
-		obmaxz = ob.location.z
+	for vertex in obj.bound_box[:]:
+		x = obj.location.x + (obj.scale.x * vertex[0])
+		y = obj.location.y + (obj.scale.y * vertex[1])
+		z = obj.location.z + (obj.scale.z * vertex[2])
 	
-		for vertex in ob.bound_box[:]:
+		if x <= obminx:
+			obminx = x
+		if y <= obminy:
+			obminy = y
+		if z <= obminz:
+			obminz = z
 	
-			x = ob.location.x + (ob.scale.x * vertex[0])
-			y = ob.location.y + (ob.scale.y * vertex[1])
-			z = ob.location.z + (ob.scale.z * vertex[2])
+		if x >= obmaxx:
+			obmaxx = x
+		if y >= obmaxy:
+			obmaxy = y
+		if z >= obmaxz:
+			obmaxz = z
 	
-			if x <= obminx:
-				obminx = x
-			if y <= obminy:
-				obminy = y
-			if z <= obminz:
-				obminz = z
-	
-			if x >= obmaxx:
-				obmaxx = x
-			if y >= obmaxy:
-				obmaxy = y
-			if z >= obmaxz:
-				obmaxz = z
-	
-		boundsmin = [obminx,obminy,obminz]
-		boundsmax = [obmaxx,obmaxy,obmaxz] 
+	boundsmin = [obminx,obminy,obminz]
+	boundsmax = [obmaxx,obmaxy,obmaxz] 
 
-		return [boundsmin,boundsmax]
+	return [boundsmin,boundsmax]
 
 
 
@@ -1577,13 +1473,11 @@ def get_folder_files(path: str, ext: str=None, recursive: bool=False)->list:
 
     return filepaths
 
-def getIconPathOfFBXpath(filepath) -> str:
+def get_icon_by_fbx_path(filepath) -> str:
     icon_path = get_path_filename(filepath)
     icon_path = filepath.replace(icon_path, f"/Icon/{icon_path}")
     icon_path = re.sub("fbx", "tga", icon_path, re.IGNORECASE)
     return fixSlash(icon_path)
-
-
 
 def get_waypoint_type_of_FBX(filepath: str) -> str:
     """read item xml of given fbx file and return waypoint"""
@@ -1591,7 +1485,6 @@ def get_waypoint_type_of_FBX(filepath: str) -> str:
     waypoint_regex  = r"waypoint\s?type=\"(\w+)\""
     waypoint        = search_string_in_file(filepath, waypoint_regex, 1)
     return waypoint
-
 
 def getWaypointTypeOfActiveObjectsCollection() -> str:
     objs = bpy.context.selected_objects
@@ -1617,7 +1510,7 @@ def setActiveWaypoint() -> None:
 
 
 def set_waypointtype_of_selected_collection() -> None:
-    col      = getActiveCollectionOfSelectedObject()
+    col      = get_active_collection_of_selected_object()
     waypoint = get_global_props().LI_xml_waypointtype
     
     col.color_tag = WAYPOINTS[waypoint]
@@ -1845,7 +1738,7 @@ def debug_all() -> None:
 
     separator(5)
     if nadeo_ini_settings == {}:
-        parseNadeoIniFile()
+        parse_nadeo_ini_file()
     full_debug("nadeoIniSettings:        ")
     full_debug(nadeo_ini_settings, pp=True, raw=True)
 
@@ -2047,12 +1940,14 @@ def is_real_object_by_name(name: str) -> bool:
     """check if the object name is not a interpreted as special"""
     name = name.lower()
     return  not name.startswith("_")\
-            or name.startswith("_notvisible_")\
-            or name.startswith("_notcollidable_")\
-            or name.startswith("_origin_")
+            or name.startswith((
+                SPECIAL_NAME_PREFIX_NOTVISIBLE,
+                SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
+                SPECIAL_NAME_INFIX_ORIGIN,
+            ))
 
 def is_obj_visible_by_name(name: str) -> bool:
     """check if object will be visible ingame"""
     name = name.lower()
     return  not name.startswith("_")\
-            or name.startswith("_notcollidable_")
+            or name.startswith(SPECIAL_NAME_PREFIX_NOTCOLLIDABLE)

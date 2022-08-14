@@ -10,7 +10,15 @@ from .Models import ExportedItem
 from .NadeoImporter import start_batch_convert
 from .ItemsIcon import generate_collection_icon, get_icon_path_from_fbx_path
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
-from .Constants import NOT_ALLOWED_COLLECTION_NAMES
+from .Constants import (
+    NOT_ALLOWED_COLLECTION_NAMES,
+    SPECIAL_NAME_PREFIX_SOCKET,
+    SPECIAL_NAME_PREFIX_TRIGGER,
+    SPECIAL_NAME_PREFIX_IGNORE,
+    SPECIAL_NAME_INFIX_ORIGIN,
+    SPECIAL_NAME_PREFIX_NOTVISIBLE,
+    SPECIAL_NAME_PREFIX_NOTCOLLIDABLE
+)
 from .Functions import (
     create_folder_if_necessary,
     debug,
@@ -30,7 +38,7 @@ from .Functions import (
 
 def _is_real_object(name: str) -> bool:
     name = name.lower()
-    return not name.startswith("_") or name.startswith(("_notvisible_", "_notcollidable_"))
+    return not name.startswith("_") or name.startswith((SPECIAL_NAME_PREFIX_NOTVISIBLE, SPECIAL_NAME_PREFIX_NOTCOLLIDABLE))
 
 def _is_collection_exportable(coll: bpy.types.Collection)->bool:
     if len(coll.objects) == 0\
@@ -62,12 +70,12 @@ def _get_exportable_collections(colls: list[bpy.types.Collection])->list[bpy.typ
 
 def _fix_uv_layers_name(coll: bpy.types.Collection) -> None:
     for obj in coll.objects:
-        if  obj.type == "MESH"\
-        and not "socket"     in obj.name.lower() \
-        and not "trigger"    in obj.name.lower() \
-        and not "notvisible" in obj.name.lower() \
-        and not "ignore" in obj.name.lower() \
-        and len(obj.material_slots.keys()) > 0:
+        if obj.type == "MESH" and not obj.name.startswith((
+            SPECIAL_NAME_PREFIX_SOCKET,
+            SPECIAL_NAME_PREFIX_TRIGGER,
+            SPECIAL_NAME_PREFIX_NOTVISIBLE,
+            SPECIAL_NAME_PREFIX_IGNORE,
+        )) and len(obj.material_slots.keys()) > 0:
             has_bm = False
             has_lm = False
 
@@ -83,7 +91,7 @@ def _fix_uv_layers_name(coll: bpy.types.Collection) -> None:
                 elif uv.name == "LightMap":
                     has_lm = True
 
-            # create BaseMaterial & LightMap if the don't exist
+            # create BaseMaterial & LightMap if they don't exist
             if not has_bm:
                 obj.data.uv_layers.new(name="BaseMaterial", do_init=True)
                 
@@ -161,7 +169,7 @@ def _move_collection_to(coll: bpy.types.Collection, location: list[float] = [0,0
     # take first valid object and main one
     for obj in coll.objects:
         if obj.type == "MESH" and is_real_object_by_name(obj.name)\
-        and (len(offset) == 0 or obj.name.lower().startswith("_origin_")):
+        and (len(offset) == 0 or SPECIAL_NAME_INFIX_ORIGIN in obj.name):
             offset = [
                 obj.location[0] - location[0],
                 obj.location[1] - location[1],

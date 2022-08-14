@@ -138,7 +138,7 @@ class TM_OT_Items_CollectionManipulationToggleIgnore(Operator):
    
     def execute(self, context):
         if len(bpy.context.selected_objects) == 1:
-            toggleNameSpecialPrefix(getActiveCollectionOfSelectedObject(), SPECIAL_NAME_PREFIX_IGNORE)
+            toggleNameSpecialPrefix(get_active_collection_of_selected_object(), SPECIAL_NAME_PREFIX_IGNORE)
         return {"FINISHED"}
 
 
@@ -163,7 +163,7 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     remove_scale: bpy.props.BoolProperty(False)
 
     def execute(self, context):
-        col      = getActiveCollectionOfSelectedObject()
+        col      = get_active_collection_of_selected_object()
         tm_props = get_global_props()
 
         scale_from     = tm_props.NU_objMplScaleFrom
@@ -234,7 +234,7 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
-        collection_name = getActiveCollectionOfSelectedObject().name
+        collection_name = get_active_collection_of_selected_object().name
 
         row = layout.row()
         row.scale_y = .5
@@ -318,7 +318,7 @@ class TM_OT_Items_EditUVMap(Operator):
     uv_name: bpy.props.StringProperty()
 
     def execute(self, context):
-        col = getActiveCollectionOfSelectedObject()
+        col = get_active_collection_of_selected_object()
         editUVMap(col, self.uv_name)
         return {"FINISHED"}
 
@@ -332,7 +332,7 @@ class TM_OT_Items_ShowUVMap(Operator):
     uv_name: bpy.props.StringProperty()
 
     def execute(self, context):
-        col = getActiveCollectionOfSelectedObject()
+        col = get_active_collection_of_selected_object()
         showUVMap(col, self.uv_name)
         return {"FINISHED"}
 
@@ -442,7 +442,7 @@ def toggleNameSpecialSuffix(obj:object, suffix:str) -> None:
 
 
 def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
-    collection   = getActiveCollectionOfSelectedObject()
+    collection   = get_active_collection_of_selected_object()
     fbx_filepath = ""
     pre_selected_objects = bpy.context.selected_objects.copy()
 
@@ -461,7 +461,7 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
 
     fbx_filepath = fixSlash(fbx_filepath)
     import_at    = bpy.context.selected_objects[0].location
-    collection   = getActiveCollectionOfSelectedObject()
+    collection   = get_active_collection_of_selected_object()
 
     deselect_all_objects()
 
@@ -528,7 +528,7 @@ def renameObject(obj: bpy.types, name: str) -> None:
 
 
 def showUVMap(col: bpy.types.Collection, uv_name: str) -> None:
-    objs = getAllVisibleMeshObjsOfCol(col)
+    objs = get_all_visible_coll_meshes(col)
 
     if not objs:
         return show_report_popup(f"Uvlayer not found", f"No object has uvlayer with name '{uv_name}'")
@@ -574,7 +574,7 @@ def addBasematerialAndLightmap(obj: bpy.types.Object) -> None:
 
 
 def editUVMap(col: bpy.types.Collection, uv_name: str) -> None:
-    objs = getAllVisibleMeshObjsOfCol(col)
+    objs = get_all_visible_coll_meshes(col)
 
     if not objs:
         return show_report_popup(f"No object selected", f"Select normal mesh objects... ")
