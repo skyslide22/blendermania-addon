@@ -123,6 +123,7 @@ classes = (
     TM_PT_Items_ItemXML,
     TM_OT_Items_ItemXML_AddPivot,
     TM_OT_Items_ItemXML_RemovePivot,
+    TM_OT_Items_ItemXML_SaveItemPlacements,
 
     # icons,
     TM_PT_Items_Icon,

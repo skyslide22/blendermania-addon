@@ -50,8 +50,10 @@ class TM_PT_Items_ItemXML(Panel):
             return
         
         
-        display_type = tm_props.LI_xml_simpleOrAdvanced
-        display_simple = display_type.upper() == "SIMPLE"
+        display_type     = tm_props.LI_xml_simpleOrAdvanced
+        display_simple   = display_type.upper() == "SIMPLE"
+        display_advanced = display_type.upper() == "ADVANCED"
+        display_template = display_type.upper() == "TEMPLATE"
         
         layout.label(text="Placement paramters:")
 
@@ -83,7 +85,7 @@ class TM_PT_Items_ItemXML(Panel):
             row_autorot.prop(tm_props, "CB_xml_autoRot", icon=ICON_AUTO_ROTATION)
 
 
-        else: # advanced
+        elif display_advanced: # advanced
             layout.row().prop(tm_props, "CB_xml_syncGridLevi", icon=ICON_SYNC)
             sync = tm_props.CB_xml_syncGridLevi
             
@@ -139,7 +141,15 @@ class TM_PT_Items_ItemXML(Panel):
                     boxRow.prop(tm_props_pivots[i], "NU_pivotX", text="X" )
                     boxRow.prop(tm_props_pivots[i], "NU_pivotY", text="Y" )
                     boxRow.prop(tm_props_pivots[i], "NU_pivotZ", text="Z" )
-                    
+
+        elif display_template:
+            row = layout.row()
+            row.prop(tm_props, "LI_xml_item_template")
+
+
+        row = layout.row()
+        row.operator("view3d.tm_save_item_placements", text="Save as Template", icon=ICON_SAVE)
+
         layout.separator(factor=UI_SPACER_FACTOR)
 
 

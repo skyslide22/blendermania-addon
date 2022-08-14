@@ -103,6 +103,7 @@ ICON_LINKED             = "LINK_BLEND"
 ICON_SEARCH             = "VIEWZOOM"
 ICON_ENVIRONMENT        = "WORLD"
 ICON_COMPRESS           = "FILE_BLEND"
+ICON_SAVE               = "FILE_NEW"
 
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"

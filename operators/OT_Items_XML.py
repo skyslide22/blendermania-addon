@@ -1,6 +1,18 @@
 from bpy.types import (Operator)
 from ..utils.Functions import *
     
+class TM_OT_Items_ItemXML_SaveItemPlacements(Operator):
+    bl_idname = "view3d.tm_save_item_placements"
+    bl_description = "Execute Order 66"
+    bl_icon = 'ADD'
+    bl_label = "Remove a pivot"
+        
+    def execute(self, context):
+        print("test msg save item placements")
+        return {"FINISHED"}
+
+    # TODO make popup ask for name of placement
+
 class TM_OT_Items_ItemXML_RemovePivot(Operator):
     bl_idname = "view3d.tm_removepivot"
     bl_description = "Execute Order 66"

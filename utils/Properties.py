@@ -904,7 +904,7 @@ def getWorkspaceNames(self, context) -> list:
     return enums.toList()
 
 
-def getSimpleOrAdvancedXML() -> list:
+def get_itemxml_display_menu() -> list:
     return EnumProps().add(
         "simple",
         "Simple",
@@ -913,6 +913,10 @@ def getSimpleOrAdvancedXML() -> list:
         "advanced",
         "Advanced",
         "Advanced settings"
+    ).add(
+        "template",
+        "Templates",
+        "Use & Configure Templates"
     ).toList()
 
 
@@ -967,6 +971,13 @@ def getSimpleGridParams() -> list:
     return enums.toList()
 
 
+def get_itemxml_template_names(self, context) -> list:
+    templates = EnumProps()
+
+
+
+
+    return templates.toList()
 
 
 
@@ -1075,7 +1086,7 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_workspaces : EnumProperty(items=getWorkspaceNames, name="Workspace", default=3)
 
     #xml
-    LI_xml_simpleOrAdvanced : EnumProperty(items=getSimpleOrAdvancedXML())
+    LI_xml_simpleOrAdvanced : EnumProperty(items=get_itemxml_display_menu())
     LI_xml_simpleGridXY     : EnumProperty(items=getSimpleGridParams())
     LI_xml_simpleGridZ      : EnumProperty(items=getSimpleGridParams())
     CB_xml_syncGridLevi     : BoolProperty(name="Sync Grid & Levi steps",   default=True)
@@ -1112,6 +1123,9 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_xml_pivots           : BoolProperty(name="Pivots (ingame Q Key)",default=False)
     CB_xml_pivotSwitch      : BoolProperty(name="Pivot switch",     default=False)
     NU_xml_pivotSnapDis     : FloatProperty(name="Pivot snap distance", default=0.0,  min=0, max=256, step=100)
+
+    LI_xml_item_template         : EnumProperty(name="Template", items=get_itemxml_template_names)
+
 
     #materials          
     ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)
