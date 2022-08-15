@@ -8,9 +8,10 @@ from bpy.types import (
 
 from .ItemsIcon import generate_world_node
 
-from .Functions  import * 
-from .Constants  import * 
-from .Descriptions import *
+from .Functions     import * 
+from .Constants     import * 
+from .Descriptions  import *
+from .NadeoXML      import *
 
 class EnumProps():
     """this needs to be returned by bpy.props.EnumProperty"""
@@ -25,14 +26,24 @@ class EnumProps():
         self.index += 1
         return self
 
-    def toList(self) -> list:
+    def to_list(self) -> list:
         return self._list
 
+    def remove(self, id: str) -> None:
+        self._list = filter(lambda item: item[0] != id, self._list)
+
+    def as_json(self) -> str:
+        return json.dumps(self._list)
+
+    def from_json(self, json_str: str) -> None:
+        enum_props = json.loads(json_str)
+        self._list = enum_props
 
 
 
 
-ERROR_ENUM_PROPS = EnumProps().add(id="ERROR", name ="Nothing found", desc="ERROR", icon="ERROR").toList()
+
+ERROR_ENUM_PROPS = EnumProps().add(id="ERROR", name ="Nothing found", desc="ERROR", icon="ERROR").to_list()
 material_physics = ERROR_ENUM_PROPS
 material_links   = ERROR_ENUM_PROPS
 
@@ -62,7 +73,7 @@ def getNadeoImportersManiaplanet() -> list:
 
         isFirst = False
     
-    return items.toList()
+    return items.to_list()
 
 
 def getNadeoImportersTrackmania2020() -> list:
@@ -82,7 +93,7 @@ def getNadeoImportersTrackmania2020() -> list:
 
         isFirst = False
 
-    return items.toList()
+    return items.to_list()
 
 
 def updateINI(prop) -> None:
@@ -119,7 +130,7 @@ def getGameTypes()->list:
         name = GAMETYPE_TRACKMANIA2020,
         desc = GAMETYPE_TRACKMANIA2020,
         icon = get_addon_icon(GAMETYPE_TRACKMANIA2020)
-    ).toList()
+    ).to_list()
     
 
 
@@ -176,7 +187,7 @@ def getGameTextureZipFileNames()->list:
         name = "Shootmania",
         desc = "Shootmania",
         icon = get_addon_icon("ENVI_STORM")
-    ).toList()
+    ).to_list()
 
 
 
@@ -191,7 +202,7 @@ def getExportTypes()->list:
         name = "Export and Convert",
         desc = "Export fbx and convert to gbx",
         icon = "CON_FOLLOWPATH"
-    ).toList()
+    ).to_list()
 
 
 
@@ -234,7 +245,7 @@ def getExportFolderTypes(self,context)->list:
             desc = "Shootmania",
             icon = get_addon_icon("ENVI_STORM")
         )
-    return folders.toList()
+    return folders.to_list()
 
 
 
@@ -249,7 +260,7 @@ def getExportWhichObjects() -> list:
         name = "Visible",
         desc = "Visible objects(their collection) only",
         icon = "HIDE_OFF"
-    ).toList()
+    ).to_list()
 
 
 
@@ -269,7 +280,7 @@ def getExportWhichObjTypes() -> list:
         name = "Mesh, Empty",
         desc = "Normal meshes, empties(like _socket_START), no lights",
         icon = "EMPTY_ARROWS"
-    ).toList()
+    ).to_list()
 
 
 
@@ -313,7 +324,7 @@ def getWayPointVariations() -> list:
         name = "Default",
         desc = "Object will not be a waypoint",
         icon = "AUTO" 
-    ).toList()
+    ).to_list()
 
      
 
@@ -358,7 +369,7 @@ def getItemXMLCollections() -> list:
         name = "SMCommon",
         desc = "",
         icon = get_addon_icon("ENVI_COMMON"),
-    ).toList()
+    ).to_list()
 
 
 def getItemXMLType() -> list:
@@ -372,7 +383,7 @@ def getItemXMLType() -> list:
         name = "DynaObject",
         desc = "Dynamic Object",
         icon = "KEYFRAME_HLT",
-    ).toList()
+    ).to_list()
 
 
 
@@ -387,7 +398,7 @@ def getMeshXMLType() -> list:
         name = "Dynamic",
         desc = "Dynamic",
         icon = "KEYFRAME_HLT",
-    ).toList()
+    ).to_list()
 
 
 
@@ -403,7 +414,7 @@ def getImportTypes() -> list:
         name = "Folder",
         desc = "Folder",
         icon = "FILE_FOLDER",
-    ).toList()
+    ).to_list()
 
 
 
@@ -479,7 +490,7 @@ def getIconPerspectives() -> list:
         name = "Bottom",
         desc = "From bottom",
         icon = "ANCHOR_BOTTOM",
-    ).toList()
+    ).to_list()
 
 
 def getIconPXdimensions() -> list:
@@ -493,7 +504,7 @@ def getIconPXdimensions() -> list:
         name = "256 px",
         desc = "Icon  size in pixel",
         icon = "FILE_IMAGE",
-    ).toList()
+    ).to_list()
 
 
 def updateWorldBG(s,c) -> None:
@@ -532,7 +543,7 @@ def getMaterials(self, context):
             icon = "MATERIAL"
         )
 
-    return material_prop_list.toList()
+    return material_prop_list.to_list()
 
 
 def updateMaterialSettings(self, context):
@@ -681,7 +692,7 @@ def getMaterialModelTypes()->list:
         name = "TIAdd",
         desc = "Glowing 256bit transparency, only _I.dds is used",
         icon = get_addon_icon("MODEL_TIADD")
-    ).toList()
+    ).to_list()
 
 
 
@@ -716,7 +727,7 @@ def getMaterialCollectionTypes()->list:
         name = "Common",
         desc = "",
         icon = get_addon_icon("ENVI_COMMON"),
-    ).toList()
+    ).to_list()
 
 
 def getMaterialActions()->list:
@@ -730,7 +741,7 @@ def getMaterialActions()->list:
         name = "Update",
         desc = "Update",
         icon = "FILE_REFRESH",
-    ).toList()
+    ).to_list()
 
 
 def getMaterialTextureSourceOptions()->list:
@@ -744,7 +755,7 @@ def getMaterialTextureSourceOptions()->list:
         name = "Custom",
         desc = "Custom",
         icon = "FILE_IMAGE",
-    ).toList()
+    ).to_list()
 
 
 @errorEnumPropsIfNadeoINIisNotValid
@@ -798,7 +809,7 @@ def getMaterialPhysicIds(self=None, context=None)->list:
             icon = icon  
         )
 
-    material_physics = physicsWithIcons.toList()
+    material_physics = physicsWithIcons.to_list()
     return material_physics
 
 
@@ -845,7 +856,7 @@ def getMaterialGameplayIds(self, context)->None:
             desc = gameplay_id,
             icon = "AUTO"
         )
-    return gameplay_id_props_list.toList()
+    return gameplay_id_props_list.to_list()
 
 
 def get_car_names() -> list:
@@ -874,7 +885,7 @@ def get_car_names() -> list:
         name = "Car Lagoon",
         desc = "Lagoon",
         icon = get_addon_icon("MANIAPLANET")
-    ).toList()
+    ).to_list()
 
 
 def getTriggerNames() -> list:
@@ -883,7 +894,7 @@ def getTriggerNames() -> list:
         name = "Wall 32x8",
         desc = "Wall 32x8",
         # icon = "SELECT_INTERSECT"
-    ).toList()
+    ).to_list()
 
 
 
@@ -901,7 +912,7 @@ def getWorkspaceNames(self, context) -> list:
     for wspace in workspaces:
         enums.add(wspace, "Workspace: "+wspace, wspace, "GREASEPENCIL")
     
-    return enums.toList()
+    return enums.to_list()
 
 
 def get_itemxml_display_menu() -> list:
@@ -917,7 +928,7 @@ def get_itemxml_display_menu() -> list:
         "template",
         "Templates",
         "Use & Configure Templates"
-    ).toList()
+    ).to_list()
 
 
 def getGridSizes() -> list:
@@ -941,7 +952,7 @@ def getGridSizes() -> list:
         "64",
         "64m",
         "64x64 grid",
-    ).toList()
+    ).to_list()
 
 
 def getGridDivisionSizes() -> None:
@@ -960,7 +971,7 @@ def getGridDivisionSizes() -> None:
     ).add(
         "64",
         "64",
-    ).toList()
+    ).to_list()
 
 
 def getSimpleGridParams() -> list:
@@ -968,16 +979,12 @@ def getSimpleGridParams() -> list:
     enums = EnumProps()
     for grid in grids:
         enums.add(str(grid), str(grid))
-    return enums.toList()
+    return enums.to_list()
+
 
 
 def get_itemxml_template_names(self, context) -> list:
-    templates = EnumProps()
-
-
-
-
-    return templates.toList()
+    return itemxml_templates_for_ui.to_list()
 
 
 
@@ -1122,7 +1129,8 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_xml_pivotSwitch      : BoolProperty(name="Pivot switch",     default=False)
     NU_xml_pivotSnapDis     : FloatProperty(name="Pivot snap distance", default=0.0,  min=0, max=256, step=100)
 
-    LI_xml_item_template         : EnumProperty(name="Template", items=get_itemxml_template_names)
+    LI_xml_item_template          : EnumProperty(name="Template", items=get_itemxml_template_names)
+    LI_xml_item_template_add_name : StringProperty(default="defaut_template_name")
 
 
     #materials          

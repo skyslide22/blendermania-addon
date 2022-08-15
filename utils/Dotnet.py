@@ -19,7 +19,7 @@ class DotnetVector3:
         self.Y = Y
         self.Z = Z
 
-    def toJSON(self):
+    def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 class DotnetInt3:
@@ -28,7 +28,7 @@ class DotnetInt3:
         self.Y = Y
         self.Z = Z
 
-    def toJSON(self):
+    def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 class DotnetBlock:
@@ -40,7 +40,7 @@ class DotnetBlock:
         self.Dir = Direction
         self.Position = Position
     
-    def toJSON(self):
+    def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 class DotnetItem:
@@ -51,7 +51,7 @@ class DotnetItem:
         self.Rotation = Rotation
         self.Pivot = Pivot
     
-    def toJSON(self):
+    def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 class DotnetPlaceObjectsOnMap:
@@ -61,20 +61,20 @@ class DotnetPlaceObjectsOnMap:
         self.Items = Items
         # TODO blocks
 
-    def toJSON(self):
+    def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 # TODO move it to functions
 class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
-        if hasattr(obj,'toJSON'):
+        if hasattr(obj,'to_json'):
             return obj.reprJSON()
         else:
             return json.JSONEncoder.default(self, obj)
 
 # Dotnet commands
 def run_place_objects_on_map(map_path: str, blocks: list[DotnetBlock] = [], items: list[DotnetItem] = []):
-    return _run_dotnet(PLACE_OBJECTS_ON_MAP, json.dumps(DotnetPlaceObjectsOnMap(map_path, blocks, items).toJSON(), cls=ComplexEncoder))
+    return _run_dotnet(PLACE_OBJECTS_ON_MAP, json.dumps(DotnetPlaceObjectsOnMap(map_path, blocks, items).to_json(), cls=ComplexEncoder))
 
 # TODO better error handling
 def _run_dotnet(command: str, payload: str) -> str | None:
