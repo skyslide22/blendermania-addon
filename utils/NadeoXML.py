@@ -165,9 +165,13 @@ def add_itemxml_template(existing_temp: dict = None) -> None:
 
 
 
-def remove_itemxml_template(template_id: str) -> None:
-    ítemxml_templates.remove(template_id)
-    itemxml_templates_for_ui.remove(template_id)
+def remove_itemxml_template(template_name: str) -> None:
+    templates = bpy.context.scene.tm_props_itemxml_templates
+
+    for i, template in enumerate(templates):
+        if template.name == template_name:
+            templates.remove(i)
+
 
 
 

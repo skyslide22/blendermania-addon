@@ -41,7 +41,7 @@ class TM_OT_Items_ItemXML_RemoveItemPlacementTemplate(Operator):
     template_name: bpy.props.StringProperty("")
         
     def execute(self, context):
-
+        remove_itemxml_template(self.template_name)
         return {"FINISHED"}
 
 
