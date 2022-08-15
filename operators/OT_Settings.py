@@ -7,6 +7,11 @@ from bpy.types import Operator
 from bpy.props import StringProperty
 
 from ..utils.Functions      import *
+from ..utils.NadeoXML       import (
+    ItemXMLTemplate,
+    ítemxml_templates,
+    add_itemxml_template
+)
 
 class TM_OT_Settings_AutoFindNadeoIni(Operator):
     bl_idname = "view3d.tm_autofindnadeoini"
@@ -186,7 +191,8 @@ def getDefaultSettingsJSON() -> dict:
             "nadeo_ini_path_tm":      "",
             "nadeo_ini_path_mp":      "",
             "blender_grid_size":      "",
-            "blender_grid_division" : ""
+            "blender_grid_division" : "",
+            "itemxml_templates":      []
         }
         debug(default_settings, pp=True)
         with open(PATH_DEFAULT_SETTINGS_JSON, "w") as settingsfile:
@@ -205,11 +211,13 @@ def loadDefaultSettingsJSON() -> None:
     tm_props = get_global_props()
     # create settings.json if not exist
     data = getDefaultSettingsJSON()
-    fromjson_author_name   = data.get("author_name")
-    fromjson_nadeoini_tm   = data.get("nadeo_ini_path_tm")
-    fromjson_nadeoini_mp   = data.get("nadeo_ini_path_mp")
-    fromjson_grid_size     = data.get("blender_grid_size")
-    fromjson_grid_division = data.get("blender_grid_division")
+    fromjson_author_name        = data.get("author_name")
+    fromjson_nadeoini_tm        = data.get("nadeo_ini_path_tm")
+    fromjson_nadeoini_mp        = data.get("nadeo_ini_path_mp")
+    fromjson_grid_size          = data.get("blender_grid_size")
+    fromjson_grid_division      = data.get("blender_grid_division")
+    fromjson_itemxml_templates  = data.get("itemxml_templates", [])
+
 
 
     if is_file_exist(fromjson_nadeoini_tm):
@@ -236,6 +244,12 @@ def loadDefaultSettingsJSON() -> None:
         debug("nadeo ini path not found, search now")
         autoFindNadeoIni()
 
+    
+    bpy.context.scene.tm_props_itemxml_templates.clear() # CollectionProperty
+
+    for temp_dict in fromjson_itemxml_templates:
+        add_itemxml_template(temp_dict)
+
 
 
 def saveDefaultSettingsJSON() -> None:
@@ -249,10 +263,12 @@ def saveDefaultSettingsJSON() -> None:
             "nadeo_ini_path_tm"     : tm_props.ST_nadeoIniFile_TM or old_data["nadeo_ini_path_tm"],
             "blender_grid_size"     : tm_props.LI_blenderGridSize or old_data["blender_grid_size"],
             "blender_grid_division" : tm_props.LI_blenderGridSizeDivision or old_data["blender_grid_division"],
+            "itemxml_templates"     : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates]
         }
         debug("new settings.json data:")
         debug(new_data, pp=True, raw=True)
-        settingsfile.write(json.dumps(new_data))
+        settingsfile.write(json.dumps(new_data, indent=4, sort_keys=True))
+
 
 
 

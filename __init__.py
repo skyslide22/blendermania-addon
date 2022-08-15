@@ -18,6 +18,7 @@ bl_info = {
     "category"      : "Generic"
 }                    
 
+
 from .utils.Constants     import *
 from .utils.Descriptions  import *
 from .utils.Dotnet        import *
@@ -31,6 +32,7 @@ from .utils.Models        import *
 from .utils.NadeoImporter import *
 from .utils.NadeoXML      import *
 from .utils.Properties    import *
+
 from .operators.OT_Map_Manipulate     import *
 from .operators.OT_NinjaRipper        import *
 from .operators.OT_Settings           import *
@@ -69,6 +71,8 @@ classes = (
     TM_Properties_Pivots,
     TM_Properties_ConvertingItems,
     TM_Properties_LinkedMaterials,
+    ItemXMLTemplate,
+    # TM_Properties_ItemXMLTemplates,
 
     # settings
     TM_PT_Settings,
@@ -121,6 +125,7 @@ classes = (
     TM_OT_Items_ItemXML_AddPivot,
     TM_OT_Items_ItemXML_RemovePivot,
     TM_OT_Items_ItemXML_SaveItemPlacementTemplate,
+    TM_OT_Items_ItemXML_RemoveItemPlacementTemplate,
 
     # icons,
     TM_PT_Items_Icon,
@@ -163,6 +168,7 @@ classes = (
 
 # register classes 
 def register():
+
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.tm_props                  = PointerProperty(   type=PannelsPropertyGroup)
@@ -170,6 +176,9 @@ def register():
     bpy.types.Scene.tm_props_generated        = CollectionProperty(type=TM_Properties_Generated)
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=TM_Properties_ConvertingItems)
     bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=TM_Properties_LinkedMaterials)
+    # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=TM_Properties_ItemXMLTemplates)
+    bpy.types.Scene.tm_props_itemxml_templates_ui     = EnumProperty(items=get_itemxml_template_names_enum)
+    bpy.types.Scene.tm_props_itemxml_templates        = CollectionProperty(type=ItemXMLTemplate)
 
     bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)
     bpy.types.Light.night_only          = BoolProperty(default=False)
@@ -203,6 +212,9 @@ def unregister():
     del bpy.types.Scene.tm_props_pivots
     del bpy.types.Scene.tm_props_convertingItems
     del bpy.types.Scene.tm_props_linkedMaterials
+    del bpy.types.Scene.tm_props_itemxml_templates_ui
+    del bpy.types.Scene.tm_props_itemxml_templates
+    # del bpy.types.Scene.tm_props_itemxml_templates
 
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
@@ -221,6 +233,8 @@ def on_save(what, idontknow) -> None: # on quit?
     """run on blender save"""
     saveDefaultSettingsJSON()
 
+
+# TODO runs 10 times on new blend file ??
 @persistent
 def on_startup(dummy) -> None:
     """run on blender startup, load blend file & reload current file"""
@@ -232,10 +246,6 @@ def on_startup(dummy) -> None:
 
         # so grid_subdivisions is editable
         bpy.context.scene.unit_settings.system = 'NONE'
-        
-        # ui grid scale
-
-
                     
     except AttributeError as error:
         debug(error)

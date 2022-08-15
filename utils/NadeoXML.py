@@ -1,8 +1,10 @@
+from __future__ import annotations
 
 import re
 import bpy
 import math
 import json
+
 
 from .Models import ExportedItem
 from .Constants import WAYPOINTS
@@ -16,9 +18,7 @@ from .Functions import (
     get_path_filename,
     isGameTypeManiaPlanet,
     isGameTypeTrackmania2020,
-)
-from .Properties import (
-    EnumProps
+    debug
 )
 
 
@@ -26,63 +26,149 @@ from .Properties import (
 
 
 
-class ItemXMLTemplate():
-    name:           str
-    grid_xy:        float
-    grid_z:         float
-    levitation_xy:  float
-    levitation_z:   float
-    auto_rot:       bool
-    ghost_mode:     bool
-    pivots:         list[float, float, float]
+class ItemXMLTemplate(bpy.types.PropertyGroup):
+    name: str = "default_template_name",
+    grid_xy: float = 32,
+    grid_z: float = 8,
+    grid_xy_offset: float = 0,
+    grid_z_offset: float = 0,
+    levitation_xy: float = 32,
+    levitation_z: float = 8,
+    levitation_xy_offset: float = 0,
+    levitation_z_offset: float = 0,
+    auto_rot: bool = False,
+    one_axis_rot: bool = False,
+    ghost_mode: bool = True,
+    not_on_item: bool = False,
+    pivots: list[list[float, float, float]] = [ [0, 0, 0] ],
+    pivot_switch: bool = False,
+    pivot_snap_distance: float = 0,
+    
+    def new(self,
+        name: str = "default_template_name",
+        grid_xy: float = 32,
+        grid_z: float = 8,
+        grid_xy_offset: float = 0,
+        grid_z_offset: float = 0,
+        levitation_xy: float = 32,
+        levitation_z: float = 8,
+        levitation_xy_offset: float = 0,
+        levitation_z_offset: float = 0,
+        auto_rot: bool = False,
+        one_axis_rot: bool = False,
+        ghost_mode: bool = True,
+        not_on_item: bool = False,
+        pivots: list[list[float, float, float]] = [ [0, 0, 0] ],
+        pivot_switch: bool = False,
+        pivot_snap_distance: float = 0,
+    ):
+        self.name = name 
+        self.grid_xy = grid_xy
+        self.grid_z = grid_z
+        self.grid_xy_offset = grid_xy_offset
+        self.grid_z_offset = grid_z_offset
+        self.levitation_xy = levitation_xy
+        self.levitation_z = levitation_z
+        self.levitation_xy_offset = levitation_xy_offset
+        self.levitation_z_offset = levitation_z_offset
+        self.auto_rot = auto_rot
+        self.one_axis_rot = one_axis_rot
+        self.ghost_mode = ghost_mode
+        self.not_on_item = not_on_item
+        self.pivots = pivots
+        self.pivot_switch = pivot_switch
+        self.pivot_snap_distance = pivot_snap_distance
 
     def to_json(self):
+        debug(self.__dict__)
         return json.dumps(self, default=lambda o: o.__dict__)
 
-    def from_json(self, json_str) -> None:
-        ...
+    def to_dict(self) -> dict:
+        # return vars(self) # not working cut inherintance
+        return {
+            "name": self.name,
+            "grid_xy": self.grid_xy,
+            "grid_z": self.grid_z,
+            "grid_xy_offset": self.grid_xy_offset,
+            "grid_z_offset": self.grid_z_offset,
+            "levitation_xy": self.levitation_xy,
+            "levitation_z": self.levitation_z,
+            "levitation_xy_offset": self.levitation_xy_offset,
+            "levitation_z_offset": self.levitation_z_offset,
+            "auto_rot": self.auto_rot,
+            "one_axis_rot": self.one_axis_rot,
+            "ghost_mode": self.ghost_mode,
+            "not_on_item": self.not_on_item,
+            "pivots": self.pivots,
+            "pivot_switch": self.pivot_switch,
+            "pivot_snap_distance": self.pivot_snap_distance,
+        }
 
+    @classmethod
+    def from_dict(cls, dict_obj) -> ItemXMLTemplate:
+        return cls(**dict_obj)
 
 ítemxml_templates:list[ItemXMLTemplate] = list()
-itemxml_templates_for_ui = EnumProps()
+itemxml_templates_for_ui = []
 
-# TODO / CONTINUE
-def add_itemxml_template(existing_template: ItemXMLTemplate = None) -> None:
+
+# TODO fix every property is a tuple except "name"
+
+def add_itemxml_template(existing_temp: dict = None) -> None:
     tm_props  = get_global_props()
+    pivot_props = get_pivot_props()
     simple_ui = tm_props.LI_xml_simpleOrAdvanced == "simple"
 
-    if existing_template is None:
-        name = tm_props.LI_xml_item_template_add_name
+    if existing_temp is None:
+        template = bpy.context.scene.tm_props_itemxml_templates.add()
+        template.name = tm_props.LI_xml_item_template_add_name
+        
         sync_grid_levi = tm_props.CB_xml_syncGridLevi
 
-        grid_xy = tm_props.LI_xml_simpleGridXY
-        grid_z  = tm_props.LI_xml_simpleGridZ 
+        template.grid_xy = tm_props.NU_xml_gridX
+        template.grid_z  = tm_props.NU_xml_gridY 
         if simple_ui: 
-            grid_xy = tm_props.NU_xml_gridX
-            grid_z  = tm_props.LI_xml_simpleGridZ 
+            template.grid_xy = tm_props.LI_xml_simpleGridXY
+            template.grid_z  = tm_props.LI_xml_simpleGridZ 
         elif sync_grid_levi:
-            grid_xy = tm_props.LI_xml_simpleGridXY
-            grid_z  = tm_props.LI_xml_simpleGridZ 
+            template.grid_xy = tm_props.NU_xml_gridAndLeviX
+            template.grid_z  = tm_props.NU_xml_gridAndLeviY 
+
+        template.levitation_xy = tm_props.NU_xml_leviX
+        template.levitation_z  = tm_props.NU_xml_leviY 
+        if simple_ui: 
+            template.levitation_xy = tm_props.LI_xml_simpleGridXY
+            template.levitation_z  = tm_props.LI_xml_simpleGridZ 
+        elif sync_grid_levi:
+            template.levitation_xy = tm_props.NU_xml_gridAndLeviX
+            template.levitation_z  = tm_props.NU_xml_gridAndLeviY 
+
+        # TODO OFFSETS
+
+        template.ghost_mode = tm_props.CB_xml_ghostMode
+        template.auto_rot = tm_props.CB_xml_autoRot
+        template.one_axis_rot = tm_props.CB_xml_oneAxisRot
+        template.not_on_item = tm_props.CB_xml_notOnItem
+        template.pivot_switch = tm_props.CB_xml_pivotSwitch
+        template.pivot_snap_distance = tm_props.NU_xml_pivotSnapDis
+        template.pivots = [
+            [
+                pivot.NU_pivotX,
+                pivot.NU_pivotY,
+                pivot.NU_pivotZ
+            ] for pivot in pivot_props
+        ]
         
-        levi_xy = tm_props
-    
-        template = ItemXMLTemplate()
-        template.name           = name
-        template.grid_xy        = tm_props.LI_xml_simpleGridXY if simple_ui else tm_props.NU_xml_gridX
-        template.grid_z         = tm_props.LI_xml_simpleGridZ  if simple_ui else tm_props.NU_xml_gridY
-        template.levitation_xy  = tm_props.LI_xml_simpleGridXY if simple_ui else tm_props.NU_xml_gridAndLeviX
-        template.levitation_z   = tm_props.LI_xml_simpleGridZ  if simple_ui else tm_props.NU_xml_gridY
-        template.auto_rot       = tm_props
-        template.ghost_mode     = tm_props
-        template.pivots         = tm_props
-        
-    ítemxml_templates.append(template)
-    itemxml_templates_for_ui.add(id=template.name, name=template.name)
+    else:
+        template = bpy.context.scene.tm_props_itemxml_templates.add()
+        template.new(**existing_temp)
+
 
 
 def remove_itemxml_template(template_id: str) -> None:
     ítemxml_templates.remove(template_id)
     itemxml_templates_for_ui.remove(template_id)
+
 
 
 def generate_item_XML(item: ExportedItem) -> str:

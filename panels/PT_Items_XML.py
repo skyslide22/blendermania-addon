@@ -5,6 +5,8 @@ from bpy.types import (
     Panel,
     Operator,
 )
+
+from ..utils.Properties import ERROR_ENUM_ID
 from ..utils.Functions import *
 from ..utils.Constants import * 
 
@@ -152,15 +154,18 @@ class TM_PT_Items_ItemXML(Panel):
             row.operator("view3d.tm_save_item_placement_template", text="Save as Template", icon=ICON_SAVE)
 
         elif display_template:
-            row = layout.row()
-            row.prop(tm_props, "LI_xml_item_template")  
-
             selected_template_name = tm_props.LI_xml_item_template
             row = layout.row()
-            row.operator("view3d.tm_remove_item_placement_template", text=f"Remove {selected_template_name}", icon=ICON_SAVE).template_name = selected_template_name
+            row.prop(tm_props, "LI_xml_item_template")  
+            # row.prop(context.scene.tm_props_itemxml_templates, "tm_props_itemxml_templates")
+            if selected_template_name != ERROR_ENUM_ID:
+                row = layout.row()
+                row.operator("view3d.tm_remove_item_placement_template", text=f"Remove {selected_template_name}", icon=ICON_REMOVE).template_name = selected_template_name
+                row = layout.row()
+                row.prop(tm_props, "CB_xml_ignore_assigned_templates", text=f"Force {selected_template_name} on all", toggle=True, icon=ICON_EDIT)
+            
 
-
-
+            
         layout.separator(factor=UI_SPACER_FACTOR)
 
 

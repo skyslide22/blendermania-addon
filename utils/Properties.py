@@ -2,9 +2,7 @@
 import bpy
 import bpy.utils.previews
 from bpy.props import *
-from bpy.types import (
-    PropertyGroup
-)
+
 
 from .ItemsIcon import generate_world_node
 
@@ -12,6 +10,8 @@ from .Functions     import *
 from .Constants     import * 
 from .Descriptions  import *
 from .NadeoXML      import *
+
+
 
 class EnumProps():
     """this needs to be returned by bpy.props.EnumProperty"""
@@ -42,8 +42,8 @@ class EnumProps():
 
 
 
-
-ERROR_ENUM_PROPS = EnumProps().add(id="ERROR", name ="Nothing found", desc="ERROR", icon="ERROR").to_list()
+ERROR_ENUM_ID    = "ERROR"
+ERROR_ENUM_PROPS = EnumProps().add(id=ERROR_ENUM_ID, name ="Nothing found", desc=ERROR_ENUM_ID, icon="ERROR").to_list()
 material_physics = ERROR_ENUM_PROPS
 material_links   = ERROR_ENUM_PROPS
 
@@ -982,9 +982,17 @@ def getSimpleGridParams() -> list:
     return enums.to_list()
 
 
+def get_itemxml_template_names_enum(self, context) -> list:
+    templates = EnumProps()
+    for template in context.scene.tm_props_itemxml_templates:
+        templates.add(
+            id=template.name,
+            name=template.name,
+        )
+    return templates.to_list() or ERROR_ENUM_PROPS
 
-def get_itemxml_template_names(self, context) -> list:
-    return itemxml_templates_for_ui.to_list()
+# def get_itemxml_template_names(self, context) -> list:#
+#     return context.scene.tm_props_itemxml_templates.templates_ui.to_list() or ERROR_ENUM_PROPS
 
 
 
@@ -1129,9 +1137,9 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_xml_pivotSwitch      : BoolProperty(name="Pivot switch",     default=False)
     NU_xml_pivotSnapDis     : FloatProperty(name="Pivot snap distance", default=0.0,  min=0, max=256, step=100)
 
-    LI_xml_item_template          : EnumProperty(name="Template", items=get_itemxml_template_names)
-    LI_xml_item_template_add_name : StringProperty(default="defaut_template_name")
-
+    LI_xml_item_template            : EnumProperty(name="Template", items=get_itemxml_template_names_enum)
+    LI_xml_item_template_add_name   : StringProperty(default="defaut_template_name")
+    CB_xml_ignore_assigned_templates: BoolProperty(default=False)
 
     #materials          
     ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)
@@ -1163,12 +1171,12 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     LI_items_triggers : EnumProperty(name="Trigger", items=getTriggerNames())
 
 
-class TM_Properties_LinkedMaterials(PropertyGroup):
+class TM_Properties_LinkedMaterials(bpy.types.PropertyGroup):
     """for material creation panel, stores materials from the game's nadeoimportermateriallib.txt (linked)"""
     name : StringProperty(name="Linked mat name", default="")
 
 
-class TM_Properties_Generated(PropertyGroup):
+class TM_Properties_Generated(bpy.types.PropertyGroup):
     """trackmania properties generated"""
     ST_matPhysicsId : StringProperty(name="PhysicsId",             default="Concrete")
     ST_matName      : StringProperty(name="Mat Name",              default="")
@@ -1177,14 +1185,15 @@ class TM_Properties_Generated(PropertyGroup):
     CB_matBool      : BoolProperty(name="mat name not set yet",    default=False)
     
 
-class TM_Properties_Pivots(PropertyGroup):
+class TM_Properties_Pivots(bpy.types.PropertyGroup):
     """trackmania properties generated for pivots (item xml)"""
     NU_pivotX   : FloatProperty(name="X", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
     NU_pivotY   : FloatProperty(name="Y", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
     NU_pivotZ   : FloatProperty(name="Z", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
     
 
-class TM_Properties_ConvertingItems(PropertyGroup):
+
+class TM_Properties_ConvertingItems(bpy.types.PropertyGroup):
     """trackmania properties generated for pivots (item xml)"""
     name              : StringProperty(name="ITEM NAME ... ", default="ITEM NAME ... ")
     name_raw          : StringProperty(name="COL NAME ... ",  default="COL NAME ... ")
@@ -1193,6 +1202,14 @@ class TM_Properties_ConvertingItems(PropertyGroup):
     converted         : BoolProperty(name="Item converted?",  default=False)
     convert_duration  : IntProperty(name="Convert duration",  default=0, min=0, max=10000)
     
+
+class TM_Properties_ItemXMLTemplates(bpy.types.PropertyGroup):
+    from ..utils.NadeoXML import ItemXMLTemplate # circular import else
+
+    templates_ui:   EnumProperty(items=get_itemxml_template_names_enum)
+    templates =     CollectionProperty(type=ItemXMLTemplate)
+    # templates_ui = EnumProps()
+    # templates_ui: list
 
 
 
