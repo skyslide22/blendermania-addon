@@ -42,6 +42,7 @@ from .operators.OT_Items_Manipulate   import *
 from .operators.OT_UV_Manipulate      import *
 from .operators.OT_Assets_Library     import *
 from .operators.OT_Items_Templates    import * 
+from .operators.OT_WikiLink            import * 
 from .panels.PT_Map_Manipulate     import *
 from .panels.PT_NinjaRipper        import *
 from .panels.PT_Settings           import *
@@ -62,12 +63,8 @@ object_eventlistner_owner = object()
 
 # register order matters for UI panel ordering
 classes = (
-    # map
-    OT_UIExportAndCreateMap,
-    PT_UIMapManipulation,
-    
     # props (not panel)
-    TM_Properties_for_Panels,
+    PannelsPropertyGroup,
     TM_Properties_Generated,
     TM_Properties_Pivots,
     TM_Properties_ConvertingItems,
@@ -149,6 +146,15 @@ classes = (
     # templates
     OT_ItemsCarsTemplates,
     OT_ItemsEnviTemplates,
+
+    # map
+    OT_UICollectionToMap,
+    OT_UIValidateMapCollection,
+    PT_UIMapManipulation,
+    PT_UIMapObjectsManipulation,
+
+    # util
+    OT_UIWikiLink
 )
 
 
@@ -159,7 +165,7 @@ classes = (
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.Scene.tm_props                  = PointerProperty(   type=TM_Properties_for_Panels)
+    bpy.types.Scene.tm_props                  = PointerProperty(   type=PannelsPropertyGroup)
     bpy.types.Scene.tm_props_pivots           = CollectionProperty(type=TM_Properties_Pivots)
     bpy.types.Scene.tm_props_generated        = CollectionProperty(type=TM_Properties_Generated)
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=TM_Properties_ConvertingItems)

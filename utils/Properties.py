@@ -987,7 +987,7 @@ def get_itemxml_template_names(self, context) -> list:
 #? NU = Number   => IntProperty, FloatProperty
 #? ST = String   => StringProperty
 
-class TM_Properties_for_Panels(bpy.types.PropertyGroup):
+class PannelsPropertyGroup(bpy.types.PropertyGroup):
     """general trackmania properties"""
     LI_gameType                 : EnumProperty(  name="Game",    items=getGameTypes(),   update=gameTypeGotUpdated)
     ST_nadeoIniFile_MP          : StringProperty(name="",        subtype="FILE_PATH",    update=lambda s, c: updateINI("ST_nadeoIniFile_MP"), default=defaultINI("ST_nadeoIniFile_MP"))
@@ -1017,8 +1017,8 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redraw_panels)
 
     #map manipulation
-    ST_map_filepath           : StringProperty(name="Map path", default="",   subtype="FILE_PATH")
-
+    ST_map_filepath           : StringProperty(name="Map file", default="",   subtype="FILE_PATH")
+    PT_map_collection         : bpy.props.PointerProperty(type=bpy.types.Collection)
 
     #object manipulation
     NU_objMplScaleFrom      : IntProperty(default=7, min=1, max=20)
@@ -1056,7 +1056,6 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     NU_prevConvertDuration       : IntProperty(min=0,               default=0,    update=redraw_panels)
     CB_generateMeshAndShapeGBX   : BoolProperty(default=True,       update=redraw_panels, description="To import your item in meshmodeler, those 2 additional files are required")
 
-
     #import
     LI_importMatFailed        : StringProperty()
     LI_importType             : EnumProperty(items=getImportTypes())
@@ -1069,7 +1068,6 @@ class TM_Properties_for_Panels(bpy.types.PropertyGroup):
     LI_icon_pxDimension     : EnumProperty(items=getIconPXdimensions(),   name="Size")
     NU_icon_padding         : IntProperty(min=0, max=100,     default=80, subtype="PERCENTAGE", update=redraw_panels) 
     NU_icon_bgColor         : FloatVectorProperty(name='BG Color',        subtype='COLOR', min=0, max=1, size=4, default=(1,1,1,1), update=updateWorldBG)
-
 
     #uvmaps
     CB_uv_genLightMap               : BoolProperty(name="Generate LightMap",                        default=True,       update=redraw_panels)
