@@ -64,7 +64,6 @@ class DotnetPlaceObjectsOnMap:
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
-# TODO move it to functions
 class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
         if hasattr(obj,'to_json'):
@@ -76,7 +75,6 @@ class ComplexEncoder(json.JSONEncoder):
 def run_place_objects_on_map(map_path: str, blocks: list[DotnetBlock] = [], items: list[DotnetItem] = []):
     return _run_dotnet(PLACE_OBJECTS_ON_MAP, json.dumps(DotnetPlaceObjectsOnMap(map_path, blocks, items).to_json(), cls=ComplexEncoder))
 
-# TODO better error handling
 def _run_dotnet(command: str, payload: str) -> str | None:
     # TODO use .exe from propper source
     process = subprocess.Popen(args=[
