@@ -105,6 +105,7 @@ ICON_SEARCH             = "VIEWZOOM"
 ICON_ENVIRONMENT        = "WORLD"
 ICON_COMPRESS           = "FILE_BLEND"
 ICON_SAVE               = "FILE_NEW"
+ICON_CUBE               = "CUBE"
 
 # https://cloford.com/resources/charcodes/utf-8_arrows.htm
 CHAR_VERTICAL   = "↕"
@@ -322,6 +323,17 @@ PANEL_CLASS_COMMON_DEFAULT_PROPS = {
     #"bl_context":        "objectmode",
     "bl_options":        {"DEFAULT_CLOSED"}
 }
+
+# Map export
+MAP_OBJECT_TYPES = {
+    MAP_OBJECT_BLOCK := "block",
+    MAP_OBJECT_ITEM := "item",
+}
+
+MAP_OBJECT_TYPES_PROP = (
+    #(MAP_OBJECT_BLOCK, "Block", ""), GBX.NET can't place free blocks yet, come back to it later
+    (MAP_OBJECT_ITEM, "Item", ""),
+)
 
 
 # Custom properties of the materials for iterating & checking

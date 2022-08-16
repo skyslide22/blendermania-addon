@@ -19,19 +19,20 @@ bl_info = {
 }                    
 
 
-from .utils.Constants     import *
-from .utils.Descriptions  import *
-from .utils.Dotnet        import *
-from .utils.Functions     import *
-from .utils.ItemsExport   import *
-from .utils.ItemsIcon     import *
-from .utils.ItemsImport   import *
-from .utils.ItemsUVs      import *
-from .utils.Materials     import *
-from .utils.Models        import *
-from .utils.NadeoImporter import *
-from .utils.NadeoXML      import *
-from .utils.Properties    import *
+from .utils.Constants      import *
+from .utils.Descriptions   import *
+from .utils.Dotnet         import *
+from .utils.Functions      import *
+from .utils.ItemsExport    import *
+from .utils.ItemsIcon      import *
+from .utils.ItemsImport    import *
+from .utils.ItemsUVs       import *
+from .utils.Materials      import *
+from .utils.Models         import *
+from .utils.NadeoImporter  import *
+from .utils.NadeoXML       import *
+from .utils.Properties     import *
+from .utils.BlenderObjects import *
 
 from .operators.OT_Map_Manipulate     import *
 from .operators.OT_NinjaRipper        import *
@@ -66,6 +67,7 @@ object_eventlistner_owner = object()
 # register order matters for UI panel ordering
 classes = (
     # props (not panel)
+    MapObjectProperties,
     PannelsPropertyGroup,
     TM_Properties_Generated,
     TM_Properties_Pivots,
@@ -157,6 +159,7 @@ classes = (
     OT_UIValidateMapCollection,
     PT_UIMapManipulation,
     PT_UIMapObjectsManipulation,
+    OT_UICreateUpdateMapItemBlock,
 
     # util
     OT_UIWikiLink
@@ -186,6 +189,11 @@ def register():
     bpy.types.VIEW3D_MT_add.prepend(OT_ItemsCarsTemplates.add_menu_item)
     bpy.types.VIEW3D_MT_add.prepend(OT_ItemsEnviTemplates.add_menu_item)
 
+    # object extra props
+    bpy.types.Object.tm_map_object_kind = StringProperty(name="Item (soon Block)", default="Item")
+    bpy.types.Object.tm_map_object_path = StringProperty(name="Name/Path of Item or Block", default="")
+
+    # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
     bpy.types.Material.baseTexture      = StringProperty(       name="BaseTexture",         default="")
     bpy.types.Material.link             = StringProperty(       name="Link",                default="")

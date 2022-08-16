@@ -15,7 +15,7 @@ class TM_OT_Materials_Create(Operator):
     bl_description = "create material"
    
     def execute(self, context):
-        _create_or_ipdate_material("CREATE")
+        _create_or_update_material("CREATE")
         context.region.tag_redraw()
         return {"FINISHED"}
     
@@ -25,7 +25,7 @@ class TM_OT_Materials_Update(Operator):
     bl_description = "update material"
    
     def execute(self, context):
-        _create_or_ipdate_material("UPDATE")
+        _create_or_update_material("UPDATE")
         context.region.tag_redraw()
         return {"FINISHED"}
 
@@ -49,7 +49,7 @@ class TM_OT_Materials_RevertCustomColor(Operator):
         context.region.tag_redraw()
         return {"FINISHED"}
 
-def _create_or_ipdate_material(action)->None:
+def _create_or_update_material(action)->None:
     """create a export/convert ready material for TM and MP"""
     tm_props = get_global_props()
     

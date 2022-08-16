@@ -3,13 +3,12 @@ import bpy
 import bpy.utils.previews
 from bpy.props import *
 
-
 from .ItemsIcon import generate_world_node
-
 from .Functions     import * 
 from .Constants     import * 
 from .Descriptions  import *
 from .NadeoXML      import *
+from .Models        import *
 
 
 
@@ -1034,6 +1033,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     #map manipulation
     ST_map_filepath           : StringProperty(name="Map file", default="",   subtype="FILE_PATH")
     PT_map_collection         : bpy.props.PointerProperty(type=bpy.types.Collection)
+    PT_map_object             : bpy.props.PointerProperty(type=MapObjectProperties)
 
     #object manipulation
     NU_objMplScaleFrom      : IntProperty(default=7, min=1, max=20)

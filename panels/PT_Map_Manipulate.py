@@ -1,11 +1,13 @@
+from email.policy import default
 import bpy
 
 from ..operators.OT_Map_Manipulate import (
     OT_UICollectionToMap,
     OT_UIValidateMapCollection,
+    OT_UICreateUpdateMapItemBlock,
 )
 from ..utils.Functions import get_global_props, requireValidNadeoINI
-from ..utils.Constants import ICON_COLLECTION, PANEL_CLASS_COMMON_DEFAULT_PROPS, ICON_MAP
+from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS, ICON_MAP, ICON_CUBE
 from ..operators.OT_WikiLink import add_ui_wiki_icon
 
 
@@ -62,7 +64,7 @@ class PT_UIMapManipulation(bpy.types.Panel):
 class PT_UIMapObjectsManipulation(bpy.types.Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
-    bl_label   = "Create Blocks & Items"
+    bl_label   = "Map Blocks & Items"
     bl_idname  = "TM_PT_Map_Export_Items_Blcoks"
     bl_context = "objectmode"
     bl_parent_id = "TM_PT_Map_Manipulate"
@@ -70,5 +72,29 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
+        tm_props = get_global_props()
+
+        has_map_coll = tm_props.PT_map_collection is not None
+        obj = bpy.context.selected_objects[0] if len(bpy.context.selected_objects) > 0 else None
+
         box = layout.box()
-        box.label(text="TODO")
+
+        if not has_map_coll:
+            box.label(text="Select Map collection first")
+        elif obj and "tm_map_object_kind" in obj:
+            box.label(text=f"Update Map Item")
+        else:
+            box.label(text=f"Create Map Item")
+            row = box.row()
+            row.prop(tm_props.PT_map_object, "object_type", text="Object type")
+
+            row = box.row()
+            row.prop(tm_props.PT_map_object, "object_item", text="Object placeholder")
+            
+            row = box.row()
+            row.prop(tm_props.PT_map_object, "object_path", text=f"Name/Path of {tm_props.PT_map_object.object_type}")
+
+            button = layout.row()
+            button.scale_y = 1.5
+            button.operator(OT_UICreateUpdateMapItemBlock.bl_idname, text="Create")
+            
