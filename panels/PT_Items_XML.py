@@ -62,7 +62,7 @@ class TM_PT_Items_ItemXML(Panel):
         row = layout.row(align=True)
         row.prop(tm_props, "LI_xml_simpleOrAdvanced", expand=True)
 
-        if isGameTypeManiaPlanet():
+        if is_game_maniaplanet():
             row = layout.row()
             row.prop(tm_props, "LI_materialCollection", text="Envi")
 
@@ -154,15 +154,15 @@ class TM_PT_Items_ItemXML(Panel):
             row.operator("view3d.tm_save_item_placement_template", text="Save as Template", icon=ICON_SAVE)
 
         elif display_template:
-            selected_template_name = tm_props.LI_xml_item_template
-            row = layout.row()
-            row.prop(tm_props, "LI_xml_item_template")  
-            # row.prop(context.scene.tm_props_itemxml_templates, "tm_props_itemxml_templates")
+            selected_template_name = tm_props.LI_xml_item_template_globally
+            col = layout.column(align=True)
+            row = col.row(align=True)
+            row.prop(tm_props, "LI_xml_item_template_globally")
+            row.operator("view3d.tm_remove_item_placement_template", text=f"", icon=ICON_REMOVE).template_name = selected_template_name
             if selected_template_name != ERROR_ENUM_ID:
+                row = col.row()
+                row.prop(tm_props, "CB_xml_ignore_assigned_templates", text=f"Force on all collections", toggle=True, icon=ICON_EDIT)
                 row = layout.row()
-                row.operator("view3d.tm_remove_item_placement_template", text=f"Remove {selected_template_name}", icon=ICON_REMOVE).template_name = selected_template_name
-                row = layout.row()
-                row.prop(tm_props, "CB_xml_ignore_assigned_templates", text=f"Force {selected_template_name} on all", toggle=True, icon=ICON_EDIT)
             
 
             

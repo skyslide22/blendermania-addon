@@ -2,7 +2,7 @@ import bpy
 
 from ..utils.BlenderObjects import duplicate_object_to
 
-from ..utils.Functions import isGameTypeTrackmania2020
+from ..utils.Functions import is_game_trackmania2020
 from ..utils.Constants import SPECIAL_NAME_SUFFIX_LOD1
 from ..utils.Dotnet import DotnetItem, DotnetVector3, run_place_objects_on_map
 from ..utils.Functions import get_global_props, save_blend_file, show_report_popup, set_active_object
@@ -68,7 +68,7 @@ def _create_update_map_object():
             obj_to_update = bpy.context.active_object
         else:
             obj_to_update = duplicate_object_to(object_item, map_coll)
-            prefix = "TM" if isGameTypeTrackmania2020() else "MP"
+            prefix = "TM" if is_game_trackmania2020() else "MP"
             obj_to_update.name = f"{prefix}_{object_type.upper()}: {object_path}"
     
 

@@ -27,7 +27,7 @@ class TM_PT_Items_Export(Panel):
         exportActionIsSelected  = tm_props.LI_exportWhichObjs == "SELECTED"
         exportFolderType        = tm_props.LI_exportFolderType
         exportCustomFolder      = True if str(exportFolderType).lower() == "custom" else False
-        exportCustomFolderProp  = "ST_exportFolder_MP" if isGameTypeManiaPlanet() else "ST_exportFolder_TM"
+        exportCustomFolderProp  = "ST_exportFolder_MP" if is_game_maniaplanet() else "ST_exportFolder_TM"
         exportType              = tm_props.LI_exportType
         showConvertPanel        = tm_props.CB_showConvertPanel
         atlestOneConvertFailed  = tm_props.NU_convertedError > 0
@@ -116,7 +116,7 @@ class TM_PT_Items_Export(Panel):
             row.prop(tm_props, "CB_convertMultiThreaded", text="Parallel Convert", icon=ICON_PARALLEL)
             row.prop(tm_props, "CB_notifyPopupWhenDone",  text="Notify Toast",     icon=ICON_INFO)
 
-            if isGameTypeTrackmania2020():
+            if is_game_trackmania2020():
                 row = col.row(align=True)
                 row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
 

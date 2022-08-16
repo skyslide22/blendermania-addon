@@ -11,7 +11,7 @@ class TM_OT_Items_ItemXML_SaveItemPlacementTemplate(Operator):
         
     def execute(self, context):
         tm_props = get_global_props()
-        temp_name = tm_props.LI_xml_item_template_add_name
+        temp_name = tm_props.ST_xml_item_template_add_name
     
         for template in ítemxml_templates:
             if temp_name == template.name:
@@ -29,7 +29,7 @@ class TM_OT_Items_ItemXML_SaveItemPlacementTemplate(Operator):
     def draw(self, context):
         tm_props = get_global_props()
         layout   = self.layout
-        layout.prop(tm_props, "LI_xml_item_template_add_name", text="Name")
+        layout.prop(tm_props, "ST_xml_item_template_add_name", text="Name")
 
 
 class TM_OT_Items_ItemXML_RemoveItemPlacementTemplate(Operator):

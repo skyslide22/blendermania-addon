@@ -106,6 +106,7 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleDoublesided,
     TM_OT_Items_ObjectManipulationToggleOrigin,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
+    TM_OT_Items_SetItemXMLTemplateOfCollection,
     TM_OT_Items_ToggleLightType,
     TM_OT_Items_ToggleNightOnly,
     TM_OT_Items_RenameObject,
@@ -192,6 +193,9 @@ def register():
     # object extra props
     bpy.types.Object.tm_map_object_kind = StringProperty(name="Item (soon Block)", default="Item")
     bpy.types.Object.tm_map_object_path = StringProperty(name="Name/Path of Item or Block", default="")
+
+    # collections
+    bpy.types.Collection.tm_itemxml_template = StringProperty(name="Item XML Template", default="")
 
     # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())

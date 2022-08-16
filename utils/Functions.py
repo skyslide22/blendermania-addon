@@ -146,10 +146,10 @@ example of a maniaplanet tree:
     
 
 def get_nadeo_ini_path() -> str:
-    if isGameTypeManiaPlanet():
+    if is_game_maniaplanet():
         return fixSlash(get_global_props().ST_nadeoIniFile_MP)
 
-    if isGameTypeTrackmania2020():
+    if is_game_trackmania2020():
         return fixSlash(get_global_props().ST_nadeoIniFile_TM)
     
     else: return ""
@@ -197,7 +197,7 @@ def get_nadeo_init_data(setting: str) -> str:
 def parse_nadeo_ini_file() -> str:
     """parse nadeo.ini file and set data to global nadeo_ini_settings"""
     possible_settings = ["WindowTitle", "Distro", "UserDir", "CommonDir"]
-    category          = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania"
+    category          = "ManiaPlanet" if is_game_maniaplanet() else "Trackmania"
     
     ini_filepath = get_nadeo_ini_path()
     ini_data = configparser.ConfigParser()
@@ -417,10 +417,10 @@ def isSelectedNadeoIniFilepathValid() -> bool:
     ini_path = ""
     tm_props = get_global_props()
 
-    if   isGameTypeManiaPlanet():
+    if   is_game_maniaplanet():
             ini_path = str(tm_props.ST_nadeoIniFile_MP)
 
-    elif isGameTypeTrackmania2020():
+    elif is_game_trackmania2020():
             ini_path = str(tm_props.ST_nadeoIniFile_TM)
     
     return is_file_exist(ini_path) and ini_path.lower().endswith(".ini")
@@ -475,11 +475,11 @@ def gameTexturesDownloading_True()->None:
     tm_props.ST_DL_TexturesErrors  = ""
 
 
-def isGameTypeManiaPlanet()->bool:
+def is_game_maniaplanet()->bool:
     return str(get_global_props().LI_gameType).lower() == "maniaplanet"
 
 
-def isGameTypeTrackmania2020()->bool:
+def is_game_trackmania2020()->bool:
     return str(get_global_props().LI_gameType).lower() == "trackmania2020"
 
 
@@ -518,7 +518,7 @@ def updateInstalledNadeoImporterVersionInUI():
     tm_props = get_global_props()
     version  = getInstalledNadeoImporterVersion()
 
-    if isGameTypeTrackmania2020():
+    if is_game_trackmania2020():
         tm_props.ST_nadeoImporter_TM_current = version
     else:
         tm_props.ST_nadeoImporter_MP_current = version
@@ -532,7 +532,7 @@ def installNadeoImporterFromLocalFiles()->None:
     tm_props  = get_global_props()
     base_path = getAddonAssetsPath() + "/nadeoimporters/"
 
-    if isGameTypeManiaPlanet():
+    if is_game_maniaplanet():
         filename = tm_props.LI_nadeoImporters_MP
         full_path= base_path + "/Maniaplanet/" + filename
     else:
@@ -569,7 +569,7 @@ def installNadeoImporter()->None:
         nadeoImporterInstalled_False()
 
 
-    if isGameTypeManiaPlanet():
+    if is_game_maniaplanet():
         url = WEBSPACE_NADEOIMPORTER_MP
     else:
         url = WEBSPACE_NADEOIMPORTER_TM
@@ -609,7 +609,7 @@ def reloadAllMaterialTextures() -> None:
 def installGameTextures()->None:
     """download and install game textures from MX to /Items/..."""
     tm_props    = get_global_props()
-    enviPrefix  = "TM_" if isGameTypeTrackmania2020() else "MP_"
+    enviPrefix  = "TM_" if is_game_trackmania2020() else "MP_"
     enviRaw     = tm_props.LI_DL_TextureEnvi
     envi        = str(enviPrefix + enviRaw).lower()
     url         = ""
@@ -663,7 +663,7 @@ def installGameTextures()->None:
 def installGameAssetsLibrary()->None:
     """download and install game assets library"""
     tm_props = get_global_props()
-    url      = WEBSPACE_ASSETS_TM_STADIUM if isGameTypeTrackmania2020() else WEBSPACE_ASSETS_MP
+    url      = WEBSPACE_ASSETS_TM_STADIUM if is_game_trackmania2020() else WEBSPACE_ASSETS_MP
     
     tm_props.CB_DL_TexturesShow = True
 
@@ -1866,7 +1866,7 @@ def show_windows_toast(title: str, text: str, baloon_icon: str="Info", duration:
     if baloon_icon not in {"None", "Info", "Warning", "Error"}:
         raise ValueError
 
-    icon = "MANIAPLANET.ico" if isGameTypeManiaPlanet() else "TRACKMANIA2020.ico"
+    icon = "MANIAPLANET.ico" if is_game_maniaplanet() else "TRACKMANIA2020.ico"
     icon = get_addon_icon_path(icon)
 
     assetpath = fixSlash( getAddonAssetsPath() )

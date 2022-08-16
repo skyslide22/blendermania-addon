@@ -3,6 +3,7 @@ import bpy
 from bpy.types import Panel
 from bpy.types import Operator
 
+from ..utils.Properties import ERROR_ENUM_ID
 from ..utils.Functions import *
 from ..utils.Constants import * 
 
@@ -115,6 +116,25 @@ class TM_PT_ObjectManipulations(Panel):
         row.operator("wm.tm_changecollectionscale", text=text, icon=ICON_SCALE, depress=remove_scale).remove_scale = remove_scale
         row.prop(tm_props, "CB_objMplScaleRecursive", text="", icon=ICON_RECURSIVE)
 
+        # col_itemxml_template = tm_props.LI_xml_item_template_to_add
+
+        col_itemxml_template = current_collection.tm_itemxml_template
+        if col_itemxml_template:
+            row = col_box.row(align=True)
+            col = row.column()
+            col.label(text="Item XML Template:")
+            col = row.column()
+            col.enabled = False
+            col.label(text=col_itemxml_template)
+            col = row.column()
+            col.operator("view3d.tm_set_itemxml_template_of_collection", text="", icon=ICON_REMOVE).remove_template = True
+        else:
+            row = col_box.row()
+            row.enabled = tm_props.LI_xml_item_template_globally != ERROR_ENUM_ID
+            row.operator("view3d.tm_set_itemxml_template_of_collection", text="Add Item XML Template").remove_template = False
+            
+        
+
 
         # basematerial / lightmap
         # basematerial / lightmap
@@ -222,7 +242,7 @@ class TM_PT_ObjectManipulations(Panel):
                     row.label(text=text)
 
 
-            if isGameTypeTrackmania2020():
+            if is_game_trackmania2020():
                 row = col_btns.row(align=True)
                 # row.enabled = not trigger and not socket
                 row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=ICON_HIDDEN, depress=is_visible)
@@ -233,8 +253,8 @@ class TM_PT_ObjectManipulations(Panel):
                 col = obj_box.column(align=True)
                 row = col.row(align=True)
                 editmode = obj.mode == "EDIT"
-                row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth")
-                row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat")
+                row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth", icon=ICON_SMOOTH)
+                row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat", icon=ICON_FLAT)
                 row= col.row(align=True)
                 innercol = row.column(align=True)
                 innercol.scale_x = 1.2

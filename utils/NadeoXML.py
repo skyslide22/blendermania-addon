@@ -16,8 +16,8 @@ from .Functions import (
     get_pivot_props,
     is_file_exist,
     get_path_filename,
-    isGameTypeManiaPlanet,
-    isGameTypeTrackmania2020,
+    is_game_maniaplanet,
+    is_game_trackmania2020,
     debug
 )
 
@@ -121,7 +121,7 @@ def add_itemxml_template(existing_temp: dict = None) -> None:
 
     if existing_temp is None:
         template = bpy.context.scene.tm_props_itemxml_templates.add()
-        template.name = tm_props.LI_xml_item_template_add_name
+        template.name = tm_props.ST_xml_item_template_add_name
         
         sync_grid_levi = tm_props.CB_xml_syncGridLevi
 
@@ -171,103 +171,128 @@ def remove_itemxml_template(template_name: str) -> None:
     for i, template in enumerate(templates):
         if template.name == template_name:
             templates.remove(i)
+            break
 
 
 
-
+# TODO implement usage of collection itemxml template here 
 def generate_item_XML(item: ExportedItem) -> str:
     """generate item.xml"""
     tm_props        = get_global_props()
     tm_props_pivots = get_pivot_props()
 
-    xmlfilepath = item.fbx_path.replace(".fbx", ".Item.xml")
+    xml_filepath = item.fbx_path.replace(".fbx", ".Item.xml")
     overwrite   = tm_props.CB_xml_overwriteItemXML
 
     if not overwrite:
-        if is_file_exist(filepath=xmlfilepath): return
+        if is_file_exist(filepath=xml_filepath): return
 
-    FILENAME_NO_EXT = re.sub(r"\..*$", "", get_path_filename(item.fbx_path), flags=re.IGNORECASE)
+    filename_no_extension = re.sub(r"\..*$", "", get_path_filename(item.fbx_path), flags=re.IGNORECASE)
 
     use_simple_ui = tm_props.LI_xml_simpleOrAdvanced.upper() == "SIMPLE"
 
-    AUTHOR              = tm_props.ST_author
-    COLLECTION          = tm_props.LI_materialCollection if isGameTypeManiaPlanet() else "Stadium"
-    GRID_H_STEP         = tm_props.NU_xml_gridX if not use_simple_ui else tm_props.LI_xml_simpleGridXY
-    GRID_V_STEP         = tm_props.NU_xml_gridY if not use_simple_ui else tm_props.LI_xml_simpleGridZ
-    GRID_H_OFFSET       = tm_props.NU_xml_gridXoffset
-    GRID_V_OFFSET       = tm_props.NU_xml_gridYoffset
-    LEVI_H_STEP         = tm_props.NU_xml_leviX if not use_simple_ui else tm_props.LI_xml_simpleGridXY
-    LEVI_V_STEP         = tm_props.NU_xml_leviY if not use_simple_ui else tm_props.LI_xml_simpleGridZ
-    LEVI_H_OFFSET       = tm_props.NU_xml_leviXoffset
-    LEVI_V_OFFSET       = tm_props.NU_xml_leviXoffset
-    AUTO_ROTATION       = tm_props.CB_xml_autoRot
-    MANUAL_PIVOT_SWITCH = tm_props.CB_xml_pivotSwitch
-    PIVOT_SNAP_DISTANCE = tm_props.NU_xml_pivotSnapDis
-    NOT_ON_ITEM         = tm_props.CB_xml_notOnItem
-    ONE_AXIS_ROTATION   = tm_props.CB_xml_oneAxisRot
-    PIVOTS              = tm_props.CB_xml_pivots
-    GHOST_MODE          = tm_props.CB_xml_ghostMode
+    author                  = tm_props.ST_author
+    envi_collection         = tm_props.LI_materialCollection if is_game_maniaplanet() else "Stadium"
+    grid_h_step             = tm_props.NU_xml_gridX if not use_simple_ui else tm_props.LI_xml_simpleGridXY
+    grid_v_step             = tm_props.NU_xml_gridY if not use_simple_ui else tm_props.LI_xml_simpleGridZ
+    grid_h_offset           = tm_props.NU_xml_gridXoffset
+    grid_v_offset           = tm_props.NU_xml_gridYoffset
+    levitation_h_step       = tm_props.NU_xml_leviX if not use_simple_ui else tm_props.LI_xml_simpleGridXY
+    levitation_v_step       = tm_props.NU_xml_leviY if not use_simple_ui else tm_props.LI_xml_simpleGridZ
+    levitation_h_offset     = tm_props.NU_xml_leviXoffset
+    levitation_v_offset     = tm_props.NU_xml_leviXoffset
+    pivot_snap_distance     = tm_props.NU_xml_pivotSnapDis
+    use_manual_pivot_switch = tm_props.CB_xml_pivotSwitch
+    use_auto_rotation       = tm_props.CB_xml_autoRot
+    use_not_on_item         = tm_props.CB_xml_notOnItem
+    use_one_axis_rotation   = tm_props.CB_xml_oneAxisRot
+    use_pivots              = tm_props.CB_xml_pivots
+    use_ghost_mode          = tm_props.CB_xml_ghostMode
 
-    WAYPOINT_XML = ""
-    WAYPOINT     = WAYPOINTS.get(item.coll.color_tag, "")
+    xml_waypoint = ""
+    waypoint     = WAYPOINTS.get(item.coll.color_tag, "")
     
-    if WAYPOINT == "None":
-        WAYPOINT = ""
+    if waypoint == "None":
+        waypoint = ""
 
-    if WAYPOINT:
-        WAYPOINT_XML = f"""<Waypoint Type="{ WAYPOINT }"/>\n"""
+    if waypoint:
+        xml_waypoint = f"""<Waypoint Type="{ waypoint }"/>"""
     
-    MP_PHY_XML  = ""
-    MP_VIS_XML  = ""
-    TM_MESH_XML = ""
-    PIVOTS_XML  = ""
+    xml_phy_maniaplanet  = ""
+    xml_vis_maniaplanet  = ""
+    xml_mesh_tm2020      = ""
+    xml_pivots           = ""
 
-    if PIVOTS:
+    if use_pivots:
         for pivot in tm_props_pivots:
-            PIVOTS_XML += f"""%TAB%<Pivot Pos="{pivot.NU_pivotX} {pivot.NU_pivotZ} {pivot.NU_pivotY}" />\n"""
+            xml_pivots += f"""<Pivot Pos="{pivot.NU_pivotX} {pivot.NU_pivotZ} {pivot.NU_pivotY}" />\n"""
 
-    if PIVOTS_XML:
-        PIVOTS_XML = f"""<Pivots>\n{ PIVOTS_XML }\n</Pivots>"""
+    if xml_pivots:
+        xml_pivots = f"""<Pivots>\n{ xml_pivots }\n</Pivots>"""
 
 
     filename    = get_path_filename(item.fbx_path)
     filename    = re.sub(r"\.(xml|fbx)", "", filename, flags=re.IGNORECASE)
 
 
-    if isGameTypeManiaPlanet():
-        SHAPE      = filename + ".Shape.gbx"
-        MESH       = filename + ".Mesh.gbx"
-        MP_VIS_XML += f"""%TAB%<Mesh      File="{ MESH }"/>\n"""
-        MP_PHY_XML += f"""%TAB%<MoveShape File="{ SHAPE }" Type="Mesh"/>\n"""
+    if is_game_maniaplanet():
+        shape_filename      = filename + ".Shape.gbx"
+        mesh_filename       = filename + ".Mesh.gbx"
+        xml_vis_maniaplanet += f"""<Mesh      File="{ mesh_filename }"/>"""
+        xml_phy_maniaplanet += f"""<MoveShape File="{ shape_filename }" Type="Mesh"/>"""
         
-        if WAYPOINT:
-            MP_PHY_XML += f"""%TAB%<TriggerShape  Type="mesh" File="{ FILENAME_NO_EXT }Trigger.Shape.gbx"/>\n"""
+        if waypoint:
+            xml_phy_maniaplanet += f"""
+                <TriggerShape  
+                    Type="mesh" 
+                    File="{ filename_no_extension }Trigger.Shape.gbx"
+                />"""
 
     
-    elif isGameTypeTrackmania2020():
-        MESHPARAMS = filename + ".MeshParams.xml"
-        TM_MESH_XML = f"""<MeshParamsLink File="{ MESHPARAMS }"/>"""
+    elif is_game_trackmania2020():
+        meshparams_filename = filename + ".MeshParams.xml"
+        xml_mesh_tm2020 = f"""<MeshParamsLink File="{ meshparams_filename }"/>"""
         
     fullXML = f"""
         <?xml version="1.0" ?>
-        <Item AuthorName="{ AUTHOR }" Collection="{ COLLECTION }" Type="StaticObject">
-            {WAYPOINT_XML}
+        <Item AuthorName="{ author }" Collection="{ envi_collection }" Type="StaticObject">
+            {xml_waypoint}
+            {xml_mesh_tm2020}
             <Phy>
-            {MP_PHY_XML}
+                {xml_phy_maniaplanet}
             </Phy>
             <Vis>
-            {MP_VIS_XML}
+                {xml_vis_maniaplanet}
             </Vis>
-            {TM_MESH_XML}
-            <GridSnap   HOffset="{ GRID_H_OFFSET }" HStep="{ GRID_H_STEP }" VOffset="{ GRID_V_OFFSET }" VStep="{ GRID_V_STEP }"/>
-            <Levitation HOffset="{ LEVI_H_OFFSET }" HStep="{ LEVI_H_STEP }" VOffset="{ LEVI_V_OFFSET }" VStep="{ LEVI_V_STEP }" GhostMode="{ GHOST_MODE}"/>
-            <Options    AutoRotation="{ AUTO_ROTATION }" ManualPivotSwitch="{ MANUAL_PIVOT_SWITCH }" NotOnItem="{ NOT_ON_ITEM }" OneAxisRotation="{ ONE_AXIS_ROTATION }"/>
-            <PivotSnap  Distance="{ PIVOT_SNAP_DISTANCE }"/>
-            {PIVOTS_XML}
+            <GridSnap   
+                HStep="{ grid_h_step }" 
+                VStep="{ grid_v_step }"
+                HOffset="{ grid_h_offset }" 
+                VOffset="{ grid_v_offset }" 
+            />
+            <Levitation 
+                HOffset="{ levitation_h_offset }" 
+                HStep="{ levitation_h_step }" 
+                VOffset="{ levitation_v_offset }" 
+                VStep="{ levitation_v_step }" 
+                GhostMode="{ use_ghost_mode}"
+            />
+            <Options    
+                AutoRotation="{ use_auto_rotation }" 
+                ManualPivotSwitch="{ use_manual_pivot_switch }" 
+                NotOnItem="{ use_not_on_item }" 
+                OneAxisRotation="{ use_one_axis_rotation }"
+            />
+            <PivotSnap  
+                Distance="{ pivot_snap_distance }"
+            />
+            {xml_pivots}
         </Item>
     """
 
-    write_XML_file(filepath=xmlfilepath, xmlstring=fullXML)
+    write_XML_file(filepath=xml_filepath, xmlstring=fullXML)
+
+
 
 def generate_mesh_XML(item: ExportedItem) -> str:
     """generate meshparams.xml"""
@@ -280,19 +305,19 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         if is_file_exist(filepath=xmlfilepath): return
 
     
-    GLOBAL_LIGHT_RADIUS= tm_props.NU_xml_lightGlobDistance  if tm_props.CB_xml_lightGlobDistance    else None
-    GLOBAL_LIGHT_POWER = tm_props.NU_xml_lightPower         if tm_props.CB_xml_lightPower           else None
-    GLOBAL_LIGHT_COLOR = tm_props.NU_xml_lightGlobColor     if tm_props.CB_xml_lightGlobColor       else None
+    global_light_radius= tm_props.NU_xml_lightGlobDistance  if tm_props.CB_xml_lightGlobDistance    else None
+    global_light_power = tm_props.NU_xml_lightPower         if tm_props.CB_xml_lightPower           else None
+    global_light_color = tm_props.NU_xml_lightGlobColor     if tm_props.CB_xml_lightGlobColor       else None
     
-    USE_GLOBAL_SCALE   = tm_props.CB_xml_scale is True
-    GLOBAL_SCALE       = tm_props.NU_xml_scale
+    use_global_scale   = tm_props.CB_xml_scale is True
+    global_scale       = tm_props.NU_xml_scale
     
-    SCALE = item.scale if USE_GLOBAL_SCALE is False else GLOBAL_SCALE 
+    scale = item.scale if use_global_scale is False else global_scale 
     
 
-    COLLECTION  = ""
+    mat_envi_collection  = ""
     materials   = []
-    materialsXML= ""
+    xml_materials= ""
     lights      = []
     lightsXML   = ""
 
@@ -300,8 +325,8 @@ def generate_mesh_XML(item: ExportedItem) -> str:
     for obj in item.coll.objects:
         
         if obj.type == "MESH":
-            for matSlot in obj.material_slots:
-                materials.append( matSlot.material )
+            for mat_slot in obj.material_slots:
+                materials.append( mat_slot.material )
         
         if obj.type == "LIGHT":
             obj.name = safe_name(obj.name)
@@ -309,94 +334,107 @@ def generate_mesh_XML(item: ExportedItem) -> str:
 
 
     for mat in materials:
-        NAME            = mat.name
-        GAME_IS_TM      = mat.gameType.lower() == "trackmania2020"
-        GAME_IS_MP      = mat.gameType.lower() == "maniaplanet"
-        PHYSICSID       = mat.physicsId
-        USE_PHYSICSID   = mat.usePhysicsId and PHYSICSID # can be empty
-        GAMEPLAYID      = mat.gameplayId
-        USE_GAMEPLAYID  = mat.useGameplayId
-        MODEL           = mat.model
-        COLLECTION      = mat.environment
-        LINK            = mat.link
-        BASETEXTURE     = fixSlash(mat.baseTexture)
-        BASETEXTURE     = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", BASETEXTURE)
-        MAT_COLOR       = mat.diffuse_color     # extract diffuse collor by default
-        if mat.use_nodes:                       # replace with BSDF color
-            MAT_COLOR = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
+        mat_name                = mat.name
+        mat_game_is_tm2020      = mat.gameType.lower() == "trackmania2020"
+        mat_game_is_maniaplanet = mat.gameType.lower() == "maniaplanet"
+        mat_physic_id           = mat.physicsId
+        mat_use_physicid        = mat.usePhysicsId and mat_physic_id # can be empty
+        mat_gameplay_id         = mat.gameplayId
+        mat_use_gameplay_id     = mat.useGameplayId
+        mat_model               = mat.model
+        mat_envi_collection     = mat.environment
+        mat_link                = mat.link
+        mat_basetexture         = fixSlash(mat.baseTexture)
+        mat_basetexture         = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", mat_basetexture)
+        mat_color               = mat.diffuse_color     # extract diffuse collor by default
+        
+        if mat.use_nodes: # replace with BSDF color
+            mat_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
 
-        CUSTOM_COLOR    = rgb_to_hex(MAT_COLOR, "", True) # convert to Hex with gamma correction
-        USE_CUSTOM_COLOR= MAT_COLOR[3] > 0              # use custom color only if material color has Alpha > 0
-        if BASETEXTURE:
-            BASETEXTURE = fixSlash( BASETEXTURE )
-            BASETEXTURE = re.sub(r".*/Items/|_?(D|N|S|I)\.dds", "", BASETEXTURE, flags=re.IGNORECASE)
-            BASETEXTURE = "/Items/" + BASETEXTURE
-
-        else: BASETEXTURE = LINK
+        mat_custom_color     = rgb_to_hex(mat_color, "", True) # convert to Hex with gamma correction
+        mat_use_custom_color = mat_color[3] > 0                # use custom color only if material color has Alpha > 0
+        
+        # maniaplanet relateed (external texture in Maniaplanet/Items/blabla_D.dds)
+        if mat_basetexture:
+            mat_basetexture = fixSlash( mat_basetexture )
+            mat_basetexture = re.sub(r".*/Items/|_?(D|N|S|I)\.dds", "", mat_basetexture, flags=re.IGNORECASE)
+            mat_basetexture = "/Items/" + mat_basetexture
+        else: 
+            mat_basetexture = mat_link
             
-        if GAME_IS_TM:
-            GAMEPLAYID_XML  = f"""GameplayId="{ GAMEPLAYID }" """ if USE_GAMEPLAYID else ""
-            PHYSICSID_XML   = f"""PhysicsId="{  PHYSICSID  }" """ if USE_PHYSICSID  else ""
-            CUSTOM_COLOR_XML= f"""Color="{ CUSTOM_COLOR }" """    if USE_CUSTOM_COLOR and LINK.lower().startswith("custom") else ""
-            materialsXML += f"""%TAB%<Material 
-                                        Name="{ NAME }" 
-                                        Link="{ LINK }" 
-                                        { CUSTOM_COLOR_XML } 
-                                        { PHYSICSID_XML } 
-                                        { GAMEPLAYID_XML } 
-                                    />\n"""
+        if mat_game_is_tm2020:
+            # TODO refactor this line, can color be always present?
+            use_custom_color_attr = mat_use_custom_color and mat_link.lower().startswith("custom")
+            xml_materials += f"""
+                <Material 
+                    Name="{ mat_name }" 
+                    Link="{ mat_link }" 
+                    {f'Color="{mat_custom_color}"'     if use_custom_color_attr else ''} 
+                    {f'PhysicsId="{mat_physic_id}"'    if mat_use_physicid      else ''} 
+                    {f'GameplayId="{mat_gameplay_id}"' if mat_use_gameplay_id   else ''} 
+                />"""
             
-        elif GAME_IS_MP:
-            materialsXML += f"""%TAB%<Material Name="{ NAME }" Model="{ MODEL }" BaseTexture="{ BASETEXTURE }" PhysicsId="{ PHYSICSID }" />\n"""
+        elif mat_game_is_maniaplanet:
+            xml_materials += f"""
+                <Material 
+                    Name="{ mat_name }" 
+                    Model="{ mat_model }" 
+                    BaseTexture="{ mat_basetexture }" 
+                    PhysicsId="{ mat_physic_id }" 
+                />"""
 
 
     for light in lights:
-        is_spotlight = light.type == "SPOT"
+        light_is_spotlight = light.type == "SPOT"
 
-        RADIUS      = light.data.shadow_soft_size if not GLOBAL_LIGHT_RADIUS else GLOBAL_LIGHT_RADIUS
-        NAME        = light.name
-        TYPE        = light.data.type    
-        POWER       = light.data.energy if not GLOBAL_LIGHT_POWER else GLOBAL_LIGHT_POWER
-        OUTER_ANGLE = 0 if not is_spotlight else (light.data.spot_size / math.pi) * 180
-        INNER_ANGLE = 0 if not is_spotlight else OUTER_ANGLE * light.data.spot_blend
-        NIGHT_ONLY  = "true" if light.data.night_only else "false"
-        COLOR_R     = bpy.data.objects[light.name].data.color[0] 
-        COLOR_G     = bpy.data.objects[light.name].data.color[1] 
-        COLOR_B     = bpy.data.objects[light.name].data.color[2] 
-        COLOR       = rgb_to_hex([COLOR_R, COLOR_G, COLOR_B]) if not GLOBAL_LIGHT_COLOR else rgb_to_hex(GLOBAL_LIGHT_COLOR)
+        light_radius      = light.data.shadow_soft_size if not global_light_radius else global_light_radius
+        light_name        = light.name
+        light_type        = light.data.type    
+        light_power       = light.data.energy if not global_light_power else global_light_power
+        light_outer_angle = 0 if not light_is_spotlight else (light.data.spot_size / math.pi) * 180
+        light_inner_angle = 0 if not light_is_spotlight else light_outer_angle * light.data.spot_blend
+        light_night_only  = "true" if light.data.night_only else "false"
+        light_color_r     = bpy.data.objects[light.name].data.color[0] 
+        light_color_g     = bpy.data.objects[light.name].data.color[1] 
+        light_color_b     = bpy.data.objects[light.name].data.color[2] 
+        light_color_hex   = rgb_to_hex([light_color_r, light_color_g, light_color_b]) if not global_light_color else rgb_to_hex(global_light_color)
 
-        ANGLES_XML = f""" SpotInnerAngle="{ INNER_ANGLE }" SpotOuterAngle="{ OUTER_ANGLE }" """ if is_spotlight else ""
 
-        lightsXML  += f"""%TAB%<Light 
-                          %TAB%%TAB%Name="{ NAME }" 
-                          %TAB%%TAB%Type="{ TYPE.title() }" 
-                          %TAB%%TAB%sRGB="{ COLOR }" 
-                          %TAB%%TAB%Intensity="{ POWER }" 
-                          %TAB%%TAB%Distance="{ RADIUS }" 
-                          %TAB%%TAB%NightOnly="{ NIGHT_ONLY }"
-                          %TAB%%TAB%{ ANGLES_XML }  
-                          %TAB%%TAB%PointEmissionRadius="0"
-                          %TAB%%TAB%PointEmissionLength="0"
-                          %TAB%/>\n"""
+        lightsXML  += f"""
+            <Light 
+                Name="{ light_name }" 
+                Type="{ light_type.title() }" 
+                sRGB="{ light_color_hex }" 
+                Intensity="{ light_power }" 
+                Distance="{ light_radius }" 
+                NightOnly="{ light_night_only }"
+                PointEmissionRadius="0"
+                PointEmissionLength="0"
+                {f'SpotInnerAngle="{light_inner_angle}"' if light_is_spotlight else '' }  
+                {f'SpotOuterAngle="{light_outer_angle}"' if light_is_spotlight else '' }  
+            />"""
 
-    fullXML = f"""
+    xml_completed = f"""
         <?xml version="1.0" ?>
-        <MeshParams Scale="{ SCALE }" MeshType="Static" Collection="{ COLLECTION }" FbxFile="{ get_path_filename(item.fbx_path) }">
-            <Materials>
-            {materialsXML}
-            </Materials>
-            <Lights>
-            {lightsXML}
-            </Lights>
+        <MeshParams 
+            Scale="{scale}" 
+            MeshType="Static" 
+            Collection="{ mat_envi_collection }" 
+            FbxFile="{ get_path_filename(item.fbx_path) }">
+                <Materials>
+                    {xml_materials}
+                </Materials>
+                <Lights>
+                    {lightsXML}
+                </Lights>
         </MeshParams>
     """
     
-    write_XML_file(filepath=xmlfilepath, xmlstring=fullXML)
+    write_XML_file(filepath=xmlfilepath, xmlstring=xml_completed)
 
 
 
 def write_XML_file(filepath, xmlstring) -> None:
     xmlstring = re.sub(r"^(\s|\t)+", "", xmlstring, flags=re.MULTILINE)
-    xmlstring = xmlstring.replace("%TAB%", "\t")
     with open(filepath, "w", encoding="utf-8") as xml:
         xml.write(xmlstring)

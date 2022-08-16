@@ -337,6 +337,36 @@ class TM_OT_Items_ShowUVMap(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Items_SetItemXMLTemplateOfCollection(Operator):
+    bl_idname = "view3d.tm_set_itemxml_template_of_collection"
+    bl_description = f"Show uv map"
+    bl_icon = 'ADD'
+    bl_label = f"Show uv map"
+
+    remove_template: bpy.props.BoolProperty(False)
+
+    def execute(self, context):
+        col = get_active_collection_of_selected_object()
+        template = get_global_props().LI_xml_item_template_to_add
+        template = template if not self.remove_template else ""
+        set_itemxml_template_of_collection(col, template)
+        return {"FINISHED"}
+
+    def invoke(self, context, event):
+        if self.remove_template:
+            return self.execute(context)
+        else:
+            return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        tm_props = get_global_props()
+        layout   = self.layout
+
+        row = layout.row()
+        row.prop(tm_props, "LI_xml_item_template_to_add")
+
+
+
 class TM_OT_Items_RenameObject(Operator):
     bl_idname = "wm.tm_renameobject"
     bl_description = f"Rename"
@@ -597,3 +627,8 @@ def editUVMap(col: bpy.types.Collection, uv_name: str) -> None:
     
     showUVMap(col, uv_name)
     editmode()
+
+
+
+def set_itemxml_template_of_collection(col: bpy.types.Collection, template: str) -> None:
+    col.tm_itemxml_template = template

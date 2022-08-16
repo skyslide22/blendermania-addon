@@ -94,21 +94,22 @@ class TM_PT_Settings(Panel):
         row.operator("view3d.tm_execute_help", text="Open Work",   ).command = "open_work"
 
 
-        row = layout.row()
+        col = layout.column(align=True)
+        row = col.row(align=True)
         row.prop(tm_props, "ST_author")
 
-        row = layout.row()
+        row = col.row(align=True)
         row.enabled = True if not tm_props.CB_converting else False
         row.prop(tm_props, "LI_gameType", text="Game")
 
-        ini = "ST_nadeoIniFile_MP" if isGameTypeManiaPlanet() else "ST_nadeoIniFile_TM"
-        row = layout.row(align=True)
+        ini = "ST_nadeoIniFile_MP" if is_game_maniaplanet() else "ST_nadeoIniFile_TM"
+        row = col.row(align=True)
         row.prop(tm_props, ini, text="Ini file")
         row.operator("view3d.tm_autofindnadeoini", text="", icon=ICON_SEARCH)
 
 
 class TM_PT_Settings_BlenderRelated(Panel):
-    # region bl_
+    # region bl_gyx
     """Creates a Panel in the Object properties window"""
     bl_category = 'ManiaPlanetAddon'
     bl_label = "Blender related settings"
@@ -127,11 +128,11 @@ class TM_PT_Settings_BlenderRelated(Panel):
 
         col = layout.column(align=True)
         row = col.row()
-        row.label(text="Grid")
+        row.label(text="Snap", icon=ICON_SNAP)
         row.prop(tm_props, "LI_blenderGridSize", expand=True)
 
         row = col.row()
-        row.label(text="Divide")
+        row.label(text="Grid", icon=ICON_GRID)
         row.prop(tm_props, "LI_blenderGridSizeDivision", expand=True)
 
 
@@ -169,12 +170,12 @@ class TM_PT_Settings_NadeoImporter(Panel):
             
             col = layout.column(align=True)
             row = col.row(align=True)
-            row.prop(tm_props, "LI_nadeoImporters_"+("TM" if isGameTypeTrackmania2020() else "MP"), text="")
+            row.prop(tm_props, "LI_nadeoImporters_"+("TM" if is_game_trackmania2020() else "MP"), text="")
             row = col.row(align=True)
             row.scale_y = 1.5
             row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon=ICON_IMPORT)
             
-            if isGameTypeManiaPlanet():
+            if is_game_maniaplanet():
                 current_importer = tm_props.ST_nadeoImporter_MP_current
                 latest_importer  = NADEO_IMPORTER_LATEST_VERSION_MANIAPLANET
             else:
@@ -237,7 +238,7 @@ class TM_PT_Settings_Textures(Panel):
         row = col.row()
         row.label(text="Game textures & assets library")
 
-        if isGameTypeManiaPlanet():
+        if is_game_maniaplanet():
             row = col.row(align=True)
             row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon=ICON_ENVIRONMENT)
 

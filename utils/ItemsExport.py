@@ -28,7 +28,7 @@ from .Functions import (
     get_game_doc_path_work_items,
     get_abs_path,
     is_real_object_by_name,
-    isGameTypeManiaPlanet,
+    is_game_maniaplanet,
     safe_name,
     get_collection_hierachy,
     get_game_doc_path_items,
@@ -88,7 +88,7 @@ def _fix_uv_layers_name(coll: bpy.types.Collection) -> None:
 
 def _is_physic_hack_required(coll: bpy.types.Collection) -> bool:
     physic_hack = False
-    if isGameTypeManiaPlanet():
+    if is_game_maniaplanet():
         for obj in coll.objects:
             if obj.type == "MESH":
                 for mat in obj.data.materials:
@@ -192,7 +192,7 @@ def _export_item_FBX(item: ExportedItem) -> None:
         "apply_unit_scale":     False,
     }
 
-    if isGameTypeManiaPlanet():
+    if is_game_maniaplanet():
         exportArgs["apply_scale_options"] = "FBX_SCALE_UNITS"
 
     deselect_all_objects()
@@ -230,7 +230,7 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
     
     export_work_path        = get_game_doc_path_work_items()
     if tm_props.LI_exportFolderType == "Custom":
-        custom_path = tm_props.ST_exportFolder_MP if isGameTypeManiaPlanet() else tm_props.ST_exportFolder_TM
+        custom_path = tm_props.ST_exportFolder_MP if is_game_maniaplanet() else tm_props.ST_exportFolder_TM
         export_work_path = fixSlash(get_abs_path(custom_path) + "/")
     
     deselect_all_objects()

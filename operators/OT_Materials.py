@@ -72,11 +72,11 @@ def _create_or_update_material(action)->None:
 
     matTexSourceIsCustom = tm_props.LI_materialChooseSource == "CUSTOM"
 
-    if isGameTypeTrackmania2020():
+    if is_game_trackmania2020():
         if not matNameNew.startswith(TM_PREFIX):
             matNameNew = TM_PREFIX + matNameNew.replace(MP_PREFIX, "") 
 
-    if isGameTypeManiaPlanet():
+    if is_game_maniaplanet():
         if not matNameNew.startswith(MP_PREFIX):
             matNameNew = MP_PREFIX + matNameNew.replace(TM_PREFIX, "") 
 

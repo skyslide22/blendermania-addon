@@ -24,7 +24,7 @@ from ..utils.Functions import (
     get_path_filename,
     get_convert_items_prop,
     get_nadeo_importer_path,
-    isGameTypeManiaPlanet,
+    is_game_maniaplanet,
 )
 
 class ConvertStep():
@@ -454,7 +454,7 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
     tm_props_convertingItems = get_convert_items_prop()
     tm_props        = get_global_props()
     results         = []
-    game            = "ManiaPlanet" if isGameTypeManiaPlanet() else "Trackmania2020"
+    game            = "ManiaPlanet" if is_game_maniaplanet() else "Trackmania2020"
     notify          = tm_props.CB_notifyPopupWhenDone
     use_multithread = tm_props.CB_convertMultiThreaded 
 

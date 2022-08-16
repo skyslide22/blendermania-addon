@@ -52,10 +52,10 @@ def createAssetsLib() -> None:
     createAssetsCatalogFile(get_game_doc_path_items_assets())
     
     fileName = ""
-    if isGameTypeTrackmania2020():
+    if is_game_trackmania2020():
         fileName = get_global_props().LI_gameType+"_assets.blend"
         generate2020Assets()
-    elif isGameTypeManiaPlanet():
+    elif is_game_maniaplanet():
         fileName = get_global_props().LI_gameType+"_assets.blend"
         generateMPAssets()  
 

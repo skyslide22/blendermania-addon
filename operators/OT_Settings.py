@@ -133,7 +133,7 @@ def autoFindNadeoIni()->None:
     ini               = ""
     
 
-    if isGameTypeManiaPlanet(): 
+    if is_game_maniaplanet(): 
 
         for pd_path in program_data_paths:
             paths.append(f"{pd_path}/ManiaPlanet/Nadeo.ini".replace("/", "\\"))
@@ -148,7 +148,7 @@ def autoFindNadeoIni()->None:
                 paths.append(f"{pd_path}/Steam/steamapps/common/ManiaPlanet_{envi}/Nadeo.ini".replace("/", "\\"))
 
 
-    if isGameTypeTrackmania2020():
+    if is_game_trackmania2020():
 
         for pd_path in program_data_paths:
             paths.append(f"{pd_path}/Ubisoft/Ubisoft Game Launcher/games/Trackmania/Nadeo.ini".replace("/", "\\"))
@@ -176,10 +176,10 @@ def autoFindNadeoIni()->None:
         debug("Nadeo.ini not found!")
 
     #change inifile
-    if isGameTypeManiaPlanet():
+    if is_game_maniaplanet():
         tm_props.ST_nadeoIniFile_MP = ini
     
-    if isGameTypeTrackmania2020():
+    if is_game_trackmania2020():
         tm_props.ST_nadeoIniFile_TM = ini
 
 
@@ -239,8 +239,8 @@ def loadDefaultSettingsJSON() -> None:
     debug("default settings loaded, data:")
     debug(data, pp=True, raw=True)
 
-    if isGameTypeManiaPlanet()    and tm_props.ST_nadeoIniFile_MP == ""\
-    or isGameTypeTrackmania2020() and tm_props.ST_nadeoIniFile_TM:
+    if is_game_maniaplanet()    and tm_props.ST_nadeoIniFile_MP == ""\
+    or is_game_trackmania2020() and tm_props.ST_nadeoIniFile_TM:
         debug("nadeo ini path not found, search now")
         autoFindNadeoIni()
 

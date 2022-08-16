@@ -146,10 +146,10 @@ def gameTypeGotUpdated(self=None,context=None)->None:
     tm_props     = get_global_props()
     colIsStadium = tm_props.LI_materialCollection.lower() == "stadium"
 
-    if isGameTypeTrackmania2020() and not colIsStadium:
+    if is_game_trackmania2020() and not colIsStadium:
         tm_props.LI_materialCollection = "Stadium"
 
-    if isGameTypeTrackmania2020():
+    if is_game_trackmania2020():
         tm_props.LI_DL_TextureEnvi = "Stadium"
     
     updateInstalledNadeoImporterVersionInUI()
@@ -217,7 +217,7 @@ def getExportFolderTypes(self,context)->list:
         desc = "Custom folder, needs to be in Documents/Work/Items/",
         icon = "HELP"
     )
-    if isGameTypeManiaPlanet():
+    if is_game_maniaplanet():
         folders.add(
             id   = "Stadium",
             name = "Stadium",
@@ -1137,8 +1137,9 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_xml_pivotSwitch      : BoolProperty(name="Pivot switch",     default=False)
     NU_xml_pivotSnapDis     : FloatProperty(name="Pivot snap distance", default=0.0,  min=0, max=256, step=100)
 
-    LI_xml_item_template            : EnumProperty(name="Template", items=get_itemxml_template_names_enum)
-    LI_xml_item_template_add_name   : StringProperty(default="defaut_template_name")
+    LI_xml_item_template_globally   : EnumProperty(name="Template", items=get_itemxml_template_names_enum)
+    LI_xml_item_template_to_add     : EnumProperty(name="Template", items=get_itemxml_template_names_enum) 
+    ST_xml_item_template_add_name   : StringProperty(default="defaut_template_name")
     CB_xml_ignore_assigned_templates: BoolProperty(default=False)
 
     #materials          

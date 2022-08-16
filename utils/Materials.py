@@ -10,7 +10,7 @@ from .Functions import (
     get_game_doc_path_items_assets_textures,
     get_game_doc_path,
     is_file_exist,
-    isGameTypeTrackmania2020,
+    is_game_trackmania2020,
 )
 
 from .Constants import MAT_PROPS_AS_JSON, MATERIAL_CUSTOM_PROPERTIES, MATERIALS_MAP_TM2020
@@ -67,7 +67,7 @@ def _get_mat_dds(tex: str, ddsType: str) -> str:
     debug(f"try to find:   {matName}_{ddsType}.dds")
     # if we have a map in 2020 dict -> use it, otherwise try default
     if (
-        isGameTypeTrackmania2020() and
+        is_game_trackmania2020() and
         matMap2020 and ddsType in matMap2020 and 
         len(matMap2020[ddsType]) > 0 and is_file_exist(basePath + matMap2020[ddsType])
     ): Texture = basePath + matMap2020[ddsType]
@@ -278,7 +278,7 @@ def create_material_nodes(mat)->None:
     NODE_tex_H.name  = "tex_H"
     
     matMap2020 = None
-    if isGameTypeTrackmania2020() and mat.link in MATERIALS_MAP_TM2020:
+    if is_game_trackmania2020() and mat.link in MATERIALS_MAP_TM2020:
         matMap2020 = MATERIALS_MAP_TM2020[mat.link]
 
     NODE_mapping = None
