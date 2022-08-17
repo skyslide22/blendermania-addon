@@ -1,4 +1,5 @@
 import bpy
+import math
 import json
 import subprocess
 
@@ -11,6 +12,10 @@ DOTNET_BLOCKS_DIRECTION = (
     DOTNET_BLOCKS_DIRECTION_SOUTH := 2,
     DOTNET_BLOCKS_DIRECTION_WEST := 3,
 )
+
+def get_block_dir_for_angle(angle: int) -> int:
+    print(math.copysign(angle%360, angle))
+    return DOTNET_BLOCKS_DIRECTION_EAST
 
 # Dotnet types
 class DotnetVector3:

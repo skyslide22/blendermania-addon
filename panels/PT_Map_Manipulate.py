@@ -7,7 +7,7 @@ from ..operators.OT_Map_Manipulate import (
     OT_UICreateUpdateMapItemBlock,
 )
 from ..utils.Functions import get_global_props, requireValidNadeoINI
-from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS, ICON_MAP, ICON_CUBE
+from ..utils.Constants import MAP_OBJECT_BLOCK, PANEL_CLASS_COMMON_DEFAULT_PROPS, ICON_MAP, ICON_CUBE
 from ..operators.OT_WikiLink import add_ui_wiki_icon
 
 
@@ -75,26 +75,35 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         tm_props = get_global_props()
 
         has_map_coll = tm_props.PT_map_collection is not None
-        obj = bpy.context.selected_objects[0] if len(bpy.context.selected_objects) > 0 else None
+        obj:bpy.types.Object = tm_props.PT_map_object.object_item
+        is_update = obj and "tm_map_object_kind" in obj
+        is_block = tm_props.PT_map_object.object_type == MAP_OBJECT_BLOCK
 
         box = layout.box()
 
         if not has_map_coll:
             box.label(text="Select Map collection first")
-        elif obj and "tm_map_object_kind" in obj:
-            box.label(text=f"Update Map Item")
         else:
-            box.label(text=f"Create Map Item")
-            row = box.row()
-            row.prop(tm_props.PT_map_object, "object_type", text="Object type")
+            title = "Update" if is_update else "Create"
+            box.label(text=f"{title} Map Item")
 
-            row = box.row()
-            row.prop(tm_props.PT_map_object, "object_item", text="Object placeholder")
+            if is_block:
+                row = box.row()
+                row.alert = True
+                row.label(text="Blocks position must be multiple of 32, non-negative and only rotation on Z axis (90deg)")
+            
             
             row = box.row()
-            row.prop(tm_props.PT_map_object, "object_path", text=f"Name/Path of {tm_props.PT_map_object.object_type}")
+            row.prop(tm_props.PT_map_object, "object_item", text="Object placeholder")
+
+            row = box.row()
+            row.prop(tm_props.PT_map_object, "object_type", text="Object type")
+                
+            row = box.row()
+            path_title = "Name" if is_block else "Name/Path"
+            row.prop(tm_props.PT_map_object, "object_path", text=f"{path_title} of {tm_props.PT_map_object.object_type}")
 
             button = layout.row()
             button.scale_y = 1.5
-            button.operator(OT_UICreateUpdateMapItemBlock.bl_idname, text="Create")
+            button.operator(OT_UICreateUpdateMapItemBlock.bl_idname, text=title)
             

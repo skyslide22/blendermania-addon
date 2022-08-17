@@ -23,10 +23,9 @@ from .Functions import (
     create_folder_if_necessary,
     debug,
     deselect_all_objects,
-    fixSlash,
     get_global_props,
-    get_game_doc_path_work_items,
-    get_abs_path,
+    get_coll_relative_path,
+    get_export_path,
     is_real_object_by_name,
     is_game_maniaplanet,
     safe_name,
@@ -228,10 +227,7 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
     items_to_export:list[ExportedItem]           = []
     processed_materials:list[bpy.types.Material] = []
     
-    export_work_path        = get_game_doc_path_work_items()
-    if tm_props.LI_exportFolderType == "Custom":
-        custom_path = tm_props.ST_exportFolder_MP if is_game_maniaplanet() else tm_props.ST_exportFolder_TM
-        export_work_path = fixSlash(get_abs_path(custom_path) + "/")
+    export_work_path = get_export_path()
     
     deselect_all_objects()
 
@@ -254,10 +250,9 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
                 processed_materials.append(mat)
         
         # fill metadata
-        hrch = map(safe_name, get_collection_hierachy(coll.name, [coll.name]))
         item_to_export = ExportedItem(coll)
         item_to_export.name = safe_name(coll.name)
-        item_to_export.r_path = '/'.join(hrch)
+        item_to_export.r_path = get_coll_relative_path(coll)
         item_to_export.fbx_path = f"{export_work_path}{item_to_export.r_path}.fbx"
         item_to_export.icon_path = get_icon_path_from_fbx_path(item_to_export.fbx_path)
         item_to_export.item_path = f"{get_game_doc_path_items()}{item_to_export.r_path}.Item.Gbx"

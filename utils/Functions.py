@@ -1086,6 +1086,9 @@ def get_collection_hierachy(colname: str="", hierachystart: list=[]) -> list:
     # debug(f"hierachy is {hierachy}")
     return hierachy
 
+def get_coll_relative_path(coll: bpy.types.Collection) -> str:
+    return '/'.join(map(safe_name, get_collection_hierachy(coll.name, [coll.name])))
+
 def create_collection_hierachy(hierachy: list) -> object:
     """create collections hierachy from list and link root to the scene master collection"""
     cols        = bpy.data.collections
@@ -1501,14 +1504,17 @@ def setActiveWaypoint() -> None:
     col = get_collection_of_first_selected_obj()    
     if not col: return # icon generator creates objects w/o parent
 
-    debug(f"{col=}")
-
     waypoint = get_waypointtype_of_collection(col)
     tm_props = get_global_props()
 
     if waypoint is not None:
         tm_props.LI_xml_waypointtype = waypoint
 
+def set_active_map_item_object() -> None:
+    obj = bpy.context.selected_objects[0] if len(bpy.context.selected_objects) > 0 else None
+    if obj:
+        panel_obj = get_map_object_props()
+        panel_obj.object_item = bpy.context.selected_objects[0] if len(bpy.context.selected_objects) > 0 else None
 
 
 def set_waypointtype_of_selected_collection() -> None:
@@ -1529,6 +1535,22 @@ def get_collection_of_first_selected_obj() -> bpy.types.Collection:
     
     return col
 
+def get_export_path():
+    tm_props = get_global_props()
+    export_work_path        = get_game_doc_path_work_items()
+    if tm_props.LI_exportFolderType == "Custom":
+        custom_path = tm_props.ST_exportFolder_MP if is_game_maniaplanet() else tm_props.ST_exportFolder_TM
+        export_work_path = fixSlash(get_abs_path(custom_path) + "/")
+
+    return export_work_path
+
+def get_obj_potential_item_path(obj: bpy.types.Object) -> str:
+    if len(obj.users_collection) == 0:
+        return "None"
+
+    coll = obj.users_collection[0]
+    return f"{get_game_doc_path_items()}{get_coll_relative_path(coll)}.Item.Gbx"
+
 
 def get_waypointtype_of_collection(col: bpy.types.Collection) -> str:
     col_color = col.color_tag
@@ -1538,6 +1560,7 @@ def get_waypointtype_of_collection(col: bpy.types.Collection) -> str:
 
 def on_select_obj(*args) -> None:
     setActiveWaypoint()
+    set_active_map_item_object()
 
 
 def get_tricount_of_collection(col: bpy.types.Collection) -> int:
@@ -1909,6 +1932,9 @@ def get_scene() -> object:
 
 def get_global_props() -> object:
     return bpy.context.scene.tm_props
+    
+def get_map_object_props() -> object:
+    return bpy.context.scene.tm_props.PT_map_object
 
 def get_linked_material_props() -> object:
     return bpy.context.scene.tm_props_linkedMaterials
