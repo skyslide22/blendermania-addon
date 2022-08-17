@@ -6,7 +6,7 @@ from bpy.types import (
     Operator,
 )
 
-from ..utils.Properties import ERROR_ENUM_ID
+from ..properties.Functions import ERROR_ENUM_ID
 from ..utils.Functions import *
 from ..utils.Constants import * 
 

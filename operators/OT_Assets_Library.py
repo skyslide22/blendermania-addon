@@ -12,7 +12,6 @@ from bpy.types import (
 from ..utils.Materials import create_material_nodes
 
 from ..utils.Functions          import *
-from ..utils.Properties         import *
 from ..operators.OT_Materials   import *
 from ..utils.Constants          import * 
 

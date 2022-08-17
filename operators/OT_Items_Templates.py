@@ -7,7 +7,7 @@ from ..utils.Constants import ICON_AUTO, ICON_OBJECT
 from ..utils.ItemsImport import import_FBXs
 
 from ..utils.Functions import deselect_all_objects, get_addon_path, get_cursor_location
-from ..utils.Properties import get_car_names
+from ..properties.Functions import get_car_names
 
 class OT_ItemsCarsTemplates(Operator):
     """import a dummy car for checkpoint spawn use..."""

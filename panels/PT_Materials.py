@@ -8,7 +8,6 @@ from bpy.types import (
     Operator,
 )
 from ..utils.Functions  import *
-from ..utils.Properties import *
 from ..utils.Constants  import * 
 
 

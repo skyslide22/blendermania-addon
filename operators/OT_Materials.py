@@ -6,7 +6,7 @@ from bpy.types import (Operator)
 
 from ..utils.Materials import create_material_nodes
 from ..utils.Functions  import *
-from ..utils.Properties import *
+from ..properties.Functions import revertMaterialCustomColorLiveChanges, applyMaterialLiveChanges
 from ..utils.Constants  import * 
 
 class TM_OT_Materials_Create(Operator):

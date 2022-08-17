@@ -31,21 +31,29 @@ from .utils.Materials      import *
 from .utils.Models         import *
 from .utils.NadeoImporter  import *
 from .utils.NadeoXML       import *
-from .utils.Properties     import *
 from .utils.BlenderObjects import *
 
-from .operators.OT_Map_Manipulate     import *
-from .operators.OT_NinjaRipper        import *
-from .operators.OT_Settings           import *
-from .operators.OT_Items_Export       import *
-from .operators.OT_Materials          import *
-from .operators.OT_Items_XML          import *
-from .operators.OT_Items_Icon         import *
-from .operators.OT_Items_Manipulate   import *
-from .operators.OT_UV_Manipulate      import *
-from .operators.OT_Assets_Library     import *
-from .operators.OT_Items_Templates    import * 
-from .operators.OT_WikiLink            import * 
+from .properties.Functions                  import *
+from .properties.ConvertingItemsProperties  import *
+from .properties.GeneratedProperties        import *
+from .properties.ItemXMLTemplatesProperties import *
+from .properties.LinkedMaterialsProperties  import *
+from .properties.MapObjectProperties        import *
+from .properties.PannelsPropertyGroup       import *
+from .properties.PivotsProperties           import *
+
+from .operators.OT_Map_Manipulate          import *
+from .operators.OT_NinjaRipper             import *
+from .operators.OT_Settings                import *
+from .operators.OT_Items_Export            import *
+from .operators.OT_Materials               import *
+from .operators.OT_Items_XML               import *
+from .operators.OT_Items_Icon              import *
+from .operators.OT_Items_Manipulate        import *
+from .operators.OT_UV_Manipulate           import *
+from .operators.OT_Assets_Library          import *
+from .operators.OT_Items_Templates         import * 
+from .operators.OT_WikiLink                import * 
 from .panels.PT_Map_Manipulate     import *
 from .panels.PT_NinjaRipper        import *
 from .panels.PT_Settings           import *
@@ -69,10 +77,10 @@ classes = (
     # props (not panel)
     MapObjectProperties,
     PannelsPropertyGroup,
-    TM_Properties_Generated,
-    TM_Properties_Pivots,
-    TM_Properties_ConvertingItems,
-    TM_Properties_LinkedMaterials,
+    GeneratedProperties,
+    PivotsProperties,
+    ConvertingItemsProperties,
+    LinkedMaterialsProperties,
     ItemXMLTemplate,
     # TM_Properties_ItemXMLTemplates,
 
@@ -176,11 +184,11 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.tm_props                  = PointerProperty(   type=PannelsPropertyGroup)
-    bpy.types.Scene.tm_props_pivots           = CollectionProperty(type=TM_Properties_Pivots)
-    bpy.types.Scene.tm_props_generated        = CollectionProperty(type=TM_Properties_Generated)
-    bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=TM_Properties_ConvertingItems)
-    bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=TM_Properties_LinkedMaterials)
-    # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=TM_Properties_ItemXMLTemplates)
+    bpy.types.Scene.tm_props_pivots           = CollectionProperty(type=PivotsProperties)
+    bpy.types.Scene.tm_props_generated        = CollectionProperty(type=GeneratedProperties)
+    bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=ConvertingItemsProperties)
+    bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=LinkedMaterialsProperties)
+    # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=ItemXMLTemplatesProperties)
     bpy.types.Scene.tm_props_itemxml_templates_ui     = EnumProperty(items=get_itemxml_template_names_enum)
     bpy.types.Scene.tm_props_itemxml_templates        = CollectionProperty(type=ItemXMLTemplate)
 
