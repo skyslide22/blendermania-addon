@@ -108,6 +108,8 @@ ICON_ENVIRONMENT        = "WORLD"
 ICON_COMPRESS           = "FILE_BLEND"
 ICON_SAVE               = "FILE_NEW"
 ICON_CUBE               = "CUBE"
+ICON_TEXT               = "FILE_TEXT"
+ICON_MAGNET             = "SNAP_ON"
 
 # https://cloford.com/resources/charcodes/utf-8_arrows.htm
 CHAR_VERTICAL   = "↕"

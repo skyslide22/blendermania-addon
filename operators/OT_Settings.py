@@ -8,10 +8,12 @@ from bpy.props import StringProperty
 
 from ..utils.Functions      import *
 from ..utils.NadeoXML       import (
-    ItemXMLTemplate,
-    ítemxml_templates,
     add_itemxml_template
 )
+
+# from ..properties.ItemXMLTemplatesProperties import (
+#     ItemXMLTemplate
+# )
 
 class TM_OT_Settings_AutoFindNadeoIni(Operator):
     bl_idname = "view3d.tm_autofindnadeoini"
@@ -184,9 +186,11 @@ def autoFindNadeoIni()->None:
 
 
 def getDefaultSettingsJSON() -> dict:
-    if not is_file_exist(PATH_DEFAULT_SETTINGS_JSON):
-        debug("default settings file does not exist, create file")
-        default_settings = {
+
+    file_exist = is_file_exist(PATH_DEFAULT_SETTINGS_JSON)
+
+    def get_defaults() -> str:
+        return  {
             "author_name":            os.getlogin(), # current windows username (C:/Users/<>/...)
             "nadeo_ini_path_tm":      "",
             "nadeo_ini_path_mp":      "",
@@ -194,14 +198,19 @@ def getDefaultSettingsJSON() -> dict:
             "blender_grid_division" : "",
             "itemxml_templates":      []
         }
-        debug(default_settings, pp=True)
-        with open(PATH_DEFAULT_SETTINGS_JSON, "w") as settingsfile:
-            settingsfile.write(json.dumps(default_settings))
-    
-    with open(PATH_DEFAULT_SETTINGS_JSON, "r") as settingsfile:
-        data = settingsfile.read()
-        data = dict(json.loads(data))
-        return data
+
+    if not file_exist:
+        debug("default settings file does not exist, use defaults")
+        return get_defaults()
+
+    else:
+        with open(PATH_DEFAULT_SETTINGS_JSON, "r") as settingsfile:
+            data = settingsfile.read()
+            if data == "":
+                return get_defaults()
+            else:        
+                data = dict(json.loads(data))
+            return data
 
 
 
@@ -247,8 +256,8 @@ def loadDefaultSettingsJSON() -> None:
     
     bpy.context.scene.tm_props_itemxml_templates.clear() # CollectionProperty
 
-    for temp_dict in fromjson_itemxml_templates:
-        add_itemxml_template(temp_dict)
+    for template_dict in fromjson_itemxml_templates:
+        add_itemxml_template(template_dict)
 
 
 

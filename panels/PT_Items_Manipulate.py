@@ -96,9 +96,9 @@ class TM_PT_ObjectManipulations(Panel):
             
         # col_box.separator(factor=.2)
         active_uvlayer_is_basematerial = True
-        objs    = get_all_visible_coll_meshes(current_collection)
-        if len(objs) > 0:
-            base_uv = objs[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
+        objs_with_uvmaps    = get_meshes_which_require_uvmaps(current_collection)
+        if len(objs_with_uvmaps) > 0:
+            base_uv = objs_with_uvmaps[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
             if base_uv:
                 active_uvlayer_is_basematerial = base_uv.active is True
 
@@ -148,6 +148,7 @@ class TM_PT_ObjectManipulations(Panel):
         row = col_box.row(align=True)
         col= row.column(align=True)
         row = col.row()
+        row.enabled = len(objs_with_uvmaps) > 0
         uv_row = row.column(align=True).row(align=True)
         uv_row.operator("view3d.tm_showuvmap", text="BaseMaterial", icon=ICON_UV_MAPS, depress=depress_basematerial).uv_name = UV_LAYER_NAME_BASEMATERIAL
         uv_row.operator("view3d.tm_edituvmap", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_BASEMATERIAL

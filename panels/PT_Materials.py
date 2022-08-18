@@ -79,36 +79,33 @@ class TM_PT_Materials(Panel):
             layout.separator(factor=UI_SPACER_FACTOR)
 
             # choose custom tex or linked mat
-            row = layout.row(align=True)
-            # col = row.column()
-            # col.label(text="Source:")
-
-            # col = row.column()
-            # row = col.row()
+            
+            src_col = layout.column(align=True)
+            row = src_col.row(align=True)
             row.prop(tm_props, "LI_materialChooseSource", expand=True)
             
             using_custom_texture = tm_props.LI_materialChooseSource == "CUSTOM"
 
             # basetexture
             if using_custom_texture:
-                row = layout.row(align=True)
+                row = src_col.row(align=True)
                 row.alert = True if "/Items/" not in fixSlash(tm_props.ST_materialBaseTexture) else False
                 row.prop(tm_props, "ST_materialBaseTexture", text="Location")
                 row.operator("view3d.tm_clearbasetexture", icon=ICON_CANCEL, text="")
 
                 if row.alert:
-                    row=layout.row()
+                    row=src_col.row()
                     row.alert = True
                     row.label(text=".dds file in Documents/Maniaplanet/Items/")
 
                 # model
-                row = layout.row()
+                row = src_col.row()
                 row.prop(tm_props, "LI_materialModel")
             
 
             # link
             else:
-                row = layout.row()
+                row = src_col.row()
                 row.prop_search(
                     tm_props, "ST_selectedLinkedMat", # value of selection
                     context.scene, "tm_props_linkedMaterials", # list to search in 

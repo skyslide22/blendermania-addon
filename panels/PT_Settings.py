@@ -111,13 +111,10 @@ class TM_PT_Settings(Panel):
 class TM_PT_Settings_BlenderRelated(Panel):
     # region bl_gyx
     """Creates a Panel in the Object properties window"""
-    bl_category = 'ManiaPlanetAddon'
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Blender related settings"
     bl_idname = "TM_PT_Settings_BlenderRelated"
     bl_parent_id = "TM_PT_Settings"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_context = "objectmode"
     # endregion
     
     def draw(self, context):
@@ -139,14 +136,10 @@ class TM_PT_Settings_BlenderRelated(Panel):
 
 class TM_PT_Settings_NadeoImporter(Panel):
     # region bl_
-    """Creates a Panel in the Object properties window"""
-    bl_category = 'ManiaPlanetAddon'
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "NadeoImporter"
     bl_idname = "TM_PT_Settings_NadeoImporter"
     bl_parent_id = "TM_PT_Settings"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_context = "objectmode"
     # endregion
     
     def draw(self, context):
@@ -211,13 +204,10 @@ class TM_PT_Settings_NadeoImporter(Panel):
 class TM_PT_Settings_Textures(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
-    bl_category = 'ManiaPlanetAddon'
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Textures"
     bl_idname = "TM_PT_Settings_Textures"
     bl_parent_id = "TM_PT_Settings"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_context = "objectmode"
     # endregion
     
     def draw(self, context):
@@ -266,12 +256,11 @@ class TM_PT_Settings_Textures(Panel):
 
 
 class TM_PT_Settings_Performance(Panel):
-    bl_category = 'ManiaPlanetAddon'
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Performance"
     bl_idname = "TM_PT_Settings_Performance"
     bl_parent_id = "TM_PT_Settings"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
+    
     
     def draw(self, context):
 
@@ -283,6 +272,14 @@ class TM_PT_Settings_Performance(Panel):
 
         col = layout.column(align=True)
         row = col.row(align=True)
-        row.prop(tm_props, "CB_allow_complex_panel_drawing", text="Limit Panel Drawing",        icon=ICON_EDIT, invert_checkbox=True)
+        row.prop(tm_props, "CB_allow_complex_panel_drawing", text="Panel Extra Infos", icon=ICON_EDIT)
+        
         row = col.row(align=True)
-        row.prop(tm_props, "CB_compress_blendfile",          text="Disable Compressing .blend", icon=ICON_COMPRESS, invert_checkbox=True)
+        row.prop(tm_props, "CB_compress_blendfile",  text="Save File Compressed", icon=ICON_COMPRESS, toggle=True)
+        
+        row = col.row(align=True)
+        row.label(text="Formatting")
+        row.prop(tm_props, "CB_xml_format_meshxml",     text="Mesh XML", toggle=True)
+        row.prop(tm_props, "CB_xml_format_itemxml",     text="Item XML", toggle=True)
+
+        

@@ -14,14 +14,10 @@ from ..utils.Constants import *
 
 class TM_PT_Items_ItemXML(Panel):
     # region bl_
-    """Creates a Panel in the Object properties window"""
-    bl_category = 'ManiaPlanetAddon'
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Item XML file"
     bl_idname = "TM_PT_Items_Export_ItemXML"
     bl_parent_id = "TM_PT_Items_Export"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_context = "objectmode"
     # endregion
     
     @classmethod
@@ -38,7 +34,8 @@ class TM_PT_Items_ItemXML(Panel):
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
         row.prop(tm_props, "CB_xml_genItemXML",         text="", icon=ICON_CHECKED,)
-        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="Overwrite", toggle=True)
+        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="", icon=ICON_UPDATE)
+        # row.prop(tm_props, "CB_xml_format_itemxml",     text="", icon=ICON_TEXT)
         row=layout.row()
     
     def draw(self, context):
@@ -57,7 +54,7 @@ class TM_PT_Items_ItemXML(Panel):
         display_advanced = display_type.upper() == "ADVANCED"
         display_template = display_type.upper() == "TEMPLATE"
         
-        layout.label(text="Placement paramters:")
+        layout.label(text="Placement Parameters:")
 
         row = layout.row(align=True)
         row.prop(tm_props, "LI_xml_simpleOrAdvanced", expand=True)
@@ -91,14 +88,20 @@ class TM_PT_Items_ItemXML(Panel):
 
 
         elif display_advanced: # advanced
-            layout.row().prop(tm_props, "CB_xml_syncGridLevi", icon=ICON_SYNC)
             sync = tm_props.CB_xml_syncGridLevi
-            
             boxCol = layout.column(align=True)
-            boxRow = boxCol.row(align=True)
-            boxRow.enabled = True if sync else False
-            boxRow.prop(tm_props, "NU_xml_gridAndLeviX")
-            boxRow.prop(tm_props, "NU_xml_gridAndLeviY")
+            row = boxCol.row()
+            row.prop(tm_props, "CB_xml_syncGridLevi", text="Sync Grid & Levitation", icon=ICON_SYNC)
+            
+            if sync:
+                boxRow = boxCol.row(align=True)
+                boxRow.enabled = True if sync else False
+                boxRow.prop(tm_props, "NU_xml_gridAndLeviX", text=CHAR_HORIZONTAL+" Place")
+                boxRow.prop(tm_props, "NU_xml_gridAndLeviY", text=CHAR_VERTICAL+" Place")
+                boxRow = boxCol.row(align=True)
+                boxRow.enabled = True if sync else False
+                boxRow.prop(tm_props, "NU_xml_gridAndLeviOffsetX", text=CHAR_HORIZONTAL+" Offset")
+                boxRow.prop(tm_props, "NU_xml_gridAndLeviOffsetY", text=CHAR_VERTICAL+" Offset")
             
             boxCol = layout.column(align=True)
             boxRow = boxCol.row(align=True)
@@ -107,6 +110,7 @@ class TM_PT_Items_ItemXML(Panel):
             boxRow.prop(tm_props, "NU_xml_gridX", text=CHAR_HORIZONTAL)
             boxRow.prop(tm_props, "NU_xml_gridY", text=CHAR_VERTICAL)
             boxRow = boxCol.row(align=True)
+            boxRow.enabled = False if sync else True
             boxRow.label(text="Offset")
             boxRow.prop(tm_props, "NU_xml_gridXoffset", text=CHAR_HORIZONTAL)
             boxRow.prop(tm_props, "NU_xml_gridYoffset", text=CHAR_VERTICAL)
@@ -118,6 +122,7 @@ class TM_PT_Items_ItemXML(Panel):
             boxRow.prop(tm_props, "NU_xml_leviX", text=CHAR_HORIZONTAL)
             boxRow.prop(tm_props, "NU_xml_leviY", text=CHAR_VERTICAL)
             boxRow = boxCol.row(align=True)
+            boxRow.enabled = False if sync else True
             boxRow.label(text="Offset")
             boxRow.prop(tm_props, "NU_xml_leviXoffset", text=CHAR_HORIZONTAL)
             boxRow.prop(tm_props, "NU_xml_leviYoffset", text=CHAR_VERTICAL)
@@ -138,7 +143,7 @@ class TM_PT_Items_ItemXML(Panel):
                 row = pivot_col.row(align=True)
                 row.operator("view3d.tm_addpivot", text="Add", icon=ICON_ADD)
                 row.prop(tm_props, "CB_xml_pivotSwitch",    text="Switch", expand=True, icon=ICON_SWITCH)
-                row.prop(tm_props, "NU_xml_pivotSnapDis",   text="SnapDist")
+                row.prop(tm_props, "NU_xml_pivotSnapDis",   text="Snap Distance")
                 
                 
                 if len(tm_props_pivots):
@@ -159,10 +164,12 @@ class TM_PT_Items_ItemXML(Panel):
             row = col.row(align=True)
             row.prop(tm_props, "LI_xml_item_template_globally")
             row.operator("view3d.tm_remove_item_placement_template", text=f"", icon=ICON_REMOVE).template_name = selected_template_name
-            if selected_template_name != ERROR_ENUM_ID:
-                row = col.row()
-                row.prop(tm_props, "CB_xml_ignore_assigned_templates", text=f"Force on all collections", toggle=True, icon=ICON_EDIT)
-                row = layout.row()
+            row.prop(tm_props, "CB_xml_ignore_assigned_templates", text=f"", icon=ICON_RECURSIVE)
+            
+            # if selected_template_name != ERROR_ENUM_ID:
+            #     row = col.row()
+            #     row.prop(tm_props, "CB_xml_ignore_assigned_templates", text=f"Force on all collections", toggle=True, icon=ICON_EDIT)
+            #     row = layout.row()
             
 
             
@@ -171,14 +178,10 @@ class TM_PT_Items_ItemXML(Panel):
 
 class TM_PT_Items_MeshXML(Panel):
     # region bl_
-    """Creates a Panel in the Object properties window"""
-    bl_category = 'ManiaPlanetAddon'
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Mesh XML file"
     bl_idname = "TM_PT_Items_Export_MeshXML"
     bl_parent_id = "TM_PT_Items_Export"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_context = "objectmode"
     # endregion
     
     @classmethod
@@ -188,14 +191,16 @@ class TM_PT_Items_MeshXML(Panel):
                 and not tm_props.LI_exportType.lower() == "convert" \
                 and isSelectedNadeoIniFilepathValid()
         return (show)
-    
+
     def draw_header(self, context):
         layout = self.layout
+        layout.use_property_split
         tm_props = get_global_props()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_xml_genMeshXML",         text="",    icon=ICON_CHECKED)
-        row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="Overwrite", toggle=True)
+        row.prop(tm_props, "CB_xml_genMeshXML",         text="", icon=ICON_CHECKED)
+        row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="", icon=ICON_UPDATE)
+        # row.prop(tm_props, "CB_xml_format_meshxml",     text="", icon=ICON_TEXT)
         row=layout.row()
 
     

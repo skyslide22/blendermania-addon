@@ -282,12 +282,19 @@ def getExportWhichObjTypes() -> list:
 
 def updateGridAndLevi(self, context) -> None:
     tm_props = get_global_props()
-    syncX = tm_props.NU_xml_gridAndLeviX
-    syncY = tm_props.NU_xml_gridAndLeviY
-    tm_props.NU_xml_gridX = syncX
-    tm_props.NU_xml_gridY = syncY
-    tm_props.NU_xml_leviX = syncX
-    tm_props.NU_xml_leviY = syncY
+    place_xy = tm_props.NU_xml_gridAndLeviX
+    place_z  = tm_props.NU_xml_gridAndLeviY
+    tm_props.NU_xml_gridX = place_xy
+    tm_props.NU_xml_gridY = place_z
+    tm_props.NU_xml_leviX = place_xy
+    tm_props.NU_xml_leviY = place_z
+    
+    offset_xy = tm_props.NU_xml_gridAndLeviOffsetX
+    offset_z  = tm_props.NU_xml_gridAndLeviOffsetY
+    tm_props.NU_xml_gridXoffset = offset_xy
+    tm_props.NU_xml_gridYoffset = offset_z
+    tm_props.NU_xml_leviXoffset = offset_xy
+    tm_props.NU_xml_leviYoffset = offset_z
 
 
 def getWayPointVariations() -> list:
@@ -927,23 +934,23 @@ def get_itemxml_display_menu() -> list:
 def getGridSizes() -> list:
     return EnumProps().add(
         "1",
-        "1m",
+        "1",
         "1x1 grid"
     ).add(
         "8",
-        "8m",
+        "8",
         "8x8 grid",
     ).add(
         "16",
-        "16m",
+        "16",
         "16x16 grid",
     ).add(
         "32",
-        "32m",
+        "32",
         "32x32 grid",
     ).add(
         "64",
-        "64m",
+        "64",
         "64x64 grid",
     ).to_list()
 
@@ -968,10 +975,21 @@ def getGridDivisionSizes() -> None:
 
 
 def getSimpleGridParams() -> list:
-    grids = [0, 0.5, 1, 2, 4, 8, 16, 32]
+    # grids = [0, 0.5, 1, 2, 4, 8, 16, 32]
+    # enums = EnumProps()
+    # for grid in grids:
+    #     enums.add(str(grid), str(grid))
+
     enums = EnumProps()
-    for grid in grids:
-        enums.add(str(grid), str(grid))
+    enums.add("0",  "Sticky", icon=ICON_MAGNET)
+    # enums.add("0.5","0.5",)
+    enums.add("1",  "1",)
+    enums.add("2",  "2",)
+    enums.add("4",  "4",)
+    enums.add("8",  "8",)
+    enums.add("16", "16",)
+    enums.add("32", "32",)
+    # enums.add("64", "64",)
     return enums.to_list()
 
 

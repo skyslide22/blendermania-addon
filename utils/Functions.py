@@ -1022,11 +1022,12 @@ def unset_active_object() -> None:
     deselect_all_objects()
 
 
-def get_all_visible_coll_meshes(col: bpy.types.Collection) -> list:
+def get_meshes_which_require_uvmaps(col: bpy.types.Collection) -> list:
     return [obj for obj in col.objects 
         if obj.type == "MESH" 
         and obj.visible_get()
-        and obj.name.startswith("_") is False]
+        and not obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET)
+        and not obj.name.startswith(SPECIAL_NAME_PREFIX_TRIGGER)]
 
 def get_active_collection() -> object:
     return bpy.context.view_layer.active_layer_collection.collection

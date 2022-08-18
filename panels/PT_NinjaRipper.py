@@ -13,7 +13,6 @@ class TM_PT_NinjaImporter(Panel):
     bl_label = "Import RIP"
     bl_idname = "TM_PT_NinjaImporter"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_options = set() # default is closed, open as default
 
     def draw_header(self, context):
         layout = self.layout

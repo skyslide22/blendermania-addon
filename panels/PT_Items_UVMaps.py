@@ -27,8 +27,8 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_uv_genLightMap",         text="",     icon=ICON_CHECKED,)
-        row.prop(tm_props, "CB_uv_fixLightMap",         text="Overwrite", toggle=True)
+        row.prop(tm_props, "CB_uv_genLightMap",         text="", icon=ICON_CHECKED,)
+        row.prop(tm_props, "CB_uv_fixLightMap",         text="", icon=ICON_UPDATE)
         row=layout.row()
     
     def draw(self, context):
@@ -60,13 +60,10 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
 class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
-    bl_category = 'ManiaPlanetAddon'
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "BaseMaterial Cube Project"
     bl_idname = "TM_PT_Items_UVMaps_BaseMaterial_CubeProject"
     bl_parent_id = "TM_PT_Items_Export"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_context = "objectmode"
     # endregion
     
     @classmethod
@@ -96,6 +93,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
         row = layout.row(align=True)
         row.alert = tm_props.CB_uv_genBaseMaterialCubeMap
         col = row.column()
+        col.scale_y = 0.6
         col.label(text="This is a random generator")
         col.label(text="Use it only in development")
         col.separator(factor=UI_SPACER_FACTOR)

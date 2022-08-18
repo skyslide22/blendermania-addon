@@ -558,12 +558,13 @@ def renameObject(obj: bpy.types, name: str) -> None:
 
 
 def showUVMap(col: bpy.types.Collection, uv_name: str) -> None:
-    objs = get_all_visible_coll_meshes(col)
+    objs = get_meshes_which_require_uvmaps(col)
 
     if not objs:
         return show_report_popup(f"Uvlayer not found", f"No object has uvlayer with name '{uv_name}'")
     
     for obj in objs:
+
         addBasematerialAndLightmap(obj)
         uvs = obj.data.uv_layers
         preferred_uv = uvs.get(uv_name)
@@ -604,7 +605,7 @@ def addBasematerialAndLightmap(obj: bpy.types.Object) -> None:
 
 
 def editUVMap(col: bpy.types.Collection, uv_name: str) -> None:
-    objs = get_all_visible_coll_meshes(col)
+    objs = get_meshes_which_require_uvmaps(col)
 
     if not objs:
         return show_report_popup(f"No object selected", f"Select normal mesh objects... ")

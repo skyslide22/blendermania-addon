@@ -43,7 +43,7 @@ class PT_UIMapManipulation(bpy.types.Panel):
         # map collection
         row = box.row()
         row.alert = not has_map_coll
-        row.prop(tm_props, "PT_map_collection", text="Map collection")
+        row.prop(tm_props, "PT_map_collection", text="Map")
 
         row = box.row()
         row.alert = not has_map_file

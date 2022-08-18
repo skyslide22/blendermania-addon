@@ -11,9 +11,10 @@ class TM_OT_Items_ItemXML_SaveItemPlacementTemplate(Operator):
         
     def execute(self, context):
         tm_props = get_global_props()
+        templates = context.scene.tm_props_itemxml_templates
         temp_name = tm_props.ST_xml_item_template_add_name
     
-        for template in ítemxml_templates:
+        for template in templates:
             if temp_name == template.name:
                 show_report_popup(f"Name {temp_name} already exists, cancelled")
                 return {"CANCELLED"}
