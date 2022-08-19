@@ -60,10 +60,23 @@ class DotnetItem:
         return json.dumps(self, default=lambda o: o.__dict__)
 
 class DotnetPlaceObjectsOnMap:
-    def __init__(self, MapPath: str, Blocks: list[DotnetBlock], Items: list[DotnetItem]):
+    def __init__(
+        self,
+        MapPath: str,
+        Blocks: list[DotnetBlock],
+        Items: list[DotnetItem],
+        ShouldOverwrite: bool = False,
+        MapSuffix: str = "_modified",
+        CleanBlocks: bool = True,
+        CleanItems: bool = True,
+    ):
         self.MapPath = MapPath
         self.Blocks = Blocks
         self.Items = Items
+        self.ShouldOverwrite = ShouldOverwrite
+        self.MapSuffix = MapSuffix
+        self.CleanBlocks = CleanBlocks
+        self.CleanItems = CleanItems
         # TODO blocks
 
     def to_json(self):
@@ -77,10 +90,31 @@ class ComplexEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 # Dotnet commands
-def run_place_objects_on_map(map_path: str, blocks: list[DotnetBlock] = [], items: list[DotnetItem] = []):
-    return _run_dotnet(PLACE_OBJECTS_ON_MAP, json.dumps(DotnetPlaceObjectsOnMap(map_path, blocks, items).to_json(), cls=ComplexEncoder))
+def run_place_objects_on_map(
+    map_path: str,
+    blocks: list[DotnetBlock] = [],
+    items: list[DotnetItem] = [],
+    should_overwrite: bool = False,
+    map_suffix: str = "_modified",
+    clean_blocks: bool = True,
+    clean_items: bool = True,
+):
+    return _run_dotnet(
+        PLACE_OBJECTS_ON_MAP,
+        json.dumps(DotnetPlaceObjectsOnMap(
+            map_path,
+            blocks,
+            items,
+            should_overwrite,
+            map_suffix,
+            clean_blocks,
+            clean_items,
+        ).to_json(), cls=ComplexEncoder),
+    )
 
 def _run_dotnet(command: str, payload: str) -> str | None:
+    print(payload)
+
     # TODO use .exe from propper source
     process = subprocess.Popen(args=[
         "D:/Art/Blender/blendermania-dotnet/blendermania-dotnet/bin/Release/net6.0/win-x64/publish/blendermania-dotnet.exe",
