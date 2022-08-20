@@ -17,7 +17,8 @@ from .Constants import (
     SPECIAL_NAME_PREFIX_IGNORE,
     SPECIAL_NAME_INFIX_ORIGIN,
     SPECIAL_NAME_PREFIX_NOTVISIBLE,
-    SPECIAL_NAME_PREFIX_NOTCOLLIDABLE
+    SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
+    WAYPOINT_VALID_NAMES
 )
 from .Functions import (
     create_folder_if_necessary,
@@ -26,6 +27,7 @@ from .Functions import (
     get_global_props,
     get_coll_relative_path,
     get_export_path,
+    get_waypointtype_of_collection,
     is_real_object_by_name,
     is_game_maniaplanet,
     safe_name,
@@ -217,6 +219,47 @@ def _clean_up_addon_export_settings(total: int):
     tm_props.NU_convertStartedAt          = 0
     tm_props.NU_currentConvertDuration    = 0
 
+
+def _add_empty_socket_hide_existing(coll: bpy.types.Collection) -> None:
+    if is_game_maniaplanet():
+        return
+    
+    waypoint = get_waypointtype_of_collection(coll)
+    if waypoint not in WAYPOINT_VALID_NAMES:
+        return
+    
+    old_socket:bpy.types.Object = None
+    for obj in coll.objects:
+        if obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET):
+            old_socket = obj
+            break
+    else:
+        return
+    
+    new_socket:bpy.types.Object = bpy.data.objects.new(old_socket.name + "_temporary")
+    new_socket.rotation_euler = old_socket.rotation_euler
+    new_socket.location = old_socket.location
+
+    coll.objects.link(new_socket)
+    old_socket.hide_set(True) # ignored in export now
+
+def _remove_empty_socket_unhide_existing(coll:bpy.types.Collection) -> None:
+    if is_game_maniaplanet():
+        return
+
+    empty_socket:bpy.types.Object
+    old_socket:bpy.types.Object
+    
+    for obj in coll.all_objects:
+        if obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET):
+            if obj.type == "EMPTY":
+                empty_socket = obj
+            elif obj.type == "MESH":
+                old_socket = obj
+            
+    bpy.data.objects.remove(empty_socket)
+    old_socket.hide_set(False)
+
 def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     current_selection                            = bpy.context.selected_objects.copy()
     tm_props                                     = get_global_props()
@@ -275,13 +318,22 @@ def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedIt
             show_report_popup("Invalid collections", f"<{coll.name}> has Lod1, but not Lod0, collection skipped")
             return
 
+        # tm2020 socket fix
+        _add_empty_socket_hide_existing(coll)
+
         # move collection to 0,0,0
         offset = _move_collection_to(coll)
+
         # export .fbx
         _export_item_FBX(item_to_export)
+        
+        # tm2020 socket fix
+        _remove_empty_socket_unhide_existing(coll)
+
         # generate icon
         if generate_icons:
             generate_collection_icon(coll, item_to_export.icon_path)
+        
         # move collection back to original position
         _move_collection_by(coll, offset)
 
