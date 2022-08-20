@@ -66,6 +66,15 @@ class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
         installGameAssetsLibrary()
         return {"FINISHED"}
 
+class TM_OT_Settings_InstallBlendermaniaDotnet(Operator):
+    bl_idname = "view3d.tm_install_blendermania_dotnet"
+    bl_description = "Download blendermania-dotnet for activate map manipulation pannels"
+    bl_label = "Download nlendermania-dotnet"
+        
+    def execute(self, context):
+        install_blendermania_dotnet()
+        return {"FINISHED"}
+
 
 
 class TM_OT_Settings_UpdateAddonResetSettings(Operator):

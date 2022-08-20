@@ -1,14 +1,21 @@
 from email.policy import default
 import bpy
 
+from .PT_DownloadProgress import render_donwload_progress_bar
 from ..utils.MapObjects import get_selected_map_objects
 from ..operators.OT_Map_Manipulate import (
     OT_UICollectionToMap,
     OT_UIValidateMapCollection,
     OT_UICreateUpdateMapItemBlock,
 )
-from ..utils.Functions import get_global_props, requireValidNadeoINI
-from ..utils.Constants import ICON_UPDATE, MAP_OBJECT_BLOCK, PANEL_CLASS_COMMON_DEFAULT_PROPS, ICON_TRACKING
+from ..utils.Functions import get_global_props, requireValidNadeoINI, is_blendermania_dotnet_installed
+from ..utils.Constants import (
+    ICON_UPDATE,
+    MAP_OBJECT_BLOCK,
+    PANEL_CLASS_COMMON_DEFAULT_PROPS,
+    ICON_TRACKING,
+    ICON_UGLYPACKAGE,
+)
 from ..operators.OT_WikiLink import add_ui_wiki_icon
 
 
@@ -40,6 +47,19 @@ class PT_UIMapManipulation(bpy.types.Panel):
         row = box.row()
         row.label(text="Export collection as a map")
         add_ui_wiki_icon(row, "08.-Map-export")
+
+        if not is_blendermania_dotnet_installed():
+            row = box.row()
+            row.alert = True
+            row.label(text="Blendermania dotnet installation required")
+            
+            row = box.row()
+            row.scale_y = 1.5
+            text = f"Install blendermania-dotnet"
+            row.operator("view3d.tm_install_blendermania_dotnet", text=text, icon=ICON_UGLYPACKAGE)
+
+            render_donwload_progress_bar(layout)
+            return
 
         # map collection
         row = box.row()
@@ -107,7 +127,11 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
 
         box = layout.box()
 
-        if not has_map_coll:
+        if not is_blendermania_dotnet_installed():
+            box.alert = True
+            box.label(text="Blendermania dotnet installation required")
+            return
+        elif not has_map_coll:
             box.label(text="Select Map collection first")
         elif len(select_objects) > 1 and len(select_map_objects) == 0:
             box.label(text="To create a new map object select just ONE object")

@@ -95,6 +95,7 @@ classes = (
     TM_OT_Settings_InstallNadeoImporter,
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_InstallGameAssetsLIbrary,
+    TM_OT_Settings_InstallBlendermaniaDotnet,
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonResetSettings,
     TM_OT_Settings_UpdateAddonCheckForNewRelease,

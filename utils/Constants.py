@@ -111,6 +111,7 @@ ICON_CUBE               = "CUBE"
 ICON_TEXT               = "FILE_TEXT"
 ICON_MAGNET             = "SNAP_ON"
 ICON_TRACKING           = "TRACKING"
+ICON_UGLYPACKAGE        = "UGLYPACKAGE"
 
 # https://cloford.com/resources/charcodes/utf-8_arrows.htm
 CHAR_VERTICAL   = "↕"
@@ -146,7 +147,7 @@ URL_REGEX         = "https://regex101.com/"
 BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.1"
 
 # Assets CDN Links
-GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-addon-assets/releases/download/"
+GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-assets/releases/download/"
 WEBSPACE_TEXTURES_MP_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Stadium/Textures_ManiaPlanet_Stadium.zip"
 WEBSPACE_TEXTURES_MP_VALLEY  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Valley/Textures_ManiaPlanet_Valley.zip"
 WEBSPACE_TEXTURES_MP_STORM   = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Shootmania/Textures_ManiaPlanet_Shootmania.zip"

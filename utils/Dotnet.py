@@ -24,8 +24,8 @@ class DotnetVector3:
         self.Y = Y
         self.Z = Z
 
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
+    def jsonable(self):
+        return self.__dict__
 
 class DotnetInt3:
     def __init__(self, X: int = 0, Y: int = 0, Z: int = 0) -> None:
@@ -33,8 +33,8 @@ class DotnetInt3:
         self.Y = Y
         self.Z = Z
 
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
+    def jsonable(self):
+        return self.__dict__
 
 class DotnetBlock:
     def __init__(self, Name: str, Direction: int, Position: DotnetInt3):
@@ -45,8 +45,8 @@ class DotnetBlock:
         self.Dir = Direction
         self.Position = Position
     
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
+    def jsonable(self):
+        return self.__dict__
 
 class DotnetItem:
     def __init__(self, Name: str, Path: str, Position: DotnetVector3, Rotation: DotnetVector3 = DotnetVector3(), Pivot: DotnetVector3 = DotnetVector3()):
@@ -56,8 +56,8 @@ class DotnetItem:
         self.Rotation = Rotation
         self.Pivot = Pivot
     
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
+    def jsonable(self):
+        return self.__dict__
 
 class DotnetPlaceObjectsOnMap:
     def __init__(
@@ -79,13 +79,13 @@ class DotnetPlaceObjectsOnMap:
         self.CleanItems = CleanItems
         # TODO blocks
 
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
+    def jsonable(self):
+        return self.__dict__
 
 class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
-        if hasattr(obj,'to_json'):
-            return obj.reprJSON()
+        if hasattr(obj,'jsonable'):
+            return obj.jsonable()
         else:
             return json.JSONEncoder.default(self, obj)
 
@@ -99,18 +99,21 @@ def run_place_objects_on_map(
     clean_blocks: bool = True,
     clean_items: bool = True,
 ):
-    return _run_dotnet(
-        PLACE_OBJECTS_ON_MAP,
-        json.dumps(DotnetPlaceObjectsOnMap(
-            map_path,
-            blocks,
-            items,
-            should_overwrite,
-            map_suffix,
-            clean_blocks,
-            clean_items,
-        ).to_json(), cls=ComplexEncoder),
-    )
+    with open('map-export.json', 'w', encoding='utf-8') as outfile:
+        json.dump(DotnetPlaceObjectsOnMap(
+                map_path,
+                blocks,
+                items,
+                should_overwrite,
+                map_suffix,
+                clean_blocks,
+                clean_items,
+        ), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
+        outfile.close()
+
+        res = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
+        os.remove("map-export.json")
+        return res
 
 def _run_dotnet(command: str, payload: str) -> str | None:
     print(payload)

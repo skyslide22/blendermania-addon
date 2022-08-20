@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum
 from shutil import copyfile
 import shutil
+import glob
 import subprocess
 import tempfile
 import threading
@@ -44,14 +45,20 @@ def getBlenderAddonsPath() -> str:
 def get_addon_path() -> str:
     return fixSlash(ADDON_ROOT_PATH + "/")
 
-def getAddonAssetsPath() -> str:
+def get_addon_assets_path() -> str:
     return get_addon_path() + "/assets/"
 
 def getAddonAssetsAddonsPath() -> str:
-    return getAddonAssetsPath() + "/addons/"
+    return get_addon_assets_path() + "/addons/"
 
 def getAddonAssetsBlendsPath() -> str:
-    return getAddonAssetsPath() + "/blends/"
+    return get_addon_assets_path() + "/blends/"
+
+def get_blendermania_dotnet_path() -> str:
+    return get_addon_path() + f"/assets/{BLENDERMANIA_DOTNET}.exe"
+
+def is_blendermania_dotnet_installed() -> bool:
+    return is_file_exist(get_blendermania_dotnet_path())
 
 def getDocumentsPath() -> str:
     process = subprocess.Popen([
@@ -464,15 +471,15 @@ def nadeoImporterInstalled_False()->None:
 
 def gameTexturesDownloading_False()->None:
     tm_props = get_global_props()
-    tm_props.CB_DL_TexturesRunning = False
-    tm_props.NU_DL_Textures        = 0
+    tm_props.CB_DL_ProgressRunning = False
+    tm_props.NU_DL_Progress        = 0
 
 
 def gameTexturesDownloading_True()->None:
     tm_props = get_global_props()
-    tm_props.CB_DL_TexturesRunning = True
-    tm_props.NU_DL_Textures        = 0
-    tm_props.ST_DL_TexturesErrors  = ""
+    tm_props.CB_DL_ProgressRunning = True
+    tm_props.NU_DL_Progress        = 0
+    tm_props.ST_DL_ProgressErrors  = ""
 
 
 def is_game_maniaplanet()->bool:
@@ -530,7 +537,7 @@ def updateInstalledNadeoImporterVersionInUI():
 def installNadeoImporterFromLocalFiles()->None:
     debug(f"nadeoimporter is installed: {isNadeoImporterInstalled()}")
     tm_props  = get_global_props()
-    base_path = getAddonAssetsPath() + "/nadeoimporters/"
+    base_path = get_addon_assets_path() + "/nadeoimporters/"
 
     if is_game_maniaplanet():
         filename = tm_props.LI_nadeoImporters_MP
@@ -593,7 +600,7 @@ def unzipGameTextures(filepath, extractTo)->None:
 
 
 
-def unzipGameAssetsLibrary(filepath: str, extractTo: str) -> None:
+def unzip_file_into(filepath: str, extractTo: str) -> None:
     with ZipFile(filepath, 'r') as zipFile:
         zipFile.extractall(path=longPath(extractTo))
 
@@ -621,23 +628,23 @@ def installGameTextures()->None:
     elif    envi == "mp_stadium":   url = WEBSPACE_TEXTURES_MP_STADIUM
     elif    envi == "mp_valley":    url = WEBSPACE_TEXTURES_MP_VALLEY
     
-    tm_props.CB_DL_TexturesShow = True
+    tm_props.CB_DL_ProgressShow = True
 
     extractTo   = fixSlash( get_game_doc_path_items_assets_textures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
     filePath    = f"""{extractTo}/{enviRaw}.zip"""
-    progressbar = "NU_DL_Textures"
+    progressbar = "NU_DL_Progress"
 
     def on_success():
-        tm_props.CB_DL_TexturesRunning = False
+        tm_props.CB_DL_ProgressRunning = False
         unzipGameTextures(filePath,extractTo)
         def run(): 
-            tm_props.CB_DL_TexturesShow = False
+            tm_props.CB_DL_ProgressShow = False
         timer(run, 5)
         debug(f"downloading & installing textures of {enviRaw} successful")
 
     def on_error(msg):
-        tm_props.ST_DL_TexturesErrors = msg or "unknown error"
-        tm_props.CB_DL_TexturesRunning = False
+        tm_props.ST_DL_ProgressErrors = msg or "unknown error"
+        tm_props.CB_DL_ProgressRunning = False
         debug(f"downloading & installing textures of {enviRaw} failed, error: {msg}")
 
         # def run(): ...
@@ -653,7 +660,7 @@ def installGameTextures()->None:
 
     download = DownloadTMFile(url, filePath, progressbar, on_success, on_error)
     download.start()
-    tm_props.CB_DL_TexturesRunning = True
+    tm_props.CB_DL_ProgressRunning = True
 
 
 
@@ -665,24 +672,24 @@ def installGameAssetsLibrary()->None:
     tm_props = get_global_props()
     url      = WEBSPACE_ASSETS_TM_STADIUM if is_game_trackmania2020() else WEBSPACE_ASSETS_MP
     
-    tm_props.CB_DL_TexturesShow = True
+    tm_props.CB_DL_ProgressShow = True
 
     extractTo   = get_game_doc_path_items_assets()
     filePath    = f"""{extractTo}/assets.zip"""
-    progressbar = "NU_DL_Textures"
+    progressbar = "NU_DL_Progress"
 
     def on_success():
-        tm_props.CB_DL_TexturesRunning = False
-        unzipGameAssetsLibrary(filePath,extractTo)
+        tm_props.CB_DL_ProgressRunning = False
+        unzip_file_into(filePath,extractTo)
         def run(): 
-            tm_props.CB_DL_TexturesShow = False
+            tm_props.CB_DL_ProgressShow = False
         timer(run, 5)
         addAssetsLibraryToPreferences()
         debug(f"downloading & installing assets library of {get_global_props().LI_gameType} successful")
 
     def on_error(msg):
-        tm_props.ST_DL_TexturesErrors = msg or "unknown error"
-        tm_props.CB_DL_TexturesRunning = False
+        tm_props.ST_DL_ProgressErrors = msg or "unknown error"
+        tm_props.CB_DL_ProgressRunning = False
         debug(f"downloading & installing assets library of {get_global_props().LI_gameType} failed, error: {msg}")
 
 
@@ -695,9 +702,45 @@ def installGameAssetsLibrary()->None:
 
     download = DownloadTMFile(url, filePath, progressbar, on_success, on_error)
     download.start()
-    tm_props.CB_DL_TexturesRunning = True
+    tm_props.CB_DL_ProgressRunning = True
 
 
+def install_blendermania_dotnet()->None:
+    """download and install blendermania-dotnet"""
+    tm_props = get_global_props()
+    url      = WEBSPACE_DOTNET_EXECUTABLE
+    
+    tm_props.CB_DL_ProgressShow = True
+
+    extract_to   = get_addon_assets_path()
+    file_path    = f"""{extract_to}/{BLENDERMANIA_DOTNET}.zip"""
+    progressbar = "NU_DL_Progress"
+
+    def on_success():
+        delete_files_by_wildcard(f"{extract_to}/Blendermania_Dotnet*.exe")
+
+        tm_props.CB_DL_ProgressRunning = False
+        unzip_file_into(file_path, extract_to)
+        def run(): 
+            tm_props.CB_DL_ProgressShow = False
+        timer(run, 5)
+        debug(f"downloading & installing blendermania-dotnet {get_global_props().LI_gameType} successful")
+        os.remove(file_path)
+
+    def on_error(msg):
+        tm_props.ST_DL_ProgressErrors = msg or "unknown error"
+        tm_props.CB_DL_ProgressRunning = False
+        debug(f"downloading & installing blendermania-dotnet {get_global_props().LI_gameType} failed, error: {msg}")
+
+    create_folder_if_necessary(extract_to)
+    debug(f"try to download & install blendermania-dotnet")
+
+    print(url)
+    download = DownloadTMFile(url, file_path, progressbar, on_success, on_error)
+    download.start()
+    tm_props.NU_DL_Progress        = 0
+    tm_props.ST_DL_ProgressErrors  = ""
+    tm_props.CB_DL_ProgressRunning = True
 
 
 
@@ -756,7 +799,7 @@ class DownloadTMFile(Thread):
 
         success = False
 
-        if self.response.code == 200:
+        if not isinstance(self.response, dict) and self.response.code == 200:
             with open(self.saveFilePath, "wb+") as f:
                 fileSize   = int(self.response.length)
                 downloaded = 0
@@ -770,7 +813,7 @@ class DownloadTMFile(Thread):
                     def updateProgressbar():
                         try: #x[ y ]=z does not trigger panel text refresh, so do x.y = z
                             percentage = downloaded/fileSize * 100
-                            exec_str = f"getTmProps().{self.progressbar_prop} = percentage" 
+                            exec_str = f"get_global_props().{self.progressbar_prop} = percentage" 
                             exec_str = exec_str 
                             exec(exec_str)
                         except Exception as e:
@@ -1893,7 +1936,7 @@ def show_windows_toast(title: str, text: str, baloon_icon: str="Info", duration:
     icon = "MANIAPLANET.ico" if is_game_maniaplanet() else "TRACKMANIA2020.ico"
     icon = get_addon_icon_path(icon)
 
-    assetpath = fixSlash( getAddonAssetsPath() )
+    assetpath = fixSlash( get_addon_assets_path() )
     cmd = [
         "PowerShell", 
         "-File",        f"""{assetpath}/make_toast.ps1""", 
@@ -1980,3 +2023,12 @@ def is_obj_visible_by_name(name: str) -> bool:
     name = name.lower()
     return  not name.startswith("_")\
             or name.startswith(SPECIAL_NAME_PREFIX_NOTCOLLIDABLE)
+
+def delete_files_by_wildcard(wildcard: str):
+    fileList = glob.glob(wildcard)
+    # Iterate over the list of filepaths & remove each file.
+    for filePath in fileList:
+        try:
+            os.remove(filePath)
+        except:
+            print("Error while deleting file : ", filePath)

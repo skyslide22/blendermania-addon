@@ -190,10 +190,10 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
 
     #textures
     LI_DL_TextureEnvi      : EnumProperty(items=getGameTextureZipFileNames(), update=redraw_panels)
-    CB_DL_TexturesRunning  : BoolProperty(name="Downloading...",              default=False, update=redraw_panels)
-    NU_DL_Textures         : FloatProperty(min=0, max=100,                    default=0, subtype="PERCENTAGE", update=redraw_panels)
-    ST_DL_TexturesErrors   : StringProperty(name="Status",                    default="")
-    CB_DL_TexturesShow     : BoolProperty(default=False,                      update=redraw_panels)
+    CB_DL_ProgressRunning  : BoolProperty(name="Downloading...",              default=False, update=redraw_panels)
+    NU_DL_Progress         : FloatProperty(min=0, max=100,                    default=0, subtype="PERCENTAGE", update=redraw_panels)
+    ST_DL_ProgressErrors   : StringProperty(name="Status",                    default="")
+    CB_DL_ProgressShow     : BoolProperty(default=False,                      update=redraw_panels)
 
     # cars
     LI_items_cars     : EnumProperty(name="Car",     items=get_car_names())

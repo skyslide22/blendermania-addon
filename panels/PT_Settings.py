@@ -1,24 +1,11 @@
 from pydoc import text
 import bpy
-import os.path
-import string
-import webbrowser
-import addon_utils
-from pprint import pprint
-from bpy.types import (
-    Panel,
-    Operator,
-    AddonPreferences,
-    PropertyGroup,
-)
-from bpy.props import StringProperty
+from bpy.types import Panel
 
-
-
+from .PT_DownloadProgress import render_donwload_progress_bar
 from ..utils.Functions      import *
 from ..utils.Dotnet         import *
 from ..utils.Constants      import *
-
 from .. import bl_info
 
 
@@ -213,16 +200,14 @@ class TM_PT_Settings_Textures(Panel):
     def draw(self, context):
 
         layout = self.layout
-        tm_props        = get_global_props()
-        tm_props_pivots = get_pivot_props()
+        tm_props         = get_global_props()
+        is_bmd_installed = is_blendermania_dotnet_installed()
 
         if not isSelectedNadeoIniFilepathValid():
             requireValidNadeoINI(self)
             return
 
-        envi         = tm_props.LI_DL_TextureEnvi #if isGameTypeManiaPlanet() else getTmProps().LI_gameType
-        game         = get_global_props().LI_gameType
-        dlTexRunning = tm_props.CB_DL_TexturesRunning is False
+        envi = tm_props.LI_DL_TextureEnvi
 
         col = layout.column(align=True)
         row = col.row()
@@ -231,6 +216,8 @@ class TM_PT_Settings_Textures(Panel):
         if is_game_maniaplanet():
             row = col.row(align=True)
             row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon=ICON_ENVIRONMENT)
+
+        dlTexRunning = tm_props.CB_DL_ProgressRunning is False
 
         row = col.row(align=True)
         row.enabled = dlTexRunning
@@ -242,14 +229,13 @@ class TM_PT_Settings_Textures(Panel):
         row.scale_y = 1.5
         row.operator("view3d.tm_installgameassetslibrary", text=f"Install asset library", icon=ICON_ASSETS)
 
-        dlTexError          = tm_props.ST_DL_TexturesErrors
-        statusText          = "Downloading..." if not dlTexRunning else "Done" if not dlTexError else dlTexError
-        showDLProgressbar   = tm_props.CB_DL_TexturesShow
+        row = col.row()
+        row.enabled = dlTexRunning and not is_bmd_installed
+        row.scale_y = 1.5
+        text = f"Install blendermania-dotnet"
+        row.operator("view3d.tm_install_blendermania_dotnet", text=text, icon=ICON_UGLYPACKAGE)
 
-        if showDLProgressbar:
-            row=layout.row()
-            row.enabled = False
-            row.prop(tm_props, "NU_DL_Textures", text=statusText)
+        render_donwload_progress_bar(layout)
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
