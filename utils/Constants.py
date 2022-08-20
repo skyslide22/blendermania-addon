@@ -142,6 +142,8 @@ URL_CHANGELOG     = "https://github.com/skyslide22/blendermania-addon/releases"
 URL_RELEASES      = "https://api.github.com/repos/skyslide22/blendermania-addon/releases/latest"
 URL_REGEX         = "https://regex101.com/"
 
+# dotnet addon name and version
+BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.1"
 
 # Assets CDN Links
 GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-addon-assets/releases/download/"
@@ -155,6 +157,7 @@ WEBSPACE_NADEOIMPORTER_MP    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_ManiaPlan
 WEBSPACE_NADEOIMPORTER_TM    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_TrackMania2020/NadeoImporter_TrackMania2020.zip"
 WEBSPACE_ASSETS_TM_STADIUM   = GITHUB_ASSETS_BASE_URL + "Assets_Library_TrackMania2020/Assets_Library_TrackMania2020.zip"
 WEBSPACE_ASSETS_MP           = GITHUB_ASSETS_BASE_URL + "Assets_Library_Maniaplanet/Assets_Library_Maniaplanet.zip"
+WEBSPACE_DOTNET_EXECUTABLE   = GITHUB_ASSETS_BASE_URL + BLENDERMANIA_DOTNET+"/"+BLENDERMANIA_DOTNET+".zip"
 
 
 # Used for collections in the outliner to define the waypoint type
@@ -391,28 +394,28 @@ ADDON_ICONS_PATH = os.path.join(os.path.dirname(__file__), os.pardir) + "/icons"
 # do not put this on top of file
 # circular import
 from .Functions import (
-    getAddonAssetsPath,
+    get_addon_assets_path,
     get_addon_path,
     is_file_exist,
 
 )
 
 # custom items included in addon for import
-ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM = getAddonAssetsPath() + "/item_cars/CAR_Trackmania2020_StadiumCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM    = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_StadiumCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_LagoonCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_CanyonCar_Lowpoly.fbx"
-ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = getAddonAssetsPath() + "/item_cars/CAR_Maniaplanet_ValleyCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM = get_addon_assets_path() + "/item_cars/CAR_Trackmania2020_StadiumCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM    = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_StadiumCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_LagoonCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_CanyonCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_ValleyCar_Lowpoly.fbx"
 
 
 # check if blender is opened by a dev (from vscode..?)
 BLENDER_INSTANCE_IS_DEV = os.path.exists(get_addon_path() + ".git")
 
 # imported templates
-ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = getAddonAssetsPath() + "/item_triggers/TRIGGER_WALL_32x8.fbx"
+ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = get_addon_assets_path() + "/item_triggers/TRIGGER_WALL_32x8.fbx"
 
 # materials map for tm 2020 (someday nadeo gonna have corrent filenames for materials...)
-MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = getAddonAssetsPath()+"/materials/materials-map-trackmania2020.json"
+MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = get_addon_assets_path()+"/materials/materials-map-trackmania2020.json"
 MATERIALS_MAP_TM2020 = {}
 
 if is_file_exist(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
