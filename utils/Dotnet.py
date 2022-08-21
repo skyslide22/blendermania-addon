@@ -118,9 +118,8 @@ def run_place_objects_on_map(
 def _run_dotnet(command: str, payload: str) -> str | None:
     print(payload)
 
-    # TODO use .exe from propper source
     process = subprocess.Popen(args=[
-        "D:/Art/Blender/blendermania-dotnet/blendermania-dotnet/bin/Release/net6.0/win-x64/publish/blendermania-dotnet.exe",
+        get_blendermania_dotnet_path(),
         command,
         payload.strip('"'),
     ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
