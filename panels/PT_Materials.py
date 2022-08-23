@@ -14,7 +14,7 @@ from ..utils.Constants  import *
 
 
 class TM_PT_Materials(Panel):
-    bl_label = "Material Creation/Update"
+    bl_label = "Materials"
     bl_idname = "OBJECT_PT_TM_Materials"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 

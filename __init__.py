@@ -54,16 +54,18 @@ from .operators.OT_UV_Manipulate           import *
 from .operators.OT_Assets_Library          import *
 from .operators.OT_Items_Templates         import * 
 from .operators.OT_WikiLink                import * 
-from .panels.PT_Map_Manipulate     import *
-from .panels.PT_NinjaRipper        import *
-from .panels.PT_Settings           import *
-from .panels.PT_Items_Export       import *
-from .panels.PT_Materials          import *
-from .panels.PT_Items_XML          import *
-from .panels.PT_Items_UVMaps       import *
-from .panels.PT_Items_Icon         import *
-from .panels.PT_Items_Manipulate   import *
-from .panels.PT_UV_Manipulate      import *
+
+from .panels.PT_Map_Manipulate      import *
+from .panels.PT_NinjaRipper         import *
+from .panels.PT_Settings            import *
+from .panels.PT_Items_Export        import *
+from .panels.PT_Materials           import *
+from .panels.PT_Items_XML           import *
+from .panels.PT_Items_UVMaps        import *
+from .panels.PT_Items_Icon          import *
+from .panels.PT_Items_Manipulate    import *
+from .panels.PT_UV_Manipulate       import *
+from .panels.PT_Textures            import *
 
 
 
@@ -88,7 +90,6 @@ classes = (
     TM_PT_Settings,
     TM_PT_Settings_BlenderRelated,
     TM_PT_Settings_NadeoImporter,
-    TM_PT_Settings_Textures,
     TM_PT_Settings_Performance,
     TM_OT_Settings_AutoFindNadeoIni,
     TM_OT_Settings_ExecuteHelp,
@@ -154,6 +155,9 @@ classes = (
     TM_OT_Materials_Create_Asset_Lib,
     TM_OT_Materials_ClearBaseMaterial,
     TM_OT_Materials_RevertCustomColor,
+
+    # textures
+    TM_PT_Textures,
     
     # ninja
     TM_OT_Ninja17Install,

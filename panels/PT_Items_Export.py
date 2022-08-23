@@ -6,7 +6,7 @@ from ..utils.Functions      import *
 class TM_PT_Items_Export(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
-    bl_label   = "Export & Convert FBX"
+    bl_label   = "Export"
     bl_idname  = "TM_PT_Items_Export"
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )

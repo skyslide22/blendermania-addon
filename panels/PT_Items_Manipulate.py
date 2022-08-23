@@ -10,7 +10,7 @@ from ..utils.Constants import *
 
 
 class TM_PT_ObjectManipulations(Panel):
-    bl_label   = "Object Manipulation"
+    bl_label   = "Manipulations"
     bl_idname  = "TM_PT_ObjectManipulations"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     

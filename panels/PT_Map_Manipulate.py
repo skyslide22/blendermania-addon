@@ -16,10 +16,11 @@ from ..utils.Functions import (
     is_game_maniaplanet,
 )
 from ..utils.Constants import (
+    ICON_COLLECTION,
     ICON_UPDATE,
     MAP_OBJECT_BLOCK,
     PANEL_CLASS_COMMON_DEFAULT_PROPS,
-    ICON_TRACKING,
+    ICON_MAP,
     ICON_UGLYPACKAGE,
     ICON_ENVIRONMENT,
 )
@@ -30,7 +31,7 @@ from ..operators.OT_WikiLink import add_ui_wiki_icon
 class PT_UIMapManipulation(bpy.types.Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
-    bl_label   = "Map create/export"
+    bl_label   = "Map"
     bl_idname  = "TM_PT_Map_Manipulate"
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
@@ -39,7 +40,7 @@ class PT_UIMapManipulation(bpy.types.Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        layout.label(icon=ICON_TRACKING)
+        layout.label(icon=ICON_MAP)
 
     def draw(self, context):
         layout = self.layout
@@ -54,7 +55,7 @@ class PT_UIMapManipulation(bpy.types.Panel):
         # info and settings
         box = layout.box()
         row = box.row()
-        row.label(text="Export collection as a map")
+        row.label(text="Export collection as Map.Gbx", icon=ICON_COLLECTION)
         add_ui_wiki_icon(row, "08.-Map-export")
 
         if not is_blendermania_dotnet_installed():
