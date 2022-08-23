@@ -135,11 +135,11 @@ class TM_PT_Settings_NadeoImporter(Panel):
         tm_props        = get_global_props()
         tm_props_pivots = get_pivot_props()
 
-        if not isSelectedNadeoIniFilepathValid():
-            requireValidNadeoINI(self)
+        if not is_selected_nadeoini_file_existing():
+            draw_nadeoini_required_message(self)
             return
 
-        if isSelectedNadeoIniFilepathValid():
+        if is_selected_nadeoini_file_existing():
             op_row = layout.row()
             op_row.enabled = tm_props.CB_nadeoImporterDLRunning is False
             op_row.scale_y = 1.5
@@ -203,8 +203,8 @@ class TM_PT_Settings_Textures(Panel):
         tm_props         = get_global_props()
         is_bmd_installed = is_blendermania_dotnet_installed()
 
-        if not isSelectedNadeoIniFilepathValid():
-            requireValidNadeoINI(self)
+        if not is_selected_nadeoini_file_existing():
+            draw_nadeoini_required_message(self)
             return
 
         envi = tm_props.LI_DL_TextureEnvi

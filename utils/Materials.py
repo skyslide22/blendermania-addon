@@ -4,12 +4,12 @@ import json
 
 from .Functions import (
     debug,
-    fixSlash,
+    fix_slash,
     get_abs_path,
     get_path_filename,
     get_game_doc_path_items_assets_textures,
     get_game_doc_path,
-    is_file_exist,
+    is_file_existing,
     is_game_trackmania2020,
 )
 
@@ -32,14 +32,14 @@ def _assign_texture_to_node(texname, node) -> bool:
 def _load_dds_into_blender(texpath: str) -> tuple:
     """load dds texture into blender, return tuple(bool(success), texNAME)"""
     imgs = bpy.data.images
-    texpath = fixSlash(texpath)
+    texpath = fix_slash(texpath)
     texName = get_path_filename(texpath)
 
     if not texpath: return False, "" 
 
     debug(f"try to load texture into blender: {texpath}")
 
-    if is_file_exist(filepath=texpath):
+    if is_file_existing(filepath=texpath):
     
         if texName not in imgs:
             imgs.load(texpath)
@@ -69,11 +69,11 @@ def _get_mat_dds(tex: str, ddsType: str) -> str:
     if (
         is_game_trackmania2020() and
         matMap2020 and ddsType in matMap2020 and 
-        len(matMap2020[ddsType]) > 0 and is_file_exist(basePath + matMap2020[ddsType])
+        len(matMap2020[ddsType]) > 0 and is_file_existing(basePath + matMap2020[ddsType])
     ): Texture = basePath + matMap2020[ddsType]
-    elif is_file_exist(tex + "D.dds"): Texture = tex + ddsType+".dds"
-    elif is_file_exist(tex + "_D.dds"): Texture = tex + "_"+ddsType+".dds"
-    elif ddsType == "D" and is_file_exist(tex + ".dds"): Texture = tex + ".dds"
+    elif is_file_existing(tex + "D.dds"): Texture = tex + ddsType+".dds"
+    elif is_file_existing(tex + "_D.dds"): Texture = tex + "_"+ddsType+".dds"
+    elif ddsType == "D" and is_file_existing(tex + ".dds"): Texture = tex + ".dds"
     debug(f"_{ddsType} found in: {Texture}") if Texture else debug(f"_{ddsType} texture not found")
 
     return Texture
@@ -161,11 +161,11 @@ def assign_mat_json_to_mat(mat) -> bool:
     test_n_path_as_link = root + tex_n_path.split("/")[-1]
     test_h_path_as_link = root + tex_h_path.split("/")[-1]
 
-    if is_file_exist( test_d_path_as_link ): tex_d_path = test_d_path_as_link
-    if is_file_exist( test_i_path_as_link ): tex_i_path = test_i_path_as_link
-    if is_file_exist( test_r_path_as_link ): tex_r_path = test_r_path_as_link
-    if is_file_exist( test_n_path_as_link ): tex_n_path = test_n_path_as_link
-    if is_file_exist( test_h_path_as_link ): tex_h_path = test_h_path_as_link
+    if is_file_existing( test_d_path_as_link ): tex_d_path = test_d_path_as_link
+    if is_file_existing( test_i_path_as_link ): tex_i_path = test_i_path_as_link
+    if is_file_existing( test_r_path_as_link ): tex_r_path = test_r_path_as_link
+    if is_file_existing( test_n_path_as_link ): tex_n_path = test_n_path_as_link
+    if is_file_existing( test_h_path_as_link ): tex_h_path = test_h_path_as_link
 
     print("ASDADSASD: ", tex_d_path)
     print("ASDADSASD: ", test_d_path_as_link)

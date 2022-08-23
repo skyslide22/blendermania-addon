@@ -14,15 +14,15 @@ from ..utils.Functions import (
     debug,
     timer,
     Timer,
-    fixSlash,
-    newThread,
-    is_file_exist,
+    fix_slash,
+    in_new_thread,
+    is_file_existing,
     get_addon_path,
     get_global_props,
     show_report_popup,
     show_windows_toast,
     get_path_filename,
-    get_convert_items_prop,
+    get_convert_items_props,
     get_nadeo_importer_path,
     is_game_maniaplanet,
 )
@@ -51,8 +51,8 @@ class CONVERT_ITEM(threading.Thread):
         
         
         # relative (Items/...) & absolute (C:/Users...) fbx filepaths
-        self.fbx_filepath           = fixSlash( fbxfilepath ) 
-        self.fbx_filepath_relative  = fixSlash("Items/" + fbxfilepath.split("/Work/Items/")[-1]) 
+        self.fbx_filepath           = fix_slash( fbxfilepath ) 
+        self.fbx_filepath_relative  = fix_slash("Items/" + fbxfilepath.split("/Work/Items/")[-1]) 
         
         # xm filepaths located in next to the fbx file
         self.xml_meshparams_filepath    = self.fbx_filepath.replace(".fbx", ".MeshParams.xml")
@@ -252,13 +252,13 @@ class CONVERT_ITEM(threading.Thread):
     
 
     def deleteOldShapeGbx(self) -> None:
-        if is_file_exist(self.gbx_shape_filepath_old):
+        if is_file_existing(self.gbx_shape_filepath_old):
             os.remove(self.gbx_shape_filepath_old)
             self.addProgressStep(""".Shape.gbx.old deleted""")
 
 
     def deleteShapeGbx(self) -> None:
-        if is_file_exist(self.gbx_shape_filepath):
+        if is_file_existing(self.gbx_shape_filepath):
             os.remove(self.gbx_shape_filepath)
             self.addProgressStep(""".Shape.gbx deleted""")
 
@@ -328,7 +328,7 @@ def _write_convert_report(results: list) -> None:
             errors += 1
 
     try:
-        with open( fixSlash(PATH_CONVERT_REPORT), "w", encoding="utf-8") as f:
+        with open( fix_slash(PATH_CONVERT_REPORT), "w", encoding="utf-8") as f:
             
             resultList = ""
             for result in results:
@@ -448,10 +448,10 @@ def _beautify_error(error: str):
 
     return prettymsg, error
 
-@newThread
+@in_new_thread
 def start_batch_convert(items: list[ExportedItem]) -> None:
     """convert each fbx one after one, create a new thread for it"""
-    tm_props_convertingItems = get_convert_items_prop()
+    tm_props_convertingItems = get_convert_items_props()
     tm_props        = get_global_props()
     results         = []
     game            = "ManiaPlanet" if is_game_maniaplanet() else "Trackmania2020"
@@ -518,7 +518,7 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         if failed: fail_count    += 1
         else:      success_count += 1
 
-        @newThread
+        @in_new_thread
         def setItemProps():
             tm_props_convertingItems[ current_item_index ].name             = name
             tm_props_convertingItems[ current_item_index ].icon             = icon

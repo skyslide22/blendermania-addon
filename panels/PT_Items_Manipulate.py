@@ -60,7 +60,7 @@ class TM_PT_ObjectManipulations(Panel):
         if get_waypointtype_of_collection(current_collection) != "None":
             has_spawn_item   = check_collection_has_obj_with_fix(current_collection, prefix=SPECIAL_NAME_PREFIX_SOCKET)
             has_trigger_item = check_collection_has_obj_with_fix(current_collection, prefix=SPECIAL_NAME_PREFIX_TRIGGER)
-            waypoint_type    = getWaypointTypeOfActiveObjectsCollection()
+            waypoint_type    = get_waypoint_of_active_objects_collection()
             
             trigger_missing = has_trigger_item is False
             spawn_missing   = has_spawn_item   is False

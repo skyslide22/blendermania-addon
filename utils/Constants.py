@@ -397,7 +397,7 @@ ADDON_ICONS_PATH = os.path.join(os.path.dirname(__file__), os.pardir) + "/icons"
 from .Functions import (
     get_addon_assets_path,
     get_addon_path,
-    is_file_exist,
+    is_file_existing,
 
 )
 
@@ -419,7 +419,7 @@ ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = get_addon_assets_path() + "/item_trigger
 MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = get_addon_assets_path()+"/materials/materials-map-trackmania2020.json"
 MATERIALS_MAP_TM2020 = {}
 
-if is_file_exist(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
+if is_file_existing(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
     with open(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020, "r") as f:
         data = f.read()
         MATERIALS_MAP_TM2020 = json.loads(data)

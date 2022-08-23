@@ -19,7 +19,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
         tm_props = get_global_props()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
-                and isSelectedNadeoIniFilepathValid()
+                and is_selected_nadeoini_file_existing()
         return (show)
     
     def draw_header(self, context):
@@ -71,7 +71,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
         tm_props = get_global_props()
         show =  not tm_props.CB_showConvertPanel \
                 and not tm_props.LI_exportType.lower() == "convert" \
-                and isSelectedNadeoIniFilepathValid()
+                and is_selected_nadeoini_file_existing()
         return (show)
     
     def draw_header(self, context):

@@ -13,11 +13,11 @@ from .Models import ExportedItem
 from .Constants import WAYPOINTS
 from .Functions import (
     rgb_to_hex,
-    fixSlash,
+    fix_slash,
     safe_name,
     get_global_props,
     get_pivot_props,
-    is_file_exist,
+    is_file_existing,
     get_path_filename,
     is_game_maniaplanet,
     is_game_trackmania2020,
@@ -198,7 +198,7 @@ def generate_item_XML(item: ExportedItem) -> str:
     overwrite   = tm_props.CB_xml_overwriteItemXML
 
     if not overwrite:
-        if is_file_exist(filepath=xml_filepath): return
+        if is_file_existing(filepath=xml_filepath): return
 
     filename_no_extension = re.sub(r"\..*$", "", get_path_filename(item.fbx_path), flags=re.IGNORECASE)
 
@@ -356,7 +356,7 @@ def generate_mesh_XML(item: ExportedItem) -> str:
     xmlfilepath = item.fbx_path.replace(".fbx", ".MeshParams.xml")
 
     if not overwrite:
-        if is_file_exist(filepath=xmlfilepath): return
+        if is_file_existing(filepath=xmlfilepath): return
 
     
     global_light_radius= tm_props.NU_xml_lightGlobDistance  if tm_props.CB_xml_lightGlobDistance    else None
@@ -398,7 +398,7 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         mat_model               = mat.model
         mat_envi_collection     = mat.environment
         mat_link                = mat.link
-        mat_basetexture         = fixSlash(mat.baseTexture)
+        mat_basetexture         = fix_slash(mat.baseTexture)
         mat_basetexture         = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", mat_basetexture)
         mat_color               = mat.diffuse_color     # extract diffuse collor by default
         
@@ -410,7 +410,7 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         
         # maniaplanet relateed (external texture in Maniaplanet/Items/blabla_D.dds)
         if mat_basetexture:
-            mat_basetexture = fixSlash( mat_basetexture )
+            mat_basetexture = fix_slash( mat_basetexture )
             mat_basetexture = re.sub(r".*/Items/|_?(D|N|S|I)\.dds", "", mat_basetexture, flags=re.IGNORECASE)
             mat_basetexture = "/Items/" + mat_basetexture
         else: 

@@ -45,7 +45,7 @@ class TM_OT_Settings_InstallNadeoImporter(Operator):
         
     def execute(self, context):
         # installNadeoImporter()
-        installNadeoImporterFromLocalFiles()
+        install_nadeoimporter_addon_assets()
         return {"FINISHED"}
 
 class TM_OT_Settings_InstallGameTextures(Operator):
@@ -54,7 +54,7 @@ class TM_OT_Settings_InstallGameTextures(Operator):
     bl_label = "Download Game Textures"
         
     def execute(self, context):
-        installGameTextures()
+        install_game_textures()
         return {"FINISHED"}
 
 class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
@@ -63,7 +63,7 @@ class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
     bl_label = "Download Game Assets Library"
         
     def execute(self, context):
-        installGameAssetsLibrary()
+        install_game_assets_library()
         return {"FINISHED"}
 
 class TM_OT_Settings_InstallBlendermaniaDotnet(Operator):
@@ -120,7 +120,7 @@ class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
     bl_options = {"REGISTER"}
         
     def execute(self, context):
-        update_available = AddonUpdate.checkForNewRelease()
+        update_available = AddonUpdate.check_for_new_release()
         if not update_available:
             show_report_popup(
                 "No update available", 
@@ -137,7 +137,7 @@ class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
 
 def autoFindNadeoIni()->None:
     tm_props          = get_global_props()
-    program_data_paths= [ fixSlash(PATH_PROGRAM_FILES_X86), fixSlash(PATH_PROGRAM_FILES) ]
+    program_data_paths= [ fix_slash(PATH_PROGRAM_FILES_X86), fix_slash(PATH_PROGRAM_FILES) ]
     mp_envis          = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
     alphabet          = list(string.ascii_lowercase) #[a-z]
     paths             = []
@@ -196,7 +196,7 @@ def autoFindNadeoIni()->None:
 
 def getDefaultSettingsJSON() -> dict:
 
-    file_exist = is_file_exist(PATH_DEFAULT_SETTINGS_JSON)
+    file_exist = is_file_existing(PATH_DEFAULT_SETTINGS_JSON)
 
     def get_defaults() -> str:
         return  {
@@ -238,13 +238,13 @@ def loadDefaultSettingsJSON() -> None:
 
 
 
-    if is_file_exist(fromjson_nadeoini_tm):
+    if is_file_existing(fromjson_nadeoini_tm):
         tm_props.ST_nadeoIniFile_TM = fromjson_nadeoini_tm
     else:
         tm_props.ST_nadeoIniFile_TM = MSG_ERROR_NADEO_INI_NOT_FOUND
 
 
-    if is_file_exist(fromjson_nadeoini_mp):
+    if is_file_existing(fromjson_nadeoini_mp):
         tm_props.ST_nadeoIniFile_MP = fromjson_nadeoini_mp
     else:
         tm_props.ST_nadeoIniFile_MP = MSG_ERROR_NADEO_INI_NOT_FOUND
@@ -294,7 +294,7 @@ def saveDefaultSettingsJSON() -> None:
 
 def updateAddon() -> None:
     """update the addon if a new version exist and restart blender to use new version"""    
-    AddonUpdate.doUpdate()
+    AddonUpdate.do_update()
 
 
 
@@ -311,7 +311,7 @@ def installUvPackerAddon() -> None:
         debug(f"UVPacker addon installed: {addon_is_installed}")
         if not addon_is_installed:
             debug(f"install now")
-            bpy.ops.preferences.addon_install(filepath=getAddonAssetsAddonsPath() + 'UV-Packer-Blender-Addon_1.01.01.zip', overwrite=True)
+            bpy.ops.preferences.addon_install(filepath=get_addon_assets_addons_path() + 'UV-Packer-Blender-Addon_1.01.01.zip', overwrite=True)
             debug(f"installed")
 
         debug(f"enable addon")
@@ -332,10 +332,10 @@ def openHelp(helptype: str) -> None:
     elif helptype == "debug_all":           debug_all()
     elif helptype == "open_documentation":  webbrowser.open(URL_DOCUMENTATION)
     elif helptype == "open_github":         webbrowser.open(URL_GITHUB)
-    elif helptype == "open_convertreport":  subprocess.Popen(['start', fixSlash(PATH_CONVERT_REPORT)], shell=True)
+    elif helptype == "open_convertreport":  subprocess.Popen(['start', fix_slash(PATH_CONVERT_REPORT)], shell=True)
     elif helptype == "open_changelog":      webbrowser.open(URL_CHANGELOG)
     elif helptype == "checkregex":          webbrowser.open(URL_REGEX)
-    elif helptype == "testfunc":            unzipNewAndOverwriteOldAddon(filepath=getBlenderAddonsPath() + "blendermania-addon.zip")
+    elif helptype == "testfunc":            unzip_new_and_overwite_old_addon(filepath=get_blender_addons_path() + "blendermania-addon.zip")
     
     else:
         debug(f"Help command not found, {helptype=}")

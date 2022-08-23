@@ -480,16 +480,16 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
         return
     
     if obj_type == SPECIAL_NAME_PREFIX_TRIGGER:
-        fbx_filepath = getTriggerName()
+        fbx_filepath = get_templates_trigger()
     
     elif obj_type == SPECIAL_NAME_PREFIX_SOCKET:
-        fbx_filepath = getCarType()
+        fbx_filepath = get_templates_car()
 
     else:
         show_report_popup(f"failed to import a obj of {obj_type=}")
         return
 
-    fbx_filepath = fixSlash(fbx_filepath)
+    fbx_filepath = fix_slash(fbx_filepath)
     import_at    = bpy.context.selected_objects[0].location
     collection   = get_active_collection_of_selected_object()
 
@@ -621,7 +621,7 @@ def editUVMap(col: bpy.types.Collection, uv_name: str) -> None:
         bpy.context.window.workspace = workspace
 
     else: # import workspace from blend file and switch to it
-        workspace_path = getAddonAssetsBlendsPath() + "uvedit_workspace.blend"
+        workspace_path = get_addon_assets_blendfiles_path() + "uvedit_workspace.blend"
         bpy.ops.workspace.append_activate(
             idname=preferred_workspace_name, 
             filepath=workspace_path)

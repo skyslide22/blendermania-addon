@@ -45,7 +45,7 @@ material_links   = ERROR_ENUM_PROPS
 def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
     #func has to return tuple with tuples: ( (3x str or 4x str and unique index), )
     def wrapper(self, context):
-        return func(self, context) if isSelectedNadeoIniFilepathValid() else ERROR_ENUM_PROPS        
+        return func(self, context) if is_selected_nadeoini_file_existing() else ERROR_ENUM_PROPS        
     return wrapper
 
 
@@ -90,7 +90,7 @@ def getNadeoImportersTrackmania2020() -> list:
 
 
 def updateINI(prop) -> None:
-    isNadeoImporterInstalled(prop)
+    is_nadeoimporter_installed(prop)
     global nadeo_ini_settings
     global nadeoimporter_materiallib_materials
     nadeo_ini_settings.clear() #reset when changed
@@ -129,13 +129,13 @@ def getGameTypes()->list:
 
 def gameTypeGotUpdated(self=None,context=None)->None:
     """reset important variables to fit new gameType environment"""
-    isNadeoImporterInstalled()
-    resetNadeoIniSettings()
+    is_nadeoimporter_installed()
+    reset_nadeoini_settings()
     
     global material_links, material_physics, nadeoimporter_materiallib_materials
     material_links   = ERROR_ENUM_PROPS
     material_physics = ERROR_ENUM_PROPS
-    nadeoLibParser()
+    parse_nadeoimporter_materiallibrary()
 
     tm_props     = get_global_props()
     colIsStadium = tm_props.LI_materialCollection.lower() == "stadium"
@@ -146,9 +146,9 @@ def gameTypeGotUpdated(self=None,context=None)->None:
     if is_game_trackmania2020():
         tm_props.LI_DL_TextureEnvi = "Stadium"
     
-    updateInstalledNadeoImporterVersionInUI()
+    update_installed_nadeoimporter_version_ui()
 
-    refreshPanels()
+    redraw_all_panels()
 
     return None
 
@@ -778,7 +778,7 @@ def getMaterialPhysicIds(self=None, context=None)->list:
         return material_physics
     
     try:
-        libmats = getNadeoLibMats()
+        libmats = get_nadeoimporter_materiallibrary_materials()
     except AttributeError:
         return material_physics
     
@@ -829,7 +829,7 @@ def getMaterialLinks(self, context)-> list:
         return material_links
     
     materials    = []
-    libmats      = getNadeoLibMats()
+    libmats      = get_nadeoimporter_materiallibrary_materials()
     selectedEnvi = str(tm_props.LI_materialCollection).lower()
     i = 0
 

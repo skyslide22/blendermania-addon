@@ -9,8 +9,9 @@ from ..operators.OT_Map_Manipulate import (
     OT_UICreateUpdateMapItemBlock,
 )
 from ..utils.Functions import (
+    draw_nadeoini_required_message,
     get_global_props,
-    requireValidNadeoINI,
+    is_selected_nadeoini_file_existing,
     is_blendermania_dotnet_installed,
     is_game_maniaplanet,
 )
@@ -46,7 +47,9 @@ class PT_UIMapManipulation(bpy.types.Panel):
         has_map_file = len(tm_props.ST_map_filepath) != 0
         has_map_coll = tm_props.PT_map_collection is not None
 
-        if requireValidNadeoINI(self) is False: return
+        if not is_selected_nadeoini_file_existing():
+            draw_nadeoini_required_message(self)
+            return
 
         # info and settings
         box = layout.box()

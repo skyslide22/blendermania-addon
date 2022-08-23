@@ -101,9 +101,9 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
         files = self.files
 
         for file in files:
-            isInWorkItems = "Work/Items" in fixSlash(folder) 
+            isInWorkItems = "Work/Items" in fix_slash(folder) 
             name   = file.name
-            abspath= fixSlash(os.path.join(folder, name))
+            abspath= fix_slash(os.path.join(folder, name))
             relpath= abspath.split("Work/Items/")[-1] if isInWorkItems else f"imported/{name}"
             fileList.append((
                 name,
@@ -117,9 +117,9 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
         files   = getFilesOfFolder(path=folder, recursive=recursive, ext="fbx")
         
         for file in files:
-            isInWorkItems = "Work/Items" in fixSlash(file) 
+            isInWorkItems = "Work/Items" in fix_slash(file) 
             name    = get_path_filename(file)
-            abspath = fixSlash(file)
+            abspath = fix_slash(file)
             relpath = abspath.split("Work/Items/")[-1] if isInWorkItems else f"imported/{name}"
             fileList.append((
                 name,
@@ -129,7 +129,7 @@ def importFBXfilesMain(self=None, filepath_list=None, recursive=False) -> None:
 
     for file in fileList:
         name, abspath, relpath = file
-        relpath = fixSlash(relpath).split("/")
+        relpath = fix_slash(relpath).split("/")
         
         deselect_all_objects()
         setMasterCollectionAsActive()
@@ -229,8 +229,8 @@ def alignCollectionsInRows(col_dict):
             dim_z = get_coll_dimension(col)
 
             #round obj dim to clostest 32^x
-            pos_x = roundInterval(dim_x, BLOCK_SIZE) + BLOCK_SIZE
-            pos_y = roundInterval(dim_y, BLOCK_SIZE) + BLOCK_SIZE
+            pos_x = round_interval(dim_x, BLOCK_SIZE) + BLOCK_SIZE
+            pos_y = round_interval(dim_y, BLOCK_SIZE) + BLOCK_SIZE
 
             pos_y_current_max = max(
                 pos_y, 

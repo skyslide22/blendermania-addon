@@ -5,28 +5,28 @@ from .Functions import (
     deselect_all_objects,
     get_global_props,
     get_path_filename,
-    is_file_exist,
+    is_file_existing,
     is_obj_visible_by_name,
-    rList,
+    radian_list,
     set_active_object,
-    fixSlash,
+    fix_slash,
 )
 
 def _get_cam_position() -> list:
     """return roation_euler list for the icon_obj"""
     tm_props = get_global_props()
     style    = tm_props.LI_icon_perspective
-    if style == "CLASSIC_SE":  return   rList(-35.5,   -30,    145.5)
-    if style == "CLASSIC_SW":  return   rList(-35.5,   30,    -145.5)
-    if style == "CLASSIC_NW":  return   rList(35.5,    30,    -35.5)
-    if style == "CLASSIC_NE":  return   rList(35.5,    -30,    35.5)
-    if style == "CLASSIC":     return   rList(35.3,    30,    -35.3)
-    if style == "TOP":         return   rList(90,      0,      0)      
-    if style == "LEFT":        return   rList(0,       0,      90)
-    if style == "RIGHT":       return   rList(0,       0,     -90)
-    if style == "BACK":        return   rList(0,       0,      180)
-    if style == "FRONT":       return   rList(0,       0,      0)
-    if style == "BOTTOM":      return   rList(-90,     0,      0)
+    if style == "CLASSIC_SE":  return   radian_list(-35.5,   -30,    145.5)
+    if style == "CLASSIC_SW":  return   radian_list(-35.5,   30,    -145.5)
+    if style == "CLASSIC_NW":  return   radian_list(35.5,    30,    -35.5)
+    if style == "CLASSIC_NE":  return   radian_list(35.5,    -30,    35.5)
+    if style == "CLASSIC":     return   radian_list(35.3,    30,    -35.3)
+    if style == "TOP":         return   radian_list(90,      0,      0)      
+    if style == "LEFT":        return   radian_list(0,       0,      90)
+    if style == "RIGHT":       return   radian_list(0,       0,     -90)
+    if style == "BACK":        return   radian_list(0,       0,      180)
+    if style == "FRONT":       return   radian_list(0,       0,      0)
+    if style == "BOTTOM":      return   radian_list(-90,     0,      0)
 
 def _make_joined_object(coll: bpy.types.Collection) -> bpy.types.Object:
     deselect_all_objects()
@@ -88,7 +88,7 @@ def _add_camera(obj: bpy.types.Object, size: int) -> bpy.types.Camera:
 
     icon_cam.location       = obj.location
     icon_cam.location[1]    = obj.location[1] - dim_max*2
-    icon_cam.rotation_euler = rList(90, 0, 0)
+    icon_cam.rotation_euler = radian_list(90, 0, 0)
 
     return icon_cam
 
@@ -102,7 +102,7 @@ def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None
     current_selection  = bpy.context.selected_objects.copy()
 
     if overwrite_icon is False and export_path:
-        if is_file_exist(export_path):
+        if is_file_existing(export_path):
             debug(f"icon creation cancelled, <{ icon_name }> already exists")
             return
 
@@ -224,4 +224,4 @@ def get_icon_path_from_fbx_path(filepath) -> str:
     icon_path = get_path_filename(filepath)
     icon_path = filepath.replace(icon_path, f"/Icon/{icon_path}")
     icon_path = re.sub("fbx", "tga", icon_path, re.IGNORECASE)
-    return fixSlash(icon_path)
+    return fix_slash(icon_path)

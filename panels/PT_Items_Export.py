@@ -21,7 +21,9 @@ class TM_PT_Items_Export(Panel):
         layout = self.layout
         tm_props = get_global_props()
 
-        if requireValidNadeoINI(self) is False: return
+        if not is_selected_nadeoini_file_existing():
+            draw_nadeoini_required_message(self)
+            return
 
         enableExportButton      = True
         exportActionIsSelected  = tm_props.LI_exportWhichObjs == "SELECTED"
@@ -48,7 +50,7 @@ class TM_PT_Items_Export(Panel):
             
             if exportCustomFolder:
                 row_path = layout.row()
-                if "/Work/" not in fixSlash( getattr(tm_props, exportCustomFolderProp) ):
+                if "/Work/" not in fix_slash( getattr(tm_props, exportCustomFolderProp) ):
                     row_error= layout.row()
                     row_error.alert = True
                     row_error.label(text="Folder has to be in /Work/Items/ ...", icon=ICON_ERROR)
@@ -124,7 +126,7 @@ class TM_PT_Items_Export(Panel):
                 embed_space = 0
                 if enableExportButton:
                     for col in exportable_cols:
-                        embed_space += getEmbedSpaceOfCollection(col)
+                        embed_space += get_embedspace_of_collection(col)
                 row = layout.row()
                 
                 embed_space_1024kb = embed_space < 1.024
@@ -144,10 +146,10 @@ class TM_PT_Items_Export(Panel):
             box = layout.box()
             box.use_property_split = True
 
-            exported_cols = [bpy.data.collections[exp_col.name_raw] for exp_col in get_convert_items_prop()]
+            exported_cols = [bpy.data.collections[exp_col.name_raw] for exp_col in get_convert_items_props()]
             embed_space   = 0
             for col in exported_cols:
-                embed_space += getEmbedSpaceOfCollection(col)
+                embed_space += get_embedspace_of_collection(col)
             row = box.row()
             row.scale_y = .5
             embed_space_1024kb = embed_space < 1.024
@@ -217,7 +219,7 @@ class TM_PT_Items_Export(Panel):
                 row.label(text=f"Failed converts: {len(failed)}")
 
 
-            for item in get_convert_items_prop():
+            for item in get_convert_items_props():
                 row = layout.row(align=True)
                 col = row.column()
                 col.alert = item.failed

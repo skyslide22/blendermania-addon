@@ -12,7 +12,7 @@ from ..utils.Dotnet import (
 from ..utils.BlenderObjects import duplicate_object_to
 from ..utils.Functions import (
     ireplace,
-    is_file_exist,
+    is_file_existing,
     get_global_props,
     set_active_object,
     get_game_doc_path,
@@ -55,7 +55,7 @@ def create_update_map_object():
     obj_to_update:bpy.types.Object = None
 
     if items_path in object_path:
-        if not is_file_exist(object_path):
+        if not is_file_existing(object_path):
             return f"There is no item with path {object_path}. You have to export it first"
 
     if len(object_path) == 0:
@@ -111,7 +111,7 @@ def validate_map_collection() -> str:
                 return f"Rotation on Z must be multiple of 90deg! Object: {obj.name}"
         
         if obj["tm_map_object_kind"] == MAP_OBJECT_ITEM:
-            if doc_path in obj["tm_map_object_path"] and not is_file_exist(obj["tm_map_object_path"]):
+            if doc_path in obj["tm_map_object_path"] and not is_file_existing(obj["tm_map_object_path"]):
                 return f"Item with path: {obj['tm_map_object_path']} does not exist. Object name: {obj.name}"
 
 def export_map_collection() -> str:

@@ -18,7 +18,7 @@ class TM_OT_Ninja17Install(Operator):
     bl_label = "Install ninja 1.7.1 addon"
 
     def execute(self, context):
-        bpy.ops.preferences.addon_install(filepath = getAddonAssetsAddonsPath() + 'ninjaripper-blender-import-17.zip', overwrite = True)
+        bpy.ops.preferences.addon_install(filepath = get_addon_assets_addons_path() + 'ninjaripper-blender-import-17.zip', overwrite = True)
         bpy.ops.preferences.addon_enable(module = NINJA_RIPPER_17_ADDON_NAME)
         return {'FINISHED'}
 

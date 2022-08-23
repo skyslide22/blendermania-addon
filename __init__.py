@@ -274,17 +274,17 @@ def on_startup(dummy) -> None:
 
     loadDefaultSettingsJSON()
     
-    @newThread
+    @in_new_thread
     def checkUpdate():
-        AddonUpdate.checkForNewRelease()
+        AddonUpdate.check_for_new_release()
     checkUpdate()
 
     # external addons
     installUvPackerAddon()
 
     # remove possible error text
-    isNadeoImporterInstalled()
-    updateInstalledNadeoImporterVersionInUI()
+    is_nadeoimporter_installed()
+    update_installed_nadeoimporter_version_ui()
 
     # this mat is auto created by blender, remove due appearance in mat list 
     stroke_mat = bpy.data.materials.get("Dots Stroke", None)

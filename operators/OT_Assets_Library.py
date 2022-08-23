@@ -60,7 +60,7 @@ def createAssetsLib() -> None:
 
     # save as new blend file for assets libraray
     create_folder_if_necessary(get_game_doc_path_items_assets())
-    if not save_blend_file_as(fixSlash(get_game_doc_path_items_assets()+"/"+fileName)):
+    if not save_blend_file_as(fix_slash(get_game_doc_path_items_assets()+"/"+fileName)):
         show_report_popup("Can not create new blend file", ["Something went wrong during creation of a new blend file"], "ERROR")
 
     # reopen original file
@@ -75,7 +75,7 @@ def generate2020Assets() -> None:
     getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium")
     getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials")
 
-    matList = getLinkedMaterials()
+    matList = get_linked_materials()
 
     for key in matList.keys():
         if key in MATERIALS_MAP_TM2020:
@@ -85,7 +85,7 @@ def generate2020Assets() -> None:
 
             color = (0.0,0.319,0.855)
             if "Color" in MATERIALS_MAP_TM2020[key]:
-                color = hexToRGB(MATERIALS_MAP_TM2020[key]["Color"])   
+                color = hex_to_rgb(MATERIALS_MAP_TM2020[key]["Color"])   
             mat = createMaterialAsset(matNameNew, key, color)
 
             if mat.use_nodes:
@@ -158,7 +158,7 @@ def generateMPAssets() -> None:
         get_global_props().LI_materialCollection = col[0]
         gameTypeGotUpdated()
 
-        matList = getLinkedMaterials()
+        matList = get_linked_materials()
         for matItem in matList:
             matNameNew = f"MP_{get_global_props().LI_materialCollection}_{matItem.name}_asset"
             if matNameNew in bpy.data.materials:

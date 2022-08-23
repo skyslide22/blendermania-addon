@@ -29,7 +29,9 @@ class TM_PT_Materials(Panel):
         layout   = self.layout
         tm_props = get_global_props()
         
-        if requireValidNadeoINI(self) is False: return
+        if not is_selected_nadeoini_file_existing():
+            draw_nadeoini_required_message(self)
+            return
 
         action      = tm_props.LI_materialAction
         mat_name     = tm_props.ST_materialAddName
@@ -89,7 +91,7 @@ class TM_PT_Materials(Panel):
             # basetexture
             if using_custom_texture:
                 row = src_col.row(align=True)
-                row.alert = True if "/Items/" not in fixSlash(tm_props.ST_materialBaseTexture) else False
+                row.alert = True if "/Items/" not in fix_slash(tm_props.ST_materialBaseTexture) else False
                 row.prop(tm_props, "ST_materialBaseTexture", text="Location")
                 row.operator("view3d.tm_clearbasetexture", icon=ICON_CANCEL, text="")
 

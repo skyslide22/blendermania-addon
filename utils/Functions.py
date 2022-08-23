@@ -27,40 +27,40 @@ from .Constants import *
 from .. import ADDON_ROOT_PATH
 
 
-def fixSlash(filepath: str) -> str:
+def fix_slash(filepath: str) -> str:
     """convert \\\+ to /"""
     filepath = re.sub(r"\\+", "/", filepath)
     filepath = re.sub(r"\/+", "/", filepath)
     return filepath
 
-def is_file_exist(filepath: str) -> bool:
+def is_file_existing(filepath: str) -> bool:
     return os.path.isfile(filepath)
 
-def doesFolderExist(folderpath: str) -> bool:
+def is_folder_existing(folderpath: str) -> bool:
     return os.path.isdir(folderpath)
 
-def getBlenderAddonsPath() -> str:
-    return fixSlash(str(bpy.utils.user_resource('SCRIPTS') + "/addons/"))
+def get_blender_addons_path() -> str:
+    return fix_slash(str(bpy.utils.user_resource('SCRIPTS') + "/addons/"))
 
 def get_addon_path() -> str:
-    return fixSlash(ADDON_ROOT_PATH + "/")
+    return fix_slash(ADDON_ROOT_PATH + "/")
 
 def get_addon_assets_path() -> str:
     return get_addon_path() + "/assets/"
 
-def getAddonAssetsAddonsPath() -> str:
+def get_addon_assets_addons_path() -> str:
     return get_addon_assets_path() + "/addons/"
 
-def getAddonAssetsBlendsPath() -> str:
+def get_addon_assets_blendfiles_path() -> str:
     return get_addon_assets_path() + "/blends/"
 
 def get_blendermania_dotnet_path() -> str:
     return get_addon_path() + f"/assets/{BLENDERMANIA_DOTNET}.exe"
 
 def is_blendermania_dotnet_installed() -> bool:
-    return is_file_exist(get_blendermania_dotnet_path())
+    return is_file_existing(get_blendermania_dotnet_path())
 
-def getDocumentsPath() -> str:
+def get_documents_path() -> str:
     process = subprocess.Popen([
         """Powershell.exe""",
         """[environment]::getfolderpath("mydocuments")"""
@@ -68,14 +68,14 @@ def getDocumentsPath() -> str:
     result  = process.communicate() # (b"C:\Users\User\Documents\r\n", None)
     path = result[0].decode("ascii").replace("\r\n",  "") 
     debug(path)
-    return fixSlash(path)
+    return fix_slash(path)
     
     # documentsPath = os.path.expanduser("~/Documents/")
 
 
 # windows filepaths can not be longer than 260chars, 
 # allow 32.000+ by adding this to path, like //?/C:/Users/<500 random chars>/myfile.txt
-def longPath(path: str) -> str:
+def long_path(path: str) -> str:
     path = re.sub(r"/+|\\+", r"\\", path)
     path = EXCEED_260_PATH_LIMIT + path
     return path
@@ -154,15 +154,15 @@ example of a maniaplanet tree:
 
 def get_nadeo_ini_path() -> str:
     if is_game_maniaplanet():
-        return fixSlash(get_global_props().ST_nadeoIniFile_MP)
+        return fix_slash(get_global_props().ST_nadeoIniFile_MP)
 
     if is_game_trackmania2020():
-        return fixSlash(get_global_props().ST_nadeoIniFile_TM)
+        return fix_slash(get_global_props().ST_nadeoIniFile_TM)
     
     else: return ""
 
 
-def get_trackmania_exe_path() -> str:
+def get_current_game_exe_path() -> str:
     """get absolute path of C:/...ProgrammFiles/ManiaPlanet/ or Ubisoft/games/Trackmania etc..."""
     path = get_nadeo_ini_path()
     path = path.split("/")
@@ -171,7 +171,7 @@ def get_trackmania_exe_path() -> str:
     return path #just remove /Nadeo.ini ...
 
 
-def resetNadeoIniSettings()->None:
+def reset_nadeoini_settings()->None:
     global nadeo_ini_settings
     nadeo_ini_settings = {}
 
@@ -189,7 +189,7 @@ def get_nadeo_init_data(setting: str) -> str:
     
     except KeyError:
         debug(f"failed to find {setting} in nadeo ini, try parse now")
-        debug(f"nadeo ini exist: {is_file_exist(get_nadeo_ini_path())}")
+        debug(f"nadeo ini exist: {is_file_existing(get_nadeo_ini_path())}")
         debug(f"in location:     {get_nadeo_ini_path()}")
         parse_nadeo_ini_file()
         try:
@@ -220,12 +220,12 @@ def parse_nadeo_ini_file() -> str:
         
         # maniaplanet.exe path
         if ini_value.startswith("{exe}"):
-            nadeo_ini_settings[ini_key] = fixSlash( ini_value.replace("{exe}", get_nadeo_ini_path().replace("Nadeo.ini", "")) + "/" )
+            nadeo_ini_settings[ini_key] = fix_slash( ini_value.replace("{exe}", get_nadeo_ini_path().replace("Nadeo.ini", "")) + "/" )
             continue
         
         # cache and core game data
         if ini_value.startswith("{commondata}"):
-            nadeo_ini_settings[ini_key] = fixSlash( ini_value.replace("{commondata}", PATH_PROGRAM_DATA) )
+            nadeo_ini_settings[ini_key] = fix_slash( ini_value.replace("{commondata}", PATH_PROGRAM_DATA) )
 
         # /Documents/Trackmania is used by TMUF, 
         # if TMUF is installed, /Trackmania2020 is created and used by tm2020.exe
@@ -236,21 +236,21 @@ def parse_nadeo_ini_file() -> str:
         if documentspath_is_custom:
             debug("UserDir has a variable, fix:")
             search    = r"\{userdocs\}|\{userdir\}"
-            replace   = getDocumentsPath()
+            replace   = get_documents_path()
             from_value= ini_value.lower()
             new_docpath     = re.sub(search, replace, from_value, re.IGNORECASE)
             path_tmuf       = re.sub("trackmania", "TrackMania2020", new_docpath, flags=re.IGNORECASE)
 
-            new_docpath = fixSlash(new_docpath)
-            path_tmuf   = fixSlash(path_tmuf)
+            new_docpath = fix_slash(new_docpath)
+            path_tmuf   = fix_slash(path_tmuf)
         
             debug(f"normal: {new_docpath}")
             debug(f"tmuf:   {path_tmuf}")
 
-            if doesFolderExist(path_tmuf):
+            if is_folder_existing(path_tmuf):
                 nadeo_ini_settings[ini_key] = path_tmuf
             
-            elif doesFolderExist(new_docpath):
+            elif is_folder_existing(new_docpath):
                 nadeo_ini_settings[ini_key] = new_docpath
 
             else: 
@@ -276,14 +276,14 @@ def create_folder_if_necessary(path) -> None:
         os.makedirs(path)
 
 
-def newThread(func):
+def in_new_thread(func):
     """decorator, runs func in new thread"""
     def wrapper(*args, **kwargs):
         thread = threading.Thread(target=func, args=args, kwargs=kwargs)
         thread.start()
     return wrapper
 
-def reloadCurrentOpenedFileWithRestart() -> None:
+def reload_current_blend_file() -> None:
     subprocess.Popen([
         bpy.app.binary_path,
         "--open-last"
@@ -298,13 +298,13 @@ class AddonUpdate:
     new_addon_version :tuple = (0,0,0)
     download_url      :str   = None
 
-    def checkCanUpdate(cls) -> bool:
+    def check_can_update(cls) -> bool:
         can_update = cls.new_addon_version > cls.addon_version
         debug(f"Check if addon can update: {can_update}")
         return can_update
 
     @classmethod
-    def checkForNewRelease(cls) -> bool:
+    def check_for_new_release(cls) -> bool:
         try:
             json_string = urllib.request.urlopen(URL_RELEASES).read()
             json_object = json.loads(json_string.decode('utf-8'))
@@ -317,7 +317,7 @@ class AddonUpdate:
             pass
 
         finally: 
-            can_update = cls.checkCanUpdate(cls)
+            can_update = cls.check_can_update(cls)
             max_trys   = 10
             try_count  = 0
             def update(): # if run in new thread, bpy.context is blocking randomly, bruteforce here
@@ -345,19 +345,19 @@ class AddonUpdate:
     # HTTP/1.1 403 rate limit exceeded
     # max 60 calls per hour
     @classmethod
-    def doUpdate(cls) -> None:
+    def do_update(cls) -> None:
         debug("Update addon now")
         tm_props = get_global_props()
         filename = "blendermania-addon.zip"
-        save_to  = getBlenderAddonsPath() + filename
+        save_to  = get_blender_addons_path() + filename
         url      = cls.download_url
 
         def on_success(msg):
             tm_props.CB_addonUpdateDLRunning = False
-            unzipNewAndOverwriteOldAddon(save_to)
+            unzip_new_and_overwite_old_addon(save_to)
             tm_props.ST_addonUpdateDLmsg = "Done, restarting..."
             def run(): 
-                reloadCurrentOpenedFileWithRestart()
+                reload_current_blend_file()
                 
             timer(run, 2)
             debug(f"Downloading & installing addon successful")
@@ -382,44 +382,36 @@ class AddonUpdate:
 
     
 
-def unzipNewAndOverwriteOldAddon(filepath: str) -> None:
+def unzip_new_and_overwite_old_addon(filepath: str) -> None:
     with ZipFile(filepath, "r") as zipfile:
         zipfolder_root = zipfile.filelist[0].filename.split("/")[0] #blender-addon-for-trackmania2020-and-maniaplanet + -master?
-        unzipped_at    = fixSlash(tempfile.gettempdir() + "/TM_ADDON_123")
+        unzipped_at    = fix_slash(tempfile.gettempdir() + "/TM_ADDON_123")
 
-        zipfile.extractall( longPath(unzipped_at) )
-        src = longPath(unzipped_at + "/" + zipfolder_root)
-        dst = longPath(get_addon_path())
+        zipfile.extractall( long_path(unzipped_at) )
+        src = long_path(unzipped_at + "/" + zipfolder_root)
+        dst = long_path(get_addon_path())
         # dst = longPath(get_addon_path() + "test")
 
         debug(src, raw=True)
         debug(dst, raw=True)
         
         shutil.copytree(src, dst, dirs_exist_ok=True)
-        removeFolder(unzipped_at)
+        rm_folder(unzipped_at)
 
 
 
-def removeFile(file:str) -> None:
-    if is_file_exist(file):
+def rm_file(file:str) -> None:
+    if is_file_existing(file):
         os.remove(file)
 
 
-def removeFolder(folder:str) -> None:
-    if doesFolderExist(folder):
+def rm_folder(folder:str) -> None:
+    if is_folder_existing(folder):
         shutil.rmtree(folder)
 
 
-def requireValidNadeoINI(panel_instance: bpy.types.Panel) -> bool:
-    """if the nadeo.ini file is not selected, create a error message in given layout(self)"""
-    VALID = isSelectedNadeoIniFilepathValid()
 
-    if not VALID:
-        chooseNadeoIniPathFirstMessage(panel_instance)
-    return VALID
-
-
-def isSelectedNadeoIniFilepathValid() -> bool:
+def is_selected_nadeoini_file_existing() -> bool:
     """check if nadeo.ini filepath is correct and file exist"""
     ini_path = ""
     tm_props = get_global_props()
@@ -430,11 +422,11 @@ def isSelectedNadeoIniFilepathValid() -> bool:
     elif is_game_trackmania2020():
             ini_path = str(tm_props.ST_nadeoIniFile_TM)
     
-    return is_file_exist(ini_path) and ini_path.lower().endswith(".ini")
+    return is_file_existing(ini_path) and ini_path.lower().endswith(".ini")
 
 
 
-def chooseNadeoIniPathFirstMessage(panel_instance: bpy.types.Panel):
+def draw_nadeoini_required_message(panel_instance: bpy.types.Panel):
     """create a red error text in the given panel's layout"""
     row = panel_instance.layout.row()
     row.alert = True
@@ -442,8 +434,8 @@ def chooseNadeoIniPathFirstMessage(panel_instance: bpy.types.Panel):
 
 
 
-def isNadeoImporterInstalled(prop="") -> bool:
-    filePath = fixSlash( get_trackmania_exe_path() + "/NadeoImporter.exe" )
+def is_nadeoimporter_installed(prop="") -> bool:
+    filePath = fix_slash( get_current_game_exe_path() + "/NadeoImporter.exe" )
     exists   = os.path.isfile(filePath)
     tm_props = get_global_props()
     tm_props.CB_nadeoImporterIsInstalled= exists
@@ -454,32 +446,31 @@ def isNadeoImporterInstalled(prop="") -> bool:
             tm_props[ prop ] = bpy.path.abspath( path ) # convert // to C:/...
 
     if exists:
-        nadeoImporterInstalled_True()
+        set_nadeoimporter_installed(True)
         return True
     else:
-        nadeoImporterInstalled_False()
+        set_nadeoimporter_installed(False)
         return False
 
 
-def nadeoImporterInstalled_True()->None:
-    get_global_props().CB_nadeoImporterIsInstalled    = True
+
+
+def set_nadeoimporter_installed(value: bool) -> None:
+    get_global_props().CB_nadeoImporterIsInstalled = value
     
 
-def nadeoImporterInstalled_False()->None:
-    get_global_props().CB_nadeoImporterIsInstalled= False
 
-
-def gameTexturesDownloading_False()->None:
+def set_game_textures_downloading(value: bool) -> None:
     tm_props = get_global_props()
-    tm_props.CB_DL_ProgressRunning = False
-    tm_props.NU_DL_Progress        = 0
+    
+    if value is True:
+       tm_props.CB_DL_ProgressRunning = False
+       tm_props.NU_DL_Progress        = 0
+    else:
+        tm_props.CB_DL_ProgressRunning = True
+        tm_props.NU_DL_Progress        = 0
+        tm_props.ST_DL_ProgressErrors  = ""
 
-
-def gameTexturesDownloading_True()->None:
-    tm_props = get_global_props()
-    tm_props.CB_DL_ProgressRunning = True
-    tm_props.NU_DL_Progress        = 0
-    tm_props.ST_DL_ProgressErrors  = ""
 
 
 def is_game_maniaplanet()->bool:
@@ -490,25 +481,25 @@ def is_game_trackmania2020()->bool:
     return str(get_global_props().LI_gameType).lower() == "trackmania2020"
 
 
-def getCarType() -> str:
+def get_templates_car() -> str:
     return str(get_global_props().LI_items_cars)
 
-def getTriggerName() -> str:
+def get_templates_trigger() -> str:
     return str(get_global_props().LI_items_triggers)
 
-def unzipNadeoImporter(zipfilepath)->None:
+def unzip_nadeoimporter(zipfilepath)->None:
     """unzips the downloaded <exe>/NadeoImporter.zip file in <exe> dir"""
     with ZipFile(zipfilepath, 'r') as zipFile:
-        zipFile.extractall(path=longPath(get_trackmania_exe_path()))
+        zipFile.extractall(path=long_path(get_current_game_exe_path()))
     debug(f"nadeoimporter installed")
-    updateInstalledNadeoImporterVersionInUI()
+    update_installed_nadeoimporter_version_ui()
 
 
-def getInstalledNadeoImporterVersion() -> str:
+def get_installed_nadeoimporter_version() -> str:
     version  = "None"
-    if isSelectedNadeoIniFilepathValid():
+    if is_selected_nadeoini_file_existing():
         imp_path =get_nadeo_importer_path()
-        if is_file_exist(imp_path):
+        if is_file_existing(imp_path):
             process  = subprocess.Popen([
                 f"""powershell.exe""",
                 f"""(Get-Item "{imp_path}").VersionInfo.FileVersion"""
@@ -521,21 +512,21 @@ def getInstalledNadeoImporterVersion() -> str:
     return version
     
 
-def updateInstalledNadeoImporterVersionInUI():
+def update_installed_nadeoimporter_version_ui():
     tm_props = get_global_props()
-    version  = getInstalledNadeoImporterVersion()
+    version  = get_installed_nadeoimporter_version()
 
     if is_game_trackmania2020():
         tm_props.ST_nadeoImporter_TM_current = version
     else:
         tm_props.ST_nadeoImporter_MP_current = version
     
-    isNadeoImporterInstalled()
+    is_nadeoimporter_installed()
 
 
 
-def installNadeoImporterFromLocalFiles()->None:
-    debug(f"nadeoimporter is installed: {isNadeoImporterInstalled()}")
+def install_nadeoimporter_addon_assets()->None:
+    debug(f"nadeoimporter is installed: {is_nadeoimporter_installed()}")
     tm_props  = get_global_props()
     base_path = get_addon_assets_path() + "/nadeoimporters/"
 
@@ -547,13 +538,13 @@ def installNadeoImporterFromLocalFiles()->None:
         full_path= base_path + "/Trackmania2020/" + filename
     
     debug(f"install nadeoimporter: {get_path_filename(full_path)}")
-    unzipNadeoImporter(zipfilepath=fixSlash(full_path))
+    unzip_nadeoimporter(zipfilepath=fix_slash(full_path))
     
 
 # * Not used anymore
-def installNadeoImporter()->None:
+def install_nadeoimporter()->None:
     tm_props    = get_global_props()
-    filePath    = fixSlash( get_trackmania_exe_path() + "/NadeoImporter.zip")
+    filePath    = fix_slash( get_current_game_exe_path() + "/NadeoImporter.zip")
     progressbar = "NU_nadeoImporterDLProgress"
 
     tm_props.NU_nadeoImporterDLProgress = 0
@@ -565,15 +556,15 @@ def installNadeoImporter()->None:
         def run(): 
             tm_props.CB_nadeoImporterDLshow = False
         timer(run, 5)
-        unzipNadeoImporter(zipfilepath=fixSlash( get_trackmania_exe_path() + "/NadeoImporter.zip" ))
-        nadeoImporterInstalled_True()
+        unzip_nadeoimporter(zipfilepath=fix_slash( get_current_game_exe_path() + "/NadeoImporter.zip" ))
+        set_nadeoimporter_installed(True)
         debug("nadeoimporter successfully installed")
 
     def on_error(msg):
         tm_props.ST_nadeoImporterDLError = msg or "unknown error"
         tm_props.CB_nadeoImporterDLRunning = False
         debug(f"nadeoimporter not installed, error: {msg}")
-        nadeoImporterInstalled_False()
+        set_nadeoimporter_installed(False)
 
 
     if is_game_maniaplanet():
@@ -592,28 +583,28 @@ def installNadeoImporter()->None:
 
 
 
-def unzipGameTextures(filepath, extractTo)->None:
+def unzip_game_textures(filepath, extractTo)->None:
     """unzip downloaded game textures zip file in /items/_BA..."""
     with ZipFile(filepath, 'r') as zipFile:
-        zipFile.extractall(path=longPath(extractTo))
-    reloadAllMaterialTextures()
+        zipFile.extractall(path=long_path(extractTo))
+    reload_all_material_textures()
 
 
 
 def unzip_file_into(filepath: str, extractTo: str) -> None:
     with ZipFile(filepath, 'r') as zipFile:
-        zipFile.extractall(path=longPath(extractTo))
+        zipFile.extractall(path=long_path(extractTo))
 
 
 
-def reloadAllMaterialTextures() -> None:
+def reload_all_material_textures() -> None:
     """reload all textures which ends with .dds"""
     for tex in bpy.data.images:
         if tex.name.lower().endswith(".dds"):
             tex.reload()
 
 
-def installGameTextures()->None:
+def install_game_textures()->None:
     """download and install game textures from MX to /Items/..."""
     tm_props    = get_global_props()
     enviPrefix  = "TM_" if is_game_trackmania2020() else "MP_"
@@ -630,13 +621,13 @@ def installGameTextures()->None:
     
     tm_props.CB_DL_ProgressShow = True
 
-    extractTo   = fixSlash( get_game_doc_path_items_assets_textures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
+    extractTo   = fix_slash( get_game_doc_path_items_assets_textures() + enviRaw) #ex C:/users/documents/maniaplanet/items/_BlenderAssets/Stadium
     filePath    = f"""{extractTo}/{enviRaw}.zip"""
     progressbar = "NU_DL_Progress"
 
     def on_success():
         tm_props.CB_DL_ProgressRunning = False
-        unzipGameTextures(filePath,extractTo)
+        unzip_game_textures(filePath,extractTo)
         def run(): 
             tm_props.CB_DL_ProgressShow = False
         timer(run, 5)
@@ -652,7 +643,7 @@ def installGameTextures()->None:
 
 
     create_folder_if_necessary( extractTo )
-    gameTexturesDownloading_True()
+    set_game_textures_downloading(True)()
 
 
 
@@ -667,7 +658,7 @@ def installGameTextures()->None:
 
 
 
-def installGameAssetsLibrary()->None:
+def install_game_assets_library()->None:
     """download and install game assets library"""
     tm_props = get_global_props()
     url      = WEBSPACE_ASSETS_TM_STADIUM if is_game_trackmania2020() else WEBSPACE_ASSETS_MP
@@ -684,7 +675,7 @@ def installGameAssetsLibrary()->None:
         def run(): 
             tm_props.CB_DL_ProgressShow = False
         timer(run, 5)
-        addAssetsLibraryToPreferences()
+        add_assets_library_to_preferences()
         debug(f"downloading & installing assets library of {get_global_props().LI_gameType} successful")
 
     def on_error(msg):
@@ -694,7 +685,7 @@ def installGameAssetsLibrary()->None:
 
 
     create_folder_if_necessary( extractTo )
-    gameTexturesDownloading_True()
+    set_game_textures_downloading(True)()
 
 
 
@@ -744,7 +735,7 @@ def install_blendermania_dotnet()->None:
 
 
 
-def addAssetsLibraryToPreferences() -> None:
+def add_assets_library_to_preferences() -> None:
     shouldCreate = True
     for lib in bpy.context.preferences.filepaths.asset_libraries:
         if lib.path == get_game_doc_path_items_assets():
@@ -880,46 +871,46 @@ def get_game_doc_path() -> str:
 
 def get_game_doc_path_items() -> str:
     """return absolute path of ../Items/"""
-    return fixSlash(get_game_doc_path() + "/Items/")
+    return fix_slash(get_game_doc_path() + "/Items/")
 
 
 
 def get_game_doc_path_work_items() -> str:
     """return absolute path of ../Work/Items/"""
-    return fixSlash(get_game_doc_path() + "/Work/Items/")
+    return fix_slash(get_game_doc_path() + "/Work/Items/")
 
 
 
 def get_game_doc_path_items_assets() -> str:
     """return absolute path of ../_BlenderAssets/"""
-    return fixSlash(get_game_doc_path_items() + "/_BlenderAssets/")
+    return fix_slash(get_game_doc_path_items() + "/_BlenderAssets/")
 
 
 def get_game_doc_path_items_assets_textures() -> str:
     """return absolute path of ../_BlenderAssets/"""
-    return fixSlash(get_game_doc_path_items_assets() + "/Textures/")
+    return fix_slash(get_game_doc_path_items_assets() + "/Textures/")
 
 
 
 def get_nadeo_importer_path() -> str:
     """return full file path of /xx/NadeoImporter.exe"""
-    return fixSlash(get_trackmania_exe_path() + "/NadeoImporter.exe")
+    return fix_slash(get_current_game_exe_path() + "/NadeoImporter.exe")
 
 
 
 def get_nadeo_importer_lib_path() -> str:
     """return full file path of /xx/NadeoImporterMaterialLib.txt"""
-    return fixSlash(get_trackmania_exe_path() + "/NadeoImporterMaterialLib.txt")
+    return fix_slash(get_current_game_exe_path() + "/NadeoImporterMaterialLib.txt")
 
 
 
-def r(v,reverse=False) -> float:
+def radians(v,reverse=False) -> float:
     """return math.radians, example: some_blender_object.rotation_euler=(radian, radian, radian)"""
     return math.radians(v) if reverse is False else math.degrees(v)
 
-def rList(*rads) -> list:
+def radian_list(*rads) -> list:
     """return math.radians as list"""
-    return [r(rad) for rad in rads]
+    return [radians(rad) for rad in rads]
 
 def get_list_of_folders_in(folderpath: str, prefix="") -> list:
     """return (only) names of folders which are in the folder given as argument"""
@@ -937,7 +928,7 @@ def get_list_of_folders_in(folderpath: str, prefix="") -> list:
 
 
 def get_path_filename(filepath: str, remove_extension=False)->str:
-    filepath = fixSlash( filepath ).split("/")[-1]
+    filepath = fix_slash( filepath ).split("/")[-1]
     
     if remove_extension:
         filepath = re.sub(r"\.\w+$", "", filepath, flags=re.IGNORECASE)
@@ -1118,14 +1109,14 @@ def get_collection_hierachy(colname: str="", hierachystart: list=[]) -> list:
     hierachy = hierachystart
     sceneCols = bpy.data.collections
     
-    def scanHierachy(colname):
+    def scan_hierachy(colname):
         for currentCol in sceneCols:
             for childCol in currentCol.children:
                 if childCol.name == colname:
                     hierachy.append(currentCol.name)
-                    scanHierachy(colname=currentCol.name)
+                    scan_hierachy(colname=currentCol.name)
     
-    scanHierachy(colname=colname)
+    scan_hierachy(colname=colname)
     hierachy.reverse()
     # debug(f"hierachy is {hierachy}")
     return hierachy
@@ -1174,14 +1165,14 @@ def get_exportable_collections(objs)->set:
     return collections
 
 
-def getLinkedMaterials() -> object:
+def get_linked_materials() -> object:
     return bpy.context.scene.tm_props_linkedMaterials
 
-def addLinkedMaterial(name: str) -> None:
+def add_linked_material(name: str) -> None:
     mat = bpy.context.scene.tm_props_linkedMaterials.add()
     mat.name = name
 
-def clearAllLinkedMaterials() -> None: 
+def clear_all_linked_materials() -> None: 
     try:
         bpy.context.scene.tm_props_linkedMaterials.clear()
         debug("clear material links success")
@@ -1189,7 +1180,7 @@ def clearAllLinkedMaterials() -> None:
         debug("clear material links failed, attribute error")
 
 
-def setSelectedLinkedMaterialToFirst() -> None:
+def set_selected_linked_materials_as_selected() -> None:
     mats = bpy.context.scene.tm_props_linkedMaterials
     if len(mats) > 0:
         mat = mats[0].name
@@ -1198,13 +1189,13 @@ def setSelectedLinkedMaterialToFirst() -> None:
 
 nadeoimporter_materiallib_materials = {}
 
-def getNadeoLibMats() -> dict:
+def get_nadeoimporter_materiallibrary_materials() -> dict:
     if nadeoimporter_materiallib_materials == {}:
-        nadeoLibParser()
+        parse_nadeoimporter_materiallibrary()
     return nadeoimporter_materiallib_materials
 
 
-def nadeoLibParser() -> None:
+def parse_nadeoimporter_materiallibrary() -> None:
     """parse NadeoImporterMaterialLib.txt and save in global variable as dict"""
     global nadeoimporter_materiallib_materials 
     
@@ -1221,11 +1212,11 @@ def nadeoLibParser() -> None:
 
     selected_collection = tm_props.LI_materialCollection
     
-    if not is_file_exist(nadeolibfile):
+    if not is_file_existing(nadeolibfile):
         return nadeoimporter_materiallib_materials
 
     
-    clearAllLinkedMaterials()
+    clear_all_linked_materials()
 
     matnames = []
 
@@ -1287,9 +1278,9 @@ def nadeoLibParser() -> None:
 
         matnames.sort()
         for name in matnames:
-            addLinkedMaterial(name=name)
+            add_linked_material(name=name)
 
-        setSelectedLinkedMaterialToFirst()
+        set_selected_linked_materials_as_selected()
         return nadeoimporter_materiallib_materials
     
     
@@ -1320,7 +1311,7 @@ def safe_name(name: str) -> str:
 
 
 
-def fixAllMatNames() -> None:
+def ensure_all_material_names_ok() -> None:
     """fixes not allowed chars for every material's name"""
     mats = bpy.data.materials
     for mat in mats:
@@ -1331,7 +1322,7 @@ def fixAllMatNames() -> None:
 
 
 
-def fixAllColNames() -> None:
+def ensure_all_collection_names_ok() -> None:
     """fixes name for every collection in blender"""
     cols = bpy.data.collections
     for col in cols:
@@ -1339,7 +1330,7 @@ def fixAllColNames() -> None:
         except: pass #mastercollection etc is readonly
 
 # correct gamma the same way Blender do it
-def gammaCorrected(color):
+def gamma_correct(color):
     if color < 0.0031308:
         srgb = 0.0 if color < 0.0 else color * 12.92
     else:
@@ -1350,9 +1341,9 @@ def gammaCorrected(color):
 
 def rgb_to_hex(rgb_list: tuple, prefix: str="", correct_gamma: bool=False) -> str:
     """convert given rgbList=(0.0, 0.5, 0.93) to hexcode """
-    r = gammaCorrected(rgb_list[0]) if correct_gamma else int( rgb_list[0] * 256) - 1 
-    g = gammaCorrected(rgb_list[1]) if correct_gamma else int( rgb_list[1] * 256) - 1 
-    b = gammaCorrected(rgb_list[2]) if correct_gamma else int( rgb_list[2] * 256) - 1 
+    r = gamma_correct(rgb_list[0]) if correct_gamma else int( rgb_list[0] * 256) - 1 
+    g = gamma_correct(rgb_list[1]) if correct_gamma else int( rgb_list[1] * 256) - 1 
+    b = gamma_correct(rgb_list[2]) if correct_gamma else int( rgb_list[2] * 256) - 1 
     
     if not correct_gamma:
         r = max(0, min(r, 255))
@@ -1362,7 +1353,7 @@ def rgb_to_hex(rgb_list: tuple, prefix: str="", correct_gamma: bool=False) -> st
     hex = f"{prefix}{r:02x}{g:02x}{b:02x}"
     return hex
 
-def hexToRGB(value):
+def hex_to_rgb(value):
     gamma = 2.2
     value = value.lstrip('#')
     lv = len(value)
@@ -1372,7 +1363,7 @@ def hexToRGB(value):
     b = pow(fin[2] / 255, gamma)
     return (r,g,b)
 
-def refreshPanels() -> None:
+def redraw_all_panels() -> None:
     """refresh panel in ui, they are not updating sometimes"""
     for region in bpy.context.area.regions:
         if region.type == "UI":
@@ -1383,7 +1374,8 @@ def get_abs_path(path: str):
     return os.path.abspath(path) if path else ""
 
 
-def roundInterval(num: float, interval: int) -> int:
+# not used anymore if import fbx is disabled
+def round_interval(num: float, interval: int) -> int:
     """round num to interval"""
     num = num + 1
     half   = interval / 2
@@ -1526,7 +1518,7 @@ def get_icon_by_fbx_path(filepath) -> str:
     icon_path = get_path_filename(filepath)
     icon_path = filepath.replace(icon_path, f"/Icon/{icon_path}")
     icon_path = re.sub("fbx", "tga", icon_path, re.IGNORECASE)
-    return fixSlash(icon_path)
+    return fix_slash(icon_path)
 
 def get_waypoint_type_of_FBX(filepath: str) -> str:
     """read item xml of given fbx file and return waypoint"""
@@ -1535,16 +1527,16 @@ def get_waypoint_type_of_FBX(filepath: str) -> str:
     waypoint        = search_string_in_file(filepath, waypoint_regex, 1)
     return waypoint
 
-def getWaypointTypeOfActiveObjectsCollection() -> str:
+def get_waypoint_of_active_objects_collection() -> str:
     objs = bpy.context.selected_objects
     col  = get_collection_of_first_selected_obj()
-    if not col: return
+    if not col: return ""
     waypoint = get_waypointtype_of_collection(col)
 
     return waypoint
 
 
-def setActiveWaypoint() -> None:
+def set_active_waypoint() -> None:
     col = get_collection_of_first_selected_obj()    
     if not col: return # icon generator creates objects w/o parent
 
@@ -1584,7 +1576,7 @@ def get_export_path():
     export_work_path        = get_game_doc_path_work_items()
     if tm_props.LI_exportFolderType == "Custom":
         custom_path = tm_props.ST_exportFolder_MP if is_game_maniaplanet() else tm_props.ST_exportFolder_TM
-        export_work_path = fixSlash(get_abs_path(custom_path) + "/")
+        export_work_path = fix_slash(get_abs_path(custom_path) + "/")
 
     return export_work_path
 
@@ -1603,7 +1595,7 @@ def get_waypointtype_of_collection(col: bpy.types.Collection) -> str:
 
 
 def on_select_obj(*args) -> None:
-    setActiveWaypoint()
+    set_active_waypoint()
     set_active_map_item_object()
 
 
@@ -1629,7 +1621,7 @@ def triangles_to_mb(tri_count) -> float:
         * 1000 
         * 1000)
 
-def getEmbedSpaceOfCollection(col: bpy.types.Collection) -> float:
+def get_embedspace_of_collection(col: bpy.types.Collection) -> float:
     tri_count   = get_tricount_of_collection(col)
     embed_space = triangles_to_mb(tri_count)
     return embed_space
@@ -1722,7 +1714,7 @@ def debug(*args, pp=False, raw=False, add_to_list=False, save_list_to=None, clea
         debug_list += "\n"
 
     if save_list_to is not None:
-        with open(fixSlash(save_list_to), "w") as f:
+        with open(fix_slash(save_list_to), "w") as f:
             f.write(debug_list)
         if open_file:
             p = subprocess.Popen(f"notepad {save_list_to}")
@@ -1745,7 +1737,7 @@ def debug_all() -> None:
     separator(2)
 
     full_debug("desktopPath:             ", PATH_DESKTOP)
-    full_debug("documentsPath:           ", getDocumentsPath())
+    full_debug("documentsPath:           ", get_documents_path())
     full_debug("programDataPath:         ", PATH_PROGRAM_DATA)
     full_debug("programFilesPath:        ", PATH_PROGRAM_FILES)
     full_debug("programFilesX86Path:     ", PATH_PROGRAM_FILES_X86)
@@ -1757,11 +1749,11 @@ def debug_all() -> None:
     full_debug("blender file version:    ", bpy.app.version_file)
     full_debug("blender install path:    ", bpy.app.binary_path)
     full_debug("blender opened file:     ", bpy.context.blend_data.filepath)
-    full_debug("nadeoimporter version:   ", getInstalledNadeoImporterVersion())
+    full_debug("nadeoimporter version:   ", get_installed_nadeoimporter_version())
     separator(3)
 
     full_debug("default settings json:   ")
-    if is_file_exist(PATH_DEFAULT_SETTINGS_JSON):
+    if is_file_existing(PATH_DEFAULT_SETTINGS_JSON):
         with open(PATH_DEFAULT_SETTINGS_JSON, "r") as f:
             data = json.loads(f.read())
             full_debug(data, pp=True, raw=True)
@@ -1898,7 +1890,7 @@ def change_screen_brightness(value: int)->None:
     debug(f"changed screen brightness to: {value=}")
 
 
-@newThread
+@in_new_thread
 def toggle_screen_brightness(duration: float = .5)->None:
     """set screen brightness from current to 25, then back to 100"""
     debug(f"toggle screen brightness, duration: {duration}")
@@ -1926,7 +1918,7 @@ def toggle_screen_brightness(duration: float = .5)->None:
         sleep(SLEEP_DURATION)
 
 
-@newThread
+@in_new_thread
 def show_windows_toast(title: str, text: str, baloon_icon: str="Info", duration: float=5000) -> None:
     """make windows notification popup "toast" """
     
@@ -1936,7 +1928,7 @@ def show_windows_toast(title: str, text: str, baloon_icon: str="Info", duration:
     icon = "MANIAPLANET.ico" if is_game_maniaplanet() else "TRACKMANIA2020.ico"
     icon = get_addon_icon_path(icon)
 
-    assetpath = fixSlash( get_addon_assets_path() )
+    assetpath = fix_slash( get_addon_assets_path() )
     cmd = [
         "PowerShell", 
         "-File",        f"""{assetpath}/make_toast.ps1""", 
@@ -1986,7 +1978,7 @@ def get_linked_material_props() -> object:
 def get_pivot_props() -> object:
     return bpy.context.scene.tm_props_pivots
 
-def get_convert_items_prop() -> object:
+def get_convert_items_props() -> object:
     return bpy.context.scene.tm_props_convertingItems
 
 
@@ -2033,6 +2025,7 @@ def delete_files_by_wildcard(wildcard: str):
         except:
             print("Error while deleting file : ", filePath)
 
+# TODO replace with mystring = re.sub(pattern, oldstring, flags=re.IGNORECASE)
 def ireplace(old, new, text):
     idx = 0
     while idx < len(text):
