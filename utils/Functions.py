@@ -2032,3 +2032,13 @@ def delete_files_by_wildcard(wildcard: str):
             os.remove(filePath)
         except:
             print("Error while deleting file : ", filePath)
+
+def ireplace(old, new, text):
+    idx = 0
+    while idx < len(text):
+        index_l = text.lower().find(old.lower(), idx)
+        if index_l == -1:
+            return text
+        text = text[:index_l] + new + text[index_l + len(old):]
+        idx = index_l + len(new) 
+    return text

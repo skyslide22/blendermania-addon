@@ -69,6 +69,7 @@ class DotnetPlaceObjectsOnMap:
         MapSuffix: str = "_modified",
         CleanBlocks: bool = True,
         CleanItems: bool = True,
+        Env: str = "Stadium2020",
     ):
         self.MapPath = MapPath
         self.Blocks = Blocks
@@ -77,6 +78,7 @@ class DotnetPlaceObjectsOnMap:
         self.MapSuffix = MapSuffix
         self.CleanBlocks = CleanBlocks
         self.CleanItems = CleanItems
+        self.Env = Env
         # TODO blocks
 
     def jsonable(self):
@@ -98,6 +100,7 @@ def run_place_objects_on_map(
     map_suffix: str = "_modified",
     clean_blocks: bool = True,
     clean_items: bool = True,
+    env: str = True,
 ):
     with open('map-export.json', 'w', encoding='utf-8') as outfile:
         json.dump(DotnetPlaceObjectsOnMap(
@@ -108,18 +111,21 @@ def run_place_objects_on_map(
                 map_suffix,
                 clean_blocks,
                 clean_items,
+                env,
         ), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
         outfile.close()
 
         res = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
-        os.remove("map-export.json")
+        #os.remove("map-export.json")
         return res
 
 def _run_dotnet(command: str, payload: str) -> str | None:
     print(payload)
+    #dotnet_exe = "D:/Art/Blender/blendermania-dotnet/blendermania-dotnet/bin/Release/net6.0/win-x64/publish/blendermania-dotnet.exe"
+    dotnet_exe = get_blendermania_dotnet_path()
 
     process = subprocess.Popen(args=[
-        get_blendermania_dotnet_path(),
+        dotnet_exe,
         command,
         payload.strip('"'),
     ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)

@@ -8,13 +8,19 @@ from ..operators.OT_Map_Manipulate import (
     OT_UIValidateMapCollection,
     OT_UICreateUpdateMapItemBlock,
 )
-from ..utils.Functions import get_global_props, requireValidNadeoINI, is_blendermania_dotnet_installed
+from ..utils.Functions import (
+    get_global_props,
+    requireValidNadeoINI,
+    is_blendermania_dotnet_installed,
+    is_game_maniaplanet,
+)
 from ..utils.Constants import (
     ICON_UPDATE,
     MAP_OBJECT_BLOCK,
     PANEL_CLASS_COMMON_DEFAULT_PROPS,
     ICON_TRACKING,
     ICON_UGLYPACKAGE,
+    ICON_ENVIRONMENT,
 )
 from ..operators.OT_WikiLink import add_ui_wiki_icon
 
@@ -62,6 +68,10 @@ class PT_UIMapManipulation(bpy.types.Panel):
             return
 
         # map collection
+        if is_game_maniaplanet():
+            row = box.row()
+            row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon=ICON_ENVIRONMENT)
+
         row = box.row()
         row.alert = not has_map_coll
         row.prop(tm_props, "PT_map_collection", text="Map collection")
