@@ -9,7 +9,7 @@ from ..utils.Dotnet import (
     run_place_objects_on_map,
     get_block_dir_for_angle,
 )
-from ..utils.BlenderObjects import duplicate_object_to
+from ..utils.BlenderObjects import duplicate_object_to, move_obj_to_coll
 from ..utils.Functions import (
     fix_slash,
     ireplace,
@@ -77,6 +77,7 @@ def create_update_map_object():
             if not object_item:
                 bpy.ops.mesh.primitive_cube_add(size=32, enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
                 obj_to_update = bpy.context.active_object
+                move_obj_to_coll(obj_to_update, map_coll)
             else:
                 obj_to_update = duplicate_object_to(object_item, map_coll, True)
         
