@@ -11,12 +11,12 @@ from ..utils.Dotnet import (
 )
 from ..utils.BlenderObjects import duplicate_object_to
 from ..utils.Functions import (
+    fix_slash,
     ireplace,
     is_file_existing,
     get_global_props,
     set_active_object,
     get_game_doc_path,
-    get_game_doc_path_items,
     is_game_trackmania2020,
 )
 from ..utils.Constants import (
@@ -25,10 +25,10 @@ from ..utils.Constants import (
 )
 
 def _make_object_name(path: str, type: str) -> str:
-    items_path = get_game_doc_path_items()
+    doc_path = get_game_doc_path()
 
     prefix = "TM" if is_game_trackmania2020() else "MP"
-    short_name = path.replace(items_path, "")
+    short_name = ireplace(doc_path+"/", "", path)
     return f"{prefix}_{type.upper()}: {short_name}"
 
 def get_selected_map_objects() -> list[bpy.types.Object]:
@@ -45,8 +45,8 @@ def create_update_map_object():
     map_coll:bpy.types.Collection    = tm_props.PT_map_collection
     object_item:bpy.types.Object     = tm_props.PT_map_object.object_item
     object_type:str                  = tm_props.PT_map_object.object_type
-    object_path:str                  = tm_props.PT_map_object.object_path
-    items_path                       = get_game_doc_path_items()
+    object_path:str                  = fix_slash(tm_props.PT_map_object.object_path)
+    doc_path                         = get_game_doc_path()
     selected_objects                 = get_selected_map_objects()
     
     if not map_coll:
@@ -54,7 +54,7 @@ def create_update_map_object():
 
     obj_to_update:bpy.types.Object = None
 
-    if items_path in object_path:
+    if doc_path.lower() in object_path.lower():
         if not is_file_existing(object_path):
             return f"There is no item with path {object_path}. You have to export it first"
 

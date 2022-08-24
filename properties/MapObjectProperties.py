@@ -32,4 +32,4 @@ class MapObjectProperties(bpy.types.PropertyGroup):
         default=MAP_OBJECT_ITEM,
         update=on_update_map_obj_kind
     )
-    object_path: bpy.props.StringProperty(name="Name/path of Item or Block")
+    object_path: bpy.props.StringProperty(name="Name/path of Item or Block", subtype="FILE_PATH")
