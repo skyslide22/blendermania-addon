@@ -239,7 +239,7 @@ def _add_empty_socket_hide_existing(coll: bpy.types.Collection) -> None:
     new_socket:bpy.types.Object = bpy.data.objects.new(old_socket.name + "_temporary", None)
     new_socket.rotation_euler = old_socket.rotation_euler
     new_socket.location = old_socket.location
-    new_socket.name = "_socket_start"
+    new_socket.name = "_socket_start_"+old_socket.name
 
     coll.objects.link(new_socket)
     old_socket.hide_set(True) # ignored in export now
