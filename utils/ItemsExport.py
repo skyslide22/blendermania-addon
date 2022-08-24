@@ -247,8 +247,8 @@ def _remove_empty_socket_unhide_existing(coll:bpy.types.Collection) -> None:
     if is_game_maniaplanet():
         return
 
-    empty_socket:bpy.types.Object
-    old_socket:bpy.types.Object
+    empty_socket:bpy.types.Object = None
+    old_socket:bpy.types.Object = None
     
     for obj in coll.all_objects:
         if obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET):
@@ -257,8 +257,8 @@ def _remove_empty_socket_unhide_existing(coll:bpy.types.Collection) -> None:
             elif obj.type == "MESH":
                 old_socket = obj
             
-    bpy.data.objects.remove(empty_socket)
-    old_socket.hide_set(False)
+    if empty_socket: bpy.data.objects.remove(empty_socket)
+    if old_socket: old_socket.hide_set(False)
 
 def export_items_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     current_selection                            = bpy.context.selected_objects.copy()

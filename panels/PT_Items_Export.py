@@ -79,6 +79,7 @@ class TM_PT_Items_Export(Panel):
             selected_objects = bpy.context.selected_objects
             visible_objects  = bpy.context.visible_objects
             objs = selected_objects if exportActionIsSelected else visible_objects
+            exportable_cols:list[bpy.types.Collection] = None
 
             if tm_props.CB_allow_complex_panel_drawing:
                 exportable_cols  = get_exportable_collections(objs=objs)
@@ -120,7 +121,7 @@ class TM_PT_Items_Export(Panel):
                 row = col.row(align=True)
                 row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
 
-            if exportType == "EXPORT_CONVERT" and len(visible_objects) < 500:
+            if exportType == "EXPORT_CONVERT" and len(visible_objects) < 500 and exportable_cols:
                 embed_space = 0
                 if enableExportButton:
                     for col in exportable_cols:
