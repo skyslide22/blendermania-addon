@@ -229,28 +229,29 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
         row.prop(tm_props, "NU_objMplScaleFactor", text="")
         
         row = layout.row(align=True)
-        row.prop(tm_props, "CB_objMplScaleRecursive", text="Affect child collections", icon=ICON_RECURSIVE)
+        row.prop(tm_props, "CB_objMplScaleRecursive", text="Affect Child Collections", icon=ICON_RECURSIVE)
 
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
-        collection_name = get_active_collection_of_selected_object().name
+        collection      = get_active_collection_of_selected_object()
+        generated_files = []
+        scale_from      = tm_props.NU_objMplScaleFrom
+        scale_to        = tm_props.NU_objMplScaleTo
+        scale_step_raw  = tm_props.NU_objMplScaleFactor
+        scale_step      = 1 / scale_step_raw
+        current_scale   = 1
+        raw_col_name    = getCollectionNameWithoutScaleSuffix(collection)
 
         row = layout.row()
         row.scale_y = .5
         row.label(text="New name:")
         row = layout.row()
         row.scale_y = .5
-        row.label(text=f"{collection_name}_#SCALE_7to4_x4")
+        row.label(text=f"{collection.name}_#SCALE_{scale_from}to{scale_to}_x{scale_step_raw}")
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
-        generated_files = []
-        scale_from     = tm_props.NU_objMplScaleFrom
-        scale_to       = tm_props.NU_objMplScaleTo
-        scale_step_raw = tm_props.NU_objMplScaleFactor
-        scale_step     = 1 / scale_step_raw
-        current_scale  = 1
 
         if not (scale_from > scale_to):
             row = layout.row()
@@ -261,7 +262,6 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
         reverse_range = list(reversed(range(scale_to, scale_from+1)))
         for scale in reverse_range:
 
-            raw_col_name = getCollectionNameWithoutScaleSuffix(collection_name)
             generated_files.append([
                 f"{raw_col_name}_#{scale}.fbx    %.2f%%" % (current_scale * 100),
                 current_scale
@@ -507,8 +507,8 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
 
 
 
-def getCollectionNameWithoutScaleSuffix(col_name:str) -> str:
-    return 
+def getCollectionNameWithoutScaleSuffix(coll:bpy.types.Collection) -> str:
+    return coll.name.split("_#SCALE")[0]
 
 
 def setScaledCollectionName(col:bpy.types.Collection, remove:bool=False) -> None: 
