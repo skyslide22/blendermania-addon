@@ -48,10 +48,6 @@ class TM_PT_Items_Import(Panel):
         recursive = tm_props.CB_importFolderRecursive
         failedMats= tm_props.LI_importMatFailed
 
-        if not is_selected_nadeoini_file_existing():
-            draw_nadeoini_required_message(self)
-            return
-
         row = layout.row(align=True)
         row.prop(tm_props, "LI_importType",            expand=False, text="Type", )
         row.prop(tm_props, "CB_importFolderRecursive", expand=False, text="",    icon=ICON_RECURSIVE)

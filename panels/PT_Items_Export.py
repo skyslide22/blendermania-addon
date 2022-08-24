@@ -4,26 +4,24 @@ from bpy.types import (Panel)
 from ..utils.Functions      import *
 
 class TM_PT_Items_Export(Panel):
-    # region bl_
-    """Creates a Panel in the Object properties window"""
-    bl_label   = "Export"
+    bl_label   = "Export Items"
     bl_idname  = "TM_PT_Items_Export"
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok()
+
 
     def draw_header(self, context):
         layout = self.layout
         layout.label(icon=ICON_EXPORT)
 
-    # endregion
     def draw(self, context):
 
         layout = self.layout
         tm_props = get_global_props()
-
-        if not is_selected_nadeoini_file_existing():
-            draw_nadeoini_required_message(self)
-            return
 
         enableExportButton      = True
         exportActionIsSelected  = tm_props.LI_exportWhichObjs == "SELECTED"
@@ -189,7 +187,7 @@ class TM_PT_Items_Export(Panel):
             if(failed):
                 bcol = row.column(align=True)
                 bcol.scale_x = 1.25
-                bcol.operator("view3d.tm_execute_help", text="Show errors",  icon="HELP").command = "open_convertreport"    
+                bcol.operator("view3d.tm_open_convert_report", text="Show errors",  icon="HELP")
             
             
             

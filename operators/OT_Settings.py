@@ -25,16 +25,49 @@ class TM_OT_Settings_AutoFindNadeoIni(Operator):
         return {"FINISHED"}
 
 
-class TM_OT_Settings_ExecuteHelp(Operator):
-    bl_idname = "view3d.tm_execute_help"
+class TM_OT_Settings_OpenUrl(Operator):
+    bl_idname = "view3d.tm_open_url"
     bl_description = "Execute help"
     bl_label = "Execute help"
 
-    command: StringProperty("")
+    url: StringProperty("")
         
     def execute(self, context):
-        openHelp(self.command)
+        open_url(self.url)
         return {"FINISHED"}
+
+
+class TM_OT_Settings_OpenFolder(Operator):
+    bl_idname = "view3d.tm_open_folder"
+    bl_description = "Execute help"
+    bl_label = "Execute help"
+
+    folder: StringProperty("")
+        
+    def execute(self, context):
+        open_folder(self.folder)
+        return {"FINISHED"}
+
+
+class TM_OT_Settings_DebugAll(Operator):
+    bl_idname = "view3d.tm_debug_all"
+    bl_description = "Execute help"
+    bl_label = "Execute help"
+
+    def execute(self, context):
+        debug_all()
+        return {"FINISHED"}
+
+
+class TM_OT_Settings_OpenConvertReport(Operator):
+    bl_idname = "view3d.tm_open_convert_report"
+    bl_description = "Execute help"
+    bl_label = "Execute help"
+
+    def execute(self, context):
+        open_convert_report()
+        return {"FINISHED"}
+
 
 
 
@@ -322,31 +355,21 @@ def installUvPackerAddon() -> None:
 
 
 
-def openHelp(helptype: str) -> None:
-    """open exporer or webbrowser by given helptype"""
-    cmd = "" #+path
-    
-    if   helptype == "open_work":           cmd = get_game_doc_path_work_items()
-    elif helptype == "open_items":          cmd = get_game_doc_path_items()
-    elif helptype == "open_assets":         cmd = get_game_doc_path_items_assets()
-    elif helptype == "debug_all":           debug_all()
-    elif helptype == "open_documentation":  webbrowser.open(URL_DOCUMENTATION)
-    elif helptype == "open_github":         webbrowser.open(URL_GITHUB)
-    elif helptype == "open_convertreport":  subprocess.Popen(['start', fix_slash(PATH_CONVERT_REPORT)], shell=True)
-    elif helptype == "open_changelog":      webbrowser.open(URL_CHANGELOG)
-    elif helptype == "checkregex":          webbrowser.open(URL_REGEX)
-    elif helptype == "testfunc":            unzip_new_and_overwite_old_addon(filepath=get_blender_addons_path() + "blendermania-addon.zip")
-    
-    else:
-        debug(f"Help command not found, {helptype=}")
-        return
 
-    if cmd:        
-        cmd = f'explorer "{cmd}"'
-        cmd = cmd.replace("/", "\\")
-        cmd = cmd.replace("\\\\", "\\")
-        debug(cmd)
-        subprocess.Popen(cmd, stdout=subprocess.PIPE)
+def open_folder(folder_abs: str) -> None:
+    cmd = f"""explorer "{folder_abs}" """
+    cmd = cmd.replace("/", "\\")
+    cmd = cmd.replace("\\\\", "\\")
+    subprocess.Popen(cmd, stdout=subprocess.PIPE)
+
+
+def open_url(url: str) -> None:
+    webbrowser.open(url)
+
+def open_convert_report() -> None:
+    subprocess.Popen(['start', fix_slash(PATH_CONVERT_REPORT)], shell=True)
+
+
 
 
 

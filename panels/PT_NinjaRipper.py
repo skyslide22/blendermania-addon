@@ -14,6 +14,10 @@ class TM_PT_NinjaImporter(Panel):
     bl_idname = "TM_PT_NinjaImporter"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok()
+
     def draw_header(self, context):
         layout = self.layout
         layout.label(icon="GHOST_DISABLED")

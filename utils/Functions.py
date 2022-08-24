@@ -410,28 +410,44 @@ def rm_folder(folder:str) -> None:
         shutil.rmtree(folder)
 
 
+# last_nadeoinifilecheck_time = time.time()
 
-def is_selected_nadeoini_file_existing() -> bool:
-    """check if nadeo.ini filepath is correct and file exist"""
+def is_selected_nadeoini_file_name_ok() -> bool:
     ini_path = ""
     tm_props = get_global_props()
 
-    if   is_game_maniaplanet():
-            ini_path = str(tm_props.ST_nadeoIniFile_MP)
+    if is_game_maniaplanet():       ini_path = str(tm_props.ST_nadeoIniFile_MP)
+    elif is_game_trackmania2020():  ini_path = str(tm_props.ST_nadeoIniFile_TM)
 
-    elif is_game_trackmania2020():
-            ini_path = str(tm_props.ST_nadeoIniFile_TM)
-    
-    return is_file_existing(ini_path) and ini_path.lower().endswith(".ini")
+    return ini_path.lower().endswith(".ini")
 
 
+# * check later
+# def is_selected_nadeoini_file_existing(force_check:bool = False) -> bool:
+#     ini_path = ""
+#     tm_props = get_global_props()
 
-def draw_nadeoini_required_message(panel_instance: bpy.types.Panel):
+#     if   is_game_maniaplanet():
+#             ini_path = str(tm_props.ST_nadeoIniFile_MP)
+
+#     elif is_game_trackmania2020():
+#             ini_path = str(tm_props.ST_nadeoIniFile_TM)
+
+#     exist = is_file_existing(ini_path) and ini_path.lower().endswith(".ini")
+#     return exist 
+
+
+
+def draw_nadeoini_required_message(panel_instance: bpy.types.Panel) -> bool:
     """create a red error text in the given panel's layout"""
-    row = panel_instance.layout.row()
-    row.alert = True
-    row.label(text=MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED, icon=ICON_ERROR)
+    should_warn = False
+    if not is_selected_nadeoini_file_name_ok():
+        should_warn = True
+        row = panel_instance.layout.row()
+        row.alert = True
+        row.label(text=MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED, icon=ICON_ERROR)
 
+    return should_warn
 
 
 def is_nadeoimporter_installed(prop="") -> bool:
@@ -497,7 +513,7 @@ def unzip_nadeoimporter(zipfilepath)->None:
 
 def get_installed_nadeoimporter_version() -> str:
     version  = "None"
-    if is_selected_nadeoini_file_existing():
+    if is_selected_nadeoini_file_name_ok():
         imp_path =get_nadeo_importer_path()
         if is_file_existing(imp_path):
             process  = subprocess.Popen([
@@ -864,42 +880,38 @@ def save_blend_file_as(filepath: str) -> bool:
 
 
 def get_game_doc_path() -> str:
-    """return absolute path of maniaplanet documents folder"""
     return get_nadeo_init_data(setting="UserDir")
 
 
 
 def get_game_doc_path_items() -> str:
-    """return absolute path of ../Items/"""
     return fix_slash(get_game_doc_path() + "/Items/")
 
 
 
 def get_game_doc_path_work_items() -> str:
-    """return absolute path of ../Work/Items/"""
     return fix_slash(get_game_doc_path() + "/Work/Items/")
 
 
 
+def get_game_doc_path_maps() -> str:
+    return fix_slash(get_game_doc_path() + "/Maps/")
+
+
 def get_game_doc_path_items_assets() -> str:
-    """return absolute path of ../_BlenderAssets/"""
     return fix_slash(get_game_doc_path_items() + "/_BlenderAssets/")
 
 
 def get_game_doc_path_items_assets_textures() -> str:
-    """return absolute path of ../_BlenderAssets/"""
     return fix_slash(get_game_doc_path_items_assets() + "/Textures/")
 
 
-
 def get_nadeo_importer_path() -> str:
-    """return full file path of /xx/NadeoImporter.exe"""
     return fix_slash(get_current_game_exe_path() + "/NadeoImporter.exe")
 
 
 
 def get_nadeo_importer_lib_path() -> str:
-    """return full file path of /xx/NadeoImporterMaterialLib.txt"""
     return fix_slash(get_current_game_exe_path() + "/NadeoImporterMaterialLib.txt")
 
 
@@ -1730,7 +1742,7 @@ def debug_all() -> None:
         for _ in range(0, num): full_debug("--------")
     
     def full_debug(*args, **kwargs)->None:
-        debug(*args, **kwargs, add_to_list=True)
+        debug(*args, **kwargs, add_to_list=True, raw=True)
 
     separator(5)
     full_debug("BEGIN FULL DEBUG")
@@ -1743,7 +1755,7 @@ def debug_all() -> None:
     full_debug("programFilesX86Path:     ", PATH_PROGRAM_FILES_X86)
     full_debug("path_convertreport:      ", PATH_CONVERT_REPORT)
     separator(1)
-    from . import bl_info
+    from .. import bl_info
     full_debug("addon version:           ", bl_info["version"])
     full_debug("blender version:         ", bpy.app.version)
     full_debug("blender file version:    ", bpy.app.version_file)
@@ -1756,9 +1768,9 @@ def debug_all() -> None:
     if is_file_existing(PATH_DEFAULT_SETTINGS_JSON):
         with open(PATH_DEFAULT_SETTINGS_JSON, "r") as f:
             data = json.loads(f.read())
-            full_debug(data, pp=True, raw=True)
+            full_debug(data, pp=True)
     else:
-        full_debug(f"not found: {PATH_DEFAULT_SETTINGS_JSON}", raw=True)
+        full_debug(f"not found: {PATH_DEFAULT_SETTINGS_JSON}")
     separator(3)
 
     full_debug("tm_props:")
@@ -1800,12 +1812,12 @@ def debug_all() -> None:
     separator(5)
     if nadeo_ini_settings == {}:
         parse_nadeo_ini_file()
-    full_debug("nadeoIniSettings:        ")
-    full_debug(nadeo_ini_settings, pp=True, raw=True)
+    full_debug("nadeo.ini settings:")
+    full_debug(nadeo_ini_settings, pp=True)
 
     separator(1)
-    full_debug("nadeoLibMaterials:       ")
-    full_debug(nadeoimporter_materiallib_materials, pp=True, raw=True)
+    full_debug("nadeoimportermateriallib.txt:       ")
+    full_debug(nadeoimporter_materiallib_materials, pp=True)
 
     separator(3)
     full_debug("END DEBUG PRINT")

@@ -114,6 +114,8 @@ ICON_MAGNET             = "SNAP_ON"
 ICON_TRACKING           = "TRACKING"
 ICON_MAP                = "IMAGE_BACKGROUND"
 ICON_UGLYPACKAGE        = "UGLYPACKAGE"
+ICON_WEBSITE            = "URL"
+
 
 # https://cloford.com/resources/charcodes/utf-8_arrows.htm
 CHAR_VERTICAL   = "↕"

@@ -15,7 +15,6 @@ class TM_PT_Settings(Panel):
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_options = set() # default is closed, open as default
 
-
     def draw_header(self, context):
         layout = self.layout
         layout.label(icon=ICON_SETTINGS)
@@ -30,9 +29,6 @@ class TM_PT_Settings(Panel):
         layout          = self.layout
         tm_props        = get_global_props()
 
-        # if BLENDER_INSTANCE_IS_DEV:
-        #     layout.operator("view3d.tm_execute_help", text="(dev!) execute test function", icon="HELP").command = "testfunc"
-        
 
         box = layout.box()
         box.separator(factor=0)
@@ -42,7 +38,9 @@ class TM_PT_Settings(Panel):
         row.label(text=f"Blender: {blender_version}", icon=ICON_BLENDER)
         row = box.row(align=True)
         row.label(text=f"""Addon: {addon_version}""", icon=ICON_ADDON)
-        row.operator("view3d.tm_checkfornewaddonrelease", text="", icon=ICON_UPDATE)
+        row.operator("view3d.tm_checkfornewaddonrelease",   text="", icon=ICON_UPDATE)
+        row.operator("view3d.tm_debug_all",                 text="", icon=ICON_DEBUG)
+        
         if blender_too_old:
             row = box.row()
             row.alert = False
@@ -61,7 +59,8 @@ class TM_PT_Settings(Panel):
             row.enabled = tm_props.CB_addonUpdateDLshow is False
             row.operator("view3d.tm_updateaddonrestartblender", text=f"Update to {next_version}", icon=ICON_UPDATE)
             row = col.row(align=True)
-            row.operator("view3d.tm_execute_help", text="Open changelog").command = "open_changelog"
+            # TODO change link
+            row.operator("view3d.tm_open_url", text="Open changelog").url = URL_CHANGELOG
             dl_msg     = tm_props.ST_addonUpdateDLmsg
             show_panel = tm_props.CB_addonUpdateDLshow
 
@@ -73,12 +72,14 @@ class TM_PT_Settings(Panel):
 
         col = box.column(align=True)
         row = col.row(align=True)
-        row.operator("view3d.tm_execute_help", text="Github",      ).command = "open_github"
-        row.operator("view3d.tm_execute_help", text="Debug",       ).command = "debug_all"
-        row.operator("view3d.tm_execute_help", text="Help",        ).command = "open_documentation"
+        row.operator("view3d.tm_open_url", text="Github", icon=ICON_WEBSITE).url = URL_GITHUB
+        row.operator("view3d.tm_open_url", text="Help",   icon=ICON_WEBSITE).url = URL_DOCUMENTATION
         row = col.row(align=True)
-        row.operator("view3d.tm_execute_help", text="Open Assets", ).command = "open_assets"
-        row.operator("view3d.tm_execute_help", text="Open Work",   ).command = "open_work"
+        row.operator("view3d.tm_open_folder", text="Work",   icon=ICON_FOLDER).folder = get_game_doc_path_work_items()
+        row.operator("view3d.tm_open_folder", text="Items",  icon=ICON_FOLDER).folder = get_game_doc_path_items()
+        row = col.row(align=True)
+        row.operator("view3d.tm_open_folder", text="Assets", icon=ICON_FOLDER).folder = get_game_doc_path_items_assets()
+        row.operator("view3d.tm_open_folder", text="Maps",   icon=ICON_FOLDER).folder = get_game_doc_path_maps()
 
 
         col = layout.column(align=True)
@@ -94,15 +95,20 @@ class TM_PT_Settings(Panel):
         row.prop(tm_props, ini, text="Ini file")
         row.operator("view3d.tm_autofindnadeoini", text="", icon=ICON_SEARCH)
 
+        nadeoini_invalid = draw_nadeoini_required_message(self)
+        if nadeoini_invalid:
+            return
+
 
 class TM_PT_Settings_BlenderRelated(Panel):
-    # region bl_gyx
-    """Creates a Panel in the Object properties window"""
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Blender related settings"
     bl_idname = "TM_PT_Settings_BlenderRelated"
     bl_parent_id = "TM_PT_Settings"
-    # endregion
+
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok()
     
     def draw(self, context):
 
@@ -122,24 +128,26 @@ class TM_PT_Settings_BlenderRelated(Panel):
 
 
 class TM_PT_Settings_NadeoImporter(Panel):
-    # region bl_
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "NadeoImporter"
     bl_idname = "TM_PT_Settings_NadeoImporter"
     bl_parent_id = "TM_PT_Settings"
-    # endregion
     
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok()
+
     def draw(self, context):
 
         layout = self.layout
         tm_props        = get_global_props()
         tm_props_pivots = get_pivot_props()
 
-        if not is_selected_nadeoini_file_existing():
+        if not is_selected_nadeoini_file_name_ok():
             draw_nadeoini_required_message(self)
             return
 
-        if is_selected_nadeoini_file_existing():
+        if is_selected_nadeoini_file_name_ok():
             op_row = layout.row()
             op_row.enabled = tm_props.CB_nadeoImporterDLRunning is False
             op_row.scale_y = 1.5
@@ -198,6 +206,9 @@ class TM_PT_Settings_Performance(Panel):
     bl_idname = "TM_PT_Settings_Performance"
     bl_parent_id = "TM_PT_Settings"
     
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok()    
     
     def draw(self, context):
 

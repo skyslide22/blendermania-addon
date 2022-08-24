@@ -12,7 +12,7 @@ bl_info = {
     "author"        : "skyslide & juice",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 1, 0),
-    "version"       : (3, 0, 0),
+    "version"       : (2, 9, 9999),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
@@ -54,6 +54,7 @@ from .operators.OT_UV_Manipulate           import *
 from .operators.OT_Assets_Library          import *
 from .operators.OT_Items_Templates         import * 
 from .operators.OT_WikiLink                import * 
+from .operators.OT_Textures                import * 
 
 from .panels.PT_Map_Manipulate      import *
 from .panels.PT_NinjaRipper         import *
@@ -92,7 +93,6 @@ classes = (
     TM_PT_Settings_NadeoImporter,
     TM_PT_Settings_Performance,
     TM_OT_Settings_AutoFindNadeoIni,
-    TM_OT_Settings_ExecuteHelp,
     TM_OT_Settings_InstallNadeoImporter,
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_InstallGameAssetsLIbrary,
@@ -100,6 +100,10 @@ classes = (
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonResetSettings,
     TM_OT_Settings_UpdateAddonCheckForNewRelease,
+    TM_OT_Settings_OpenUrl,
+    TM_OT_Settings_OpenFolder,
+    TM_OT_Settings_DebugAll,
+    TM_OT_Settings_OpenConvertReport,
 
     # object manipulation
     TM_PT_ObjectManipulations,
@@ -158,7 +162,9 @@ classes = (
 
     # textures
     TM_PT_Textures,
-    
+    TM_PT_Textures_Install,
+    TM_OT_Textures_ToggleModwork,
+
     # ninja
     TM_OT_Ninja17Install,
     TM_PT_NinjaImporter,

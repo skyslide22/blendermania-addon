@@ -18,6 +18,9 @@ class TM_PT_Materials(Panel):
     bl_idname = "OBJECT_PT_TM_Materials"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok()
 
     def draw_header(self, context):
         layout = self.layout
@@ -28,10 +31,6 @@ class TM_PT_Materials(Panel):
 
         layout   = self.layout
         tm_props = get_global_props()
-        
-        if not is_selected_nadeoini_file_existing():
-            draw_nadeoini_required_message(self)
-            return
 
         action      = tm_props.LI_materialAction
         mat_name     = tm_props.ST_materialAddName

@@ -11,9 +11,9 @@ from ..operators.OT_Map_Manipulate import (
 from ..utils.Functions import (
     draw_nadeoini_required_message,
     get_global_props,
-    is_selected_nadeoini_file_existing,
     is_blendermania_dotnet_installed,
     is_game_maniaplanet,
+    is_selected_nadeoini_file_name_ok,
 )
 from ..utils.Constants import (
     ICON_COLLECTION,
@@ -29,14 +29,15 @@ from ..operators.OT_WikiLink import add_ui_wiki_icon
 
 
 class PT_UIMapManipulation(bpy.types.Panel):
-    # region bl_
-    """Creates a Panel in the Object properties window"""
     bl_label   = "Map"
     bl_idname  = "TM_PT_Map_Manipulate"
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
-    # endregion
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok()
+
 
     def draw_header(self, context):
         layout = self.layout
@@ -47,10 +48,6 @@ class PT_UIMapManipulation(bpy.types.Panel):
         tm_props = get_global_props()
         has_map_file = len(tm_props.ST_map_filepath) != 0
         has_map_coll = tm_props.PT_map_collection is not None
-
-        if not is_selected_nadeoini_file_existing():
-            draw_nadeoini_required_message(self)
-            return
 
         # info and settings
         box = layout.box()

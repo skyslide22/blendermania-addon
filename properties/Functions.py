@@ -45,7 +45,7 @@ material_links   = ERROR_ENUM_PROPS
 def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
     #func has to return tuple with tuples: ( (3x str or 4x str and unique index), )
     def wrapper(self, context):
-        return func(self, context) if is_selected_nadeoini_file_existing() else ERROR_ENUM_PROPS        
+        return func(self, context) if is_selected_nadeoini_file_name_ok() else ERROR_ENUM_PROPS        
     return wrapper
 
 
