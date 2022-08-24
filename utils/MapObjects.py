@@ -143,7 +143,7 @@ def export_map_collection() -> str:
 
             if is_custom_item:
                 name = ireplace(doc_path, "", name)
-            else:
+            elif is_game_trackmania2020(): # replace .Item.Gbx for 2020 vanilla items
                 name = ireplace(".Gbx", "", ireplace(".Item", "", name))
 
             dotnet_items.append(DotnetItem(

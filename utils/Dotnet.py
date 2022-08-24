@@ -116,12 +116,11 @@ def run_place_objects_on_map(
         outfile.close()
 
         res = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
-        #os.remove("map-export.json")
+        os.remove("map-export.json")
         return res
 
 def _run_dotnet(command: str, payload: str) -> str | None:
     print(payload)
-    #dotnet_exe = "D:/Art/Blender/blendermania-dotnet/blendermania-dotnet/bin/Release/net6.0/win-x64/publish/blendermania-dotnet.exe"
     dotnet_exe = get_blendermania_dotnet_path()
 
     process = subprocess.Popen(args=[
