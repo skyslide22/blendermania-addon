@@ -41,6 +41,9 @@ material_physics = ERROR_ENUM_PROPS
 material_links   = ERROR_ENUM_PROPS
 
 
+def is_convert_panel_active() -> bool:
+    return get_global_props().CB_showConvertPanel
+
 
 def errorEnumPropsIfNadeoINIisNotValid(func) -> callable:
     #func has to return tuple with tuples: ( (3x str or 4x str and unique index), )

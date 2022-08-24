@@ -9,7 +9,7 @@ from bpy.types import (
 )
 from ..utils.Functions import *
 from ..utils.Constants import * 
-
+from ..properties.Functions import *
 
 
     
@@ -24,10 +24,7 @@ class TM_PT_Items_Icon(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = get_global_props()
-        show =  not tm_props.CB_showConvertPanel \
-                and not tm_props.LI_exportType.lower() == "convert"
-        return show
+        return not is_convert_panel_active()
     
     def draw_header(self, context):
         layout = self.layout

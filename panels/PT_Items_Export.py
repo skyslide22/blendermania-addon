@@ -1,3 +1,4 @@
+from ast import main
 import bpy
 from bpy.types import (Panel)
 
@@ -39,12 +40,25 @@ class TM_PT_Items_Export(Panel):
         exportTypeIsConvertOnly = str(exportType).lower() == "convert"
 
 
-        if not showConvertPanel:
-            layout.row().prop(tm_props, "LI_exportType")
         
-        if not exportTypeIsConvertOnly and not showConvertPanel:
-            layout.row().prop(tm_props, "LI_gameType")
-            layout.row().prop(tm_props, "LI_exportFolderType")
+        if not showConvertPanel:
+            main_row = layout.row(align=True)
+            
+            left_col  = main_row.column(align=True)
+            left_col.scale_x = 0.8
+            
+            left_col.label(text="Game")
+            left_col.label(text="Folder")
+            left_col.label(text="Limit by")
+
+            right_col = main_row.column(align=True)
+            right_col.scale_x = 1
+
+            
+            right_col.prop(tm_props, "LI_gameType", text="")
+            right_col.prop(tm_props, "LI_exportFolderType", text="")
+            right_col.row().prop(tm_props, "LI_exportWhichObjs", expand=True)
+
             
             if exportCustomFolder:
                 row_path = layout.row()
@@ -55,9 +69,6 @@ class TM_PT_Items_Export(Panel):
                     row_path.alert=True
                 row_path.prop(tm_props, exportCustomFolderProp)
 
-
-            # layout.row().prop(tm_props, "LI_exportValidTypes",)
-            layout.row().prop(tm_props, "LI_exportWhichObjs", expand=True)
 
             if bpy.context.selected_objects == [] and exportActionIsSelected:
                 enableExportButton = False
@@ -86,12 +97,7 @@ class TM_PT_Items_Export(Panel):
                 collection_count = len(exportable_cols)
 
                 plural = "s" if collection_count > 1 else ""
-
-                if exportType == "EXPORT":
-                    text=f"Export {collection_count} collection{plural}"
-
-                elif exportType == "EXPORT_CONVERT":
-                    text=f"Export & convert {collection_count} collection{plural}"
+                text=f"Export & Convert {collection_count} Collection{plural}"
 
                 if collection_count == 0:
                     enableExportButton = False
@@ -204,9 +210,9 @@ class TM_PT_Items_Export(Panel):
             bcol.enabled = True # if any([convertDone, stopConverting]) else False
             bcol.operator("view3d.tm_closeconvertsubpanel", text="OK", icon=ICON_SUCCESS)
 
-            bcol = row.column(align=True)
-            bcol.enabled = enableExportButton 
-            bcol.operator("view3d.tm_export", text="Convert Again", icon=ICON_CONVERT)
+            # bcol = row.column(align=True)
+            # bcol.enabled = enableExportButton 
+            # bcol.operator("view3d.tm_export", text="Convert Again", icon=ICON_CONVERT)
             
 
 

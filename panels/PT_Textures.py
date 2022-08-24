@@ -32,19 +32,12 @@ class TM_PT_Textures(Panel):
 
         row = col.row(align=True)
         scol = row.column(align=True)
-        scol.operator("view3d.tm_toggle_modwork", text="Toggle Modwork (WIP)")
+        scol.operator("view3d.tm_toggle_modwork", text="Toggle ModWork Folder", icon=ICON_TEXTURE)
 
         if is_game_maniaplanet():
             scol = row.column(align=True)
             scol.scale_x = 0.8
             scol.prop(tm_props, "LI_DL_TextureEnvi", text="",)
-
-        box = layout.box()
-        box.scale_y = 0.7
-        box.alert = True
-        box.label(text="modwork wip")
-        box.label(text="choose between /asset/textures and /modwork")
-        box.label(text="for texture source, restart blender to apply button")
 
 
 
