@@ -236,7 +236,7 @@ def _add_empty_socket_hide_existing(coll: bpy.types.Collection) -> None:
     else:
         return
     
-    new_socket:bpy.types.Object = bpy.data.objects.new(old_socket.name + "_temporary")
+    new_socket:bpy.types.Object = bpy.data.objects.new(old_socket.name + "_temporary", None)
     new_socket.rotation_euler = old_socket.rotation_euler
     new_socket.location = old_socket.location
 
