@@ -4,7 +4,7 @@ from bpy.types import Operator
 
 from ..utils.Constants import ICON_AUTO, ICON_OBJECT
 
-from ..utils.ItemsImport import import_FBXs
+from ..utils.ItemsImport import import_item_FBXs
 
 from ..utils.Functions import deselect_all_objects, get_addon_path, get_cursor_location
 from ..properties.Functions import get_car_names
@@ -55,7 +55,7 @@ class OT_ItemsEnviTemplates(Operator):
 
     def execute(self, context):
         envi = self.properties.envi_templates
-        import_FBXs([f"""{get_addon_path()}assets/item_vanilla_platforms/{envi}.fbx"""])
+        import_item_FBXs([f"""{get_addon_path()}assets/item_vanilla_platforms/{envi}.fbx"""])
         return {"FINISHED"}
         
 

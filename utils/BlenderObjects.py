@@ -19,3 +19,8 @@ def duplicate_object_to(obj: bpy.types.Object, destColl: bpy.types.Collection, l
     newObj = duplicate_object(obj, linked)
     move_obj_to_coll(newObj, destColl)
     return newObj
+
+def create_collection_in(destColl: bpy.types.Collection, name: str) -> bpy.types.Collection:
+    coll = bpy.context.blend_data.collections.new(name=name)
+    destColl.children.link(coll)
+    return coll

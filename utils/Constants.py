@@ -5,8 +5,8 @@ import json
 MIN_BLENDER_VERSION = (3, 1, 0)
 
 DOTNET_COMMANDS = (
-    CREATE_MACROBLOCK := "create-macroblock",
     PLACE_OBJECTS_ON_MAP := "place-objects-on-map",
+    CONVERT_ITEM_TO_OBJ := "convert-item-to-obj",
 )
 
 TODO_COMMANDS = (
@@ -148,7 +148,7 @@ URL_RELEASES      = "https://api.github.com/repos/skyslide22/blendermania-addon/
 URL_REGEX         = "https://regex101.com/"
 
 # dotnet addon name and version
-BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.2"
+BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.3"
 
 # Assets CDN Links
 GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-assets/releases/download/"

@@ -55,9 +55,10 @@ from .operators.OT_Assets_Library          import *
 from .operators.OT_Items_Templates         import * 
 from .operators.OT_WikiLink                import * 
 from .operators.OT_Textures                import * 
+from .operators.OT_Imports                 import * 
 
 from .panels.PT_Map_Manipulate      import *
-from .panels.PT_NinjaRipper         import *
+from .panels.PT_Imports             import *
 from .panels.PT_Settings            import *
 from .panels.PT_Items_Export        import *
 from .panels.PT_Materials           import *
@@ -167,8 +168,11 @@ classes = (
 
     # ninja
     TM_OT_Ninja17Install,
-    TM_PT_NinjaImporter,
     TM_OT_Ninja20Install,
+
+    # imports
+    TM_OT_ImportItem,
+    TM_PT_Imports,
 
     # templates
     OT_ItemsCarsTemplates,
