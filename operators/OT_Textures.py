@@ -41,6 +41,7 @@ def toggle_modwork_folder() -> None:
 
     if not modwork_exist and not modwork_off_exist:
         create_folder_if_necessary(modwork_path)
+        modwork_exist = True
 
     if modwork_exist:
         if modwork_off_exist:
