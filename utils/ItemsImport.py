@@ -54,7 +54,7 @@ def import_item_FBXs(files: list[str]) -> None:
             
             fix_material_names(obj)
 
-def import_item_gbx(item_path: str) -> str | None:
+def import_item_gbx(item_path: str):
     output_dir = os.path.dirname(item_path)
 
     obj_path, err = run_convert_item_to_obj(item_path, output_dir)
