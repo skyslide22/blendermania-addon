@@ -269,11 +269,15 @@ def loadDefaultSettingsJSON() -> None:
     fromjson_grid_division      = data.get("blender_grid_division")
     fromjson_itemxml_templates  = data.get("itemxml_templates", [])
 
+    debug(f"BMX: nadeo ini from json:  {fromjson_nadeoini_tm}")
+    debug(f"BMX: nadeo ini from blend: {tm_props.ST_nadeoIniFile_TM}")
 
-
+    debug(f"BMX: nadeo ini from json exist:")
     if is_file_existing(fromjson_nadeoini_tm):
+        debug("BMX: yes")
         tm_props.ST_nadeoIniFile_TM = fromjson_nadeoini_tm
     else:
+        debug("BMX: no, set to {MSG_ERROR_NADEO_INI_NOT_FOUND}")
         tm_props.ST_nadeoIniFile_TM = MSG_ERROR_NADEO_INI_NOT_FOUND
 
 
