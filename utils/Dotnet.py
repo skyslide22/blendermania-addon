@@ -79,7 +79,18 @@ class DotnetPlaceObjectsOnMap:
         self.CleanBlocks = CleanBlocks
         self.CleanItems = CleanItems
         self.Env = Env
-        # TODO blocks
+
+    def jsonable(self):
+        return self.__dict__
+
+class DotnetConvertItemToObj:
+    def __init__(
+        self,
+        ItemPath: str,
+        OutputDir: str,
+    ):
+        self.ItemPath = ItemPath
+        self.OutputDir = OutputDir
 
     def jsonable(self):
         return self.__dict__
@@ -115,11 +126,23 @@ def run_place_objects_on_map(
         ), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
         outfile.close()
 
-        res = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
+        _, err = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
         os.remove("map-export.json")
-        return res
+        return err
 
-def _run_dotnet(command: str, payload: str) -> str | None:
+def run_convert_item_to_obj(
+    item_path: str,
+    output_dir: str,
+):
+    with open('convert-item.json', 'w', encoding='utf-8') as outfile:
+        json.dump(DotnetConvertItemToObj(item_path, output_dir), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
+        outfile.close()
+
+        res, err = _run_dotnet(CONVERT_ITEM_TO_OBJ, get_abs_path("convert-item.json"))
+        os.remove("convert-item.json")
+        return res, err
+
+def _run_dotnet(command: str, payload: str):
     print(payload)
     dotnet_exe = get_blendermania_dotnet_path()
 
@@ -128,7 +151,6 @@ def _run_dotnet(command: str, payload: str) -> str | None:
         command,
         payload.strip('"'),
     ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
     
     out, err = process.communicate()
     if len(err) != 0:
@@ -136,6 +158,9 @@ def _run_dotnet(command: str, payload: str) -> str | None:
     
     res = out.decode("utf-8").strip()
     if process.returncode != 0:
-        return "Unknown error" if len(res) == 0 else res
+        return None, "Unknown error" if len(res) == 0 else res
 
-    return None if len(res) == 0 else res
+    if res.startswith("SUCCESS:"):
+        return res.replace("SUCCESS:", "").strip(), None
+    else:
+        return None, res.replace("ERROR:", "").strip()

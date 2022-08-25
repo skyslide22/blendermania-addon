@@ -5,8 +5,8 @@ import json
 MIN_BLENDER_VERSION = (3, 1, 0)
 
 DOTNET_COMMANDS = (
-    CREATE_MACROBLOCK := "create-macroblock",
     PLACE_OBJECTS_ON_MAP := "place-objects-on-map",
+    CONVERT_ITEM_TO_OBJ := "convert-item-to-obj",
 )
 
 TODO_COMMANDS = (
