@@ -8,6 +8,7 @@ from ..utils.Dotnet import (
     DotnetVector3,
     run_place_objects_on_map,
     get_block_dir_for_angle,
+    DotnetExecResult
 )
 from ..utils.BlenderObjects import duplicate_object_to, move_obj_to_coll
 from ..utils.Functions import (
@@ -115,9 +116,9 @@ def validate_map_collection() -> str:
             if doc_path in obj["tm_map_object_path"] and not is_file_existing(obj["tm_map_object_path"]):
                 return f"Item with path: {obj['tm_map_object_path']} does not exist. Object name: {obj.name}"
 
-def export_map_collection() -> str:
+def export_map_collection() -> DotnetExecResult:
     err = validate_map_collection()
-    if err: return err
+    if err: return DotnetExecResult(err, False)
 
     tm_props                         = get_global_props()
     map_coll:bpy.types.Collection    = tm_props.PT_map_collection
@@ -126,7 +127,7 @@ def export_map_collection() -> str:
     map_suffix:str                   = tm_props.ST_map_suffix
     clean_blocks:bool                = False#tm_props.CB_map_clean_blocks
     clean_items:bool                 = tm_props.CB_map_clean_items
-    doc_path                         = get_game_doc_path() + "/"
+    doc_path                         = get_game_doc_path()
     dotnet_items                     = list[DotnetItem]()
     dotnet_blocks                    = list[DotnetBlock]()
     env                              = "Stadium2020" if is_game_trackmania2020() else tm_props.LI_DL_TextureEnvi
@@ -140,7 +141,7 @@ def export_map_collection() -> str:
 
         if obj["tm_map_object_kind"] == MAP_OBJECT_ITEM:
             name = obj["tm_map_object_path"]
-            is_custom_item = doc_path.lower() in name.lower()
+            is_custom_item = fix_slash(doc_path.lower()) in fix_slash(name.lower())
 
             if is_custom_item:
                 name = ireplace(doc_path, "", name)

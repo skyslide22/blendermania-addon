@@ -17,6 +17,13 @@ def get_block_dir_for_angle(angle: int) -> int:
     print(math.copysign(angle%360, angle))
     return DOTNET_BLOCKS_DIRECTION_EAST
 
+class DotnetExecResult:
+    success: bool
+    message: str
+    def __init__(self, message: str, success: bool):
+        self.success = success
+        self.message = message
+
 # Dotnet types
 class DotnetVector3:
     def __init__(self, X: float = 0, Y: float = 0, Z: float = 0) -> None:
@@ -112,7 +119,7 @@ def run_place_objects_on_map(
     clean_blocks: bool = True,
     clean_items: bool = True,
     env: str = True,
-):
+) -> DotnetExecResult:
     with open('map-export.json', 'w', encoding='utf-8') as outfile:
         json.dump(DotnetPlaceObjectsOnMap(
                 map_path,
@@ -126,23 +133,23 @@ def run_place_objects_on_map(
         ), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
         outfile.close()
 
-        _, err = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
+        res = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
         os.remove("map-export.json")
-        return err
+        return res
 
 def run_convert_item_to_obj(
     item_path: str,
     output_dir: str,
-):
+) -> DotnetExecResult:
     with open('convert-item.json', 'w', encoding='utf-8') as outfile:
         json.dump(DotnetConvertItemToObj(item_path, output_dir), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
         outfile.close()
 
-        res, err = _run_dotnet(CONVERT_ITEM_TO_OBJ, get_abs_path("convert-item.json"))
+        res = _run_dotnet(CONVERT_ITEM_TO_OBJ, get_abs_path("convert-item.json"))
         os.remove("convert-item.json")
-        return res, err
+        return res
 
-def _run_dotnet(command: str, payload: str):
+def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     print(payload)
     dotnet_exe = get_blendermania_dotnet_path()
 
@@ -154,13 +161,13 @@ def _run_dotnet(command: str, payload: str):
     
     out, err = process.communicate()
     if len(err) != 0:
-        return err.decode("utf-8") 
+        return DotnetExecResult(message=err.decode("utf-8") , success=False)
     
     res = out.decode("utf-8").strip()
     if process.returncode != 0:
-        return None, "Unknown error" if len(res) == 0 else res
+        return DotnetExecResult(message="Unknown Error", success=False) if len(res) == 0 else res
 
     if res.startswith("SUCCESS:"):
-        return res.replace("SUCCESS:", "").strip(), None
+        return DotnetExecResult(message=res.replace("SUCCESS:", "").strip(), success=False)
     else:
-        return None, res.replace("ERROR:", "").strip()
+        return DotnetExecResult(message=res.replace("ERROR:", "").strip(), success=True)

@@ -1,5 +1,7 @@
 import bpy
 
+from ..utils.Constants import ICON_ERROR, ICON_SUCCESS
+
 from ..utils.Functions import (
     get_global_props,
     save_blend_file,
@@ -19,9 +21,9 @@ class OT_UICollectionToMap(bpy.types.Operator):
         
     def execute(self, context):
         if save_blend_file():
-            err = export_map_collection()
-            if err:
-                show_report_popup("Exporting error!", [err], "ERROR")
+            res = export_map_collection()
+            if not res.success:
+                show_report_popup("Exporting error!", [res.message], "ERROR")
             else:
                 show_report_popup("Successfully exported!", ["Map updated successfully. If it contains brand new object you must restart the game!"], "INFO")
         else:
@@ -38,7 +40,9 @@ class OT_UIValidateMapCollection(bpy.types.Operator):
     def execute(self, context):
         err = validate_map_collection()
         if err:
-            show_report_popup("Validation error!", [err], "ERROR")
+            show_report_popup("Validation error!", [err], icon=ICON_ERROR)
+        else:
+            show_report_popup("Map has no issues", icon=ICON_SUCCESS)
         return {"FINISHED"}
 
 class OT_UICreateUpdateMapItemBlock(bpy.types.Operator):
