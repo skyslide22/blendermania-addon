@@ -277,7 +277,7 @@ def loadDefaultSettingsJSON() -> None:
         debug("BMX: yes")
         tm_props.ST_nadeoIniFile_TM = fromjson_nadeoini_tm
     else:
-        debug("BMX: no, set to {MSG_ERROR_NADEO_INI_NOT_FOUND}")
+        debug(f"BMX: no, set to {MSG_ERROR_NADEO_INI_NOT_FOUND}")
         tm_props.ST_nadeoIniFile_TM = MSG_ERROR_NADEO_INI_NOT_FOUND
 
 
