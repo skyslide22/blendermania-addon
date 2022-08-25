@@ -433,7 +433,8 @@ if is_file_existing(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
 
 
 
-
+MODWORK_FOLDER_NAME     = "ModWork" 
+MODWORK_OFF_FOLDER_NAME = "#-ModWork" 
 
 
 

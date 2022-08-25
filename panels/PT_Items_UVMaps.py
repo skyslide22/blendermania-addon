@@ -1,5 +1,7 @@
 from bpy.types import (Panel)
 
+from ..properties.Functions import is_convert_panel_active
+
 from ..utils.Functions import *
 
 class TM_PT_Items_UVmaps_LightMap(Panel):
@@ -16,10 +18,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = get_global_props()
-        show =  not tm_props.CB_showConvertPanel \
-                and not tm_props.LI_exportType.lower() == "convert"
-        return (show)
+        return not is_convert_panel_active()
     
     def draw_header(self, context):
         layout = self.layout
@@ -67,10 +66,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = get_global_props()
-        show =  not tm_props.CB_showConvertPanel \
-                and not tm_props.LI_exportType.lower() == "convert"
-        return (show)
+        return not is_convert_panel_active()
     
     def draw_header(self, context):
         layout = self.layout

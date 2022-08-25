@@ -507,6 +507,13 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
 
 
 
+def importFBXFile(filepath):
+    bpy.ops.import_scene.fbx(
+        filepath=filepath,
+        use_custom_props=True
+    )
+
+
 def getCollectionNameWithoutScaleSuffix(coll:bpy.types.Collection) -> str:
     return coll.name.split("_#SCALE")[0]
 

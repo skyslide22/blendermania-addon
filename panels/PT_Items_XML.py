@@ -6,7 +6,7 @@ from bpy.types import (
     Operator,
 )
 
-from ..properties.Functions import ERROR_ENUM_ID
+from ..properties.Functions import ERROR_ENUM_ID, is_convert_panel_active
 from ..utils.Functions import *
 from ..utils.Constants import * 
 
@@ -22,10 +22,7 @@ class TM_PT_Items_ItemXML(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = get_global_props()
-        show =  not tm_props.CB_showConvertPanel \
-                and not tm_props.LI_exportType.lower() == "convert"
-        return (show)
+        return not is_convert_panel_active()
     
     def draw_header(self, context):
         layout = self.layout
@@ -185,10 +182,7 @@ class TM_PT_Items_MeshXML(Panel):
     
     @classmethod
     def poll(cls, context):
-        tm_props = get_global_props()
-        show =  not tm_props.CB_showConvertPanel \
-                and not tm_props.LI_exportType.lower() == "convert"
-        return (show)
+        return not is_convert_panel_active()
 
     def draw_header(self, context):
         layout = self.layout

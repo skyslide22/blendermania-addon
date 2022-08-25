@@ -39,6 +39,9 @@ def is_file_existing(filepath: str) -> bool:
 def is_folder_existing(folderpath: str) -> bool:
     return os.path.isdir(folderpath)
 
+def rename_folder(old: str, new: str) -> None:
+    os.rename(old, new)
+
 def get_blender_addons_path() -> str:
     return fix_slash(str(bpy.utils.user_resource('SCRIPTS') + "/addons/"))
 
