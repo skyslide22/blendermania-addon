@@ -269,22 +269,6 @@ def loadDefaultSettingsJSON() -> None:
     fromjson_grid_division      = data.get("blender_grid_division")
     fromjson_itemxml_templates  = data.get("itemxml_templates", [])
 
-    debug(f"BMX: nadeo ini from json:  {fromjson_nadeoini_tm}")
-    debug(f"BMX: nadeo ini from blend: {tm_props.ST_nadeoIniFile_TM}")
-
-    debug(f"BMX: nadeo ini from json exist:")
-    if is_file_existing(fromjson_nadeoini_tm):
-        debug("BMX: yes")
-        tm_props.ST_nadeoIniFile_TM = fromjson_nadeoini_tm
-    else:
-        debug(f"BMX: no, set to {MSG_ERROR_NADEO_INI_NOT_FOUND}")
-        tm_props.ST_nadeoIniFile_TM = MSG_ERROR_NADEO_INI_NOT_FOUND
-
-
-    if is_file_existing(fromjson_nadeoini_mp):
-        tm_props.ST_nadeoIniFile_MP = fromjson_nadeoini_mp
-    else:
-        tm_props.ST_nadeoIniFile_MP = MSG_ERROR_NADEO_INI_NOT_FOUND
     
 
     tm_props.ST_author                  = fromjson_author_name   or tm_props.ST_author
@@ -294,10 +278,22 @@ def loadDefaultSettingsJSON() -> None:
     debug("default settings loaded, data:")
     debug(data, pp=True, raw=True)
 
-    if is_game_maniaplanet()    and tm_props.ST_nadeoIniFile_MP == ""\
-    or is_game_trackmania2020() and tm_props.ST_nadeoIniFile_TM:
-        debug("nadeo ini path not found, search now")
+
+    # tm2020
+    if is_file_existing(fromjson_nadeoini_tm):
+        tm_props.ST_nadeoIniFile_TM = fromjson_nadeoini_tm
+    elif not is_file_existing(tm_props.ST_nadeoIniFile_TM):
         autoFindNadeoIni()
+    else:
+        debug("tm2020 nadeo ini not found from json & blendfile")
+
+    # maniaplanet
+    if is_file_existing(fromjson_nadeoini_mp):
+        tm_props.ST_nadeoIniFile_MP = fromjson_nadeoini_mp
+    elif not is_file_existing(tm_props.ST_nadeoIniFile_MP):
+        autoFindNadeoIni()
+    else:
+        debug("maniaplanet nadeo ini not found from json & blendfile")
 
     
     bpy.context.scene.tm_props_itemxml_templates.clear() # CollectionProperty
