@@ -105,4 +105,4 @@ def toggle_modwork_folder() -> None:
         if collection_folder == ENVI_NAME_LAGOON:       tm_props.CB_modwork_mp_lagoon_enabled     = enabled
         if collection_folder == ENVI_NAME_SHOOTMANIA:   tm_props.CB_modwork_mp_shootmania_enabled = enabled
     
-    show_report_popup(f"Modwork {enabled_text}", (f"Path: {modwork_path}",), icon=icon)
+    # show_report_popup(f"Modwork {enabled_text}", (f"Path: {modwork_path}",), icon=icon)
