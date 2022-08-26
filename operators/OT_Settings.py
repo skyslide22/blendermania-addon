@@ -274,11 +274,19 @@ def loadDefaultSettingsJSON() -> None:
     fromjson_grid_size          = data.get(SETTINGS_BLENDER_GRID_SIZE)
     fromjson_grid_division      = data.get(SETTINGS_BLENDER_GRID_DIVISION)
     fromjson_itemxml_templates  = data.get(SETTINGS_ITEM_XML_TEMPLATES, [])
-    fromjson_new_blend_pref_game= data.get(SETTINGS_NEW_BLEND_PREFERRED_GAME, [])
+    fromjson_new_blend_pref_game= data.get(SETTINGS_NEW_BLEND_PREFERRED_GAME)
 
     tm_props.ST_author                  = fromjson_author_name   or tm_props.ST_author
     tm_props.LI_blenderGridSize         = fromjson_grid_size     or tm_props.LI_blenderGridSize 
     tm_props.LI_blenderGridSizeDivision = fromjson_grid_division or tm_props.LI_blenderGridSizeDivision 
+
+    is_new_blendfile = bpy.data.filepath == ""
+    if is_new_blendfile:
+        debug(f"new blendfile, load pref game: {fromjson_new_blend_pref_game}")
+        if fromjson_new_blend_pref_game:
+            tm_props.LI_gameType = fromjson_new_blend_pref_game
+    else:
+        debug(f"not a new blend file, keep selected game ({tm_props.LI_gameType})")
 
     debug("default settings loaded, data:")
     debug(data, pp=True, raw=True)
@@ -320,11 +328,9 @@ def saveDefaultSettingsJSON() -> None:
             SETTINGS_BLENDER_GRID_SIZE          : tm_props.LI_blenderGridSize or old_data[SETTINGS_BLENDER_GRID_SIZE],
             SETTINGS_BLENDER_GRID_DIVISION      : tm_props.LI_blenderGridSizeDivision or old_data[SETTINGS_BLENDER_GRID_DIVISION],
             SETTINGS_ITEM_XML_TEMPLATES         : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates],
-            SETTINGS_NEW_BLEND_PREFERRED_GAME   : old_data[SETTINGS_NEW_BLEND_PREFERRED_GAME]
+            SETTINGS_NEW_BLEND_PREFERRED_GAME   : get_game()
         }
-        save_pref_game = False #TODO
-        if save_pref_game:
-            new_data = "something"
+        
             
         debug("new settings.json data:")
         debug(new_data, pp=True, raw=True)

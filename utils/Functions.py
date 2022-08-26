@@ -63,6 +63,9 @@ def get_blendermania_dotnet_path() -> str:
 def is_blendermania_dotnet_installed() -> bool:
     return is_file_existing(get_blendermania_dotnet_path())
 
+def get_game():
+    return get_global_props().LI_gameType
+
 def get_documents_path() -> str:
     process = subprocess.Popen([
         """Powershell.exe""",
@@ -303,7 +306,7 @@ class AddonUpdate:
 
     def check_can_update(cls) -> bool:
         can_update = cls.new_addon_version > cls.addon_version
-        debug(f"Check if addon can update: {can_update}")
+        debug(f"new addon version available: {can_update}")
         return can_update
 
     @classmethod
@@ -332,12 +335,9 @@ class AddonUpdate:
 
                 try_count += 1
                 try:
-                    debug(f"try update CB_addonUpdateAvailable")
                     get_global_props().CB_addonUpdateAvailable = can_update
-                    debug(f"success {can_update=}")
                     return None
                 except AttributeError:
-                    debug(f"failed {can_update=}")
                     return 1
             
             timer(update, 0)
