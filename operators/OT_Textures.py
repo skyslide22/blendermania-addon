@@ -22,6 +22,44 @@ class TM_OT_Textures_ToggleModwork(Operator):
 
 
 
+def is_selected_modwork_enabled() -> bool:
+    tm_props = get_global_props()
+    
+    collection_folder = tm_props.LI_DL_TextureEnvi
+    if is_game_trackmania2020():
+        collection_folder = "Stadium"
+        return tm_props.CB_modwork_tm_stadium_enabled   
+    
+    if is_game_maniaplanet():
+        if collection_folder == ENVI_NAME_STADIUM:      return tm_props.CB_modwork_mp_stadium_enabled   
+        if collection_folder == ENVI_NAME_CANYON:       return tm_props.CB_modwork_mp_canyon_enabled    
+        if collection_folder == ENVI_NAME_VALLEY:       return tm_props.CB_modwork_mp_valley_enabled    
+        if collection_folder == ENVI_NAME_LAGOON:       return tm_props.CB_modwork_mp_lagoon_enabled    
+        if collection_folder == ENVI_NAME_SHOOTMANIA:   return tm_props.CB_modwork_mp_shootmania_enabled
+    
+    return False
+
+
+# TODO works only with selcted game
+def check_modwork_folders_enabled() -> bool:
+    tm_props = get_global_props()
+    modworks = [
+        ("CB_modwork_tm_stadium_enabled",   fix_slash(get_game_doc_path() + "/Skins/" + ENVI_NAME_STADIUM)    + "/ModWork"),
+        ("CB_modwork_mp_stadium_enabled",   fix_slash(get_game_doc_path() + "/Skins/" + ENVI_NAME_STADIUM)    + "/ModWork"),
+        ("CB_modwork_mp_canyon_enabled",    fix_slash(get_game_doc_path() + "/Skins/" + ENVI_NAME_CANYON)     + "/ModWork"),
+        ("CB_modwork_mp_valley_enabled",    fix_slash(get_game_doc_path() + "/Skins/" + ENVI_NAME_VALLEY)     + "/ModWork"),
+        ("CB_modwork_mp_lagoon_enabled",    fix_slash(get_game_doc_path() + "/Skins/" + ENVI_NAME_LAGOON)     + "/ModWork"),
+        ("CB_modwork_mp_shootmania_enabled",fix_slash(get_game_doc_path() + "/Skins/" + ENVI_NAME_SHOOTMANIA) + "/ModWork"),
+    ]
+
+    for modwork in modworks:
+        prop, path = modwork
+        modwork_enabled = is_folder_existing(path) 
+        tm_props[prop] = modwork_enabled 
+        debug(f"modwork enabled: {modwork_enabled} {path}")
+
+
+
 def toggle_modwork_folder() -> None:
 
     tm_props = get_global_props()
@@ -57,5 +95,14 @@ def toggle_modwork_folder() -> None:
 
     icon         = ICON_SUCCESS if enabled else ICON_CANCEL
     enabled_text = "enabled"    if enabled else "disabled"
+
+    if is_game_trackmania2020():
+        tm_props.CB_modwork_tm_stadium_enabled = enabled
+    if is_game_maniaplanet():
+        if collection_folder == ENVI_NAME_STADIUM:      tm_props.CB_modwork_mp_stadium_enabled    = enabled
+        if collection_folder == ENVI_NAME_CANYON:       tm_props.CB_modwork_mp_canyon_enabled     = enabled
+        if collection_folder == ENVI_NAME_VALLEY:       tm_props.CB_modwork_mp_valley_enabled     = enabled
+        if collection_folder == ENVI_NAME_LAGOON:       tm_props.CB_modwork_mp_lagoon_enabled     = enabled
+        if collection_folder == ENVI_NAME_SHOOTMANIA:   tm_props.CB_modwork_mp_shootmania_enabled = enabled
     
-    show_report_popup(f"Modwork {enabled_text}", icon=icon)
+    show_report_popup(f"Modwork {enabled_text}", (f"Path: {modwork_path}",), icon=icon)

@@ -403,7 +403,13 @@ SETTINGS_JSON_KEYS = (
     SETTINGS_NEW_BLEND_PREFERRED_GAME := "new_blend_game",
 )
 
-
+ENVIRONMENT_NAMES = (
+    ENVI_NAME_STADIUM    := "Stadium",
+    ENVI_NAME_VALLEY     := "Valley",
+    ENVI_NAME_CANYON     := "Canyon",
+    ENVI_NAME_LAGOON     := "Lagoon",
+    ENVI_NAME_SHOOTMANIA := "Shootmania",
+)
 
 
 

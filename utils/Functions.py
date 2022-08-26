@@ -897,6 +897,13 @@ def get_game_doc_path_work_items() -> str:
 
 
 
+def get_game_doc_path_skins_envi() -> str:
+    tm_props = get_global_props()
+    envi     = tm_props.LI_DL_TextureEnvi
+    if is_game_trackmania2020():
+        envi = ENVI_NAME_STADIUM
+    return fix_slash(get_game_doc_path() + "/Skins/" + envi)
+
 def get_game_doc_path_maps() -> str:
     return fix_slash(get_game_doc_path() + "/Maps/")
 
