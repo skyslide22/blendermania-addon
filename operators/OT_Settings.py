@@ -228,18 +228,19 @@ def autoFindNadeoIni()->None:
         tm_props.ST_nadeoIniFile_TM = ini
 
 
+# TODO snake_case & rename & separate get_defaults()
 def getDefaultSettingsJSON() -> dict:
-
     file_exist = is_file_existing(PATH_DEFAULT_SETTINGS_JSON)
 
     def get_defaults() -> str:
         return  {
-            "author_name":            os.getlogin(), # current windows username (C:/Users/<>/...)
-            "nadeo_ini_path_tm":      "",
-            "nadeo_ini_path_mp":      "",
-            "blender_grid_size":      "",
-            "blender_grid_division" : "",
-            "itemxml_templates":      []
+            SETTINGS_AUTHOR_NAME:               os.getlogin(), #TODO DOTNET, current windows username (C:/Users/<>/...)
+            SETTINGS_NADEO_INI_TRACKMANIA2020:  "",
+            SETTINGS_NADEO_INI_MANIAPLANET:     "",
+            SETTINGS_BLENDER_GRID_SIZE:         "",
+            SETTINGS_BLENDER_GRID_DIVISION :    "",
+            SETTINGS_ITEM_XML_TEMPLATES:        [],
+            SETTINGS_NEW_BLEND_PREFERRED_GAME:  "",
         }
 
     if not file_exist:
@@ -252,7 +253,10 @@ def getDefaultSettingsJSON() -> dict:
             if data == "":
                 return get_defaults()
             else:        
-                data = dict(json.loads(data))
+                try:
+                    data = dict(json.loads(data))
+                except: #  json.JSONDecodeError ??
+                    data = get_defaults()
             return data
 
 
@@ -263,14 +267,13 @@ def loadDefaultSettingsJSON() -> None:
     tm_props = get_global_props()
     # create settings.json if not exist
     data = getDefaultSettingsJSON()
-    fromjson_author_name        = data.get("author_name")
-    fromjson_nadeoini_tm        = data.get("nadeo_ini_path_tm")
-    fromjson_nadeoini_mp        = data.get("nadeo_ini_path_mp")
-    fromjson_grid_size          = data.get("blender_grid_size")
-    fromjson_grid_division      = data.get("blender_grid_division")
-    fromjson_itemxml_templates  = data.get("itemxml_templates", [])
-
-    
+    fromjson_author_name        = data.get(SETTINGS_AUTHOR_NAME)
+    fromjson_nadeoini_tm        = data.get(SETTINGS_NADEO_INI_TRACKMANIA2020)
+    fromjson_nadeoini_mp        = data.get(SETTINGS_NADEO_INI_MANIAPLANET)
+    fromjson_grid_size          = data.get(SETTINGS_BLENDER_GRID_SIZE)
+    fromjson_grid_division      = data.get(SETTINGS_BLENDER_GRID_DIVISION)
+    fromjson_itemxml_templates  = data.get(SETTINGS_ITEM_XML_TEMPLATES, [])
+    fromjson_new_blend_pref_game= data.get(SETTINGS_NEW_BLEND_PREFERRED_GAME, [])
 
     tm_props.ST_author                  = fromjson_author_name   or tm_props.ST_author
     tm_props.LI_blenderGridSize         = fromjson_grid_size     or tm_props.LI_blenderGridSize 
@@ -283,7 +286,7 @@ def loadDefaultSettingsJSON() -> None:
     # tm2020
     if is_file_existing(fromjson_nadeoini_tm):
         tm_props.ST_nadeoIniFile_TM = fromjson_nadeoini_tm
-    elif not is_file_existing(tm_props.ST_nadeoIniFile_TM):
+    elif is_file_existing(tm_props.ST_nadeoIniFile_TM) is False:
         autoFindNadeoIni()
     else:
         debug("tm2020 nadeo ini not found from json & blendfile")
@@ -291,7 +294,7 @@ def loadDefaultSettingsJSON() -> None:
     # maniaplanet
     if is_file_existing(fromjson_nadeoini_mp):
         tm_props.ST_nadeoIniFile_MP = fromjson_nadeoini_mp
-    elif not is_file_existing(tm_props.ST_nadeoIniFile_MP):
+    elif is_file_existing(tm_props.ST_nadeoIniFile_MP) is False:
         autoFindNadeoIni()
     else:
         debug("maniaplanet nadeo ini not found from json & blendfile")
@@ -310,13 +313,18 @@ def saveDefaultSettingsJSON() -> None:
     old_data = getDefaultSettingsJSON()
     with open(PATH_DEFAULT_SETTINGS_JSON, "w+") as settingsfile:
         new_data = {
-            "author_name"           : tm_props.ST_author or old_data["author_name"],
-            "nadeo_ini_path_mp"     : tm_props.ST_nadeoIniFile_MP or old_data["nadeo_ini_path_mp"],
-            "nadeo_ini_path_tm"     : tm_props.ST_nadeoIniFile_TM or old_data["nadeo_ini_path_tm"],
-            "blender_grid_size"     : tm_props.LI_blenderGridSize or old_data["blender_grid_size"],
-            "blender_grid_division" : tm_props.LI_blenderGridSizeDivision or old_data["blender_grid_division"],
-            "itemxml_templates"     : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates]
+            SETTINGS_AUTHOR_NAME                : tm_props.ST_author or old_data[SETTINGS_AUTHOR_NAME],
+            SETTINGS_NADEO_INI_MANIAPLANET      : tm_props.ST_nadeoIniFile_MP or old_data[SETTINGS_NADEO_INI_MANIAPLANET],
+            SETTINGS_NADEO_INI_TRACKMANIA2020   : tm_props.ST_nadeoIniFile_TM or old_data[SETTINGS_NADEO_INI_TRACKMANIA2020],
+            SETTINGS_BLENDER_GRID_SIZE          : tm_props.LI_blenderGridSize or old_data[SETTINGS_BLENDER_GRID_SIZE],
+            SETTINGS_BLENDER_GRID_DIVISION      : tm_props.LI_blenderGridSizeDivision or old_data[SETTINGS_BLENDER_GRID_DIVISION],
+            SETTINGS_ITEM_XML_TEMPLATES         : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates]
+            SETTINGS_NEW_BLEND_PREFERRED_GAME   : old_data[SETTINGS_NEW_BLEND_PREFERRED_GAME]
         }
+        save_pref_game = False #TODO
+        if save_pref_game:
+            new_data = "something"
+            
         debug("new settings.json data:")
         debug(new_data, pp=True, raw=True)
         settingsfile.write(json.dumps(new_data, indent=4, sort_keys=True))

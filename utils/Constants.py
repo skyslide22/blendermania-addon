@@ -393,6 +393,17 @@ TRI_TO_MEGABYTE_RATIO = 0.000066
 ADDON_ICONS_PATH = os.path.join(os.path.dirname(__file__), os.pardir) + "/icons"
 
 
+SETTINGS_JSON_KEYS = (
+    SETTINGS_AUTHOR_NAME              := "author_name",
+    SETTINGS_NADEO_INI_TRACKMANIA2020 := "nadeo_ini_path_tm"
+    SETTINGS_NADEO_INI_MANIAPLANET    := "nadeo_ini_path_mp"
+    SETTINGS_BLENDER_GRID_SIZE        := "blender_grid_size"
+    SETTINGS_BLENDER_GRID_DIVISION    := "blender_grid_division"
+    SETTINGS_ITEM_XML_TEMPLATES       := "itemxml_templates"
+    SETTINGS_NEW_BLEND_PREFERRED_GAME := "new_blend_game"
+)
+
+
 
 
 
