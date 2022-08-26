@@ -127,7 +127,7 @@ class TM_PT_Items_Export(Panel):
                 row = col.row(align=True)
                 row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
 
-            if exportType == "EXPORT_CONVERT" and len(visible_objects) < 500 and exportable_cols:
+            if tm_props.CB_allow_complex_panel_drawing and collection_count:
                 embed_space = 0
                 if enableExportButton:
                     for col in exportable_cols:

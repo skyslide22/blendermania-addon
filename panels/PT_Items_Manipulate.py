@@ -182,15 +182,15 @@ class TM_PT_ObjectManipulations(Panel):
 
         is_light   = (obj.type == "LIGHT") if obj is not None else False 
 
-        doublesided   = SPECIAL_NAME_SUFFIX_DOUBLESIDED in obj_name
-        is_ignored    = SPECIAL_NAME_PREFIX_IGNORE in obj_name
-        is_visible    = SPECIAL_NAME_PREFIX_NOTVISIBLE not in obj_name
-        is_collidable = SPECIAL_NAME_PREFIX_NOTCOLLIDABLE not in obj_name 
-        is_trigger    = SPECIAL_NAME_PREFIX_TRIGGER in obj_name
-        is_socket     = SPECIAL_NAME_PREFIX_SOCKET in obj_name
-        is_lod0       = SPECIAL_NAME_SUFFIX_LOD0 in obj_name
-        is_lod1       = SPECIAL_NAME_SUFFIX_LOD1 in obj_name
-        is_origin     = SPECIAL_NAME_INFIX_ORIGIN in obj_name
+        doublesided     = SPECIAL_NAME_SUFFIX_DOUBLESIDED in obj_name
+        is_ignored      = SPECIAL_NAME_PREFIX_IGNORE in obj_name
+        is_notvisible   = SPECIAL_NAME_PREFIX_NOTVISIBLE in obj_name
+        is_notcollidable= SPECIAL_NAME_PREFIX_NOTCOLLIDABLE in obj_name 
+        is_trigger      = SPECIAL_NAME_PREFIX_TRIGGER in obj_name
+        is_socket       = SPECIAL_NAME_PREFIX_SOCKET in obj_name
+        is_lod0         = SPECIAL_NAME_SUFFIX_LOD0 in obj_name
+        is_lod1         = SPECIAL_NAME_SUFFIX_LOD1 in obj_name
+        is_origin       = SPECIAL_NAME_INFIX_ORIGIN in obj_name
 
         
         row = obj_box.row(align=True)
@@ -239,7 +239,7 @@ class TM_PT_ObjectManipulations(Panel):
                 if lod1_missing or lod0_missing:
                     missing_lod_name = "Lod1" if lod1_missing else "Lod0"
                     found_lod_name   = "Lod1" if lod0_missing else "Lod0"
-                    text             = f"{found_lod_name} also requires {missing_lod_name} (different object)"
+                    text             = f"{found_lod_name} also requires {missing_lod_name} (other object)"
                     row = col_btns.row(align=True)
                     row.alert = True
                     row.scale_y = .75
@@ -250,8 +250,8 @@ class TM_PT_ObjectManipulations(Panel):
             if is_game_trackmania2020():
                 row = col_btns.row(align=True)
                 # row.enabled = not trigger and not socket
-                row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=ICON_HIDDEN, depress=is_visible)
-                row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=ICON_IGNORE, depress=is_collidable)
+                row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=ICON_HIDDEN, depress=is_notvisible)
+                row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=ICON_IGNORE, depress=is_notcollidable)
 
             # obj_box.separator(factor=UI_SPACER_FACTOR)
             if obj and obj.type == "MESH":

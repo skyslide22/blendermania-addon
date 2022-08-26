@@ -17,6 +17,10 @@ from ..utils.Functions import (
 )
 from ..utils.Constants import (
     ICON_COLLECTION,
+    ICON_EDIT,
+    ICON_EXPORT,
+    ICON_REMOVE,
+    ICON_TEXT,
     ICON_UPDATE,
     MAP_OBJECT_BLOCK,
     PANEL_CLASS_COMMON_DEFAULT_PROPS,
@@ -52,7 +56,7 @@ class PT_UIMapManipulation(bpy.types.Panel):
         # info and settings
         box = layout.box()
         row = box.row()
-        row.label(text="Export collection as Map.Gbx", icon=ICON_COLLECTION)
+        row.label(text="Export Collection as Map.Gbx")
         add_ui_wiki_icon(row, "08.-Map-export")
 
         if not is_blendermania_dotnet_installed():
@@ -69,50 +73,84 @@ class PT_UIMapManipulation(bpy.types.Panel):
             return
 
         # map collection
-        if is_game_maniaplanet():
-            row = box.row()
-            row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", icon=ICON_ENVIRONMENT)
 
-        row = box.row()
-        row.alert = not has_map_coll
-        row.prop(tm_props, "PT_map_collection", text="Map collection")
-
-        row = box.row()
-        row.alert = not has_map_file
-        row.prop(tm_props, "ST_map_filepath", text="Map file")
+        main_col = box.column(align=True)
+        main_row = main_col.row(align=True)
+        col_left = main_row.column(align=True)
+        col_left.scale_x = 0.6
+        col_right = main_row.column(align=True)
         
-        if not tm_props.CB_map_use_overwrite:
-            row = box.row()
-            row.prop(tm_props, "ST_map_suffix", text="New map suffix")
+        # map collection
+        if is_game_maniaplanet():
+            row = col_left.row()
+            row.label(text="Envi", icon=ICON_ENVIRONMENT)
+            row = col_right.row()
+            row.prop(tm_props, "LI_DL_TextureEnvi", text="", icon=ICON_ENVIRONMENT)
+        row = col_left.row(align=True)
+        row.alert = not has_map_coll
+        row.label(text="Map", icon=ICON_COLLECTION)
+        row = col_right.row(align=True)
+        row.prop(tm_props, "PT_map_collection", text="")
 
-            if len(tm_props.ST_map_suffix) == 0:
-                row = box.row()
-                row.alert = True
-                row.label(text='empty suffix: "_modified" will be added')
+        # map file path gbx
+        row = col_left.row()
+        row.alert = not has_map_file
+        row.label(text="Map.Gbx", icon=ICON_MAP)
+        row = col_right.row()
+        row.alert = not has_map_file
+        row.prop(tm_props, "ST_map_filepath", text="")
+        
+        # row = main_col.row(align=True)
+        # row.prop(tm_props, "CB_map_use_overwrite", text="Overwrite Selected Map", toggle=True)
 
-        row = box.row()
-        row.prop(tm_props, "CB_map_use_overwrite")
-        if tm_props.CB_map_use_overwrite:
+        row = col_left.row()
+        row.enabled = tm_props.CB_map_use_overwrite
+        row.label(text="Map Prefix", icon=ICON_TEXT)
+        row = col_right.row()
+        row.prop(tm_props, "ST_map_suffix", text="")
+
+        if len(tm_props.ST_map_suffix) == 0:
             row = box.row()
             row.alert = True
-            row.label(text='this operation CAN NOT be undone')
+            row.label(text='empty suffix: "_modified" will be added')
 
-        row = layout.row()
-        row.scale_y = 1
-        row.enabled = has_map_file and has_map_coll
-        row.operator(OT_UIValidateMapCollection.bl_idname)
 
-        col = layout.column(align=True)
-        row = col.row(align=True)
+
+        row = box.row()
         row.scale_y = 1.5
         row.enabled = has_map_file and has_map_coll
-        row.operator(OT_UICollectionToMap.bl_idname)
+        row.operator(OT_UIValidateMapCollection.bl_idname, text="Validate Map Collection", icon=ICON_COLLECTION)
 
-        row = col.row(align=True)
-        col = row.column(align=True)
-        col.enabled = False
-        col.prop(tm_props, "CB_map_clean_blocks", icon=ICON_UPDATE)
-        row.column(align=True).prop(tm_props, "CB_map_clean_items", icon=ICON_UPDATE)
+        # export button
+        exp_col = layout.column(align=True)
+
+        row = exp_col.row(align=True)
+        row.scale_y = 1.5
+        row.enabled = has_map_file and has_map_coll
+        row.operator(OT_UICollectionToMap.bl_idname, text="Export Collection To Map", icon=ICON_EXPORT)
+        
+        row = exp_col.row(align=True)
+        col_left = row.column(align=True)
+        col_left.scale_x = 1.3
+        col_left.label(text="Clean Existing", icon=ICON_EDIT)
+        
+        col_right = row.column(align=True)
+        row_right = col_right.row(align=True)
+        col_sub_left = row_right.column(align=True)
+        col_sub_left.enabled = False
+        col_sub_left.prop(tm_props, "CB_map_clean_blocks", text="Blocks", toggle=True)
+        
+        col_sub_right = row_right.column(align=True)
+        col_sub_right.enabled = True
+        col_sub_right.prop(tm_props, "CB_map_clean_items", text="Items", toggle=True)
+        
+        row = exp_col.row(align=True)
+        row.prop(tm_props, "CB_map_use_overwrite", text="Overwrite Selected Map", toggle=True, icon=ICON_UPDATE)
+
+        if tm_props.CB_map_use_overwrite:
+            row = layout.row()
+            row.alert = True
+            row.label(text='this operation CAN NOT be undone')
 
 
 class PT_UIMapObjectsManipulation(bpy.types.Panel):

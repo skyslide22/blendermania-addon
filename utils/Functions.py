@@ -1623,7 +1623,7 @@ def on_select_obj(*args) -> None:
 
 def get_tricount_of_collection(col: bpy.types.Collection) -> int:
     tris = 0
-    objs = [obj for obj in col.objects if obj.type == "MESH"]
+    objs = [obj for obj in col.objects if obj.type == "MESH" and not obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET)]
 
     for obj in objs:
         tris += sum([(len(poly.vertices) - 2) for poly in obj.data.polygons])
