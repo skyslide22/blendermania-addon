@@ -6,6 +6,7 @@ import addon_utils
 from bpy.types import Operator
 from bpy.props import StringProperty
 
+from ..utils.Constants      import *
 from ..utils.Functions      import *
 from ..utils.NadeoXML       import (
     add_itemxml_template
@@ -318,7 +319,7 @@ def saveDefaultSettingsJSON() -> None:
             SETTINGS_NADEO_INI_TRACKMANIA2020   : tm_props.ST_nadeoIniFile_TM or old_data[SETTINGS_NADEO_INI_TRACKMANIA2020],
             SETTINGS_BLENDER_GRID_SIZE          : tm_props.LI_blenderGridSize or old_data[SETTINGS_BLENDER_GRID_SIZE],
             SETTINGS_BLENDER_GRID_DIVISION      : tm_props.LI_blenderGridSizeDivision or old_data[SETTINGS_BLENDER_GRID_DIVISION],
-            SETTINGS_ITEM_XML_TEMPLATES         : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates]
+            SETTINGS_ITEM_XML_TEMPLATES         : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates],
             SETTINGS_NEW_BLEND_PREFERRED_GAME   : old_data[SETTINGS_NEW_BLEND_PREFERRED_GAME]
         }
         save_pref_game = False #TODO

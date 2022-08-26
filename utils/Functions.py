@@ -662,7 +662,7 @@ def install_game_textures()->None:
 
 
     create_folder_if_necessary( extractTo )
-    set_game_textures_downloading(True)()
+    set_game_textures_downloading(True)
 
 
 
@@ -704,7 +704,7 @@ def install_game_assets_library()->None:
 
 
     create_folder_if_necessary( extractTo )
-    set_game_textures_downloading(True)()
+    set_game_textures_downloading(True)
 
 
 
