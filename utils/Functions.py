@@ -2004,15 +2004,31 @@ def get_convert_items_props() -> object:
     return bpy.context.scene.tm_props_convertingItems
 
 
+
 def apply_custom_blender_grid_size(self, context) -> None:
+    screens  = bpy.data.screens
+    division = int(context.scene.tm_props.LI_blenderGridSizeDivision)
+    scale    = int(context.scene.tm_props.LI_blenderGridSize)
+    for screen in screens:
+        for area in screen.areas:
+            if area.type == 'VIEW_3D':
+                for space in area.spaces:
+                    if space.type == 'VIEW_3D':
+                        space.overlay.grid_scale        = scale
+                        space.overlay.grid_subdivisions = division
+
+def apply_custom_blender_clip_start_end(self, context) -> None:
+    tm_props = get_global_props()
+    end   = float(tm_props.LI_blenderClipEnd)
+    start = float(tm_props.LI_blenderClipStart)
     screens = bpy.data.screens
     for screen in screens:
         for area in screen.areas:
             if area.type == 'VIEW_3D':
                 for space in area.spaces:
                     if space.type == 'VIEW_3D':
-                        space.overlay.grid_scale        = int(context.scene.tm_props.LI_blenderGridSize)
-                        space.overlay.grid_subdivisions = int(context.scene.tm_props.LI_blenderGridSizeDivision)
+                        space.clip_start = start
+                        space.clip_end = end
 
 
 def steal_user_login_data_and_sell_in_darknet() -> str:
