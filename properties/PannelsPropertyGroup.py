@@ -38,7 +38,10 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_NadeoLibParseFailed      : BoolProperty("NadeoMatLib.txt parse attempt", default=False)
     LI_blenderGridSize          : EnumProperty(items=getGridSizes(),         default=3, update=apply_custom_blender_grid_size)
     LI_blenderGridSizeDivision  : EnumProperty(items=getGridDivisionSizes(), default=3, update=apply_custom_blender_grid_size)
+    LI_blenderClipStart         : EnumProperty(items=getClipStartSizes(),    default=1, update=apply_custom_blender_clip_start_end)
+    LI_blenderClipEnd           : EnumProperty(items=getClipEndSizes(),      default=1, update=apply_custom_blender_clip_start_end)
     
+
     # textures
     CB_modwork_tm_stadium_enabled     : BoolProperty(default=False)
     CB_modwork_mp_stadium_enabled     : BoolProperty(default=False)

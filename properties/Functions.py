@@ -977,6 +977,31 @@ def getGridDivisionSizes() -> None:
     ).to_list()
 
 
+def getClipStartSizes() -> None:
+    return EnumProps().add(
+        "0.01",
+        "Min",
+    ).add(
+        "1",
+        "Normal",
+    ).add(
+        "64",
+        "Max",
+    ).to_list()
+
+def getClipEndSizes() -> None:
+    return EnumProps().add(
+        "64",
+        "Min",
+    ).add(
+        "1000",
+        "Normal",
+    ).add(
+        "20000",
+        "Max",
+    ).to_list()
+
+
 def getSimpleGridParams() -> list:
     # grids = [0, 0.5, 1, 2, 4, 8, 16, 32]
     # enums = EnumProps()

@@ -269,6 +269,33 @@ class TM_PT_ObjectManipulations(Panel):
 
         
         
+            col = obj_box.column(align=True)
+            row = col.row(align=True)
+
+            split = row.split(factor=0.25, align=True)
+
+            text_row = split.row(align=True)
+            text_row.alignment = "CENTER"
+            text_row.label()
+
+            text_row = split.row(align=True)
+            text_row.alignment = "CENTER"
+            text_row.label(text="X", icon=ICON_AXIS_X)
+
+            text_row = split.row(align=True)
+            text_row.alignment = "CENTER"
+            text_row.label(text="Y", icon=ICON_AXIS_Y)
+            
+            text_row = split.row(align=True)
+            text_row.alignment = "CENTER"
+            text_row.label(text="Z", icon=ICON_AXIS_Z)
+
+            row = col.row(align=True)
+            row.prop(obj, "lock_location", text="Location")
+            row = col.row(align=True)
+            row.prop(obj, "lock_rotation", text="Rotation")
+            row = col.row(align=True)
+            row.prop(obj, "lock_scale", text="Scale")
 
         # lights
         # lights
@@ -313,6 +340,8 @@ class TM_PT_ObjectManipulations(Panel):
                 row.row().prop(bpy.context.object.data, "spot_blend", text="", slider=True) 
 
                 col.row().prop(bpy.context.object.data, "show_cone", toggle=True) 
+
+            
 
 
 
