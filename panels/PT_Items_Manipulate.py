@@ -154,10 +154,10 @@ class TM_PT_ObjectManipulations(Panel):
         row = col.row()
         row.enabled = len(objs_with_uvmaps) > 0
         uv_row = row.column(align=True).row(align=True)
-        uv_row.operator("view3d.tm_showuvmap", text="BaseMaterial", icon=ICON_UV_MAPS, depress=depress_basematerial).uv_name = UV_LAYER_NAME_BASEMATERIAL
+        uv_row.operator("view3d.tm_showuvmap", text="BaseMaterial", icon=ICON_VISIBLE, depress=depress_basematerial).uv_name = UV_LAYER_NAME_BASEMATERIAL
         uv_row.operator("view3d.tm_edituvmap", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_BASEMATERIAL
         uv_row = row.column(align=True).row(align=True)
-        uv_row.operator("view3d.tm_showuvmap", text="LightMap",     icon=ICON_UV_MAPS, depress=depress_lightmap).uv_name = UV_LAYER_NAME_LIGHTMAP
+        uv_row.operator("view3d.tm_showuvmap", text="LightMap",     icon=ICON_VISIBLE, depress=depress_lightmap).uv_name = UV_LAYER_NAME_LIGHTMAP
         uv_row.operator("view3d.tm_edituvmap", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_LIGHTMAP
         # row = col.row(align=True)
         # row.prop(tm_props, "LI_workspaces", text="")
