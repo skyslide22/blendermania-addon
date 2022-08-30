@@ -982,7 +982,7 @@ def getClipStartSizes() -> None:
         "0.01",
         "Min",
     ).add(
-        "1",
+        "4",
         "Normal",
     ).add(
         "64",

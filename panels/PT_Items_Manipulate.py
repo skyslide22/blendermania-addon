@@ -269,7 +269,7 @@ class TM_PT_ObjectManipulations(Panel):
 
         
         
-            col = obj_box.column(align=True)
+            col = obj_box.column(align=False)
             row = col.row(align=True)
 
             split = row.split(factor=0.25, align=True)
@@ -290,11 +290,11 @@ class TM_PT_ObjectManipulations(Panel):
             text_row.alignment = "CENTER"
             text_row.label(text="Z", icon=ICON_AXIS_Z)
 
-            row = col.row(align=True)
+            row = col.row(align=False)
             row.prop(obj, "lock_location", text="Location")
-            row = col.row(align=True)
+            row = col.row(align=False)
             row.prop(obj, "lock_rotation", text="Rotation")
-            row = col.row(align=True)
+            row = col.row(align=False)
             row.prop(obj, "lock_scale", text="Scale")
 
         # lights
