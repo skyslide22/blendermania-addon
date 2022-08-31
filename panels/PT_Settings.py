@@ -116,14 +116,28 @@ class TM_PT_Settings_BlenderRelated(Panel):
         tm_props        = get_global_props()
         tm_props_pivots = get_pivot_props()
 
-        col = layout.column(align=True)
-        row = col.row()
-        row.label(text="Snap", icon=ICON_SNAP)
-        row.prop(tm_props, "LI_blenderGridSize", expand=True)
+        row_main  = layout.row(align=True)
+        col_left  = row_main.column(align=True)
+        col_left.scale_x = 2.5
+        col_right = row_main.column(align=True)
 
-        row = col.row()
+        row = col_left.row()
+        row.label(text="Snap", icon=ICON_SNAP)
+        row = col_right.row()
+        row.prop(tm_props, "LI_blenderGridSize", expand=True)
+        row = col_left.row()
         row.label(text="Grid", icon=ICON_GRID)
+        row = col_right.row()
         row.prop(tm_props, "LI_blenderGridSizeDivision", expand=True)
+
+        row = col_left.row()
+        row.label(text="Start", icon=ICON_VISIBLE)
+        row = col_right.row()
+        row.prop(tm_props, "LI_blenderClipStart", expand=True)
+        row = col_left.row()
+        row.label(text="End", icon=ICON_HIDDEN)
+        row = col_right.row()
+        row.prop(tm_props, "LI_blenderClipEnd", expand=True)
 
 
 

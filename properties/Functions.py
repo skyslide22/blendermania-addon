@@ -159,29 +159,29 @@ def gameTypeGotUpdated(self=None,context=None)->None:
 
 def getGameTextureZipFileNames()->list:
     return EnumProps().add(
-        id   = "Stadium",
-        name = "Stadium",
-        desc = "Stadium",
+        id   = ENVI_NAME_STADIUM,
+        name = ENVI_NAME_STADIUM,
+        desc = ENVI_NAME_STADIUM,
         icon = get_addon_icon("ENVI_STADIUM")
     ).add(
-        id   = "Valley",
-        name = "Valley",
-        desc = "Valley",
+        id   = ENVI_NAME_VALLEY,
+        name = ENVI_NAME_VALLEY,
+        desc = ENVI_NAME_VALLEY,
         icon = get_addon_icon("ENVI_VALLEY")
     ).add(
-        id   = "Canyon",
-        name = "Canyon",
-        desc = "Canyon",
+        id   = ENVI_NAME_CANYON,
+        name = ENVI_NAME_CANYON,
+        desc = ENVI_NAME_CANYON,
         icon = get_addon_icon("ENVI_CANYON")
     ).add(
-        id   = "Lagoon",
-        name = "Lagoon",
-        desc = "Lagoon",
+        id   = ENVI_NAME_LAGOON,
+        name = ENVI_NAME_LAGOON,
+        desc = ENVI_NAME_LAGOON,
         icon = get_addon_icon("ENVI_LAGOON")
     ).add(
-        id   = "Shootmania",
-        name = "Shootmania",
-        desc = "Shootmania",
+        id   = ENVI_NAME_SHOOTMANIA,
+        name = ENVI_NAME_SHOOTMANIA,
+        desc = ENVI_NAME_SHOOTMANIA,
         icon = get_addon_icon("ENVI_STORM")
     ).to_list()
 
@@ -974,6 +974,31 @@ def getGridDivisionSizes() -> None:
     ).add(
         "64",
         "64",
+    ).to_list()
+
+
+def getClipStartSizes() -> None:
+    return EnumProps().add(
+        "0.01",
+        "Min",
+    ).add(
+        "4",
+        "Normal",
+    ).add(
+        "64",
+        "Max",
+    ).to_list()
+
+def getClipEndSizes() -> None:
+    return EnumProps().add(
+        "64",
+        "Min",
+    ).add(
+        "1000",
+        "Normal",
+    ).add(
+        "20000",
+        "Max",
     ).to_list()
 
 

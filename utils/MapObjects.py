@@ -16,6 +16,7 @@ from ..utils.Functions import (
     ireplace,
     is_file_existing,
     get_global_props,
+    radians,
     set_active_object,
     get_game_doc_path,
     is_game_trackmania2020,
@@ -148,11 +149,14 @@ def export_map_collection() -> DotnetExecResult:
             elif is_game_trackmania2020(): # replace .Item.Gbx for 2020 vanilla items
                 name = ireplace(".Gbx", "", ireplace(".Item", "", name))
 
+            # TODO apply rotation on original before make item ()
+            # like bpy.ops.object.transform_apply( rotation = True )
+            # obj which is used to create item(map) needs to have rotation(0,0,0) else invalid data
             dotnet_items.append(DotnetItem(
                 Name=name,
                 Path=obj["tm_map_object_path"] if is_custom_item else "",
                 Position=DotnetVector3(obj.location[1], obj.location[2]+8, obj.location[0]),
-                Rotation=DotnetVector3(obj.rotation_euler[2], obj.rotation_euler[1], obj.rotation_euler[0]),
+                Rotation=DotnetVector3(obj.rotation_euler[2] - math.radians(90), obj.rotation_euler[1], obj.rotation_euler[0]),
                 Pivot=DotnetVector3(0),
             ))
         elif obj["tm_map_object_kind"] == MAP_OBJECT_BLOCK:

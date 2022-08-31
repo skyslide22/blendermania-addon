@@ -300,6 +300,9 @@ def on_startup(dummy) -> None:
     is_nadeoimporter_installed()
     update_installed_nadeoimporter_version_ui()
 
+    # modwork
+    check_modwork_folders_enabled()
+
     # this mat is auto created by blender, remove due appearance in mat list 
     stroke_mat = bpy.data.materials.get("Dots Stroke", None)
     if stroke_mat is not None:

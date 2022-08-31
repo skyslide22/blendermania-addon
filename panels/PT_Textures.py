@@ -3,6 +3,8 @@ from pydoc import text
 import bpy
 from bpy.types import Panel
 
+from ..operators.OT_Textures import is_selected_modwork_enabled
+
 from .PT_DownloadProgress import render_donwload_progress_bar
 from ..utils.Functions      import *
 from ..utils.Dotnet         import *
@@ -30,9 +32,13 @@ class TM_PT_Textures(Panel):
 
         col = layout.column(align=True)
 
+        modwork_enabled = is_selected_modwork_enabled()
+
         row = col.row(align=True)
         scol = row.column(align=True)
-        scol.operator("view3d.tm_toggle_modwork", text="Toggle ModWork Folder", icon=ICON_TEXTURE)
+        scol.operator("view3d.tm_toggle_modwork", text="ModWork", icon=ICON_TEXTURE, depress=modwork_enabled)
+        scol = row.column(align=True)
+        scol.operator("view3d.tm_open_folder",    text="", icon=ICON_FOLDER).folder = get_game_doc_path_skins_envi()
 
         if is_game_maniaplanet():
             scol = row.column(align=True)

@@ -134,7 +134,8 @@ def run_place_objects_on_map(
         outfile.close()
 
         res = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
-        os.remove("map-export.json")
+        if not BLENDER_INSTANCE_IS_DEV:
+            os.remove("map-export.json")
         return res
 
 def run_convert_item_to_obj(
@@ -146,7 +147,8 @@ def run_convert_item_to_obj(
         outfile.close()
 
         res = _run_dotnet(CONVERT_ITEM_TO_OBJ, get_abs_path("convert-item.json"))
-        os.remove("convert-item.json")
+        if not BLENDER_INSTANCE_IS_DEV:
+            os.remove("convert-item.json")
         return res
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:

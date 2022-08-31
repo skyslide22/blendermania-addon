@@ -63,6 +63,9 @@ def get_blendermania_dotnet_path() -> str:
 def is_blendermania_dotnet_installed() -> bool:
     return is_file_existing(get_blendermania_dotnet_path())
 
+def get_game():
+    return get_global_props().LI_gameType
+
 def get_documents_path() -> str:
     process = subprocess.Popen([
         """Powershell.exe""",
@@ -303,7 +306,7 @@ class AddonUpdate:
 
     def check_can_update(cls) -> bool:
         can_update = cls.new_addon_version > cls.addon_version
-        debug(f"Check if addon can update: {can_update}")
+        debug(f"new addon version available: {can_update}")
         return can_update
 
     @classmethod
@@ -332,12 +335,9 @@ class AddonUpdate:
 
                 try_count += 1
                 try:
-                    debug(f"try update CB_addonUpdateAvailable")
                     get_global_props().CB_addonUpdateAvailable = can_update
-                    debug(f"success {can_update=}")
                     return None
                 except AttributeError:
-                    debug(f"failed {can_update=}")
                     return 1
             
             timer(update, 0)
@@ -662,7 +662,7 @@ def install_game_textures()->None:
 
 
     create_folder_if_necessary( extractTo )
-    set_game_textures_downloading(True)()
+    set_game_textures_downloading(True)
 
 
 
@@ -704,7 +704,7 @@ def install_game_assets_library()->None:
 
 
     create_folder_if_necessary( extractTo )
-    set_game_textures_downloading(True)()
+    set_game_textures_downloading(True)
 
 
 
@@ -896,6 +896,13 @@ def get_game_doc_path_work_items() -> str:
     return fix_slash(get_game_doc_path() + "/Work/Items/")
 
 
+
+def get_game_doc_path_skins_envi() -> str:
+    tm_props = get_global_props()
+    envi     = tm_props.LI_DL_TextureEnvi
+    if is_game_trackmania2020():
+        envi = ENVI_NAME_STADIUM
+    return fix_slash(get_game_doc_path() + "/Skins/" + envi)
 
 def get_game_doc_path_maps() -> str:
     return fix_slash(get_game_doc_path() + "/Maps/")
@@ -1616,7 +1623,7 @@ def on_select_obj(*args) -> None:
 
 def get_tricount_of_collection(col: bpy.types.Collection) -> int:
     tris = 0
-    objs = [obj for obj in col.objects if obj.type == "MESH"]
+    objs = [obj for obj in col.objects if obj.type == "MESH" and not obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET)]
 
     for obj in objs:
         tris += sum([(len(poly.vertices) - 2) for poly in obj.data.polygons])
@@ -1997,15 +2004,31 @@ def get_convert_items_props() -> object:
     return bpy.context.scene.tm_props_convertingItems
 
 
+
 def apply_custom_blender_grid_size(self, context) -> None:
+    screens  = bpy.data.screens
+    division = int(context.scene.tm_props.LI_blenderGridSizeDivision)
+    scale    = int(context.scene.tm_props.LI_blenderGridSize)
+    for screen in screens:
+        for area in screen.areas:
+            if area.type == 'VIEW_3D':
+                for space in area.spaces:
+                    if space.type == 'VIEW_3D':
+                        space.overlay.grid_scale        = scale
+                        space.overlay.grid_subdivisions = division
+
+def apply_custom_blender_clip_start_end(self, context) -> None:
+    tm_props = get_global_props()
+    end   = float(tm_props.LI_blenderClipEnd)
+    start = float(tm_props.LI_blenderClipStart)
     screens = bpy.data.screens
     for screen in screens:
         for area in screen.areas:
             if area.type == 'VIEW_3D':
                 for space in area.spaces:
                     if space.type == 'VIEW_3D':
-                        space.overlay.grid_scale        = int(context.scene.tm_props.LI_blenderGridSize)
-                        space.overlay.grid_subdivisions = int(context.scene.tm_props.LI_blenderGridSizeDivision)
+                        space.clip_start = start
+                        space.clip_end = end
 
 
 def steal_user_login_data_and_sell_in_darknet() -> str:
