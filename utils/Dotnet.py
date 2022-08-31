@@ -168,6 +168,6 @@ def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
         return DotnetExecResult(message="Unknown Error", success=False) if len(res) == 0 else res
 
     if res.startswith("SUCCESS:"):
-        return DotnetExecResult(message=res.replace("SUCCESS:", "").strip(), success=False)
+        return DotnetExecResult(message=res.replace("SUCCESS:", "").strip(), success=True)
     else:
-        return DotnetExecResult(message=res.replace("ERROR:", "").strip(), success=True)
+        return DotnetExecResult(message=res.replace("ERROR:", "").strip(), success=False)

@@ -57,15 +57,15 @@ def import_item_FBXs(files: list[str]) -> None:
 def import_item_gbx(item_path: str):
     output_dir = os.path.dirname(item_path)
 
-    obj_path, err = run_convert_item_to_obj(item_path, output_dir)
-    if err:
-        return err
+    res = run_convert_item_to_obj(item_path, output_dir)
+    if not res.success:
+        return res.message
 
-    bpy.ops.import_scene.obj(filepath=obj_path)
+    bpy.ops.import_scene.obj(filepath=res.message)
     objs = bpy.context.selected_objects
     _clean_up_imported_item_gbx(item_path, objs)
 
-    os.remove(obj_path)
+    os.remove(res.message)
 
     return None
 
