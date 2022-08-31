@@ -132,7 +132,6 @@ def export_map_collection() -> DotnetExecResult:
     dotnet_items                     = list[DotnetItem]()
     dotnet_blocks                    = list[DotnetBlock]()
     env                              = "Stadium2020" if is_game_trackmania2020() else tm_props.LI_DL_TextureEnvi
-    print(env)
 
     if len(map_suffix.strip()) == 0:
         map_suffix = "_modified"

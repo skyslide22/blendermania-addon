@@ -104,9 +104,10 @@ class PT_UIMapManipulation(bpy.types.Panel):
         # row.prop(tm_props, "CB_map_use_overwrite", text="Overwrite Selected Map", toggle=True)
 
         row = col_left.row()
-        row.enabled = tm_props.CB_map_use_overwrite
+        row.enabled = not tm_props.CB_map_use_overwrite
         row.label(text="Map Prefix", icon=ICON_TEXT)
         row = col_right.row()
+        row.enabled = not tm_props.CB_map_use_overwrite
         row.prop(tm_props, "ST_map_suffix", text="")
 
         if len(tm_props.ST_map_suffix) == 0:

@@ -120,7 +120,8 @@ def run_place_objects_on_map(
     clean_items: bool = True,
     env: str = True,
 ) -> DotnetExecResult:
-    with open('map-export.json', 'w', encoding='utf-8') as outfile:
+    config_path = fix_slash(os.path.dirname(get_abs_path(map_path)))+'/map-export.json'
+    with open(config_path, 'w', encoding='utf-8') as outfile:
         json.dump(DotnetPlaceObjectsOnMap(
                 map_path,
                 blocks,
@@ -133,7 +134,7 @@ def run_place_objects_on_map(
         ), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
         outfile.close()
 
-        res = _run_dotnet(PLACE_OBJECTS_ON_MAP, get_abs_path("map-export.json"))
+        res = _run_dotnet(PLACE_OBJECTS_ON_MAP, config_path)
         if not BLENDER_INSTANCE_IS_DEV:
             os.remove("map-export.json")
         return res
@@ -142,17 +143,18 @@ def run_convert_item_to_obj(
     item_path: str,
     output_dir: str,
 ) -> DotnetExecResult:
-    with open('convert-item.json', 'w', encoding='utf-8') as outfile:
+    config_path = fix_slash(os.path.dirname(get_abs_path(item_path)))+'/map-export.json'
+    with open(config_path, 'w', encoding='utf-8') as outfile:
         json.dump(DotnetConvertItemToObj(item_path, output_dir), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
         outfile.close()
 
-        res = _run_dotnet(CONVERT_ITEM_TO_OBJ, get_abs_path("convert-item.json"))
+        res = _run_dotnet(CONVERT_ITEM_TO_OBJ, config_path)
         if not BLENDER_INSTANCE_IS_DEV:
             os.remove("convert-item.json")
         return res
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
-    print(payload)
+    #print(payload)
     dotnet_exe = get_blendermania_dotnet_path()
 
     process = subprocess.Popen(args=[

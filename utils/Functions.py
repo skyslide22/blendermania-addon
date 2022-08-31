@@ -49,7 +49,7 @@ def get_addon_path() -> str:
     return fix_slash(ADDON_ROOT_PATH + "/")
 
 def get_addon_assets_path() -> str:
-    return get_addon_path() + "/assets/"
+    return get_addon_path() + "assets/"
 
 def get_addon_assets_addons_path() -> str:
     return get_addon_assets_path() + "/addons/"
@@ -58,7 +58,7 @@ def get_addon_assets_blendfiles_path() -> str:
     return get_addon_assets_path() + "/blends/"
 
 def get_blendermania_dotnet_path() -> str:
-    return get_addon_path() + f"/assets/{BLENDERMANIA_DOTNET}.exe"
+    return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
 
 def is_blendermania_dotnet_installed() -> bool:
     return is_file_existing(get_blendermania_dotnet_path())
