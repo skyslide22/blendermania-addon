@@ -75,12 +75,19 @@ class TM_OT_Settings_OpenConvertReport(Operator):
 class TM_OT_Settings_InstallNadeoImporter(Operator):
     bl_idname = "view3d.tm_installnadeoimporter"
     bl_description = "install nando importerino"
-    bl_label = "Check if nadeoimporter is installed"
+    bl_label = "Install Nadeoimporter"
         
     def execute(self, context):
         # installNadeoImporter()
         install_nadeoimporter_addon_assets()
         return {"FINISHED"}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Are you sure you want to install the nadeoimporter?")
 
 class TM_OT_Settings_InstallGameTextures(Operator):
     bl_idname = "view3d.tm_installgametextures"
@@ -91,6 +98,13 @@ class TM_OT_Settings_InstallGameTextures(Operator):
         install_game_textures()
         return {"FINISHED"}
 
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Are you sure you want to install the game textures?")
+
 class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
     bl_idname = "view3d.tm_installgameassetslibrary"
     bl_description = "Download assets library (download textures as well to see them in blender)"
@@ -99,6 +113,13 @@ class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
     def execute(self, context):
         install_game_assets_library()
         return {"FINISHED"}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Are you sure you want to install the asset library?")
 
 class TM_OT_Settings_InstallBlendermaniaDotnet(Operator):
     bl_idname = "view3d.tm_install_blendermania_dotnet"

@@ -124,6 +124,9 @@ ICON_ROTATION           = "DRIVER_ROTATIONAL_DIFFERENCE"
 ICON_SCALE              = "ARROW_LEFTRIGHT"
 ICON_LOCATION           = "OBJECT_ORIGIN"
 ICON_LOCK               = "LOCKED"
+ICON_OVERWRITE          = "CURRENT_FILE"
+
+
 
 
 # https://cloford.com/resources/charcodes/utf-8_arrows.htm

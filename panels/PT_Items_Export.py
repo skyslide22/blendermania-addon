@@ -50,6 +50,7 @@ class TM_PT_Items_Export(Panel):
             left_col.label(text="Game")
             left_col.label(text="Folder")
             left_col.label(text="Limit by")
+            left_col.label(text="Extras")
 
             right_col = main_row.column(align=True)
             right_col.scale_x = 1
@@ -58,6 +59,12 @@ class TM_PT_Items_Export(Panel):
             right_col.prop(tm_props, "LI_gameType", text="")
             right_col.prop(tm_props, "LI_exportFolderType", text="")
             right_col.row().prop(tm_props, "LI_exportWhichObjs", expand=True)
+            row = right_col.row(align=True)
+            col = row.column(align=True)
+            col.prop(tm_props, "CB_convertMultiThreaded", text="Multi Convert", icon=ICON_PARALLEL)
+            col = row.column(align=True)
+            col.scale_x = 0.8
+            col.prop(tm_props, "CB_notifyPopupWhenDone",  text="Notify",           icon=ICON_INFO)
 
             
             if exportCustomFolder:
@@ -119,9 +126,7 @@ class TM_PT_Items_Export(Panel):
             row.operator("view3d.tm_export", text=text,   icon=icon)
             
         
-            row = col.row(align=True)
-            row.prop(tm_props, "CB_convertMultiThreaded", text="Parallel Convert", icon=ICON_PARALLEL)
-            row.prop(tm_props, "CB_notifyPopupWhenDone",  text="Notify Toast",     icon=ICON_INFO)
+
 
             if is_game_trackmania2020():
                 row = col.row(align=True)

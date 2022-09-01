@@ -230,7 +230,7 @@ class TM_PT_Settings_Performance(Panel):
         tm_props        = get_global_props()
 
         row = layout.row()
-        row.label(text="If blender runs slow... (many objects)")
+        row.label(text="Disable when blender runs slow...")
 
         col = layout.column(align=True)
         row = col.row(align=True)

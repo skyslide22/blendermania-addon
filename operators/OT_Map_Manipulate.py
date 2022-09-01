@@ -31,6 +31,24 @@ class OT_UICollectionToMap(bpy.types.Operator):
 
         return {"FINISHED"}
 
+    def invoke(self, context, event):
+        tm_props = get_global_props()
+        ovwr_map = tm_props.CB_map_use_overwrite
+
+        if ovwr_map:
+            return context.window_manager.invoke_props_dialog(self)
+        else:
+            return self.execute(context)
+    
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column(align=True)
+        col.scale_y = 0.7
+        col.alert = True
+        col.label(text="Overwriting .Map.Gbx File...")
+        col.label(text="Are you sure? This can NOT be undone !!!")
+
+
 class OT_UIValidateMapCollection(bpy.types.Operator):
     """export and or convert an item"""
     bl_idname = "view3d.tm_validate_map_coll"

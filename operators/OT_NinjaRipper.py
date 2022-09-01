@@ -22,6 +22,12 @@ class TM_OT_Ninja17Install(Operator):
         bpy.ops.preferences.addon_enable(module = NINJA_RIPPER_17_ADDON_NAME)
         return {'FINISHED'}
 
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Are you sure you want to install ninjaripper 1.7.1?")
 
 
 class TM_OT_Ninja20Install(Operator):
@@ -31,5 +37,4 @@ class TM_OT_Ninja20Install(Operator):
     def execute(self, context):
         webbrowser.open('https://www.ninjaripper.com/', new=2)
         return {'FINISHED'}
-
 

@@ -63,7 +63,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     #map manipulation
     ST_map_filepath           : StringProperty(name="Map file", default="",   subtype="FILE_PATH")
     CB_map_use_overwrite      : BoolProperty(name="Overwrite selected map", default=False)
-    ST_map_suffix             : StringProperty(name="Suffix", default="_modified")
+    ST_map_suffix             : StringProperty(name="Suffix", default="_modified", update=update_ST_map_suffix)
     PT_map_collection         : PointerProperty(type=bpy.types.Collection)
     PT_map_object             : PointerProperty(type=MapObjectProperties)
     CB_map_clean_blocks       : BoolProperty(name="Clean existed blocks", default=False, description="Blocks are very unstable at the moment")
