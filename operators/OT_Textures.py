@@ -69,8 +69,8 @@ def toggle_modwork_folder() -> None:
         collection_folder = "Stadium"
 
     modwork_root     = get_game_doc_path() + "/Skins/" + collection_folder
-    modwork_path     = modwork_root + "/" + MODWORK_FOLDER_NAME
-    modwork_off_path = modwork_root + "/" + MODWORK_OFF_FOLDER_NAME
+    modwork_path     = fix_slash(modwork_root + "/" + MODWORK_FOLDER_NAME)
+    modwork_off_path = fix_slash(modwork_root + "/" + MODWORK_OFF_FOLDER_NAME)
     
     modwork_exist     = is_folder_existing(fix_slash(modwork_path))
     modwork_off_exist = is_folder_existing(fix_slash(modwork_off_path))
@@ -81,17 +81,24 @@ def toggle_modwork_folder() -> None:
         create_folder_if_necessary(modwork_path)
         modwork_exist = True
 
-    if modwork_exist:
-        if modwork_off_exist:
-            rename_folder(modwork_off_path, modwork_off_path + "_old")
-        rename_folder(modwork_path, modwork_off_path)
-        enabled = False
-
-    elif modwork_off_exist:
+    try:
         if modwork_exist:
-            rename_folder(modwork_path, modwork_path + "_old")
-        rename_folder(modwork_off_path, modwork_path)
-        enabled = True    
+            if modwork_off_exist:
+                rename_folder(modwork_off_path, modwork_off_path + "_old")
+            rename_folder(modwork_path, modwork_off_path)
+            enabled = False
+
+        elif modwork_off_exist:
+            if modwork_exist:
+                rename_folder(modwork_path, modwork_path + "_old")
+            rename_folder(modwork_off_path, modwork_path)
+            enabled = True    
+    except PermissionError as err:
+        show_report_popup(
+            "Rename failed", [
+                "Rename of the folder ModWork failed", 
+                "Try closing all windows explorer instances!", 
+                "Error:", err])
 
     icon         = ICON_SUCCESS if enabled else ICON_CANCEL
     enabled_text = "enabled"    if enabled else "disabled"
