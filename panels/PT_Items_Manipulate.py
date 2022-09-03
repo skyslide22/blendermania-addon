@@ -306,11 +306,12 @@ class TM_PT_ObjectManipulations(Panel):
             
             col = light_box.column(align=True)
             is_spotlight  = obj.data.type == "SPOT"
+            is_pointlight = obj.data.type == "POINT"
 
 
             row = col.row(align=True)
-            row.operator("view3d.tm_togglelighttype", text="Spot" , icon=ICON_LIGHT_SPOT ).light_type = "SPOT"
-            row.operator("view3d.tm_togglelighttype", text="Point", icon=ICON_LIGHT_POINT).light_type = "POINT"
+            row.operator("view3d.tm_togglelighttype", text="Spot" , icon=ICON_LIGHT_SPOT , depress=is_spotlight).light_type = "SPOT"
+            row.operator("view3d.tm_togglelighttype", text="Point", icon=ICON_LIGHT_POINT, depress=is_pointlight).light_type = "POINT"
 
 
 

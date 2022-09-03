@@ -125,6 +125,8 @@ ICON_SCALE              = "ARROW_LEFTRIGHT"
 ICON_LOCATION           = "OBJECT_ORIGIN"
 ICON_LOCK               = "LOCKED"
 ICON_OVERWRITE          = "CURRENT_FILE"
+ICON_FILE               = "FILE_BLANK"
+ICON_FILE_NEW           = "FILE_NEW"
 
 
 

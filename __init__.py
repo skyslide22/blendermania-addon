@@ -12,7 +12,7 @@ bl_info = {
     "author"        : "skyslide & juice",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 1, 0),
-    "version"       : (2, 9, 9999),
+    "version"       : (3, 0, 0),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
@@ -278,6 +278,13 @@ def on_startup(dummy) -> None:
     try:
         bpy.ops.view3d.tm_closeconvertsubpanel()
         bpy.ops.view3d.tm_resetaddonupdatesettings()
+
+        tm_props = get_global_props()
+        tm_props.CB_DL_ProgressRunning  = False
+        tm_props.NU_DL_Progress         = 0
+        tm_props.ST_DL_ProgressErrors   = ""
+        tm_props.CB_DL_ProgressShow     = False
+
 
         # so grid_subdivisions is editable
         bpy.context.scene.unit_settings.system = 'NONE'

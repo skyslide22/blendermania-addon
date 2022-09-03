@@ -30,7 +30,8 @@ def _make_object_name(path: str, type: str) -> str:
     doc_path = get_game_doc_path()
 
     prefix = "TM" if is_game_trackmania2020() else "MP"
-    short_name = ireplace(doc_path+"/", "", path)
+    # short_name = ireplace(doc_path+"/", "", path)
+    short_name = fix_slash(path).split("/")[-1]#.split(".")[0]
     return f"{prefix}_{type.upper()}: {short_name}"
 
 def get_selected_map_objects() -> list[bpy.types.Object]:

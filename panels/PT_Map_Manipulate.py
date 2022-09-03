@@ -42,17 +42,17 @@ class PT_UIMapManipulation(bpy.types.Panel):
         has_map_coll = tm_props.PT_map_collection is not None
 
         # info and settings
-        box = layout.box()
-        row = box.row()
+        # box = layout.box()
+        row = layout.row()
         row.label(text="Export Collection as Map.Gbx")
         add_ui_wiki_icon(row, "08.-Map-export")
 
         if not is_blendermania_dotnet_installed():
-            row = box.row()
+            row = layout.row()
             row.alert = True
             row.label(text="Blendermania dotnet installation required")
             
-            row = box.row()
+            row = layout.row()
             row.scale_y = 1.5
             text = f"Install blendermania-dotnet"
             row.operator("view3d.tm_install_blendermania_dotnet", text=text, icon=ICON_UGLYPACKAGE)
@@ -62,41 +62,64 @@ class PT_UIMapManipulation(bpy.types.Panel):
 
         # map collection
 
-        main_col = box.column(align=True)
+        main_col = layout.column(align=True)
         main_row = main_col.row(align=True)
         col_left = main_row.column(align=True)
-        col_left.scale_x = 0.6
+        # col_left.scale_x = 0.6
         col_right = main_row.column(align=True)
         
         # map collection
         if is_game_maniaplanet():
             row = col_left.row()
-            row.label(text="Envi", icon=ICON_ENVIRONMENT)
+            row.label(text="Envi", )#icon=ICON_ENVIRONMENT)
             row = col_right.row()
-            row.prop(tm_props, "LI_DL_TextureEnvi", text="", icon=ICON_ENVIRONMENT)
+            row.prop(tm_props, "LI_DL_TextureEnvi", text="", )#icon=ICON_ENVIRONMENT)
         row = col_left.row(align=True)
         row.alert = not has_map_coll
-        row.label(text="Map", icon=ICON_COLLECTION)
+        row.label(text="Map", )#icon=ICON_COLLECTION)
         row = col_right.row(align=True)
         row.prop(tm_props, "PT_map_collection", text="")
+        # row = col_right.row(align=True)
+        # row.operator(OT_UIValidateMapCollection.bl_idname, text="Validate Map", icon=ICON_UPDATE)
+        # row = col_left.row(align=True)
+        # row.label(text=" ") # spacer
+
+
+        col_left.separator(factor=2)
+        col_right.separator(factor=2)
 
         # map file path gbx
         row = col_left.row()
         row.alert = not has_map_file
-        row.label(text=".Gbx", icon=ICON_MAP)
+        row.label(text="Map File", )#icon=ICON_FILE)
         row = col_right.row()
         row.alert = not has_map_file
         row.prop(tm_props, "ST_map_filepath", text="")
+
+        
+        row = col_left.row()
+        row.enabled = not tm_props.CB_map_use_overwrite
+        row.label(text="Map Suffix", )#icon=ICON_FILE_NEW)
+        row = col_right.row()
+        row.enabled = not tm_props.CB_map_use_overwrite
+        row.prop(tm_props, "ST_map_suffix", text="")
+
+        row = col_right.row()
+        row.enabled = True
+        row.prop(tm_props, "CB_map_use_overwrite", text="Overwrite Map", toggle=True, icon=ICON_ERROR)
+        row = col_left.row()
+        row.label(text=" ")
+
         
         # col_left.separator(factor=2)
         # col_right.separator(factor=2)
         
         row = col_left.row(align=True)
-        row.label(text="Clean", icon=ICON_EDIT)
-        row.scale_x = 1.3
+        row.label(text="Clean", )#icon=ICON_EDIT)
+        # row.scale_x = 1.3
         
         row_right = col_right.row(align=True)
-        row_right.scale_x = 0.5
+        # row_right.scale_x = 0.5
         col_sub_left = row_right.column(align=True)
         col_sub_left.enabled = False
         col_sub_left.prop(tm_props, "CB_map_clean_blocks", text="Blocks", toggle=True)
@@ -105,24 +128,12 @@ class PT_UIMapManipulation(bpy.types.Panel):
         col_sub_middle.enabled = True
         col_sub_middle.prop(tm_props, "CB_map_clean_items", text="Items", toggle=True)
         
-        col_sub_right = row_right.column(align=True)
-        col_sub_right.enabled = True
-        col_sub_right.prop(tm_props, "CB_map_use_overwrite", text="Map", toggle=True)
-        
-        row = col_left.row()
-        row.enabled = not tm_props.CB_map_use_overwrite
-        row.label(text="Suffix", icon=ICON_OVERWRITE)
-        row = col_right.row()
-        row.enabled = not tm_props.CB_map_use_overwrite
-        row.prop(tm_props, "ST_map_suffix", text="")
 
 
 
-
-        row = box.row(align=True)
+        row = layout.row(align=True)
         row.scale_y = 1.5
         row.enabled = has_map_file and has_map_coll
-        row.operator(OT_UIValidateMapCollection.bl_idname, text="Validate Map", icon=ICON_COLLECTION)
         row.operator(OT_UICollectionToMap.bl_idname, text="Export Map", icon=ICON_EXPORT)
 
 
@@ -148,51 +159,66 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         select_map_objects = get_selected_map_objects()
         is_multi = len(select_map_objects) > 1
 
-        box = layout.box()
 
         if not is_blendermania_dotnet_installed():
-            box.alert = True
-            box.label(text="Blendermania dotnet installation required")
+            layout.alert = True
+            layout.label(text="Blendermania dotnet installation required")
             return
+ 
         elif not has_map_coll:
-            box.label(text="Select Map collection first")
+            layout.label(text="Select Map collection first")
+            return
+
         elif len(select_objects) > 1 and len(select_map_objects) == 0:
-            box.label(text="To create a new map object select just ONE object")
+            layout.label(text="To create a new map object select just ONE object")
+            return
+ 
         elif len(select_objects) != 1 and len(select_objects) != len(select_map_objects):
-            box.label(text="Mixed selection: both map objects and other objects selected")
-        else:
-            title = "Update" if is_update else "Create"
-            multi_text = f"s ({len(select_map_objects)})" if len(select_map_objects) > 1 else ""
-            box.label(text=f"{title} Map Item{multi_text}")
+            layout.label(text="Mixed selection: both map objects and other objects selected")
+            return
+ 
+        item_action = "Update" if is_update else "Create"
+        multi_text = f"s ({len(select_map_objects)})" if len(select_map_objects) > 1 else ""
+        layout.label(text=f"{item_action} Item{multi_text} for a Map Collection")
 
-            if is_block:
-                row = box.row()
-                row.alert = True
-                col = row.column()
-                col.scale_y = 0.6
-                col.label(text="Blocks are very unstable at the moment")
-                col.label(text="probably will be added in the later version")
-                #col.label(text="Blocks will be palced on grid")
-                #col.label(text="Position will be taken by round(position/32).")
-                #col.label(text="Position can not be non-negative")
-                #col.label(text="Only rotation on Z axis with 90deg step")
+        if is_block:
+            row = layout.row()
+            row.alert = True
+            col = row.column()
+            col.scale_y = 0.6
+            col.label(text="Blocks are very unstable at the moment")
+            col.label(text="probably will be added in the later version")
+            #col.label(text="Blocks will be placed on grid")
+            #col.label(text="Position will be taken by round(position/32).")
+            #col.label(text="Position can not be non-negative")
+            #col.label(text="Only rotation on Z axis with 90deg step")
+        
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        row.enabled = not is_multi
+        row.prop(tm_props.PT_map_object, "object_type", text="Type")
+
+        row = col.row(align=True)
+        row.enabled = not is_block and not is_multi
+        row.prop(tm_props.PT_map_object, "object_item", text="Placeholder")
             
-            
-            row = box.row()
-            row.enabled = not is_multi
-            row.prop(tm_props.PT_map_object, "object_type", text="Object type")
+        path_is_valid = tm_props.PT_map_object.object_path.lower().endswith("item.gbx")
 
-            row = box.row()
-            row.enabled = not is_block and not is_multi
-            row.prop(tm_props.PT_map_object, "object_item", text="Object placeholder")
-                
-            row = box.row()
-            row.enabled = not is_block
-            path_title = "Name" if is_block else "Name/Path"
-            row.prop(tm_props.PT_map_object, "object_path", text=f"{path_title} of {tm_props.PT_map_object.object_type}")
+        row = col.row(align=True)
+        row.enabled = not is_block
+        row.alert = not path_is_valid
+        path_title = "Name" if is_block else "Item.Gbx"
+        row.prop(tm_props.PT_map_object, "object_path", text=f"{path_title}")
 
-            button = layout.row()
-            button.scale_y = 1.5
-            button.enabled = not is_block
-            button.operator(OT_UICreateUpdateMapItemBlock.bl_idname, text=title)
+        item_gbx_name = (tm_props.PT_map_object.object_path).split("/")[-1].split(".")[0]
+        item_btn_icon = ICON_UPDATE if is_update else ICON_ADD
+        
+
+        button = layout.row()
+        button.scale_y = 1.5
+        button.enabled = not is_block and not not not not not not not not not not not not item_gbx_name
+        button.operator(
+            OT_UICreateUpdateMapItemBlock.bl_idname, 
+            text=f"{item_action} Item {item_gbx_name}",
+            icon=item_btn_icon)
             
