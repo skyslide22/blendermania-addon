@@ -145,7 +145,7 @@ def export_map_collection() -> DotnetExecResult:
             is_custom_item = fix_slash(doc_path.lower()) in fix_slash(name.lower())
 
             if is_custom_item:
-                name = ireplace(doc_path, "", name)
+                name = ireplace(doc_path+"/Items/", "", name)
             elif is_game_trackmania2020(): # replace .Item.Gbx for 2020 vanilla items
                 name = ireplace(".Gbx", "", ireplace(".Item", "", name))
 
