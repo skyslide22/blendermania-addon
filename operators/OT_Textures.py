@@ -99,17 +99,18 @@ def toggle_modwork_folder() -> None:
                 "Rename of the folder ModWork failed", 
                 "Try closing all windows explorer instances!", 
                 "Error:", err])
+        return
 
-    icon         = ICON_SUCCESS if enabled else ICON_CANCEL
-    enabled_text = "enabled"    if enabled else "disabled"
+    # icon         = ICON_SUCCESS if enabled else ICON_CANCEL
+    # enabled_text = "enabled"    if enabled else "disabled"
 
     if is_game_trackmania2020():
         tm_props.CB_modwork_tm_stadium_enabled = enabled
     if is_game_maniaplanet():
-        if collection_folder == ENVI_NAME_STADIUM:      tm_props.CB_modwork_mp_stadium_enabled    = enabled
-        if collection_folder == ENVI_NAME_CANYON:       tm_props.CB_modwork_mp_canyon_enabled     = enabled
-        if collection_folder == ENVI_NAME_VALLEY:       tm_props.CB_modwork_mp_valley_enabled     = enabled
-        if collection_folder == ENVI_NAME_LAGOON:       tm_props.CB_modwork_mp_lagoon_enabled     = enabled
-        if collection_folder == ENVI_NAME_SHOOTMANIA:   tm_props.CB_modwork_mp_shootmania_enabled = enabled
+        if   collection_folder == ENVI_NAME_STADIUM:      tm_props.CB_modwork_mp_stadium_enabled    = enabled
+        elif collection_folder == ENVI_NAME_CANYON:       tm_props.CB_modwork_mp_canyon_enabled     = enabled
+        elif collection_folder == ENVI_NAME_VALLEY:       tm_props.CB_modwork_mp_valley_enabled     = enabled
+        elif collection_folder == ENVI_NAME_LAGOON:       tm_props.CB_modwork_mp_lagoon_enabled     = enabled
+        elif collection_folder == ENVI_NAME_SHOOTMANIA:   tm_props.CB_modwork_mp_shootmania_enabled = enabled
     
     # show_report_popup(f"Modwork {enabled_text}", (f"Path: {modwork_path}",), icon=icon)
