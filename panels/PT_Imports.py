@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Panel
 
 from ..utils.Functions import is_selected_nadeoini_file_name_ok
-from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS
+from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS, BLENDER_INSTANCE_IS_DEV
 from ..operators.OT_NinjaRipper import *
 from ..operators.OT_Imports import TM_OT_ImportItem
 
@@ -40,17 +40,16 @@ class TM_PT_Imports(Panel):
         else:
             row.operator(TM_OT_Ninja20Install.bl_idname, text=f"Install Ninja Ripper 2.0.x addon", icon=ICON_IMPORT)
 
-        """ TODO in progress: item.gbx import
-        col = box.column(align=True)
-        row = col.row()
-        row.scale_y = 0.8
-        row.label(text="Trackmania (experimental):")
-        row = col.row()
-        row.alert = True
-        row.scale_y = 0.7
-        row.label(text="only items with editable mesh supported")
+        if BLENDER_INSTANCE_IS_DEV:
+            col = box.column(align=True)
+            row = col.row()
+            row.scale_y = 0.8
+            row.label(text="Trackmania (DEV mod only):")
+            row = col.row()
+            row.alert = True
+            row.scale_y = 0.7
+            row.label(text="only items with editable mesh supported")
 
-        row = col.row(align=True)
-        row.scale_y = 1.5
-        row.operator(TM_OT_ImportItem.bl_idname, text=f"Import .Item.Gbx", icon=ICON_IMPORT)
-        """
+            row = col.row(align=True)
+            row.scale_y = 1.5
+            row.operator(TM_OT_ImportItem.bl_idname, text=f"Import .Item.Gbx", icon=ICON_IMPORT)
