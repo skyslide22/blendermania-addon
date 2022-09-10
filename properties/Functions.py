@@ -73,8 +73,7 @@ def getNadeoImportersManiaplanet() -> list:
 
 
 def getNadeoImportersTrackmania2020() -> list:
-    # importers = ["NadeoImporter_2021_10_15.zip", "NadeoImporter_2021_07_07.zip"]
-    importers = ["2021_10_15.zip", "2021_07_07.zip"]
+    importers = ["2022_07_12.zip", "2021_10_15.zip", "2021_07_07.zip"]
     isFirst = True
 
     items = EnumProps()
