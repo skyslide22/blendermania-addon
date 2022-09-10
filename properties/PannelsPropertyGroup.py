@@ -69,6 +69,9 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_map_clean_blocks       : BoolProperty(name="Clean existed blocks", default=False, description="Blocks are very unstable at the moment")
     CB_map_clean_items        : BoolProperty(name="Clean existed items", default=True)
 
+    # map other
+    CB_map_use_grid_helper : BoolProperty(default=True, name="Map Grid Helper")
+
     #object manipulation
     NU_objMplScaleFrom      : IntProperty(default=7, min=1, max=20)
     NU_objMplScaleTo        : IntProperty(default=4, min=1, max=20)
