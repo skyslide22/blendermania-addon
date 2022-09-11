@@ -121,7 +121,7 @@ def run_place_objects_on_map(
     env: str = True,
 ) -> DotnetExecResult:
     config_path = fix_slash(os.path.dirname(get_abs_path(map_path)))+'/map-export.json'
-    with open(config_path, 'w', encoding='utf-8') as outfile:
+    with open(config_path, 'w+', encoding='utf-8') as outfile:
         json.dump(DotnetPlaceObjectsOnMap(
                 map_path,
                 blocks,
@@ -144,7 +144,7 @@ def run_convert_item_to_obj(
     output_dir: str,
 ) -> DotnetExecResult:
     config_path = fix_slash(os.path.dirname(get_abs_path(item_path)))+'/map-export.json'
-    with open(config_path, 'w', encoding='utf-8') as outfile:
+    with open(config_path, 'w+', encoding='utf-8') as outfile:
         json.dump(DotnetConvertItemToObj(item_path, output_dir), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
         outfile.close()
 
