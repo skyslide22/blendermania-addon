@@ -121,7 +121,7 @@ def run_place_objects_on_map(
     env: str = True,
 ) -> DotnetExecResult:
     config_path = fix_slash(os.path.dirname(get_abs_path(map_path)))+'/map-export.json'
-    with open(config_path, 'w', encoding='utf-8') as outfile:
+    with open(config_path, 'w+', encoding='utf-8') as outfile:
         json.dump(DotnetPlaceObjectsOnMap(
                 map_path,
                 blocks,
@@ -136,22 +136,29 @@ def run_place_objects_on_map(
 
         res = _run_dotnet(PLACE_OBJECTS_ON_MAP, config_path)
         if not BLENDER_INSTANCE_IS_DEV:
-            os.remove("map-export.json")
+            try:
+                os.remove(config_path)
+            except FileNotFoundError:
+                pass
         return res
 
 def run_convert_item_to_obj(
     item_path: str,
     output_dir: str,
 ) -> DotnetExecResult:
-    config_path = fix_slash(os.path.dirname(get_abs_path(item_path)))+'/map-export.json'
-    with open(config_path, 'w', encoding='utf-8') as outfile:
+    config_path = fix_slash(os.path.dirname(get_abs_path(item_path)))+'/convert-item.json'
+    with open(config_path, 'w+', encoding='utf-8') as outfile:
         json.dump(DotnetConvertItemToObj(item_path, output_dir), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
         outfile.close()
 
         res = _run_dotnet(CONVERT_ITEM_TO_OBJ, config_path)
         if not BLENDER_INSTANCE_IS_DEV:
-            os.remove("convert-item.json")
+            try:
+                os.remove(config_path)
+            except FileNotFoundError:
+                pass
         return res
+        
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     #print(payload)

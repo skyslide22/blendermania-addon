@@ -1,5 +1,6 @@
 import bpy
 import math
+from bpy.app.handlers import persistent
 
 from ..utils.Dotnet import (
     DotnetInt3,
@@ -20,8 +21,11 @@ from ..utils.Functions import (
     set_active_object,
     get_game_doc_path,
     is_game_trackmania2020,
+    debug,
 )
 from ..utils.Constants import (
+    MAP_GRID_GEO_NODES_NAME,
+    MAP_GRID_OBJECT_NAME,
     MAP_OBJECT_ITEM,
     MAP_OBJECT_BLOCK,
 )
@@ -176,3 +180,153 @@ def export_map_collection() -> DotnetExecResult:
         clean_items,
         env,
     )
+
+
+
+def create_grid_obj() -> bpy.types.Object:
+    obj = bpy.data.objects.get(MAP_GRID_OBJECT_NAME, None)
+    if obj: 
+        if obj.name not in bpy.context.scene.collection.objects:
+            bpy.context.scene.collection.objects.link(obj)
+        return obj
+
+    mesh = bpy.data.meshes.new(name=MAP_GRID_OBJECT_NAME)
+    obj = bpy.data.objects.new(name=MAP_GRID_OBJECT_NAME, object_data=mesh)
+    print("created grid obj")
+
+    bpy.context.scene.collection.objects.link(obj)
+    print("is in scene: " + obj in bpy.context.scene.collection.objects)
+
+
+def create_grid_obj_geom_nodes_modifier() -> bpy.types.Modifier:
+    obj      = create_grid_obj()
+    modifier = obj.modifiers.get(MAP_GRID_GEO_NODES_NAME, None)
+
+    if modifier is None:
+        modifier = obj.modifiers.new(name=MAP_GRID_GEO_NODES_NAME, type="NODES")
+    
+    bpy_nodes = bpy.data.node_groups
+    nodes     = bpy_nodes.get(MAP_GRID_GEO_NODES_NAME, None)
+
+    if nodes is None:
+        nodes = bpy_nodes.new(MAP_GRID_GEO_NODES_NAME, "GeometryNodeTree")
+    
+    links = nodes.links
+    nodes = nodes
+
+    modifier.node_group = nodes
+    nodes = nodes.nodes
+
+    xstep = 300
+    ystep = 300
+    x = lambda step:  (xstep * step)
+    y = lambda step: -(ystep * step)
+
+
+    node_grid = nodes.new(type="GeometryNodeMeshGrid")
+    node_grid.location[0] = x(0)
+
+    node_mesh_to_curve= nodes.new(type="GeometryNodeMeshToCurve")
+    node_mesh_to_curve.location[0] = x(1)
+    
+    node_set_pos = nodes.new(type="GeometryNodeSetPosition")
+    node_set_pos.location[0] = x(2)
+    
+    node_output = nodes.get("Group Output", None) or nodes.new(type="NodeGroupOutput")
+    node_output.location[0] = x(3)
+
+    links.new(
+        node_mesh_to_curve.inputs["Mesh"],
+        node_grid.outputs["Mesh"]   
+    )
+    links.new(
+        node_set_pos.inputs["Geometry"],
+        node_mesh_to_curve.outputs["Curve"]
+    )
+    links.new(
+        node_output.inputs[0],
+        node_set_pos.outputs["Geometry"]
+    )
+    # ??? use 0
+    # node_output.inputs["Geometry"],
+    # KeyError: 'bpy_prop_collection[key]: key "Geometry" not found'
+
+    return modifier
+
+
+def delete_map_grid_helper_and_cleanup() -> None:
+    if obj := bpy.data.objects.get(MAP_GRID_OBJECT_NAME, None):
+        bpy.data.objects.remove(obj)
+    if node := bpy.data.node_groups.get(MAP_GRID_GEO_NODES_NAME, None):
+        bpy.data.node_groups.remove(node)
+
+
+@persistent
+def listen_object_move(scene):
+    tm_props = get_global_props()
+    if tm_props.CB_map_use_grid_helper is False:
+        delete_map_grid_helper_and_cleanup()
+        return
+
+    if not hasattr(bpy.context, "object"):
+        return
+
+    obj = bpy.context.object
+
+    if not obj:
+        return
+
+    if obj.location_before != obj.location:
+        obj.location_before = obj.location
+    
+    # todo make dynamic
+    z_step   = 8
+    x_step   = 32
+    y_step   = 32
+    xy_step  = x_step + y_step
+    min_steps= 2
+
+    grid_obj = bpy.data.objects.get(MAP_GRID_GEO_NODES_NAME, None) or create_grid_obj()
+    nodes    = grid_obj.modifiers.get(MAP_GRID_GEO_NODES_NAME, None)
+    
+    if nodes is None:
+        nodes = create_grid_obj_geom_nodes_modifier()
+   
+    elif nodes.node_group is None:    
+        nodes = create_grid_obj_geom_nodes_modifier()
+    
+    nodes =  nodes.node_group.nodes
+    
+    # scale as int interval(15,99 = 8 and 16,1 = 16 if step is 8) (min is step, never zero)
+    obj_size_x = max(int( obj.dimensions[0] - (int(obj.dimensions[0]) % x_step) ) + x_step , x_step*min_steps)
+    obj_size_y = max(int( obj.dimensions[1] - (int(obj.dimensions[1]) % y_step) ) + y_step , y_step*min_steps)
+    obj_size_z = max(int( obj.dimensions[2] - (int(obj.dimensions[2]) % z_step) ) + z_step , z_step*min_steps)
+
+    obj_loc_x = int(obj.location[0] - int(x_step / 2))
+    obj_loc_y = int(obj.location[1] - int(y_step / 2))
+    obj_loc_z = int(obj.location[2] - int(z_step / 2))
+
+    grid_obj_loc_x = obj_loc_x - (obj_loc_x % x_step) + x_step
+    grid_obj_loc_y = obj_loc_y - (obj_loc_y % y_step) + y_step
+    grid_obj_loc_z = obj_loc_z - (obj_loc_z % z_step) + z_step
+
+    grid_obj.location[0] = grid_obj_loc_x
+    grid_obj.location[1] = grid_obj_loc_y
+    grid_obj.location[2] = grid_obj_loc_z
+
+    obj_xy_size = max(obj_size_x, obj_size_y)
+    grid_size   = obj_xy_size * min_steps
+
+    node_grid    = nodes["Grid"]
+    input_size_x = node_grid.inputs[0]
+    input_size_y = node_grid.inputs[1]
+    input_vert_x = node_grid.inputs[2]
+    input_vert_y = node_grid.inputs[3]
+
+    input_size_x.default_value = grid_size
+    input_size_y.default_value = grid_size
+    
+    input_vert_x.default_value = int(grid_size / xy_step) * min_steps + 1
+    input_vert_y.default_value = int(grid_size / xy_step) * min_steps + 1
+    
+    debug(f"obj_size = {obj_size_x} : {obj_size_y} : {obj_size_z}")

@@ -5,7 +5,10 @@ from bpy.props import *
 from bpy.app.handlers import persistent
 
 import os
+
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
+
 
 bl_info = {
     "name"          : "Trackmania Export & Convert .fbx > .gbx Addon",
@@ -233,7 +236,16 @@ def register():
     # the size should be 4 (for BSDF) but to keep backward compability we have to keep it with size=3 (we convert it later in the code)
     bpy.types.Material.surfaceColor     = FloatVectorProperty(  name='Surface Color ',      subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855))
 
+    # object listeners
+    from .utils.MapObjects import listen_object_move
     
+    try:
+        bpy.app.handlers.depsgraph_update_post.remove(listen_object_move)
+    except:
+        pass
+    
+    bpy.app.handlers.depsgraph_update_post.append(listen_object_move)
+    bpy.types.Object.location_before = FloatVectorProperty(name="old pos", subtype="TRANSLATION")
     
 
 
@@ -250,7 +262,8 @@ def unregister():
     del bpy.types.Scene.tm_props_itemxml_templates_ui
     del bpy.types.Scene.tm_props_itemxml_templates
     # del bpy.types.Scene.tm_props_itemxml_templates
-
+    del bpy.types.Object.location_before 
+    
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsEnviTemplates.add_menu_item)
@@ -260,8 +273,12 @@ def unregister():
         bpy.utils.previews.remove(pcoll)
     
     preview_collections.clear()
-            
-
+    
+    from .utils.MapObjects import listen_object_move
+    try:
+        bpy.app.handlers.depsgraph_update_post.remove(listen_object_move)
+    except:
+        pass
 
 @persistent
 def on_save(what, idontknow) -> None: # on quit?

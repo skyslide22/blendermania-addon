@@ -129,6 +129,9 @@ ICON_FILE               = "FILE_BLANK"
 ICON_FILE_NEW           = "FILE_NEW"
 
 
+MAP_GRID_OBJECT_NAME    = "_ignore_map_grid_helper"
+MAP_GRID_GEO_NODES_NAME = "Map Grid Geo Nodes"
+
 
 
 # https://cloford.com/resources/charcodes/utf-8_arrows.htm

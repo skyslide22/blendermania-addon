@@ -139,6 +139,9 @@ class TM_PT_Settings_BlenderRelated(Panel):
         row = col_right.row()
         row.prop(tm_props, "LI_blenderClipEnd", expand=True)
 
+        row = layout.row()
+        row.prop(tm_props, "CB_map_use_grid_helper", text="Map Grid Helper", icon=ICON_GRID)
+
 
 
 class TM_PT_Settings_NadeoImporter(Panel):
