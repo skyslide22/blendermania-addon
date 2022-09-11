@@ -66,84 +66,58 @@ def createAssetsLib() -> None:
     # reopen original file
     # bpy.ops.wm.open_mainfile(filepath=currentFile)
     return
-   
-
-
 
 def generate2020Assets() -> None:
     getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType)
     getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium")
     getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials")
 
-    matList = get_linked_materials()
 
-    for key in matList.keys():
-        if key in MATERIALS_MAP_TM2020:
-            matNameNew = "TM_"+key+"_asset" 
-            if matNameNew in bpy.data.materials:
-                continue
+    for key in MATERIALS_MAP_TM2020:
+        matNameNew = "TM_"+key+"_asset" 
+        if matNameNew in bpy.data.materials:
+            continue
 
-            color = (0.0,0.319,0.855)
-            if "Color" in MATERIALS_MAP_TM2020[key]:
-                color = hex_to_rgb(MATERIALS_MAP_TM2020[key]["Color"])   
-            mat = createMaterialAsset(matNameNew, key, color)
+        color = (0.0,0.319,0.855)
+        if "Color" in MATERIALS_MAP_TM2020[key]:
+            color = hex_to_rgb(MATERIALS_MAP_TM2020[key]["Color"])   
+        mat = createMaterialAsset(matNameNew, key, color)
 
-            if mat.use_nodes:
-                if (
-                    "IsSign" not in MATERIALS_MAP_TM2020[key] and
-                    "tex_D" in mat.node_tree.nodes and
-                    mat.node_tree.nodes["tex_D"].image and
-                    mat.node_tree.nodes["tex_D"].image.filepath
-                ):
-                    bpy.ops.ed.lib_id_load_custom_preview(
-                        {"id": mat}, 
-                        filepath=mat.node_tree.nodes["tex_D"].image.filepath
-                    )
-                elif (
-                    "tex_I" in mat.node_tree.nodes and
-                    mat.node_tree.nodes["tex_I"].image and
-                    mat.node_tree.nodes["tex_I"].image.filepath
-                ):
-                    bpy.ops.ed.lib_id_load_custom_preview(
-                        {"id": mat}, 
-                        filepath=mat.node_tree.nodes["tex_I"].image.filepath
-                    )
-                else:
-                    # short delay to let materials become registered
-                    # otherwise preview is not generating
-                    time.sleep(0.05)
-                    bpy.ops.ed.lib_id_generate_preview({"id": mat})
-
-            mat.asset_mark()
-            key = key.lower()
-            if "decal" in key:
-                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Decals")
-                if uid:
-                    mat.asset_data.catalog_id = uid
-            elif key.startswith("custom"):
-                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Custom")
-                if uid:
-                    mat.asset_data.catalog_id = uid
-            elif key.startswith("road"):
-                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Roads")
-                if uid:
-                    mat.asset_data.catalog_id = uid
-            elif "platformtech" in key:
-                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Platform")
-                if uid:
-                    mat.asset_data.catalog_id = uid
-            elif "specialfx" in key:
-                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/SpecialFXs")
-                if uid:
-                    mat.asset_data.catalog_id = uid
-            elif "_sign" in key or "specialsign" in key:
-                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Signs")
-                if uid:
-                    mat.asset_data.catalog_id = uid
+        if mat.use_nodes:
+            if (
+                "IsSign" not in MATERIALS_MAP_TM2020[key] and
+                "tex_D" in mat.node_tree.nodes and
+                mat.node_tree.nodes["tex_D"].image and
+                mat.node_tree.nodes["tex_D"].image.filepath
+            ):
+                bpy.ops.ed.lib_id_load_custom_preview(
+                    {"id": mat}, 
+                    filepath=mat.node_tree.nodes["tex_D"].image.filepath
+                )
+            elif (
+                "tex_I" in mat.node_tree.nodes and
+                mat.node_tree.nodes["tex_I"].image and
+                mat.node_tree.nodes["tex_I"].image.filepath
+            ):
+                bpy.ops.ed.lib_id_load_custom_preview(
+                    {"id": mat}, 
+                    filepath=mat.node_tree.nodes["tex_I"].image.filepath
+                )
             else:
-                uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/Rest")
-                if uid:
-                    mat.asset_data.catalog_id = uid
+                # short delay to let materials become registered
+                # otherwise preview is not generating
+                time.sleep(0.05)
+                bpy.ops.ed.lib_id_generate_preview({"id": mat})
+
+        mat.asset_mark()
+
+        catName = "Rest"
+        if "Category" in MATERIALS_MAP_TM2020[key]:
+            catName = MATERIALS_MAP_TM2020[key]["Category"]
+            print(catName)
+        uid = getOrCreateCatalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/"+catName)
+        if uid:
+            mat.asset_data.catalog_id = uid
 
 
 

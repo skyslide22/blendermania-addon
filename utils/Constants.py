@@ -457,7 +457,8 @@ MATERIALS_MAP_TM2020 = {}
 if is_file_existing(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
     with open(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020, "r") as f:
         data = f.read()
-        MATERIALS_MAP_TM2020 = json.loads(data)
+        for item in json.loads(data):
+            MATERIALS_MAP_TM2020[item["Name"]] = item
 
 
 

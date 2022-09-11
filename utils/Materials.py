@@ -234,7 +234,7 @@ def create_material_nodes(mat)->None:
     # uvmap basematerial
     NODE_uvmap = nodes.new(type="ShaderNodeUVMap")
     NODE_uvmap.location = x(0), y(1)
-    NODE_uvmap.uv_map = "BaseMaterial"
+    NODE_uvmap.from_instancer = True
 
     # main texture, custom materials don't have it
     if not isCustomMat:
@@ -274,7 +274,7 @@ def create_material_nodes(mat)->None:
     # H
     NODE_tex_H = nodes.new(type="ShaderNodeTexImage")
     NODE_tex_H.location = x(1), y(5)
-    NODE_tex_H.label = "Texture H _H.dds"
+    NODE_tex_H.label = "Texture Height _H.dds"
     NODE_tex_H.name  = "tex_H"
     
     matMap2020 = None
