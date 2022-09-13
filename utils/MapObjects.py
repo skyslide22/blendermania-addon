@@ -1,3 +1,4 @@
+import json
 import bpy
 import math
 from bpy.app.handlers import persistent
@@ -7,6 +8,7 @@ from ..utils.Dotnet import (
     DotnetItem,
     DotnetBlock,
     DotnetVector3,
+    run_get_mediatracker_clips,
     run_place_objects_on_map,
     get_block_dir_for_angle,
     DotnetExecResult
@@ -330,3 +332,24 @@ def listen_object_move(scene):
     input_vert_y.default_value = int(grid_size / xy_step) * min_steps + 1
     
     debug(f"obj_size = {obj_size_x} : {obj_size_y} : {obj_size_z}")
+
+
+
+def import_mediatracker_clips() -> DotnetExecResult:
+    tm_props = get_global_props()
+    map_path = tm_props.ST_map_filepath
+    
+    res = run_get_mediatracker_clips(map_path)
+    if not res.success:
+        return res
+
+    jsonpath = res.message
+    
+    with open(jsonpath, "r") as f:
+        data = json.load(f)
+
+        # TODO read data and generate objects from it in scene & link to map / clip
+
+
+
+    return res

@@ -7,7 +7,10 @@ MIN_BLENDER_VERSION = (3, 1, 0)
 DOTNET_COMMANDS = (
     PLACE_OBJECTS_ON_MAP := "place-objects-on-map",
     CONVERT_ITEM_TO_OBJ := "convert-item-to-obj",
+    GET_MEDIATRACKER_CLIPS := "get-mediatracker-clips",
 )
+
+
 
 TODO_COMMANDS = (
     "crack-map-password",

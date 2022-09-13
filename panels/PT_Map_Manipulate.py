@@ -222,3 +222,18 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
             text=f"{item_action} Item {item_gbx_name}",
             icon=item_btn_icon)
             
+
+class PT_UIImportMediatrackerClips(bpy.types.Panel):
+    # region bl_
+    """Creates a Panel in the Object properties window"""
+    bl_label   = "Import Mediatracker Clips"
+    bl_idname  = "PT_UIImportMediatrackerClips"
+    bl_context = "objectmode"
+    bl_parent_id = "TM_PT_Map_Manipulate"
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+
+    def draw(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+
+        layout.operator("view3d.tm_import_mediatracker_clips", text="Import Mediatracker Clips")

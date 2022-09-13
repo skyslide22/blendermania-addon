@@ -158,7 +158,12 @@ def run_convert_item_to_obj(
             except FileNotFoundError:
                 pass
         return res
-        
+
+
+
+def run_get_mediatracker_clips(map_path: str) -> DotnetExecResult:
+    return _run_dotnet(GET_MEDIATRACKER_CLIPS, map_path)
+
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     #print(payload)
@@ -178,6 +183,9 @@ def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     if process.returncode != 0:
         return DotnetExecResult(message="Unknown Error", success=False) if len(res) == 0 else res
 
+    return DotnetExecResult(message=res, success=True)
+
+    # TODO Remove
     if res.startswith("SUCCESS:"):
         return DotnetExecResult(message=res.replace("SUCCESS:", "").strip(), success=True)
     else:

@@ -187,6 +187,8 @@ classes = (
     PT_UIMapManipulation,
     PT_UIMapObjectsManipulation,
     OT_UICreateUpdateMapItemBlock,
+    PT_UIImportMediatrackerClips,
+    OT_UIImportMediatrackerClips,
 
     # util
     OT_UIWikiLink

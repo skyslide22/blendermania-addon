@@ -58,12 +58,16 @@ def get_addon_assets_blendfiles_path() -> str:
     return get_addon_assets_path() + "/blends/"
 
 def get_blendermania_dotnet_path() -> str:
-    return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
+    from .Constants import BLENDER_INSTANCE_IS_DEV
+    if BLENDER_INSTANCE_IS_DEV:
+        return fr"C:\Users\User\source\repos\blendermania-dotnet\blendermania-dotnet\bin\Debug\net6.0\blendermania-dotnet.exe"
+    else:
+        return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
 
 def is_blendermania_dotnet_installed() -> bool:
     return is_file_existing(get_blendermania_dotnet_path())
 
-def get_game():
+def get_game() -> str:
     return get_global_props().LI_gameType
 
 def get_documents_path() -> str:

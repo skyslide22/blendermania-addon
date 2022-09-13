@@ -11,6 +11,7 @@ from ..utils.MapObjects import (
     export_map_collection,
     validate_map_collection,
     create_update_map_object,
+    import_mediatracker_clips
 )
 
 class OT_UICollectionToMap(bpy.types.Operator):
@@ -62,6 +63,7 @@ class OT_UIValidateMapCollection(bpy.types.Operator):
         else:
             show_report_popup("Map has no issues", icon=ICON_SUCCESS)
         return {"FINISHED"}
+        
 
 class OT_UICreateUpdateMapItemBlock(bpy.types.Operator):
     """export and or convert an item"""
@@ -77,4 +79,19 @@ class OT_UICreateUpdateMapItemBlock(bpy.types.Operator):
             get_global_props().PT_map_object.object_item = None
             get_global_props().PT_map_object.object_path = ""
 
+        return {"FINISHED"}
+
+
+class OT_UIImportMediatrackerClips(bpy.types.Operator):
+    """export and or convert an item"""
+    bl_idname = "view3d.tm_import_mediatracker_clips"
+    bl_description = "Import Mediatracker Clips"
+    bl_label = "Import Mediatracker Clips"
+        
+    def execute(self, context):
+        res = import_mediatracker_clips()
+        if not res.success:
+            show_report_popup("Import failed", [
+                "Importing of mediatracker clips failed", res.message
+            ])
         return {"FINISHED"}
