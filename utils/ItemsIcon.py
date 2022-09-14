@@ -37,6 +37,10 @@ def _make_joined_object(coll: bpy.types.Collection) -> bpy.types.Object:
             set_active_object(obj)
 
     bpy.ops.object.duplicate(linked=False)
+    for obj in bpy.context.selected_objects:
+        bpy.context.view_layer.objects.active = obj
+        for modifier in obj.modifiers:
+            bpy.ops.object.modifier_apply(modifier=modifier.name)
     bpy.ops.object.join()
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
     joined_obj = bpy.context.object
