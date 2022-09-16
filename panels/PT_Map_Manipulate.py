@@ -35,6 +35,11 @@ class PT_UIMapManipulation(bpy.types.Panel):
         layout = self.layout
         layout.label(icon=ICON_MAP)
 
+    def draw_header_preset(self, context):
+        tm_props = get_global_props()
+        layout = self.layout
+        layout.prop(tm_props, "CB_map_use_grid_helper", text="Grid Helper", icon=ICON_GRID)
+
     def draw(self, context):
         layout = self.layout
         tm_props = get_global_props()

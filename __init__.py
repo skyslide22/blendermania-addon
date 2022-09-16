@@ -221,6 +221,11 @@ def register():
     # object extra props
     bpy.types.Object.tm_map_object_kind = StringProperty(name="Item (soon Block)", default="Item")
     bpy.types.Object.tm_map_object_path = StringProperty(name="Name/Path of Item or Block", default="")
+    bpy.types.Object.tm_map_clip_name   = StringProperty(name="Name of mediatracker clip", default="")
+    bpy.types.Object.tm_force_grid_helper         = BoolProperty(default=False)
+    bpy.types.Object.tm_forced_grid_helper_step_x = FloatProperty(default=0.0)
+    bpy.types.Object.tm_forced_grid_helper_step_y = FloatProperty(default=0.0)
+    bpy.types.Object.tm_forced_grid_helper_step_z = FloatProperty(default=0.0)
 
     # collections
     bpy.types.Collection.tm_itemxml_template = StringProperty(name="Item XML Template", default="")
