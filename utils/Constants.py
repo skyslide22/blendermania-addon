@@ -2,12 +2,13 @@ import os
 import json
 
 
-MIN_BLENDER_VERSION = (3, 1, 0)
+MIN_BLENDER_VERSION = (3, 3, 0)
 
 DOTNET_COMMANDS = (
-    PLACE_OBJECTS_ON_MAP := "place-objects-on-map",
-    CONVERT_ITEM_TO_OBJ := "convert-item-to-obj",
-    GET_MEDIATRACKER_CLIPS := "get-mediatracker-clips",
+    PLACE_OBJECTS_ON_MAP             := "place-objects-on-map",
+    CONVERT_ITEM_TO_OBJ              := "convert-item-to-obj",
+    GET_MEDIATRACKER_CLIPS           := "get-mediatracker-clips",
+    PLACE_MEDIATRACKER_CLIPS_ON_MAP  := "place-mediatracker-clips-on-map",
 )
 
 
@@ -53,6 +54,7 @@ ICON_FLAT_SMOOTH        = "MOD_SMOOTH"
 ICON_SMOOTH             = "SPHERECURVE"
 ICON_FLAT               = "ROOTCURVE"
 ICON_SELECTED           = "VIS_SEL_10"
+ICON_SELECT             = "RESTRICT_SELECT_OFF"
 ICON_VISIBLE            = "HIDE_OFF"
 ICON_HIDDEN             = "HIDE_ON"
 ICON_ADD                = "ADD"

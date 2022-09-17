@@ -1,3 +1,4 @@
+from typing import Iterable
 import bpy
 import bpy.utils.previews
 from bpy.props import *
@@ -1028,3 +1029,10 @@ def get_itemxml_template_names_enum(self, context) -> list:
             name=template.name,
         )
     return templates.to_list() or ERROR_ENUM_PROPS
+
+
+class MediaTrackerClips:
+    current_names:list[str] = []
+
+def provide_current_map_mt_clip_names(self, context, edit_text) -> list:
+    return MediaTrackerClips.current_names

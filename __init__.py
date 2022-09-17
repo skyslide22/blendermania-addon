@@ -180,15 +180,21 @@ classes = (
     # templates
     OT_ItemsCarsTemplates,
     OT_ItemsEnviTemplates,
+    OT_MediaTrackerClipTriggerTemplates,
 
     # map
     OT_UICollectionToMap,
     OT_UIValidateMapCollection,
     PT_UIMapManipulation,
+    PT_UIMapExport,
     PT_UIMapObjectsManipulation,
     OT_UICreateUpdateMapItemBlock,
-    PT_UIImportMediatrackerClips,
+    PT_UIMediatrackerClips,
     OT_UIImportMediatrackerClips,
+    OT_UIExportMediatrackerClips,
+    OT_UIChangeMediatrackerTriggerClipName,
+    OT_UIRefreshMediatrackerTriggerClipNamesFromMap,
+    OT_UISelectMediatrackerTriggersByName,
 
     # util
     OT_UIWikiLink
@@ -215,6 +221,7 @@ def register():
     bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)
     bpy.types.Light.night_only          = BoolProperty(default=False)
 
+    bpy.types.VIEW3D_MT_add.prepend(OT_MediaTrackerClipTriggerTemplates.add_menu_item)
     bpy.types.VIEW3D_MT_add.prepend(OT_ItemsCarsTemplates.add_menu_item)
     bpy.types.VIEW3D_MT_add.prepend(OT_ItemsEnviTemplates.add_menu_item)
 
@@ -274,6 +281,7 @@ def unregister():
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsEnviTemplates.add_menu_item)
+    bpy.types.VIEW3D_MT_add.remove(OT_MediaTrackerClipTriggerTemplates.add_menu_item)
     
     # icons
     for pcoll in preview_collections.values():

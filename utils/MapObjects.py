@@ -7,8 +7,10 @@ from ..utils.Dotnet import (
     DotnetInt3,
     DotnetItem,
     DotnetBlock,
+    DotnetMediatrackerClip,
     DotnetVector3,
     run_get_mediatracker_clips,
+    run_place_mediatracker_clips_on_map,
     run_place_objects_on_map,
     get_block_dir_for_angle,
     DotnetExecResult
@@ -317,7 +319,6 @@ def get_obj_grid_pos(step: float, position: float) -> float:
     return new_pos
 
 
-
 def handle_object_movement_for_grid_helper(obj: bpy.types.Object) -> None:
 
     if obj.location_before != obj.location:
@@ -373,11 +374,6 @@ def handle_object_movement_for_grid_helper(obj: bpy.types.Object) -> None:
     input_vert_x.default_value = int(grid_size / xy_step) * min_steps + 1
     input_vert_y.default_value = int(grid_size / xy_step) * min_steps + 1
     
-    # debug(f"obj_size = {obj_size_x} : {obj_size_y} : {obj_size_z}")
-
-
-
-
 
 def import_mediatracker_clips() -> DotnetExecResult:
     tm_props = get_global_props()
@@ -388,9 +384,17 @@ def import_mediatracker_clips() -> DotnetExecResult:
     if not res.success:
         return res
 
+    # TODO dynamic cleanup
+    clean_up = True
+
+    if clean_up:
+        objs = set(map_coll.all_objects)
+        for obj in objs:
+            if obj.name.startswith(SPECIAL_NAME_PREFIX_MTTRIGGER):
+                bpy.data.objects.remove(obj)
+
     jsonpath = res.message
     
-    # TODO read data and generate objects from it in scene & link to map / clip
     with open(jsonpath, "r") as f:
         data = json.load(f)
 
@@ -403,7 +407,8 @@ def import_mediatracker_clips() -> DotnetExecResult:
 
         mt_trigger_base_obj = bpy.context.selected_objects[-1] # imported object#
 
-        trigger_clip_step = 32/3
+        trigger_clip_step_xy = 32/3
+        trigger_clip_step_z  = 8
 
         mt_objs = []
         for clip in data:
@@ -413,8 +418,8 @@ def import_mediatracker_clips() -> DotnetExecResult:
                 obj.name = SPECIAL_NAME_PREFIX_MTTRIGGER
                 obj.tm_map_clip_name = clip["ClipName"]
                 obj.location = (
-                    trigger["X"] * trigger_clip_step,
-                    trigger["Z"] * trigger_clip_step,
+                    trigger["X"] * trigger_clip_step_xy,
+                    trigger["Z"] * trigger_clip_step_xy,
                     trigger["Y"] * 8,
                 )
                 obj.lock_scale[0]    = True
@@ -425,13 +430,42 @@ def import_mediatracker_clips() -> DotnetExecResult:
                 obj.lock_rotation[2] = True
 
                 obj.tm_force_grid_helper         = True
-                obj.tm_forced_grid_helper_step_x = trigger_clip_step
-                obj.tm_forced_grid_helper_step_y = trigger_clip_step
-                obj.tm_forced_grid_helper_step_z = 8
+                obj.tm_forced_grid_helper_step_x = trigger_clip_step_xy
+                obj.tm_forced_grid_helper_step_y = trigger_clip_step_xy
+                obj.tm_forced_grid_helper_step_z = trigger_clip_step_z
 
                 map_coll.objects.link(obj)
-            #TODO lock rot & scale of trigger
 
-
+        bpy.data.objects.remove(mt_trigger_base_obj)
 
     return res
+
+
+def export_mediatracker_clips() -> DotnetExecResult:
+    tm_props = get_global_props()
+    map_path:str                  = tm_props.ST_map_filepath
+    map_coll:bpy.types.Collection = tm_props.PT_map_collection
+    
+    clips: list[DotnetMediatrackerClip] = []
+    temp_clips = {}
+
+    for obj in map_coll.all_objects:
+        if obj.name.startswith(SPECIAL_NAME_PREFIX_MTTRIGGER):
+            mtclip_name = obj.tm_map_clip_name
+            
+            known_clip = mtclip_name in temp_clips
+            if not known_clip:
+                temp_clips[mtclip_name] = []
+
+            X = round(obj.location.x / (32/3))
+            Y = round(obj.location.y / (32/3))
+            Z = round(obj.location.z / 8)
+
+            position = DotnetInt3(X, Z, Y)
+            temp_clips[mtclip_name].append(position)
+
+    for clip_name, intarrs in temp_clips.items():
+        clip = DotnetMediatrackerClip(clip_name, intarrs)
+        clips.append(clip)
+
+    return run_place_mediatracker_clips_on_map(map_path, clips)

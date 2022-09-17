@@ -48,9 +48,52 @@ class PT_UIMapManipulation(bpy.types.Panel):
 
         # info and settings
         # box = layout.box()
+
+
+        # map collection
+        main_col = layout.column(align=True)
+        
+        # map collection
+        if is_game_maniaplanet():
+            row = main_col.row(align=True)
+            row.prop(tm_props, "LI_DL_TextureEnvi", text="Envi", )#icon=ICON_ENVIRONMENT)
+        
+        row = main_col.row(align=True)
+        row.alert = not has_map_coll
+        row.prop(tm_props, "PT_map_collection", text="Map")
+        # row = col_right.row(align=True)
+        # row.operator(OT_UIValidateMapCollection.bl_idname, text="Validate Map", icon=ICON_UPDATE)
+        # row = col_left.row(align=True)
+        # row.label(text=" ") # spacer
+
+        # map file path gbx
+        row = main_col.row(align=True)
+        row.alert = not has_map_file
+        row.prop(tm_props, "ST_map_filepath", text="Map File")
+
+        
+        
+
+
+class PT_UIMapExport(bpy.types.Panel):
+    bl_label   = "Map Export"
+    bl_idname  = "PT_UIMapExport"
+    bl_context = "objectmode"
+    bl_parent_id = "TM_PT_Map_Manipulate"
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+
+    def draw_header_preset(self, context):
+        tm_props = get_global_props()
+        layout = self.layout
         row = layout.row()
-        row.label(text="Export Collection as Map.Gbx")
         add_ui_wiki_icon(row, "08.-Map-export")
+
+    def draw(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        has_map_file = len(tm_props.ST_map_filepath) != 0
+        has_map_coll = tm_props.PT_map_collection is not None
+
 
         if not is_blendermania_dotnet_installed():
             row = layout.row()
@@ -64,43 +107,12 @@ class PT_UIMapManipulation(bpy.types.Panel):
 
             render_donwload_progress_bar(layout)
             return
-
-        # map collection
-
+        
         main_col = layout.column(align=True)
         main_row = main_col.row(align=True)
         col_left = main_row.column(align=True)
         # col_left.scale_x = 0.6
         col_right = main_row.column(align=True)
-        
-        # map collection
-        if is_game_maniaplanet():
-            row = col_left.row()
-            row.label(text="Envi", )#icon=ICON_ENVIRONMENT)
-            row = col_right.row()
-            row.prop(tm_props, "LI_DL_TextureEnvi", text="", )#icon=ICON_ENVIRONMENT)
-        row = col_left.row(align=True)
-        row.alert = not has_map_coll
-        row.label(text="Map", )#icon=ICON_COLLECTION)
-        row = col_right.row(align=True)
-        row.prop(tm_props, "PT_map_collection", text="")
-        # row = col_right.row(align=True)
-        # row.operator(OT_UIValidateMapCollection.bl_idname, text="Validate Map", icon=ICON_UPDATE)
-        # row = col_left.row(align=True)
-        # row.label(text=" ") # spacer
-
-
-        col_left.separator(factor=2)
-        col_right.separator(factor=2)
-
-        # map file path gbx
-        row = col_left.row()
-        row.alert = not has_map_file
-        row.label(text="Map File", )#icon=ICON_FILE)
-        row = col_right.row()
-        row.alert = not has_map_file
-        row.prop(tm_props, "ST_map_filepath", text="")
-
         
         row = col_left.row()
         row.enabled = not tm_props.CB_map_use_overwrite
@@ -133,15 +145,12 @@ class PT_UIMapManipulation(bpy.types.Panel):
         col_sub_middle.enabled = True
         col_sub_middle.prop(tm_props, "CB_map_clean_items", text="Items", toggle=True)
         
-
-
-
         row = layout.row(align=True)
         row.scale_y = 1.5
         row.enabled = has_map_file and has_map_coll
         row.operator(OT_UICollectionToMap.bl_idname, text="Export Map", icon=ICON_EXPORT)
 
-
+        
 
 class PT_UIMapObjectsManipulation(bpy.types.Panel):
     # region bl_
@@ -228,11 +237,9 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
             icon=item_btn_icon)
             
 
-class PT_UIImportMediatrackerClips(bpy.types.Panel):
-    # region bl_
-    """Creates a Panel in the Object properties window"""
-    bl_label   = "Import Mediatracker Clips"
-    bl_idname  = "PT_UIImportMediatrackerClips"
+class PT_UIMediatrackerClips(bpy.types.Panel):
+    bl_label   = "Mediatracker Clips"
+    bl_idname  = "PT_UIMediatrackerClips"
     bl_context = "objectmode"
     bl_parent_id = "TM_PT_Map_Manipulate"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
@@ -241,4 +248,61 @@ class PT_UIImportMediatrackerClips(bpy.types.Panel):
         layout = self.layout
         tm_props = get_global_props()
 
-        layout.operator("view3d.tm_import_mediatracker_clips", text="Import Mediatracker Clips")
+        row = layout.row(align=True)
+        row.scale_y = 1.5
+        row.operator("view3d.tm_import_mediatracker_clips", text="Import Clips", icon=ICON_IMPORT)
+        row.operator("view3d.tm_export_mediatracker_clips", text="Export Clips", icon=ICON_EXPORT)
+        
+        row = layout.row(align=True)
+        row.scale_y = 1.5
+
+        main_col = layout.column(align=True)
+        main_row = main_col.row(align=True)
+        col_left = main_row.column(align=True)
+        col_left.scale_x = 0.6
+        col_right = main_row.column(align=True)
+        
+        row = col_left.row(align=True)
+        row.label(text="Clip Name", )
+        row = col_right.row(align=True)
+        col = col_right.column(align=True)
+        row = row.row(align=True)
+        row.prop(tm_props, "ST_map_clip_name", text="")
+        row.operator("view3d.tm_refresh_mt_clipnames_from_map", text="", icon=ICON_UPDATE)
+        row.operator("view3d.tm_select_mt_triggers_by_name",    text="", icon=ICON_SELECT)
+        col = col_right.column(align=True)
+        col.operator("view3d.tm_change_mt_trigger_clipname", text=f"Assign To Selected ({len(bpy.context.selected_objects)})")
+
+        if not tm_props.CB_allow_complex_panel_drawing:
+            return
+            
+        layout.separator(factor=1.5)
+        
+        main_col = layout.column(align=True)
+        main_row = main_col.row(align=True)
+        col_left = main_row.column(align=True)
+        col_left.scale_x = 0.6
+        col_right = main_row.column(align=True)
+
+        clips = {}
+        for obj in bpy.context.selected_objects:
+            clip_name = obj.tm_map_clip_name
+            if clip_name:
+                if clip_name not in clips:
+                    clips[clip_name] = 0
+                clips[clip_name] += 1 
+
+        row = col_left.row(align=True)
+        row.scale_y = 0.6
+        row.label(text="Selected:")
+
+        for clip_name, count in clips.items():
+            row = col_right.row(align=True)
+            row.scale_y = 0.6
+            row.label(text=f"({count}) {clip_name}" )
+
+        if len(clips) == 0:
+            row = col_right.row(align=True)
+            row.scale_y = 0.6
+            row.label(text=f"(0) None" )
+
