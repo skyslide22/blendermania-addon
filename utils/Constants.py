@@ -2,12 +2,13 @@ import os
 import json
 
 
-MIN_BLENDER_VERSION = (3, 1, 0)
+MIN_BLENDER_VERSION = (3, 3, 0)
 
 DOTNET_COMMANDS = (
-    PLACE_OBJECTS_ON_MAP := "place-objects-on-map",
-    CONVERT_ITEM_TO_OBJ := "convert-item-to-obj",
-    GET_MEDIATRACKER_CLIPS := "get-mediatracker-clips",
+    PLACE_OBJECTS_ON_MAP             := "place-objects-on-map",
+    CONVERT_ITEM_TO_OBJ              := "convert-item-to-obj",
+    GET_MEDIATRACKER_CLIPS           := "get-mediatracker-clips",
+    PLACE_MEDIATRACKER_CLIPS_ON_MAP  := "place-mediatracker-clips-on-map",
 )
 
 
@@ -53,6 +54,7 @@ ICON_FLAT_SMOOTH        = "MOD_SMOOTH"
 ICON_SMOOTH             = "SPHERECURVE"
 ICON_FLAT               = "ROOTCURVE"
 ICON_SELECTED           = "VIS_SEL_10"
+ICON_SELECT             = "RESTRICT_SELECT_OFF"
 ICON_VISIBLE            = "HIDE_OFF"
 ICON_HIDDEN             = "HIDE_ON"
 ICON_ADD                = "ADD"
@@ -229,6 +231,7 @@ SPECIAL_NAME_PREFIXES = (
     SPECIAL_NAME_PREFIX_IGNORE        := "_ignore_",
     SPECIAL_NAME_PREFIX_NOTVISIBLE    := "_notvisible_",
     SPECIAL_NAME_PREFIX_NOTCOLLIDABLE := "_notcollidable_",
+    SPECIAL_NAME_PREFIX_MTTRIGGER     := "_mttrigger_"
 )
 
 SPECIAL_NAME_INFIXES = (
@@ -454,7 +457,8 @@ ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = get_addon_assets_path() + "/ite
 BLENDER_INSTANCE_IS_DEV = os.path.exists(get_addon_path() + ".git")
 
 # imported templates
-ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8 = get_addon_assets_path() + "/item_triggers/TRIGGER_WALL_32x8.fbx"
+ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8  = get_addon_assets_path() + "/item_triggers/TRIGGER_WALL_32x8.fbx"
+ADDON_ITEM_FILEPATH_MT_TRIGGER_10_66x8 = get_addon_assets_path() + "/item_mt_triggers/MT_TRIGGER_10_66x8.fbx"
 
 # materials map for tm 2020 (someday nadeo gonna have corrent filenames for materials...)
 MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = get_addon_assets_path()+"/materials/materials-map-trackmania2020.json"

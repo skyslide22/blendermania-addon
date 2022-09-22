@@ -6,16 +6,19 @@ import subprocess
 from .Constants      import *
 from .Functions      import *
 
+
 DOTNET_BLOCKS_DIRECTION = (
-    DOTNET_BLOCKS_DIRECTION_NORTH := 0,
-    DOTNET_BLOCKS_DIRECTION_EAST := 1,
-    DOTNET_BLOCKS_DIRECTION_SOUTH := 2,
-    DOTNET_BLOCKS_DIRECTION_WEST := 3,
+    DOTNET_BLOCKS_DIRECTION_NORTH   := 0,
+    DOTNET_BLOCKS_DIRECTION_EAST    := 1,
+    DOTNET_BLOCKS_DIRECTION_SOUTH   := 2,
+    DOTNET_BLOCKS_DIRECTION_WEST    := 3,
 )
+
 
 def get_block_dir_for_angle(angle: int) -> int:
     print(math.copysign(angle%360, angle))
     return DOTNET_BLOCKS_DIRECTION_EAST
+
 
 class DotnetExecResult:
     success: bool
@@ -23,6 +26,7 @@ class DotnetExecResult:
     def __init__(self, message: str, success: bool):
         self.success = success
         self.message = message
+
 
 # Dotnet types
 class DotnetVector3:
@@ -34,6 +38,7 @@ class DotnetVector3:
     def jsonable(self):
         return self.__dict__
 
+
 class DotnetInt3:
     def __init__(self, X: int = 0, Y: int = 0, Z: int = 0) -> None:
         self.X = X
@@ -42,6 +47,7 @@ class DotnetInt3:
 
     def jsonable(self):
         return self.__dict__
+
 
 class DotnetBlock:
     def __init__(self, Name: str, Direction: int, Position: DotnetInt3):
@@ -55,6 +61,7 @@ class DotnetBlock:
     def jsonable(self):
         return self.__dict__
 
+
 class DotnetItem:
     def __init__(self, Name: str, Path: str, Position: DotnetVector3, Rotation: DotnetVector3 = DotnetVector3(), Pivot: DotnetVector3 = DotnetVector3()):
         self.Name = Name
@@ -66,6 +73,19 @@ class DotnetItem:
     def jsonable(self):
         return self.__dict__
 
+
+class DotnetMediatrackerClip:
+    def __init__(
+        self, 
+        Name: str, 
+        Positions: list[DotnetVector3]):
+            self.Name = Name
+            self.Positions = Positions
+    
+    def jsonable(self):
+        return self.__dict__
+
+
 class DotnetPlaceObjectsOnMap:
     def __init__(
         self,
@@ -76,19 +96,31 @@ class DotnetPlaceObjectsOnMap:
         MapSuffix: str = "_modified",
         CleanBlocks: bool = True,
         CleanItems: bool = True,
-        Env: str = "Stadium2020",
-    ):
-        self.MapPath = MapPath
-        self.Blocks = Blocks
-        self.Items = Items
-        self.ShouldOverwrite = ShouldOverwrite
-        self.MapSuffix = MapSuffix
-        self.CleanBlocks = CleanBlocks
-        self.CleanItems = CleanItems
-        self.Env = Env
+        Env: str = "Stadium2020"):
+            self.MapPath = MapPath
+            self.Blocks = Blocks
+            self.Items = Items
+            self.ShouldOverwrite = ShouldOverwrite
+            self.MapSuffix = MapSuffix
+            self.CleanBlocks = CleanBlocks
+            self.CleanItems = CleanItems
+            self.Env = Env
 
     def jsonable(self):
         return self.__dict__
+
+
+class DotnetPlaceMediatrackerClipsOnMap:
+    def __init__(
+        self,
+        MapPath: str,
+        Clips: list[DotnetItem]):
+            self.MapPath = MapPath
+            self.Clips = Clips
+
+    def jsonable(self):
+        return self.__dict__
+
 
 class DotnetConvertItemToObj:
     def __init__(
@@ -102,12 +134,14 @@ class DotnetConvertItemToObj:
     def jsonable(self):
         return self.__dict__
 
+
 class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
         if hasattr(obj,'jsonable'):
             return obj.jsonable()
         else:
             return json.JSONEncoder.default(self, obj)
+
 
 # Dotnet commands
 def run_place_objects_on_map(
@@ -142,6 +176,7 @@ def run_place_objects_on_map(
                 pass
         return res
 
+
 def run_convert_item_to_obj(
     item_path: str,
     output_dir: str,
@@ -160,9 +195,31 @@ def run_convert_item_to_obj(
         return res
 
 
-
 def run_get_mediatracker_clips(map_path: str) -> DotnetExecResult:
     return _run_dotnet(GET_MEDIATRACKER_CLIPS, map_path)
+
+
+def run_place_mediatracker_clips_on_map(
+    map_path: str,
+    clips: list[DotnetMediatrackerClip] = [],
+) -> DotnetExecResult:
+    config_path = fix_slash(os.path.dirname(get_abs_path(map_path)))+'/mediatracker-export.json'
+    with open(config_path, 'w+', encoding='utf-8') as outfile:
+        json.dump(
+            DotnetPlaceMediatrackerClipsOnMap(map_path, clips), 
+            outfile, 
+            cls=ComplexEncoder, 
+            ensure_ascii=False, 
+            indent=4)
+        outfile.close()
+
+        res = _run_dotnet(PLACE_MEDIATRACKER_CLIPS_ON_MAP, config_path)
+        if not BLENDER_INSTANCE_IS_DEV:
+            try:
+                os.remove(config_path)
+            except FileNotFoundError:
+                pass
+        return res
 
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:

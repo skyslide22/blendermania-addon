@@ -68,7 +68,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     PT_map_object             : PointerProperty(type=MapObjectProperties)
     CB_map_clean_blocks       : BoolProperty(name="Clean existed blocks", default=False, description="Blocks are very unstable at the moment")
     CB_map_clean_items        : BoolProperty(name="Clean existed items", default=True)
-
+    ST_map_clip_name          : StringProperty(name="", search=provide_current_map_mt_clip_names)
     # map other
     CB_map_use_grid_helper : BoolProperty(default=True, name="Map Grid Helper")
 

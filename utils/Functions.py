@@ -509,7 +509,7 @@ def get_templates_car() -> str:
 
 def get_templates_trigger() -> str:
     return str(get_global_props().LI_items_triggers)
-
+    
 def unzip_nadeoimporter(zipfilepath)->None:
     """unzips the downloaded <exe>/NadeoImporter.zip file in <exe> dir"""
     with ZipFile(zipfilepath, 'r') as zipFile:

@@ -7,14 +7,17 @@ from ..utils.Dotnet import (
     DotnetInt3,
     DotnetItem,
     DotnetBlock,
+    DotnetMediatrackerClip,
     DotnetVector3,
     run_get_mediatracker_clips,
+    run_place_mediatracker_clips_on_map,
     run_place_objects_on_map,
     get_block_dir_for_angle,
     DotnetExecResult
 )
 from ..utils.BlenderObjects import duplicate_object_to, move_obj_to_coll
 from ..utils.Functions import (
+    deselect_all_objects,
     fix_slash,
     ireplace,
     is_file_existing,
@@ -30,6 +33,8 @@ from ..utils.Constants import (
     MAP_GRID_OBJECT_NAME,
     MAP_OBJECT_ITEM,
     MAP_OBJECT_BLOCK,
+    SPECIAL_NAME_PREFIX_MTTRIGGER,
+    ADDON_ITEM_FILEPATH_MT_TRIGGER_10_66x8,
 )
 
 def _make_object_name(path: str, type: str) -> str:
@@ -266,17 +271,55 @@ def delete_map_grid_helper_and_cleanup() -> None:
 @persistent
 def listen_object_move(scene):
     tm_props = get_global_props()
-    if tm_props.CB_map_use_grid_helper is False:
-        delete_map_grid_helper_and_cleanup()
-        return
-
+    use_global_grid = tm_props.CB_map_use_grid_helper
+    
     if not hasattr(bpy.context, "object"):
         return
 
     obj = bpy.context.object
-
     if not obj:
         return
+
+    if obj.tm_force_grid_helper == True:
+        handle_object_movement_self_grid(obj)
+        delete_map_grid_helper_and_cleanup()
+        return
+
+    # global grid helper
+    if use_global_grid:
+        handle_object_movement_for_grid_helper(obj)
+        return
+    else:
+        delete_map_grid_helper_and_cleanup()
+        return
+
+
+def handle_object_movement_self_grid(obj: bpy.types.Object) -> None:
+    x_step = obj.tm_forced_grid_helper_step_x
+    y_step = obj.tm_forced_grid_helper_step_y
+    z_step = obj.tm_forced_grid_helper_step_z
+
+    if obj.location_before != obj.location:
+        obj.location_before = obj.location
+
+    obj.location[0] = get_obj_grid_pos(x_step, obj.location[0])
+    obj.location[1] = get_obj_grid_pos(y_step, obj.location[1])
+    obj.location[2] = get_obj_grid_pos(z_step, obj.location[2])
+
+
+def get_obj_grid_pos(step: float, position: float) -> float:
+    remainder = (position + (step/2)) % step
+    range     = remainder - (step/2)
+
+    if range == 0: 
+        new_pos = position
+    else:
+        new_pos = position - remainder + step/2
+    
+    return new_pos
+
+
+def handle_object_movement_for_grid_helper(obj: bpy.types.Object) -> None:
 
     if obj.location_before != obj.location:
         obj.location_before = obj.location
@@ -331,25 +374,98 @@ def listen_object_move(scene):
     input_vert_x.default_value = int(grid_size / xy_step) * min_steps + 1
     input_vert_y.default_value = int(grid_size / xy_step) * min_steps + 1
     
-    debug(f"obj_size = {obj_size_x} : {obj_size_y} : {obj_size_z}")
-
-
 
 def import_mediatracker_clips() -> DotnetExecResult:
     tm_props = get_global_props()
     map_path = tm_props.ST_map_filepath
+    map_coll = tm_props.PT_map_collection
     
     res = run_get_mediatracker_clips(map_path)
     if not res.success:
         return res
+
+    # TODO dynamic cleanup
+    clean_up = True
+
+    if clean_up:
+        objs = set(map_coll.all_objects)
+        for obj in objs:
+            if obj.name.startswith(SPECIAL_NAME_PREFIX_MTTRIGGER):
+                bpy.data.objects.remove(obj)
 
     jsonpath = res.message
     
     with open(jsonpath, "r") as f:
         data = json.load(f)
 
-        # TODO read data and generate objects from it in scene & link to map / clip
+        deselect_all_objects()
 
+        bpy.ops.import_scene.fbx(
+            filepath=ADDON_ITEM_FILEPATH_MT_TRIGGER_10_66x8,
+            use_custom_props=True
+        )
 
+        mt_trigger_base_obj = bpy.context.selected_objects[-1] # imported object#
+
+        trigger_clip_step_xy = 32/3
+        trigger_clip_step_z  = 8
+
+        mt_objs = []
+        for clip in data:
+            for trigger in clip["Triggers"]:
+                obj = mt_trigger_base_obj.copy()
+                obj.data = mt_trigger_base_obj.data.copy()
+                obj.name = SPECIAL_NAME_PREFIX_MTTRIGGER
+                obj.tm_map_clip_name = clip["ClipName"]
+                obj.location = (
+                    trigger["X"] * trigger_clip_step_xy,
+                    trigger["Z"] * trigger_clip_step_xy,
+                    trigger["Y"] * 8,
+                )
+                obj.lock_scale[0]    = True
+                obj.lock_scale[1]    = True
+                obj.lock_scale[2]    = True
+                obj.lock_rotation[0] = True
+                obj.lock_rotation[1] = True
+                obj.lock_rotation[2] = True
+
+                obj.tm_force_grid_helper         = True
+                obj.tm_forced_grid_helper_step_x = trigger_clip_step_xy
+                obj.tm_forced_grid_helper_step_y = trigger_clip_step_xy
+                obj.tm_forced_grid_helper_step_z = trigger_clip_step_z
+
+                map_coll.objects.link(obj)
+
+        bpy.data.objects.remove(mt_trigger_base_obj)
 
     return res
+
+
+def export_mediatracker_clips() -> DotnetExecResult:
+    tm_props = get_global_props()
+    map_path:str                  = tm_props.ST_map_filepath
+    map_coll:bpy.types.Collection = tm_props.PT_map_collection
+    
+    clips: list[DotnetMediatrackerClip] = []
+    temp_clips = {}
+
+    for obj in map_coll.all_objects:
+        if obj.name.startswith(SPECIAL_NAME_PREFIX_MTTRIGGER):
+            mtclip_name = obj.tm_map_clip_name
+            
+            known_clip = mtclip_name in temp_clips
+            if not known_clip:
+                temp_clips[mtclip_name] = []
+
+            X = round(obj.location.x / (32/3))
+            Y = round(obj.location.y / (32/3))
+            Z = round(obj.location.z / 8)
+
+            position = DotnetInt3(X, Z, Y)
+            temp_clips[mtclip_name].append(position)
+
+    for clip_name, intarrs in temp_clips.items():
+        clip = DotnetMediatrackerClip(clip_name, intarrs)
+        clips.append(clip)
+
+    return run_place_mediatracker_clips_on_map(map_path, clips)
