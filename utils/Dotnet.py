@@ -187,6 +187,8 @@ def run_convert_item_to_obj(
         outfile.close()
 
         res = _run_dotnet(CONVERT_ITEM_TO_OBJ, config_path)
+        res.message = res.message.replace("SUCCESS: ", "")
+        print(res)
         if not BLENDER_INSTANCE_IS_DEV:
             try:
                 os.remove(config_path)
