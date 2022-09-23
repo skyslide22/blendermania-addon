@@ -1056,6 +1056,22 @@ def get_cursor_location() -> list:
 def origin_to_center_of_mass() -> None:
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
 
+def get_offset_from_item_origin(coll: bpy.types.Collection) -> list[float]:
+    location: list[float] = [0,0,0]
+    offset: list[float] = []
+    
+    # take first valid object and main one
+    for obj in coll.objects:
+        if obj.type == "MESH" and is_real_object_by_name(obj.name)\
+        and (len(offset) == 0 or SPECIAL_NAME_INFIX_ORIGIN in obj.name):
+            offset = [
+                obj.location[0] - location[0],
+                obj.location[1] - location[1],
+                obj.location[2] - location[2],
+            ]
+            
+    return offset
+
 def hide_all_objects() -> None:
     """hide all objects in scene (obj.hide_viewport, obj.hide_render)"""
     allObjs = bpy.context.scene.objects

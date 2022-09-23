@@ -24,7 +24,8 @@ from .Functions import (
     get_path_filename,
     is_game_maniaplanet,
     is_game_trackmania2020,
-    debug
+    debug,
+    get_offset_from_item_origin
 )
 
 
@@ -283,9 +284,15 @@ def generate_item_XML(item: ExportedItem) -> str:
         for pivot in pivots:
             xml_pivots += gen_pivot_xml(pivot.NU_pivotX, pivot.NU_pivotY, pivot.NU_pivotZ)
         
+        offset = get_offset_from_item_origin(item.coll)
+        
         for obj in item.coll.objects:
             if SPECIAL_NAME_INFIX_PIVOT in obj.name:
-                xml_pivots += gen_pivot_xml(obj.location[0],obj.location[1],obj.location[2])
+                xml_pivots += gen_pivot_xml(
+                    obj.location[0]-offset[0],
+                    obj.location[1]-offset[1],
+                    obj.location[2]-offset[2]
+                    )
 
     if xml_pivots:
         xml_pivots = f"""<Pivots>{ xml_pivots }</Pivots>"""
