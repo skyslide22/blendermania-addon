@@ -10,7 +10,10 @@ import xml.etree.ElementTree as ET
 from ..properties.PivotsProperties import PivotsProperties
 
 from .Models import ExportedItem
-from .Constants import WAYPOINTS
+from .Constants import (
+    WAYPOINTS,
+    SPECIAL_NAME_INFIX_PIVOT
+)
 from .Functions import (
     rgb_to_hex,
     fix_slash,
@@ -279,6 +282,10 @@ def generate_item_XML(item: ExportedItem) -> str:
 
         for pivot in pivots:
             xml_pivots += gen_pivot_xml(pivot.NU_pivotX, pivot.NU_pivotY, pivot.NU_pivotZ)
+        
+        for obj in item.coll.objects:
+            if SPECIAL_NAME_INFIX_PIVOT in obj.name:
+                xml_pivots += gen_pivot_xml(obj.location[0],obj.location[1],obj.location[2])
 
     if xml_pivots:
         xml_pivots = f"""<Pivots>{ xml_pivots }</Pivots>"""

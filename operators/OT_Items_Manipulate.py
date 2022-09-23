@@ -153,6 +153,16 @@ class TM_OT_Items_ObjectManipulationToggleOrigin(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Items_ObjectManipulationTogglePivot(Operator):
+    bl_idname = "view3d.tm_toggle_pivot"
+    bl_description = f"Toggle {SPECIAL_NAME_INFIX_PIVOT} on selected object"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_INFIX_PIVOT}"
+   
+    def execute(self, context):
+        toggle_infix(bpy.context.selected_objects[0], SPECIAL_NAME_INFIX_PIVOT)
+        return {"FINISHED"}
+
 
 class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     bl_idname = "wm.tm_changecollectionscale"

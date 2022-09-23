@@ -191,6 +191,7 @@ class TM_PT_ObjectManipulations(Panel):
         is_lod0         = SPECIAL_NAME_SUFFIX_LOD0 in obj_name
         is_lod1         = SPECIAL_NAME_SUFFIX_LOD1 in obj_name
         is_origin       = SPECIAL_NAME_INFIX_ORIGIN in obj_name
+        is_pivot        = SPECIAL_NAME_INFIX_PIVOT in obj_name
 
         
         row = obj_box.row(align=True)
@@ -208,7 +209,10 @@ class TM_PT_ObjectManipulations(Panel):
         # ignore
         row = col_btns.row(align=True)
         row.operator(f"view3d.tm_toggleobjectignore", text=f"Ignore Export", icon=ICON_IGNORE   , depress=is_ignored)
+        row = col_btns.row(align=True)
         row.operator(f"view3d.tm_toggle_origin",      text=f"_origin_",  icon=ICON_ORIGIN       , depress=is_origin)
+        row.operator(f"view3d.tm_toggle_pivot",      text=f"_pivot_",  icon=ICON_PIVOTS       , depress=is_pivot)
+        
 
         if not is_light:
 

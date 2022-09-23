@@ -123,6 +123,7 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleLod1,
     TM_OT_Items_ObjectManipulationToggleDoublesided,
     TM_OT_Items_ObjectManipulationToggleOrigin,
+    TM_OT_Items_ObjectManipulationTogglePivot,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
     TM_OT_Items_SetItemXMLTemplateOfCollection,
     TM_OT_Items_ToggleLightType,
