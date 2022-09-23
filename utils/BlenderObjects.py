@@ -24,3 +24,9 @@ def create_collection_in(destColl: bpy.types.Collection, name: str) -> bpy.types
     coll = bpy.context.blend_data.collections.new(name=name)
     destColl.children.link(coll)
     return coll
+
+def apply_modifiers(obj: bpy.types.Object) -> bpy.types.Object:
+    for modifier in obj.modifiers:
+        bpy.ops.object.modifier_apply(modifier=modifier.name)
+
+    return obj

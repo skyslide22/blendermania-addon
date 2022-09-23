@@ -1,5 +1,7 @@
 import re
 import bpy
+
+from .BlenderObjects import apply_modifiers
 from .Functions import (
     debug,
     deselect_all_objects,
@@ -37,6 +39,10 @@ def _make_joined_object(coll: bpy.types.Collection) -> bpy.types.Object:
             set_active_object(obj)
 
     bpy.ops.object.duplicate(linked=False)
+
+    for obj in bpy.context.selected_objects:
+        apply_modifiers(obj)
+
     bpy.ops.object.join()
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
     joined_obj = bpy.context.object
