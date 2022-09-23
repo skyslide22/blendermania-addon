@@ -418,8 +418,8 @@ def import_mediatracker_clips() -> DotnetExecResult:
                 obj.name = SPECIAL_NAME_PREFIX_MTTRIGGER
                 obj.tm_map_clip_name = clip["ClipName"]
                 obj.location = (
-                    trigger["X"] * trigger_clip_step_xy,
                     trigger["Z"] * trigger_clip_step_xy,
+                    trigger["X"] * trigger_clip_step_xy,
                     trigger["Y"] * 8,
                 )
                 obj.lock_scale[0]    = True
@@ -461,7 +461,7 @@ def export_mediatracker_clips() -> DotnetExecResult:
             Y = round(obj.location.y / (32/3))
             Z = round(obj.location.z / 8)
 
-            position = DotnetInt3(X, Z, Y)
+            position = DotnetInt3(Y, Z, X)
             temp_clips[mtclip_name].append(position)
 
     for clip_name, intarrs in temp_clips.items():
