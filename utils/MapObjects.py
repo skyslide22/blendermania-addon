@@ -199,10 +199,8 @@ def create_grid_obj() -> bpy.types.Object:
 
     mesh = bpy.data.meshes.new(name=MAP_GRID_OBJECT_NAME)
     obj = bpy.data.objects.new(name=MAP_GRID_OBJECT_NAME, object_data=mesh)
-    print("created grid obj")
-
     bpy.context.scene.collection.objects.link(obj)
-    print("is in scene: " + obj in bpy.context.scene.collection.objects)
+    return obj
 
 
 def create_grid_obj_geom_nodes_modifier() -> bpy.types.Modifier:
@@ -276,22 +274,18 @@ def listen_object_move(scene):
     if not hasattr(bpy.context, "object"):
         return
 
-    obj = bpy.context.object
-    if not obj:
+    if not bpy.context.object:
         return
 
-    if obj.tm_force_grid_helper == True:
-        handle_object_movement_self_grid(obj)
-        delete_map_grid_helper_and_cleanup()
-        return
+    if objs := bpy.context.selected_objects:
 
-    # global grid helper
-    if use_global_grid:
-        handle_object_movement_for_grid_helper(obj)
-        return
-    else:
-        delete_map_grid_helper_and_cleanup()
-        return
+        for obj in objs:
+            if obj.tm_force_grid_helper == True:
+                handle_object_movement_self_grid(obj)
+            elif use_global_grid:
+                handle_object_movement_for_grid_helper(obj)
+
+        
 
 
 def handle_object_movement_self_grid(obj: bpy.types.Object) -> None:

@@ -8,7 +8,7 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
     bl_category = 'ManiaPlanetAddon'
-    bl_label = "LightMap UVlayer"
+    bl_label = ""
     bl_idname = "TM_PT_Items_UVMaps_LightMap"
     bl_parent_id = "TM_PT_Items_Export"
     bl_space_type = 'VIEW_3D'
@@ -20,14 +20,26 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
     def poll(cls, context):
         return not is_convert_panel_active()
     
+
     def draw_header(self, context):
         layout = self.layout
         tm_props = get_global_props()
+        row = layout.row()
+        row.enabled = tm_props.CB_uv_genLightMap
+        row.label(text="UV LightMap")
+    
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
         row = layout.row(align=True)
-        row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_uv_genLightMap",         text="", icon=ICON_CHECKED,)
-        row.prop(tm_props, "CB_uv_fixLightMap",         text="", icon=ICON_UPDATE)
+
+        col = row.column(align=True)
+        col.enabled = tm_props.CB_uv_genLightMap
+        col.prop(tm_props, "CB_uv_fixLightMap",   text="", icon=ICON_UPDATE)
+        col = row.column(align=True)
+        col.prop(tm_props, "CB_uv_genLightMap",         text="", icon=ICON_CHECKED,)
         row=layout.row()
+
     
     def draw(self, context):
 
@@ -48,8 +60,8 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
             col.row(align=True).prop(tm_props, "NU_uv_areaWeightLM")
             
             row = col.row(align=True)
-            row.prop(tm_props, "CB_uv_correctAspectLM", expand=True, toggle=True)
             row.prop(tm_props, "CB_uv_scaleToBoundsLM", expand=True, toggle=True)
+            row.prop(tm_props, "CB_uv_correctAspectLM", expand=True, toggle=True)
             
                     
         layout.separator(factor=UI_SPACER_FACTOR)
@@ -59,7 +71,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "BaseMaterial Cube Project"
+    bl_label = ""
     bl_idname = "TM_PT_Items_UVMaps_BaseMaterial_CubeProject"
     bl_parent_id = "TM_PT_Items_Export"
     # endregion
@@ -68,7 +80,26 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
     def poll(cls, context):
         return not is_convert_panel_active()
     
+
     def draw_header(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row()
+        row.enabled = tm_props.CB_uv_genBaseMaterialCubeMap
+        row.alert = tm_props.CB_uv_genBaseMaterialCubeMap
+        row.label(text="UV BaseMaterial")
+    
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+
+        col = row.column(align=True)
+        col.prop(tm_props, "CB_uv_genBaseMaterialCubeMap",         text="", icon=ICON_CHECKED,)
+        row=layout.row()
+
+
+    def draw_header_preset(self, context):
         layout = self.layout
         tm_props = get_global_props()
         row = layout.row(align=True)
@@ -77,7 +108,6 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
         row=layout.row()
     
     def draw(self, context):
-
         layout = self.layout
         tm_props        = get_global_props()
         

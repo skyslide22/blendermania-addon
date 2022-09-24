@@ -15,7 +15,7 @@ from ..utils.Constants import *
 class TM_PT_Items_ItemXML(Panel):
     # region bl_
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "Item XML file"
+    bl_label = ""
     bl_idname = "TM_PT_Items_Export_ItemXML"
     bl_parent_id = "TM_PT_Items_Export"
     # endregion
@@ -23,15 +23,24 @@ class TM_PT_Items_ItemXML(Panel):
     @classmethod
     def poll(cls, context):
         return not is_convert_panel_active()
-    
+
     def draw_header(self, context):
         layout = self.layout
         tm_props = get_global_props()
+        row = layout.row()
+        row.enabled = tm_props.CB_xml_genItemXML
+        row.label(text="Item XML")
+    
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
         row = layout.row(align=True)
-        row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_xml_genItemXML",         text="", icon=ICON_CHECKED,)
-        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="", icon=ICON_UPDATE)
-        # row.prop(tm_props, "CB_xml_format_itemxml",     text="", icon=ICON_TEXT)
+
+        col = row.column(align=True)
+        col.enabled = tm_props.CB_xml_genItemXML
+        col.prop(tm_props, "CB_xml_overwriteItemXML",   text="", icon=ICON_UPDATE)
+        col = row.column(align=True)
+        col.prop(tm_props, "CB_xml_genItemXML",         text="", icon=ICON_CHECKED,)
         row=layout.row()
     
     def draw(self, context):
@@ -175,7 +184,7 @@ class TM_PT_Items_ItemXML(Panel):
 class TM_PT_Items_MeshXML(Panel):
     # region bl_
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "Mesh XML file"
+    bl_label = ""
     bl_idname = "TM_PT_Items_Export_MeshXML"
     bl_parent_id = "TM_PT_Items_Export"
     # endregion
@@ -186,13 +195,21 @@ class TM_PT_Items_MeshXML(Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        layout.use_property_split
+        tm_props = get_global_props()
+        row = layout.row()
+        row.enabled = tm_props.CB_xml_genMeshXML
+        row.label(text="Mesh XML")
+    
+    def draw_header_preset(self, context):
+        layout = self.layout
         tm_props = get_global_props()
         row = layout.row(align=True)
-        row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_xml_genMeshXML",         text="", icon=ICON_CHECKED)
-        row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="", icon=ICON_UPDATE)
-        # row.prop(tm_props, "CB_xml_format_meshxml",     text="", icon=ICON_TEXT)
+
+        col = row.column(align=True)
+        col.enabled = tm_props.CB_xml_genMeshXML
+        col.prop(tm_props, "CB_xml_overwriteMeshXML",   text="", icon=ICON_UPDATE)
+        col = row.column(align=True)
+        col.prop(tm_props, "CB_xml_genMeshXML",         text="", icon=ICON_CHECKED,)
         row=layout.row()
 
     

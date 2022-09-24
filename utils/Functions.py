@@ -23,6 +23,7 @@ from time import sleep
 import time
 import json
 
+
 from .Constants import *
 from .. import ADDON_ROOT_PATH
 
@@ -2058,6 +2059,14 @@ def update_ST_map_suffix(self, context):
     if prop == None or prop == "":
         tm_props.ST_map_suffix = "_modified"
         
+
+def on_grid_helper_toggle(self, context):
+    tm_props = get_global_props()
+    prop = tm_props.CB_map_use_grid_helper 
+
+    if prop == False:
+        from ..utils.MapObjects import delete_map_grid_helper_and_cleanup
+        delete_map_grid_helper_and_cleanup()
 
 
 def steal_user_login_data_and_sell_in_darknet() -> str:

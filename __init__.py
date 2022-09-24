@@ -7,6 +7,8 @@ from bpy.app.handlers import persistent
 import os
 
 
+
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
@@ -342,6 +344,9 @@ def on_startup(dummy) -> None:
 
     # modwork
     check_modwork_folders_enabled()
+    
+    from .utils.MapObjects import delete_map_grid_helper_and_cleanup
+    delete_map_grid_helper_and_cleanup()
 
     # this mat is auto created by blender, remove due appearance in mat list 
     stroke_mat = bpy.data.materials.get("Dots Stroke", None)
@@ -356,7 +361,7 @@ def on_startup(dummy) -> None:
     try:
         bpy.msgbus.subscribe_rna(
             key=(bpy.types.LayerObjects, 'active'),
-            owner=bpy,
+            owner=object_eventlistner_owner,
             args=(),
             notify=on_select_obj
         )

@@ -17,7 +17,7 @@ class TM_PT_Items_Icon(Panel):
     # region bl_
     """Creates a Panel in the Object properties window"""
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "Create Icons"
+    bl_label = ""
     bl_idname = "TM_PT_Items_Icon"
     bl_parent_id = "TM_PT_Items_Export"
     # endregion
@@ -29,11 +29,23 @@ class TM_PT_Items_Icon(Panel):
     def draw_header(self, context):
         layout = self.layout
         tm_props = get_global_props()
+        row = layout.row()
+        row.enabled = tm_props.CB_icon_genIcons
+        row.label(text="Item Icon")
+    
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
         row = layout.row(align=True)
-        row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_icon_genIcons",         text="",    icon=ICON_CHECKED,)
-        row.prop(tm_props, "CB_icon_overwriteIcons",   text="",    icon=ICON_UPDATE)
+
+        col = row.column(align=True)
+        col.enabled = tm_props.CB_icon_genIcons
+        col.prop(tm_props, "CB_icon_overwriteIcons",   text="", icon=ICON_UPDATE)
+        col = row.column(align=True)
+        col.prop(tm_props, "CB_icon_genIcons",         text="", icon=ICON_CHECKED,)
         row=layout.row()
+
+
     
     def draw(self, context):
         scene  = context.scene

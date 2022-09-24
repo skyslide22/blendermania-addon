@@ -138,6 +138,7 @@ class TM_PT_Items_Export(Panel):
                     for col in exportable_cols:
                         embed_space += get_embedspace_of_collection(col)
                 row = layout.row()
+                row.scale_y = 0.5
                 
                 embed_space_1024kb = embed_space < 1.024
                 if embed_space_1024kb:
