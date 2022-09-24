@@ -1,15 +1,18 @@
 # Blendermania 
 ### A Blender Addon for Trackmania2020 and ManiaPlanet
 
-This addon is for Blender 3.1+, it will simplify all necessary steps and help you with:
+This addon is for **min Blender 3.3 LTS**, it will simplify all necessary steps and help you with:
 - creating icons
 - creating materials for the games
 - install NadeoImporter.exe with one click
 - install textures with one click
 - install assets with one click
-- export items(collections) as .fbx
-- convert exported .fbx files to .gbx (game format)
-- documentation https://github.com/skyslide22/blendermania-addon/wiki
+- export & convert items(collections) from fbx to gbx
+- export items in a map collection to a .Map.Gbx file (create map in blender)
+- import/export mediatracker clips (can go beyond 64x64x64 area without openplanet)
+
+#### Documentation 
+https://github.com/skyslide22/blendermania-addon/wiki
 
 ## Todo list
 - on the list: https://github.com/skyslide22/blendermania-addon/projects/1
@@ -23,8 +26,7 @@ This addon is for Blender 3.1+, it will simplify all necessary steps and help yo
 
 ## Contact
 Contact us(skyslide, Juice) on discord:
-- ManiaExchange http://discord.mania.exchange #importer-help
-- Trackmania Scenery Hub https://discord.gg/yMSnpjUPEG #blender-plugin (prefer this server)
+- Trackmania Scenery Hub https://discord.gg/yMSnpjUPEG #blendermania
 
 ![addon image](https://github.com/skyslide22/blendermania-addon/wiki/img/wheretofind.jpg)
 
