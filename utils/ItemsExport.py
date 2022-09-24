@@ -35,6 +35,7 @@ from .Functions import (
     get_game_doc_path_items,
     select_obj,
     show_report_popup,
+    get_offset_from_item_origin,
 )
 
 def _is_real_object(name: str) -> bool:
@@ -152,19 +153,9 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
     return items
 
 # takes the first item and return offset from it to "location"
-def _move_collection_to(coll: bpy.types.Collection, location: list[float] = [0,0,0]) -> list[float]:
-    offset:list[float] = []
-
-    # take first valid object and main one
-    for obj in coll.objects:
-        if obj.type == "MESH" and is_real_object_by_name(obj.name)\
-        and (len(offset) == 0 or SPECIAL_NAME_INFIX_ORIGIN in obj.name):
-            offset = [
-                obj.location[0] - location[0],
-                obj.location[1] - location[1],
-                obj.location[2] - location[2],
-            ]
-
+def _move_collection_to(coll: bpy.types.Collection) -> list[float]:
+    offset = get_offset_from_item_origin(coll)
+    
     for obj in coll.objects:
         obj.location[0] -= offset[0]
         obj.location[1] -= offset[1]
