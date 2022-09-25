@@ -61,6 +61,7 @@ from .operators.OT_Items_Templates         import *
 from .operators.OT_WikiLink                import * 
 from .operators.OT_Textures                import * 
 from .operators.OT_Imports                 import * 
+from .operators.OT_Visibility              import *
 
 from .panels.PT_Map_Manipulate      import *
 from .panels.PT_Imports             import *
@@ -73,6 +74,7 @@ from .panels.PT_Items_Icon          import *
 from .panels.PT_Items_Manipulate    import *
 from .panels.PT_UV_Manipulate       import *
 from .panels.PT_Textures            import *
+from .panels.PT_Visibility          import *
 
 
 
@@ -110,7 +112,28 @@ classes = (
     TM_OT_Settings_OpenFolder,
     TM_OT_Settings_DebugAll,
     TM_OT_Settings_OpenConvertReport,
-
+    
+    # object visibility
+    TM_PT_Visibility,
+    TM_OT_Visibility_ViewLayerToggleSocket,
+    TM_OT_Visibility_ViewLayerToggleTrigger,
+    TM_OT_Visibility_ViewLayerToggleIgnore,
+    TM_OT_Visibility_ViewLayerToggleNotVisible,
+    TM_OT_Visibility_ViewLayerToggleNotCollidable,
+    TM_OT_Visibility_ViewLayerToggleOrigin,
+    TM_OT_Visibility_ViewLayerTogglePivot,
+    TM_OT_Visibility_ViewLayerToggleLod0,
+    TM_OT_Visibility_ViewLayerToggleLod1,
+    TM_OT_Visibility_CollectionToggleSocket,
+    TM_OT_Visibility_CollectionToggleTrigger,
+    TM_OT_Visibility_CollectionToggleIgnore,
+    TM_OT_Visibility_CollectionToggleNotVisible,
+    TM_OT_Visibility_CollectionToggleNotCollidable,
+    TM_OT_Visibility_CollectionToggleOrigin,
+    TM_OT_Visibility_CollectionTogglePivot,
+    TM_OT_Visibility_CollectionToggleLod0,
+    TM_OT_Visibility_CollectionToggleLod1,
+    
     # object manipulation
     TM_PT_ObjectManipulations,
     TM_OT_Items_ObjectManipulationAddSocketItem,
