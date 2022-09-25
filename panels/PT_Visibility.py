@@ -12,6 +12,7 @@ from ..operators.OT_Visibility import *
 class TM_PT_Visibility(Panel):
     bl_label   = "Visibility"
     bl_idname  = "TM_PT_Visibility"
+    bl_parent_id = "TM_PT_ObjectManipulations"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     
     @classmethod
@@ -30,8 +31,10 @@ class TM_PT_Visibility(Panel):
         current_collection      = get_active_collection_of_selected_object()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
         
+        layout_row = layout.row(align=True)
+        
         # ViewLayer visibility
-        layer_box = layout.box()
+        layer_box = layout_row.box()
         
         row = layer_box.row()
         layer_icon = row.column(align=True)
@@ -99,7 +102,7 @@ class TM_PT_Visibility(Panel):
         
         
         # visibility in collection
-        col_box = layout.box()
+        col_box = layout_row.box()
         
         row = col_box.row()
         col_icon = row.column(align=True)
@@ -108,7 +111,6 @@ class TM_PT_Visibility(Panel):
         col_text = row.column(align=True)
         row = col_text.row(align=True)
         row.label(text=current_collection_name.split("_#SCALE")[0] + "")
-        row.operator("wm.tm_renameobject", text="", icon=ICON_EDIT).col_name = current_collection_name
         
         if current_collection is None:
             return

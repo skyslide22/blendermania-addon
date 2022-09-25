@@ -113,11 +113,6 @@ classes = (
     TM_OT_Settings_DebugAll,
     TM_OT_Settings_OpenConvertReport,
     
-    # object visibility
-    TM_PT_Visibility,
-    TM_OT_Visibility_ViewLayerToggle,
-    TM_OT_Visibility_CollectionToggle,
-    
     # object manipulation
     TM_PT_ObjectManipulations,
     TM_OT_Items_ObjectManipulationAddSocketItem,
@@ -141,6 +136,11 @@ classes = (
     TM_OT_Items_EditUVMap,
     TM_OT_Items_ShowUVMap,
 
+    # object visibility
+    TM_PT_Visibility,
+    TM_OT_Visibility_ViewLayerToggle,
+    TM_OT_Visibility_CollectionToggle,
+    
     # uv manipulation
     TM_PT_UVManipulations,
     TM_OT_Items_UVManipulationsFollowActiveQuadsForFaceLoop,
