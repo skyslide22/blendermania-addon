@@ -5,6 +5,7 @@ from bpy.types import Operator
 
 from ..utils.Functions import *
 from ..utils.Constants import * 
+from ..operators.OT_Visibility import *
 
 
 
@@ -43,58 +44,58 @@ class TM_PT_Visibility(Panel):
         layer_btns = layer_box.column(align=True)
         row = layer_btns.row(align=True)
         row.operator(#ignore
-            "view3d.tm_viewlayervisibilityignore",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_IGNORE,
             icon=ICON_IGNORE
-        )
+        ).subname = SPECIAL_NAME_PREFIX_IGNORE
         
         row = layer_btns.row(align=True)
         row.operator(#origin
-            "view3d.tm_viewlayervisibilityorigin",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_INFIX_ORIGIN,
             icon=ICON_ORIGIN
-        )
+        ).subname = SPECIAL_NAME_INFIX_ORIGIN
         row.operator(#pivot
-            "view3d.tm_viewlayervisibilitypivot",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_INFIX_PIVOT,
             icon=ICON_PIVOTS
-        )
+        ).subname = SPECIAL_NAME_INFIX_PIVOT
         
         row = layer_btns.row(align=True)
         row.operator(#trigger
-            "view3d.tm_viewlayervisibilitytrigger",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_TRIGGER,
             icon=ICON_TRIGGER
-        )
+        ).subname = SPECIAL_NAME_PREFIX_TRIGGER
         row.operator(#socket
-            "view3d.tm_viewlayervisibilitysocket",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_SOCKET,
             icon=ICON_SOCKET
-        )
+        ).subname = SPECIAL_NAME_PREFIX_SOCKET
         
         row = layer_btns.row(align=True)
         row.operator(#Lod0
-            "view3d.tm_viewlayervisibilitylod0",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_SUFFIX_LOD0,
             icon=ICON_LOD_0
-        )
+        ).subname = SPECIAL_NAME_SUFFIX_LOD0
         row.operator(#Lod1
-            "view3d.tm_viewlayervisibilitylod1",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_SUFFIX_LOD1,
             icon=ICON_LOD_1
-        )
+        ).subname = SPECIAL_NAME_SUFFIX_LOD1
         
         row = layer_btns.row(align=True)
         row.operator(#not visible
-            "view3d.tm_viewlayervisibilitynotvisible",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_NOTVISIBLE,
             icon=ICON_HIDDEN
-        )
+        ).subname = SPECIAL_NAME_PREFIX_NOTVISIBLE
         row.operator(#not collidable
-            "view3d.tm_viewlayervisibilitynotcollidable",
+            TM_OT_Visibility_ViewLayerToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
             icon=ICON_IGNORE
-        )
+        ).subname = SPECIAL_NAME_PREFIX_NOTCOLLIDABLE
         
         
         # visibility in collection
@@ -115,55 +116,55 @@ class TM_PT_Visibility(Panel):
         col_btns = col_box.column(align=True)
         row = col_btns.row(align=True)
         row.operator(#ignore
-            "view3d.tm_collectionvisibilityignore",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_IGNORE,
             icon=ICON_IGNORE
-        )
+        ).subname = SPECIAL_NAME_PREFIX_IGNORE
         
         row = col_btns.row(align=True)
         row.operator(#origin
-            "view3d.tm_collectionvisibilityorigin",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_INFIX_ORIGIN,
             icon=ICON_ORIGIN
-        )
+        ).subname = SPECIAL_NAME_INFIX_ORIGIN
         row.operator(#pivot
-            "view3d.tm_collectionvisibilitypivot",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_INFIX_PIVOT,
             icon=ICON_PIVOTS
-        )
+        ).subname = SPECIAL_NAME_INFIX_PIVOT
         
         row = col_btns.row(align=True)
         row.operator(#trigger
-            "view3d.tm_collectionvisibilitytrigger",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_TRIGGER,
             icon=ICON_TRIGGER
-        )
+        ).subname = SPECIAL_NAME_PREFIX_TRIGGER
         row.operator(#socket
-            "view3d.tm_collectionvisibilitysocket",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_SOCKET,
             icon=ICON_SOCKET
-        )
+        ).subname = SPECIAL_NAME_PREFIX_SOCKET
         
         row = col_btns.row(align=True)
         row.operator(#Lod0
-            "view3d.tm_collectionvisibilitylod0",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_SUFFIX_LOD0,
             icon=ICON_LOD_0
-        )
+        ).subname = SPECIAL_NAME_SUFFIX_LOD0
         row.operator(#Lod1
-            "view3d.tm_collectionvisibilitylod1",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_SUFFIX_LOD1,
             icon=ICON_LOD_1
-        )
+        ).subname = SPECIAL_NAME_SUFFIX_LOD1
         
         row = col_btns.row(align=True)
         row.operator(#not visible
-            "view3d.tm_collectionvisibilitynotvisible",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_NOTVISIBLE,
             icon=ICON_HIDDEN
-        )
+        ).subname = SPECIAL_NAME_PREFIX_NOTVISIBLE
         row.operator(#not collidable
-            "view3d.tm_collectionvisibilitynotcollidable",
+            TM_OT_Visibility_CollectionToggle.bl_idname,
             text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
             icon=ICON_IGNORE
-        )
+        ).subname = SPECIAL_NAME_PREFIX_NOTCOLLIDABLE
