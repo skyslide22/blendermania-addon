@@ -992,6 +992,26 @@ def is_collection_excluded_or_hidden(col) -> bool:
 
     return True if collection_is_excluded else False
 
+def is_name_visible_in_viewlayer(subname: str) -> bool:
+    is_visible = False
+    
+    for obj in bpy.context.scene.objects:
+        if subname in obj.name.lower():
+            if not obj.hide_get():
+                is_visible = True
+    
+    return is_visible
+
+def is_name_visible_in_collection(coll: bpy.types.Collection, subname: str) -> bool:
+    is_visible = False
+    
+    for obj in coll.objects:
+        if subname in obj.name.lower():
+            if not obj.hide_get():
+                is_visible = True
+    
+    return is_visible
+
 def create_collection(name: str) -> object:
     """return created or existing collection"""
     all_cols = bpy.data.collections
