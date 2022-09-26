@@ -996,21 +996,37 @@ def is_name_visible_in_viewlayer(subname: str) -> bool:
     is_visible = False
     
     for obj in bpy.context.scene.objects:
-        if subname in obj.name.lower():
-            if not obj.hide_get():
-                is_visible = True
+        if subname.lower() in obj.name.lower() and not obj.hide_get():
+            is_visible = True
     
     return is_visible
 
-def is_name_visible_in_collection(coll: bpy.types.Collection, subname: str) -> bool:
+def is_name_visible_in_collection(subname: str) -> bool:
     is_visible = False
+    coll = get_active_collection_of_selected_object()
     
     for obj in coll.objects:
-        if subname in obj.name.lower():
-            if not obj.hide_get():
-                is_visible = True
+        if subname.lower() in obj.name.lower() and not obj.hide_get():
+            is_visible = True
     
     return is_visible
+    
+def is_all_selected_in_viewlayer(subname: str) -> bool:
+    is_selected = True
+    
+    for obj in bpy.context.view_layer.objects:
+        if subname.lower() in obj.name.lower() and not obj.select_get():
+            is_selected = False
+    return is_selected
+
+def is_all_selected_in_collection(subname: str) -> bool:
+    is_selected = True
+    coll = get_active_collection_of_selected_object()
+    
+    for obj in coll.objects:
+        if subname.lower() in obj.name.lower() and not obj.select_get():
+            is_selected = False
+    return is_selected
 
 def create_collection(name: str) -> object:
     """return created or existing collection"""

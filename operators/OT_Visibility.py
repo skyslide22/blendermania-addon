@@ -30,17 +30,17 @@ class TM_OT_Visibility_CollectionToggle(Operator):
 
 def toggle_name_visibility_in_viewlayer(subname: str) -> None:
     if is_name_visible_in_viewlayer(subname):
-        for obj in bpy.context.scene.objects:
+        for obj in bpy.context.view_layer.objects:
             if subname in obj.name.lower():
                 obj.hide_set(True)
     else:
-        for obj in bpy.context.scene.objects:
+        for obj in bpy.context.view_layer.objects:
             if subname in obj.name.lower():
                 obj.hide_set(False)
 
 def toggle_name_visibility_in_collection(subname: str) -> None:
     coll = get_active_collection_of_selected_object()
-    if is_name_visible_in_collection(coll,subname):
+    if is_name_visible_in_collection(subname):
         for obj in coll.objects:
             if subname in obj.name.lower():
                 obj.hide_set(True)
