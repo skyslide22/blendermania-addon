@@ -78,7 +78,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_objMplScaleFactor    : IntProperty(default=4, min=1, max=20)
     CB_objMplScaleRecursive : BoolProperty(default=True, description="Affect child collections")
     #visibility and selection controls toggle
-    CB_visSel_use_visibility       : BoolProperty(name="is_visibility", default=False,update=redraw_panels, description="Switch between Visibility and Selection Controls")
+    CB_visSel_use_visibility       : BoolProperty(name="", default=False, description="Switch between Visibility and Selection Controls")
 
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)

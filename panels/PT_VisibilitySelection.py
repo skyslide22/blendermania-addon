@@ -13,40 +13,11 @@ class TM_PT_VisibilitySelection(Panel):
     bl_parent_id = "TM_PT_ObjectManipulations"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     
-    # order and function of buttons
-    # order matters
-    subnames = [
-    SPECIAL_NAME_PREFIX_IGNORE,
-    SPECIAL_NAME_INFIX_ORIGIN,
-    SPECIAL_NAME_INFIX_PIVOT,
-    SPECIAL_NAME_PREFIX_TRIGGER,
-    SPECIAL_NAME_PREFIX_SOCKET,
-    SPECIAL_NAME_SUFFIX_LOD0,
-    SPECIAL_NAME_SUFFIX_LOD1,
-    SPECIAL_NAME_PREFIX_NOTVISIBLE,
-    SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
-    ]
-    # icons that correspond to the subname with the same index in subnames
-    # order matters
-    subname_icons = [
-    ICON_IGNORE,
-    ICON_ORIGIN,
-    ICON_PIVOTS,
-    ICON_TRIGGER,
-    ICON_SOCKET,
-    ICON_LOD_0,
-    ICON_LOD_1,
-    ICON_HIDDEN,
-    ICON_IGNORE,
-    ]
-    
     @classmethod
     def poll(self, context):
         return is_selected_nadeoini_file_name_ok()
     
     def draw_header(self, context):
-        tm_props = get_global_props()
-        is_visibility = tm_props.CB_visSel_use_visibility
         layout = self.layout
         layout.label(icon=ICON_VIS_SEL)
     
@@ -68,7 +39,7 @@ class TM_PT_VisibilitySelection(Panel):
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
         
         layout_row = layout.row(align=True)
-        length = len(subnames)
+        length = len(SPECIAL_NAMES_TO_DRAW)
         
         for use_collection in [False,True]:
             icon = ICON_COLLECTION if use_collection else ICON_VIEWLAYER
@@ -82,6 +53,8 @@ class TM_PT_VisibilitySelection(Panel):
             column = row.column(align=True)
             row = column.row(align=True)
             row.label(text=label)
+            if use_collection == False or current_collection is not None:
+                new_vissel_operator(row,ALL_OBJECTS,'',use_collection)
             
             if use_collection and current_collection is None:
                 return
@@ -89,21 +62,29 @@ class TM_PT_VisibilitySelection(Panel):
             column = box.column(align=True)
             row = column.row(align=True)
             for i in range(length):
+                subname = list(SPECIAL_NAMES_TO_DRAW.keys())[i]
+                icon = list(SPECIAL_NAMES_TO_DRAW.values())[i]
                 if ((length %2) == 1 and i == 0) or (i % 2) == 0:
-                    new_vissel_operator(row,i,use_collection)
+                    new_vissel_operator(row,subname,icon,use_collection)
                     if i != length -1:
                        row = column.row(align=True)
                 else:
-                    new_vissel_operator(row,i,use_collection)
+                    new_vissel_operator(row,subname,icon,use_collection)
     
-    def new_vissel_operator(parent_ui:bpy.types.UILayout,index:int,use_collection:bool):
-        tm_props = get_global_props()
-        is_visibility = tm_props.CB_visSel_use_visibility
-        operator = parent_ui.Operator(
+def new_vissel_operator(parent_ui:bpy.types.UILayout,subname:str,icon:str,use_collection:bool):
+    tm_props = get_global_props()
+    is_visibility = tm_props.CB_visSel_use_visibility
+    operator:TM_OT_VisibilitySelection_Toggle
+    if subname == ALL_OBJECTS:
+        operator = parent_ui.operator(
             TM_OT_VisibilitySelection_Toggle.bl_idname,
-            text = subnames[index],
-            icon = subname_icons[index]
+            text = 'ALL'
             )
-        operator.subname = subnames[index]
-        operator.use_collection = use_collection
-        operator.is_visibility = is_visibility
+    else:
+        operator = parent_ui.operator(
+            TM_OT_VisibilitySelection_Toggle.bl_idname,
+            text = subname,
+            icon = icon
+            )
+    operator.subname = subname
+    operator.use_collection = use_collection
