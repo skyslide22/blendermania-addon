@@ -992,39 +992,24 @@ def is_collection_excluded_or_hidden(col) -> bool:
 
     return True if collection_is_excluded else False
 
-def is_name_visible_in_viewlayer(subname: str) -> bool:
-    is_visible = False
-    
-    for obj in bpy.context.scene.objects:
-        if subname.lower() in obj.name.lower() and not obj.hide_get():
-            is_visible = True
-    
-    return is_visible
-
-def is_name_visible_in_collection(subname: str) -> bool:
+def is_name_visible(subname: str,use_collection: bool) -> bool:
     is_visible = False
     coll = get_active_collection_of_selected_object()
-    
-    for obj in coll.objects:
-        if subname.lower() in obj.name.lower() and not obj.hide_get():
+    objects = coll.objects if use_collection else bpy.context.scene.objects
+    for_all = subname == ALL_OBJECTS
+    for obj in objects:
+        if (subname.lower() in obj.name.lower()or for_all) and not obj.hide_get():
             is_visible = True
     
     return is_visible
     
-def is_all_selected_in_viewlayer(subname: str) -> bool:
-    is_selected = True
-    
-    for obj in bpy.context.view_layer.objects:
-        if subname.lower() in obj.name.lower() and not obj.select_get():
-            is_selected = False
-    return is_selected
-
-def is_all_selected_in_collection(subname: str) -> bool:
+def is_name_all_selected(subname: str,use_collection: bool) -> bool:
     is_selected = True
     coll = get_active_collection_of_selected_object()
-    
-    for obj in coll.objects:
-        if subname.lower() in obj.name.lower() and not obj.select_get():
+    objects = coll.objects if use_collection else bpy.context.scene.objects
+    for_all = subname == ALL_OBJECTS
+    for obj in objects:
+        if (subname.lower() in obj.name.lower() or for_all) and not obj.select_get():
             is_selected = False
     return is_selected
 

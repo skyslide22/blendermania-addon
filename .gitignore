@@ -7,3 +7,4 @@ _old
 Blendermania_Dotnet_*.exe
 map-export.json
 convert-item.json
+*.bak

@@ -56,6 +56,7 @@ ICON_FLAT               = "ROOTCURVE"
 ICON_SELECTED           = "VIS_SEL_10"
 ICON_SELECT             = "RESTRICT_SELECT_OFF"
 ICON_VISIBLE            = "HIDE_OFF"
+ICON_VIS_SEL            = "VIS_SEL_11"
 ICON_HIDDEN             = "HIDE_ON"
 ICON_ADD                = "ADD"
 ICON_REMOVE             = "REMOVE"
@@ -138,6 +139,9 @@ ICON_FILE_NEW           = "FILE_NEW"
 MAP_GRID_OBJECT_NAME    = "_ignore_map_grid_helper"
 MAP_GRID_GEO_NODES_NAME = "Map Grid Geo Nodes"
 
+
+# used for visibility/selection
+ALL_OBJECTS             = "__ALL__"
 
 
 # https://cloford.com/resources/charcodes/utf-8_arrows.htm
