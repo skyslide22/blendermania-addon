@@ -61,20 +61,20 @@ from .operators.OT_Items_Templates         import *
 from .operators.OT_WikiLink                import * 
 from .operators.OT_Textures                import * 
 from .operators.OT_Imports                 import * 
-from .operators.OT_Visibility              import *
+from .operators.OT_VisibilitySelection     import *
 
-from .panels.PT_Map_Manipulate      import *
-from .panels.PT_Imports             import *
-from .panels.PT_Settings            import *
-from .panels.PT_Items_Export        import *
-from .panels.PT_Materials           import *
-from .panels.PT_Items_XML           import *
-from .panels.PT_Items_UVMaps        import *
-from .panels.PT_Items_Icon          import *
-from .panels.PT_Items_Manipulate    import *
-from .panels.PT_UV_Manipulate       import *
-from .panels.PT_Textures            import *
-from .panels.PT_Visibility          import *
+from .panels.PT_Map_Manipulate          import *
+from .panels.PT_Imports                 import *
+from .panels.PT_Settings                import *
+from .panels.PT_Items_Export            import *
+from .panels.PT_Materials               import *
+from .panels.PT_Items_XML               import *
+from .panels.PT_Items_UVMaps            import *
+from .panels.PT_Items_Icon              import *
+from .panels.PT_Items_Manipulate        import *
+from .panels.PT_UV_Manipulate           import *
+from .panels.PT_Textures                import *
+from .panels.PT_VisibilitySelection     import *
 
 
 
@@ -136,10 +136,9 @@ classes = (
     TM_OT_Items_EditUVMap,
     TM_OT_Items_ShowUVMap,
 
-    # object visibility
-    TM_PT_Visibility,
-    TM_OT_Visibility_ViewLayerToggle,
-    TM_OT_Visibility_CollectionToggle,
+    # object visibility and selection controls
+    TM_PT_VisibilitySelection,
+    TM_OT_VisibilitySelection_Toggle,
     
     # uv manipulation
     TM_PT_UVManipulations,
