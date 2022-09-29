@@ -992,25 +992,26 @@ def is_collection_excluded_or_hidden(col) -> bool:
 
     return True if collection_is_excluded else False
 
-def is_name_visible_in_viewlayer(subname: str) -> bool:
+def is_name_visible(subname: str,use_collection: bool) -> bool:
     is_visible = False
-    
-    for obj in bpy.context.scene.objects:
-        if subname in obj.name.lower():
-            if not obj.hide_get():
-                is_visible = True
+    coll = get_active_collection_of_selected_object()
+    objects = coll.objects if use_collection else bpy.context.view_layer.objects
+    for_all = subname == ALL_OBJECTS
+    for obj in objects:
+        if (subname.lower() in obj.name.lower()or for_all) and not obj.hide_get():
+            is_visible = True
     
     return is_visible
-
-def is_name_visible_in_collection(coll: bpy.types.Collection, subname: str) -> bool:
-    is_visible = False
     
-    for obj in coll.objects:
-        if subname in obj.name.lower():
-            if not obj.hide_get():
-                is_visible = True
-    
-    return is_visible
+def is_name_all_selected(subname: str,use_collection: bool) -> bool:
+    is_selected = True
+    coll = get_active_collection_of_selected_object()
+    objects = coll.objects if use_collection else bpy.context.view_layer.objects
+    for_all = subname == ALL_OBJECTS
+    for obj in objects:
+        if (subname.lower() in obj.name.lower() or for_all) and not obj.select_get():
+            is_selected = False
+    return is_selected
 
 def create_collection(name: str) -> object:
     """return created or existing collection"""
