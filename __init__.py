@@ -16,8 +16,8 @@ bl_info = {
     "name"          : "Trackmania Export & Convert .fbx > .gbx Addon",
     "author"        : "skyslide & juice",
     "description"   : "Export collections, create icons, generate xml files and convert items",
-    "blender"       : (3, 1, 0),
-    "version"       : (3, 1, 0),
+    "blender"       : (3, 3, 0),
+    "version"       : (3, 2, 0),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
