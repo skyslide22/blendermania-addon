@@ -119,6 +119,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redraw_panels)
     CB_icon_overwriteIcons  : BoolProperty(name="Overwrite Icons",        default=True, update=redraw_panels)
     LI_icon_perspective     : EnumProperty(items=getIconPerspectives(),   name="Perspective")
+    LI_icon_world           : EnumProperty(items=getIconWorlds(),         name="World", default="STANDARD")
     LI_icon_pxDimension     : EnumProperty(items=getIconPXdimensions(),   name="Size")
     NU_icon_padding         : IntProperty(min=0, max=100,     default=80, subtype="PERCENTAGE", update=redraw_panels) 
     NU_icon_bgColor         : FloatVectorProperty(name='BG Color',        subtype='COLOR', min=0, max=1, size=4, default=(1,1,1,1), update=updateWorldBG)

@@ -57,6 +57,9 @@ class TM_PT_Items_Icon(Panel):
         layout.row().label(text="Camera direction is positive Y")
 
         row = layout.row()
+        row.prop(tm_props, "LI_icon_world", text="World")
+        
+        row = layout.row()
         row.prop(tm_props, "LI_icon_perspective", text="Cam")
 
         #bpy.context.scene.view_settings.view_transform = 'Standard'
@@ -75,7 +78,7 @@ class TM_PT_Items_Icon(Panel):
         row2.prop(scene.render, "film_transparent", text="None", toggle=True, icon="GHOST_DISABLED")
         
         row3 = row.row(align=True)
-        row3.enabled = True if not useTransparentBG else False
+        row3.enabled = True if not useTransparentBG and tm_props.LI_icon_world == "STANDARD" else False
         row3.prop(tm_props, "NU_icon_bgColor",  text="")
 
 

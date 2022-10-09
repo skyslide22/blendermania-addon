@@ -496,6 +496,20 @@ def getIconPerspectives() -> list:
     ).to_list()
 
 
+def getIconWorlds() -> list:
+    return EnumProps().add(
+        id   = "STANDARD",
+        name = "Standard",
+        desc = "Standard world with colorable background",
+        icon = "WORLD",
+    ).add(
+        id   = "STADIUM_DAY",
+        name = "Stadium day",
+        desc = "TM2020 day time",
+        icon = "IMAGE_DATA",
+    ).to_list()
+
+
 def getIconPXdimensions() -> list:
     return EnumProps().add(
         id   = "128",

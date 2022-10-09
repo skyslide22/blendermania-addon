@@ -61,7 +61,7 @@ def get_addon_assets_blendfiles_path() -> str:
 def get_blendermania_dotnet_path() -> str:
     from .Constants import BLENDER_INSTANCE_IS_DEV
     if BLENDER_INSTANCE_IS_DEV:
-        return fr"C:\Users\User\source\repos\blendermania-dotnet\blendermania-dotnet\bin\Debug\net6.0\blendermania-dotnet.exe"
+        return fr"D:\Art\Blender\blendermania-dotnet\blendermania-dotnet\bin\Release\net6.0\win-x64\publish\blendermania-dotnet.exe"
     else:
         return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
 
@@ -2132,3 +2132,29 @@ def ireplace(old, new, text):
         text = text[:index_l] + new + text[index_l + len(old):]
         idx = index_l + len(new) 
     return text
+
+def load_image_into_blender(texpath: str) -> tuple:
+    """load image texture into blender, return tuple(bool(success), texNAME)"""
+    imgs = bpy.data.images
+    texpath = fix_slash(texpath)
+    texName = get_path_filename(texpath)
+
+    if not texpath: return False, "" 
+
+    debug(f"try to load texture into blender: {texpath}")
+
+    if is_file_existing(filepath=texpath):
+    
+        if texName not in imgs:
+            imgs.load(texpath)
+            debug(f"texture loaded: { texName }")
+        
+        else:
+            debug(f"texture already loaded: { texName }")
+            bpy.ops.file.find_missing_files( directory=get_game_doc_path_items_assets_textures() )
+
+        return True, texName
+    
+    else: 
+        debug(f"failed to find file: {texName}")
+        return False, texName

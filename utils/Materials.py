@@ -4,13 +4,12 @@ import json
 
 from .Functions import (
     debug,
-    fix_slash,
     get_abs_path,
-    get_path_filename,
     get_game_doc_path_items_assets_textures,
     get_game_doc_path,
     is_file_existing,
     is_game_trackmania2020,
+    load_image_into_blender,
 )
 
 from .Constants import MAT_PROPS_AS_JSON, MATERIAL_CUSTOM_PROPERTIES, MATERIALS_MAP_TM2020
@@ -27,33 +26,6 @@ def _assign_texture_to_node(texname, node) -> bool:
     else:
         node.mute = True
         return False
-
-
-def _load_dds_into_blender(texpath: str) -> tuple:
-    """load dds texture into blender, return tuple(bool(success), texNAME)"""
-    imgs = bpy.data.images
-    texpath = fix_slash(texpath)
-    texName = get_path_filename(texpath)
-
-    if not texpath: return False, "" 
-
-    debug(f"try to load texture into blender: {texpath}")
-
-    if is_file_existing(filepath=texpath):
-    
-        if texName not in imgs:
-            imgs.load(texpath)
-            debug(f"texture loaded: { texName }")
-        
-        else:
-            debug(f"texture already loaded: { texName }")
-            bpy.ops.file.find_missing_files( directory=get_game_doc_path_items_assets_textures() )
-
-        return True, texName
-    
-    else: 
-        debug(f"failed to find file: {texName}")
-        return False, texName
 
 def _get_mat_dds(tex: str, ddsType: str) -> str:
     Texture = ""
@@ -170,23 +142,23 @@ def assign_mat_json_to_mat(mat) -> bool:
     print("ASDADSASD: ", tex_d_path)
     print("ASDADSASD: ", test_d_path_as_link)
 
-    success, name = _load_dds_into_blender(tex_d_path)
+    success, name = load_image_into_blender(tex_d_path)
     if success and name in imgs:
         tex_d.image = bpy.data.images[ name ]
 
-    success, name = _load_dds_into_blender(tex_i_path)
+    success, name = load_image_into_blender(tex_i_path)
     if success and name in imgs:
         tex_i.image = bpy.data.images[ name ]
 
-    success, name = _load_dds_into_blender(tex_r_path)
+    success, name = load_image_into_blender(tex_r_path)
     if success and name in imgs:
         tex_r.image = bpy.data.images[ name ]
 
-    success, name = _load_dds_into_blender(tex_n_path)
+    success, name = load_image_into_blender(tex_n_path)
     if success and name in imgs:
         tex_n.image = bpy.data.images[ name ]
 
-    success, name = _load_dds_into_blender(tex_h_path)
+    success, name = load_image_into_blender(tex_h_path)
     if success and name in imgs:
         tex_h.image = bpy.data.images[ name ]
             
@@ -311,11 +283,11 @@ def create_material_nodes(mat)->None:
     HTexture = _get_mat_dds(tex, "H")
 
     if not isCustomMat:
-        DTexture = _load_dds_into_blender(texpath=DTexture)
-    ITexture = _load_dds_into_blender(texpath=ITexture)
-    RTexture = _load_dds_into_blender(texpath=RTexture)
-    NTexture = _load_dds_into_blender(texpath=NTexture)
-    HTexture = _load_dds_into_blender(texpath=HTexture)
+        DTexture = load_image_into_blender(texpath=DTexture)
+    ITexture = load_image_into_blender(texpath=ITexture)
+    RTexture = load_image_into_blender(texpath=RTexture)
+    NTexture = load_image_into_blender(texpath=NTexture)
+    HTexture = load_image_into_blender(texpath=HTexture)
 
     if not isCustomMat:
         DTextureSuccess = DTexture[0]

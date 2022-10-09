@@ -12,23 +12,26 @@ from .Functions import (
     radian_list,
     set_active_object,
     fix_slash,
+    load_image_into_blender,
+    get_addon_assets_path,
 )
 
 def _get_cam_position() -> list:
     """return roation_euler list for the icon_obj"""
     tm_props = get_global_props()
     style    = tm_props.LI_icon_perspective
-    if style == "CLASSIC_SE":  return   radian_list(-35.5,   -30,    145.5)
-    if style == "CLASSIC_SW":  return   radian_list(-35.5,   30,    -145.5)
-    if style == "CLASSIC_NW":  return   radian_list(35.5,    30,    -35.5)
-    if style == "CLASSIC_NE":  return   radian_list(35.5,    -30,    35.5)
+    #radian_list(-35.5,   -30,    145.5)
+    if style == "CLASSIC_SE":  return   radian_list(45,      0,     45)
+    if style == "CLASSIC_SW":  return   radian_list(45,      0,     135)
+    if style == "CLASSIC_NW":  return   radian_list(45,      0,     225)
+    if style == "CLASSIC_NE":  return   radian_list(45,      0,     315)
     if style == "CLASSIC":     return   radian_list(35.3,    30,    -35.3)
-    if style == "TOP":         return   radian_list(90,      0,      0)      
-    if style == "LEFT":        return   radian_list(0,       0,      90)
-    if style == "RIGHT":       return   radian_list(0,       0,     -90)
-    if style == "BACK":        return   radian_list(0,       0,      180)
-    if style == "FRONT":       return   radian_list(0,       0,      0)
-    if style == "BOTTOM":      return   radian_list(-90,     0,      0)
+    if style == "TOP":         return   radian_list(0,       0,      0)      
+    if style == "LEFT":        return   radian_list(90,      0,      -90)
+    if style == "RIGHT":       return   radian_list(90,      0,      90)
+    if style == "BACK":        return   radian_list(90,      0,      180)
+    if style == "FRONT":       return   radian_list(90,      0,      0)
+    if style == "BOTTOM":      return   radian_list(180,     0,      0)
 
 def _make_joined_object(coll: bpy.types.Collection) -> bpy.types.Object:
     deselect_all_objects()
@@ -47,15 +50,23 @@ def _make_joined_object(coll: bpy.types.Collection) -> bpy.types.Object:
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
     joined_obj = bpy.context.object
 
-    style = _get_cam_position()
     joined_obj.name = "JOINED_OBJECT_FOR_ICON"
     joined_obj.hide_render = False
-    joined_obj.rotation_euler = style
+
     bpy.ops.object.transform_apply(location=False, scale=True, rotation=True)
 
     bpy.context.scene.collection.objects.link(joined_obj)
 
     return joined_obj
+
+def _make_empty_object(location: list[float]) -> bpy.types.Object:
+    empty = bpy.data.objects.new("EMPTY_ANCHOR_FOR_ICON", None)  # Create new empty object
+    empty.empty_display_type = 'CUBE'
+    empty.location = location.copy()
+
+    bpy.context.scene.collection.objects.link(empty)
+
+    return empty
 
 def _add_view_layer() -> bpy.types.ViewLayer:
     ICON_VW_NAME = "ICON_VIEW_LAYER"
@@ -72,7 +83,7 @@ def _add_view_layer() -> bpy.types.ViewLayer:
 
     return icon_view_layer
 
-def _add_camera(obj: bpy.types.Object, size: int) -> bpy.types.Camera:
+def _add_camera(obj: bpy.types.Object, empty: bpy.types.Object, size: int, anchor: bpy.types.Object) -> bpy.types.Camera:
     dim_max = max(obj.dimensions)
 
     cams     = bpy.data.cameras
@@ -92,9 +103,8 @@ def _add_camera(obj: bpy.types.Object, size: int) -> bpy.types.Camera:
     
     bpy.context.scene.camera  = icon_cam
 
-    icon_cam.location       = obj.location
-    icon_cam.location[1]    = obj.location[1] - dim_max*2
-    icon_cam.rotation_euler = radian_list(90, 0, 0)
+    icon_cam.parent = empty
+    icon_cam.location[2] = obj.location[2] + dim_max*2
 
     return icon_cam
 
@@ -124,7 +134,15 @@ def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None
             obj.hide_render = True
 
     # CAM------------------
-    camera = _add_camera(joined_obj, icon_size)
+    empty = _make_empty_object(joined_obj.location.copy())
+
+    camera = _add_camera(joined_obj, empty, icon_size, empty)
+    
+    #camera.parent = empty
+    #camera.matrix_parent_inverse = empty.matrix_world.inverted()
+
+    style = _get_cam_position()
+    empty.rotation_euler = style
     
     # RENDER----------------------
     bpy.context.scene.render.image_settings.file_format = "TARGA"
@@ -140,9 +158,11 @@ def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None
 
     # CLEAN UP -----------------
     bpy.context.window.view_layer = current_view_layer
-    bpy.data.objects.remove(joined_obj, do_unlink=True)
-    bpy.data.objects.remove(camera, do_unlink=True)
+    #bpy.data.objects.remove(joined_obj, do_unlink=True)
+    #bpy.data.objects.remove(camera, do_unlink=True)
+    #bpy.data.objects.remove(empty, do_unlink=True)
     for obj in current_selection:
+        print(obj)
         try: set_active_object(obj)
         except: pass
 
@@ -154,20 +174,28 @@ def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None
 
 
 def generate_world_node():
+    tm_props = get_global_props()
     worlds   = bpy.data.worlds
     tm_world = "tm_icon_world"
-    white    = (1,1,1,1)
     scene    = bpy.context.scene
     
     if not tm_world in worlds:
         worlds.new( tm_world )
     
-    tm_world = worlds[ tm_world ]
+    tm_world = worlds[tm_world]
     tm_world.use_nodes = True
-    nodes = tm_world.node_tree.nodes
-    links = tm_world.node_tree.links
 
     scene.world = tm_world
+
+    if tm_props.LI_icon_world == "STANDARD":
+        _generate_standartd_world_node(tm_world)
+    else:
+        _generate_trackmania_world_nodes(tm_world)
+
+def _generate_standartd_world_node(world: bpy.types.World):
+    white = (1,1,1,1)
+    nodes = world.node_tree.nodes
+    links = world.node_tree.links
 
     rgb_node    = "TM_RGB"
     bg_node     = "TM_BACKGROUND"
@@ -225,6 +253,55 @@ def generate_world_node():
     links.new( rgb_node.outputs[0],     mix_node.inputs[1])
     links.new( bg_node.outputs[0],      mix_node.inputs[2])
     links.new( mix_node.outputs[0],     output_node.inputs[0])
+
+def _generate_trackmania_world_nodes(world: bpy.types.World):
+    tm_props = get_global_props()
+    nodes = world.node_tree.nodes
+    links = world.node_tree.links
+
+    for node in nodes: nodes.remove(node)
+
+    image = _get_or_create_node(nodes, "TM_IMAGE", "ShaderNodeTexEnvironment", (-5, 0))
+    lightMath = _get_or_create_node(nodes, "TM_LIGHT_MATH", "ShaderNodeMath", (-3, 1))
+    lightPath = _get_or_create_node(nodes, "TM_LIGHT_PATH", "ShaderNodeLightPath", (-2, 3))
+    bgLight = _get_or_create_node(nodes, "TM_BACKGROUND_LIGHT", "ShaderNodeBackground", (-2, 1))
+    bgWorld = _get_or_create_node(nodes, "TM_BACKGROUND_WORLD", "ShaderNodeBackground", (-2, 0))
+    mix = _get_or_create_node(nodes, "TM_MIX_SHADER", "ShaderNodeMixShader", (-1, 0))
+    output = _get_or_create_node(nodes, "TM_OUTPUT", "ShaderNodeOutputWorld")
+
+    # main texture
+    links.new(image.outputs[0], bgWorld.inputs[0])
+    links.new(bgWorld.outputs[0], mix.inputs[2])
+    links.new(mix.outputs[0], output.inputs[0])
+
+    # light part
+    links.new(image.outputs[0], lightMath.inputs[0])
+    links.new(image.outputs[0], bgLight.inputs[0])
+    links.new(lightMath.outputs[0], bgLight.inputs[1])
+    links.new(bgLight.outputs[0], mix.inputs[1])
+    links.new(lightPath.outputs[0], mix.inputs[0])
+
+    lightMath.operation = "MULTIPLY"
+
+    hdri_name = "day.hdr"
+    lightMath.inputs[1].default_value = 30
+    
+    #if tm_props.LI_icon_world == "STADIUM_DAY":
+
+    success, name = load_image_into_blender(get_addon_assets_path()+"hdri/"+hdri_name)
+    if success and name in bpy.data.images:
+        image.image = bpy.data.images[name]
+
+
+def _get_or_create_node(nodes: dict[str, bpy.types.Node], name: str, kind: str, location: list[float] = (0,0)) -> bpy.types.Node:
+    if name in nodes:
+        return nodes[name]
+
+    node = nodes.new(kind)
+    node.name = name
+    node.location = (location[0]*200, location[1]*200)
+
+    return node
 
 def get_icon_path_from_fbx_path(filepath) -> str:
     icon_path = get_path_filename(filepath)
