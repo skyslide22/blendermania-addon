@@ -503,9 +503,9 @@ def getIconWorlds() -> list:
         desc = "Standard world with colorable background",
         icon = "WORLD",
     ).add(
-        id   = "STADIUM_DAY",
-        name = "Stadium day",
-        desc = "TM2020 day time",
+        id   = "TM2020-STADIUM",
+        name = "Stadium",
+        desc = "TM2020 stadium",
         icon = "IMAGE_DATA",
     ).to_list()
 

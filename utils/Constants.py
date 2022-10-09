@@ -134,6 +134,7 @@ ICON_LOCK               = "LOCKED"
 ICON_OVERWRITE          = "CURRENT_FILE"
 ICON_FILE               = "FILE_BLANK"
 ICON_FILE_NEW           = "FILE_NEW"
+ICON_IMAGE_DATA         = "IMAGE_DATA"
 
 
 MAP_GRID_OBJECT_NAME    = "_ignore_map_grid_helper"
@@ -234,6 +235,7 @@ SPECIAL_NAME_PREFIXES = (
     SPECIAL_NAME_PREFIX_SOCKET        := "_socket_",
     SPECIAL_NAME_PREFIX_TRIGGER       := "_trigger_",
     SPECIAL_NAME_PREFIX_IGNORE        := "_ignore_",
+    SPECIAL_NAME_PREFIX_ICON_ONLY     := "_icon_only_",
     SPECIAL_NAME_PREFIX_NOTVISIBLE    := "_notvisible_",
     SPECIAL_NAME_PREFIX_NOTCOLLIDABLE := "_notcollidable_",
     SPECIAL_NAME_PREFIX_MTTRIGGER     := "_mttrigger_"
@@ -253,6 +255,7 @@ SPECIAL_NAME_SUFFIXES = (
 #Used by VisibilitySelection for dynamically drawing operators
 SPECIAL_NAMES_TO_DRAW = {
     SPECIAL_NAME_PREFIX_IGNORE          :ICON_IGNORE,
+    SPECIAL_NAME_PREFIX_ICON_ONLY       :ICON_IMAGE_DATA,
     SPECIAL_NAME_INFIX_ORIGIN           :ICON_ORIGIN,
     SPECIAL_NAME_INFIX_PIVOT            :ICON_PIVOTS,
     SPECIAL_NAME_PREFIX_TRIGGER         :ICON_TRIGGER,

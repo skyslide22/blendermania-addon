@@ -16,6 +16,7 @@ from .Constants import (
     SPECIAL_NAME_PREFIX_TRIGGER,
     SPECIAL_NAME_PREFIX_IGNORE,
     SPECIAL_NAME_INFIX_ORIGIN,
+    SPECIAL_NAME_PREFIX_ICON_ONLY,
     SPECIAL_NAME_PREFIX_NOTVISIBLE,
     SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
     WAYPOINT_VALID_NAMES
@@ -65,6 +66,7 @@ def _fix_uv_layers_name(coll: bpy.types.Collection) -> None:
             SPECIAL_NAME_PREFIX_TRIGGER,
             SPECIAL_NAME_PREFIX_NOTVISIBLE,
             SPECIAL_NAME_PREFIX_IGNORE,
+            SPECIAL_NAME_PREFIX_ICON_ONLY,
         )) and len(obj.material_slots.keys()) > 0:
             has_bm = False
             has_lm = False
@@ -189,7 +191,7 @@ def _export_item_FBX(item: ExportedItem) -> None:
 
     deselect_all_objects()
     for obj in item.coll.objects:
-        if not obj.name.lower().startswith(("_ignore", "delete")) :
+        if not obj.name.lower().startswith((SPECIAL_NAME_PREFIX_IGNORE, SPECIAL_NAME_PREFIX_ICON_ONLY, "delete")) :
             select_obj(obj)
 
     bpy.ops.export_scene.fbx(**exportArgs) #one argument is optional, so give a modified dict and **unpack

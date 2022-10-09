@@ -184,6 +184,7 @@ class TM_PT_ObjectManipulations(Panel):
 
         doublesided     = SPECIAL_NAME_SUFFIX_DOUBLESIDED in obj_name
         is_ignored      = SPECIAL_NAME_PREFIX_IGNORE in obj_name
+        is_icon_only    = SPECIAL_NAME_PREFIX_ICON_ONLY in obj_name
         is_notvisible   = SPECIAL_NAME_PREFIX_NOTVISIBLE in obj_name
         is_notcollidable= SPECIAL_NAME_PREFIX_NOTCOLLIDABLE in obj_name 
         is_trigger      = SPECIAL_NAME_PREFIX_TRIGGER in obj_name
@@ -209,6 +210,7 @@ class TM_PT_ObjectManipulations(Panel):
         # ignore
         row = col_btns.row(align=True)
         row.operator(f"view3d.tm_toggleobjectignore", text=f"Ignore Export", icon=ICON_IGNORE   , depress=is_ignored)
+        row.operator(f"view3d.tm_toggleobjecticononly", text=f"Use only for icon", icon=ICON_IMAGE_DATA, depress=is_icon_only)
         row = col_btns.row(align=True)
         row.operator(f"view3d.tm_toggle_origin",      text=f"_origin_",  icon=ICON_ORIGIN       , depress=is_origin)
         row.operator(f"view3d.tm_toggle_pivot",      text=f"_pivot_",  icon=ICON_PIVOTS       , depress=is_pivot)

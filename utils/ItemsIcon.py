@@ -15,27 +15,30 @@ from .Functions import (
     load_image_into_blender,
     get_addon_assets_path,
 )
+from .Constants import (
+    SPECIAL_NAME_PREFIX_ICON_ONLY
+)
 
 def _get_cam_position() -> list:
     """return roation_euler list for the icon_obj"""
     tm_props = get_global_props()
     style    = tm_props.LI_icon_perspective
-    if style == "CLASSIC_SE":  return   radian_list(45,      0,     45)
-    if style == "CLASSIC_SW":  return   radian_list(45,      0,     135)
-    if style == "CLASSIC_NW":  return   radian_list(45,      0,     225)
-    if style == "CLASSIC_NE":  return   radian_list(45,      0,     315)
-    if style == "TOP":         return   radian_list(0,       0,      0)      
-    if style == "LEFT":        return   radian_list(90,      0,      -90)
-    if style == "RIGHT":       return   radian_list(90,      0,      90)
-    if style == "BACK":        return   radian_list(90,      0,      180)
-    if style == "FRONT":       return   radian_list(90,      0,      0)
-    if style == "BOTTOM":      return   radian_list(180,     0,      0)
+    if style == "CLASSIC_SE":  return   radian_list(55,  0, 45)
+    if style == "CLASSIC_SW":  return   radian_list(55,  0, 135)
+    if style == "CLASSIC_NW":  return   radian_list(55,  0, 225)
+    if style == "CLASSIC_NE":  return   radian_list(55,  0, 315)
+    if style == "TOP":         return   radian_list(0,   0, 0)      
+    if style == "LEFT":        return   radian_list(90,  0, -90)
+    if style == "RIGHT":       return   radian_list(90,  0, 90)
+    if style == "BACK":        return   radian_list(90,  0, 180)
+    if style == "FRONT":       return   radian_list(90,  0, 0)
+    if style == "BOTTOM":      return   radian_list(180, 0, 0)
 
 def _make_joined_object(coll: bpy.types.Collection) -> bpy.types.Object:
     deselect_all_objects()
     for obj in coll.objects:
         if  obj.type == "MESH"\
-        and is_obj_visible_by_name(obj.name)\
+        and (is_obj_visible_by_name(obj.name) or obj.name.startswith(SPECIAL_NAME_PREFIX_ICON_ONLY))\
         and not "lod1" in obj.name.lower():
             set_active_object(obj)
 
@@ -277,9 +280,9 @@ def _generate_trackmania_world_nodes(world: bpy.types.World):
     links.new(bgLight.outputs[0], mix.inputs[1])
     links.new(lightPath.outputs[0], mix.inputs[0])
     RGB.outputs[0].default_value = (1,1,1,1)
+    bgLight.inputs[1].default_value = 3
 
     hdri_name = "day.hdr"
-    #if tm_props.LI_icon_world == "STADIUM_DAY":
 
     success, name = load_image_into_blender(get_addon_assets_path()+"hdri/"+hdri_name)
     if success and name in bpy.data.images:
