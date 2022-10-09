@@ -34,9 +34,9 @@ def _get_cam_position() -> list:
     if style == "FRONT":       return   radian_list(90,  0, 0)
     if style == "BOTTOM":      return   radian_list(180, 0, 0)
 
-def _make_joined_object(coll: bpy.types.Collection) -> bpy.types.Object:
+def _make_joined_object(objects: list[bpy.types.Object]) -> bpy.types.Object:
     deselect_all_objects()
-    for obj in coll.objects:
+    for obj in objects:
         if  obj.type == "MESH"\
         and (is_obj_visible_by_name(obj.name) or obj.name.startswith(SPECIAL_NAME_PREFIX_ICON_ONLY))\
         and not "lod1" in obj.name.lower():
@@ -104,11 +104,13 @@ def _add_camera(empty: bpy.types.Object) -> bpy.types.Camera:
 
     return icon_cam
 
-
 def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None):
+    generate_objects_icon(coll.objects, coll.name, export_path)
+
+def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_path: str = None):
     tm_props           = get_global_props()
     overwrite_icon     = tm_props.CB_icon_overwriteIcons
-    icon_name          = get_path_filename(export_path) if export_path is not None else coll.name
+    icon_name          = get_path_filename(export_path) if export_path is not None else name
     icon_size          = tm_props.NU_icon_padding / 100
     current_view_layer = bpy.context.window.view_layer
     current_selection  = bpy.context.selected_objects.copy()
@@ -120,7 +122,7 @@ def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None
 
     debug(f"creating icon <{icon_name}>")
     
-    joined_obj = _make_joined_object(coll)
+    joined_obj = _make_joined_object(objects)
     _add_view_layer()
 
     # HIDE ALL BUT JOINED
