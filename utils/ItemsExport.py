@@ -345,7 +345,7 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     _clean_up_addon_export_settings(len(items_to_export))
     start_batch_convert(items_to_export)
 
-def export_objects(objects: list[bpy.types.Objects])->list[ExportedItem]:
+def export_objects(objects: list[bpy.types.Object])->list[ExportedItem]:
     current_selection                            = bpy.context.selected_objects.copy()
     tm_props                                     = get_global_props()
     generate_icons                               = tm_props.CB_icon_genIcons
