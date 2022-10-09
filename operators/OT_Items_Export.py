@@ -1,8 +1,8 @@
 import bpy
 from bpy.types import (Operator)
 
-from ..utils.ItemsExport import export_items_collections
-from ..utils.Functions      import *
+from ..utils.ItemsExport import export_collections
+from ..utils.Functions import *
 
 class TM_OT_Items_Export_ExportAndOrConvert(Operator):
     """export and or convert an item"""
@@ -41,4 +41,4 @@ def export_and_convert():
     
     # take all collections or only selected
     to_export = get_exportable_collections(bpy.context.selected_objects) if tm_props.LI_exportWhichObjs == "SELECTED" else bpy.data.collections
-    return export_items_collections(to_export)
+    return export_collections(to_export)

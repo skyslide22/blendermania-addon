@@ -230,7 +230,7 @@ def generate_item_XML(item: ExportedItem) -> str:
     use_ghost_mode          = tm_props.CB_xml_ghostMode
     
 
-    template = get_itemxml_template(item.coll.tm_itemxml_template)
+    template = get_itemxml_template(item.tm_itemxml_template)
     
     if use_template_ui:
         selected_template = bpy.context.scene.tm_props.LI_xml_item_template_globally
@@ -259,7 +259,7 @@ def generate_item_XML(item: ExportedItem) -> str:
 
 
     xml_waypoint = ""
-    waypoint     = WAYPOINTS.get(item.coll.color_tag, "")
+    waypoint     = WAYPOINTS.get(item.color_tag, "")
     
     if waypoint == "None":
         waypoint = ""
@@ -284,9 +284,9 @@ def generate_item_XML(item: ExportedItem) -> str:
         for pivot in pivots:
             xml_pivots += gen_pivot_xml(pivot.NU_pivotX, pivot.NU_pivotY, pivot.NU_pivotZ)
         
-        offset = get_offset_from_item_origin(item.coll)
+        offset = get_offset_from_item_origin(item.objects)
         
-        for obj in item.coll.objects:
+        for obj in item.objects:
             if SPECIAL_NAME_INFIX_PIVOT in obj.name:
                 xml_pivots += gen_pivot_xml(
                     obj.location[0]-offset[0],
@@ -390,7 +390,7 @@ def generate_mesh_XML(item: ExportedItem) -> str:
     lightsXML   = ""
 
     
-    for obj in item.coll.objects:
+    for obj in item.objects:
         
         if obj.type == "MESH":
             for mat_slot in obj.material_slots:

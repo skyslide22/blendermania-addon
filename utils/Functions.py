@@ -1078,12 +1078,12 @@ def get_cursor_location() -> list:
 def origin_to_center_of_mass() -> None:
     bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
 
-def get_offset_from_item_origin(coll: bpy.types.Collection) -> list[float]:
+def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
     location: list[float] = [0,0,0]
     offset: list[float] = []
     
     # take first valid object and main one
-    for obj in coll.objects:
+    for obj in objects:
         if obj.type == "MESH" and is_real_object_by_name(obj.name)\
         and (len(offset) == 0 or SPECIAL_NAME_INFIX_ORIGIN in obj.name):
             offset = [
@@ -1187,6 +1187,9 @@ def get_collection_hierachy(colname: str="", hierachystart: list=[]) -> list:
 
 def get_coll_relative_path(coll: bpy.types.Collection) -> str:
     return '/'.join(map(safe_name, get_collection_hierachy(coll.name, [coll.name])))
+
+def get_object_relative_path(obj: bpy.types.Object) -> str:
+    return '/'.join(map(safe_name, get_collection_hierachy(obj.users_collection[0].name, [obj.name])))
 
 def create_collection_hierachy(hierachy: list) -> object:
     """create collections hierachy from list and link root to the scene master collection"""
