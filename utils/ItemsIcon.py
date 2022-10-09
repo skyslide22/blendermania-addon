@@ -20,12 +20,10 @@ def _get_cam_position() -> list:
     """return roation_euler list for the icon_obj"""
     tm_props = get_global_props()
     style    = tm_props.LI_icon_perspective
-    #radian_list(-35.5,   -30,    145.5)
     if style == "CLASSIC_SE":  return   radian_list(45,      0,     45)
     if style == "CLASSIC_SW":  return   radian_list(45,      0,     135)
     if style == "CLASSIC_NW":  return   radian_list(45,      0,     225)
     if style == "CLASSIC_NE":  return   radian_list(45,      0,     315)
-    if style == "CLASSIC":     return   radian_list(35.3,    30,    -35.3)
     if style == "TOP":         return   radian_list(0,       0,      0)      
     if style == "LEFT":        return   radian_list(90,      0,      -90)
     if style == "RIGHT":       return   radian_list(90,      0,      90)
@@ -47,7 +45,7 @@ def _make_joined_object(coll: bpy.types.Collection) -> bpy.types.Object:
         apply_modifiers(obj)
 
     bpy.ops.object.join()
-    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
+    bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
     joined_obj = bpy.context.object
 
     joined_obj.name = "JOINED_OBJECT_FOR_ICON"
@@ -83,9 +81,7 @@ def _add_view_layer() -> bpy.types.ViewLayer:
 
     return icon_view_layer
 
-def _add_camera(obj: bpy.types.Object, empty: bpy.types.Object, size: int, anchor: bpy.types.Object) -> bpy.types.Camera:
-    dim_max = max(obj.dimensions)
-
+def _add_camera(empty: bpy.types.Object) -> bpy.types.Camera:
     cams     = bpy.data.cameras
     icon_cam = cams.get("ICON_CAM", None)
 
@@ -98,13 +94,10 @@ def _add_camera(obj: bpy.types.Object, empty: bpy.types.Object, size: int, ancho
 
     icon_cam.data.type        = "ORTHO"
     icon_cam.data.show_limits = False
-    icon_cam.data.ortho_scale = dim_max / size
     icon_cam.data.clip_end    = 10_000
-    
     bpy.context.scene.camera  = icon_cam
 
     icon_cam.parent = empty
-    icon_cam.location[2] = obj.location[2] + dim_max*2
 
     return icon_cam
 
@@ -128,21 +121,24 @@ def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None
     _add_view_layer()
 
     # HIDE ALL BUT JOINED
-    dim_max = max(joined_obj.dimensions)
     for obj in bpy.context.scene.collection.objects:
         if obj.name != joined_obj.name:
             obj.hide_render = True
 
-    # CAM------------------
+    # EMPTY
     empty = _make_empty_object(joined_obj.location.copy())
 
-    camera = _add_camera(joined_obj, empty, icon_size, empty)
-    
-    #camera.parent = empty
-    #camera.matrix_parent_inverse = empty.matrix_world.inverted()
+    # CAM------------------
+    camera = _add_camera(empty)
 
     style = _get_cam_position()
     empty.rotation_euler = style
+
+    deselect_all_objects()
+    joined_obj.select_set(True)
+    bpy.ops.view3d.camera_to_view_selected()
+    camera.data.ortho_scale = camera.data.ortho_scale/icon_size
+    deselect_all_objects()
     
     # RENDER----------------------
     bpy.context.scene.render.image_settings.file_format = "TARGA"
@@ -158,9 +154,9 @@ def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None
 
     # CLEAN UP -----------------
     bpy.context.window.view_layer = current_view_layer
-    #bpy.data.objects.remove(joined_obj, do_unlink=True)
-    #bpy.data.objects.remove(camera, do_unlink=True)
-    #bpy.data.objects.remove(empty, do_unlink=True)
+    bpy.data.objects.remove(joined_obj, do_unlink=True)
+    bpy.data.objects.remove(camera, do_unlink=True)
+    bpy.data.objects.remove(empty, do_unlink=True)
     for obj in current_selection:
         print(obj)
         try: set_active_object(obj)
@@ -255,14 +251,14 @@ def _generate_standartd_world_node(world: bpy.types.World):
     links.new( mix_node.outputs[0],     output_node.inputs[0])
 
 def _generate_trackmania_world_nodes(world: bpy.types.World):
-    tm_props = get_global_props()
     nodes = world.node_tree.nodes
     links = world.node_tree.links
 
     for node in nodes: nodes.remove(node)
 
+    RGB = _get_or_create_node(nodes, "TM_RGB", "ShaderNodeRGB", (-5, 1))
     image = _get_or_create_node(nodes, "TM_IMAGE", "ShaderNodeTexEnvironment", (-5, 0))
-    lightMath = _get_or_create_node(nodes, "TM_LIGHT_MATH", "ShaderNodeMath", (-3, 1))
+    mixRGB = _get_or_create_node(nodes, "TM_MIX_RGB", "ShaderNodeMixRGB", (-3, 1))
     lightPath = _get_or_create_node(nodes, "TM_LIGHT_PATH", "ShaderNodeLightPath", (-2, 3))
     bgLight = _get_or_create_node(nodes, "TM_BACKGROUND_LIGHT", "ShaderNodeBackground", (-2, 1))
     bgWorld = _get_or_create_node(nodes, "TM_BACKGROUND_WORLD", "ShaderNodeBackground", (-2, 0))
@@ -275,17 +271,14 @@ def _generate_trackmania_world_nodes(world: bpy.types.World):
     links.new(mix.outputs[0], output.inputs[0])
 
     # light part
-    links.new(image.outputs[0], lightMath.inputs[0])
-    links.new(image.outputs[0], bgLight.inputs[0])
-    links.new(lightMath.outputs[0], bgLight.inputs[1])
+    links.new(RGB.outputs[0], mixRGB.inputs[1])
+    links.new(image.outputs[0], mixRGB.inputs[2])
+    links.new(mixRGB.outputs[0], bgLight.inputs[0])
     links.new(bgLight.outputs[0], mix.inputs[1])
     links.new(lightPath.outputs[0], mix.inputs[0])
-
-    lightMath.operation = "MULTIPLY"
+    RGB.outputs[0].default_value = (1,1,1,1)
 
     hdri_name = "day.hdr"
-    lightMath.inputs[1].default_value = 30
-    
     #if tm_props.LI_icon_world == "STADIUM_DAY":
 
     success, name = load_image_into_blender(get_addon_assets_path()+"hdri/"+hdri_name)
