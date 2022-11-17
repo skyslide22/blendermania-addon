@@ -144,7 +144,10 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
 
             debug(f"create new file: {new_item.fbx_path}")
             copyfile(item.fbx_path, new_item.fbx_path)
-            copyfile(item.icon_path, new_item.icon_path)
+            try:
+                copyfile(item.icon_path, new_item.icon_path)
+            except FileNotFoundError:
+                pass
 
             current_scale -= scale_step
 
