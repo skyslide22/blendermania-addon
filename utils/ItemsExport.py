@@ -49,6 +49,7 @@ def _is_collection_exportable(coll: bpy.types.Collection)->bool:
     is_exportable = False
     for obj in coll.objects:
         is_exportable = _is_object_exportable(obj)
+        if is_exportable: break
     
     return is_exportable
 
