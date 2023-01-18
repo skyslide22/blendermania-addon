@@ -77,7 +77,7 @@ class PT_UIMapManipulation(bpy.types.Panel):
 
 class PT_UIMapExport(bpy.types.Panel):
     bl_label   = "Map Export"
-    bl_idname  = "PT_UIMapExport"
+    bl_idname  = "TM_PT_UIMapExport"
     bl_context = "objectmode"
     bl_parent_id = "TM_PT_Map_Manipulate"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
@@ -239,7 +239,7 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
 
 class PT_UIMediatrackerClips(bpy.types.Panel):
     bl_label   = "Mediatracker Clips"
-    bl_idname  = "PT_UIMediatrackerClips"
+    bl_idname  = "TM_PT_UIMediatrackerClips"
     bl_context = "objectmode"
     bl_parent_id = "TM_PT_Map_Manipulate"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )

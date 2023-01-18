@@ -40,16 +40,15 @@ class TM_PT_Imports(Panel):
         else:
             row.operator(TM_OT_Ninja20Install.bl_idname, text=f"Install Ninja Ripper 2.0.x addon", icon=ICON_IMPORT)
 
-        if BLENDER_INSTANCE_IS_DEV:
-            col = box.column(align=True)
-            row = col.row()
-            row.scale_y = 0.8
-            row.label(text="Trackmania (DEV mod only):")
-            row = col.row()
-            row.alert = True
-            row.scale_y = 0.7
-            row.label(text="only items with editable mesh supported")
+        col = box.column(align=True)
+        row = col.row()
+        row.scale_y = 0.8
+        row.label(text="Trackmania:")
+        row = col.row()
+        row.alert = True
+        row.scale_y = 0.7
+        row.label(text="Only items with editable mesh supported at the moment")
 
-            row = col.row(align=True)
-            row.scale_y = 1.5
-            row.operator(TM_OT_ImportItem.bl_idname, text=f"Import .Item.Gbx", icon=ICON_IMPORT)
+        row = col.row(align=True)
+        row.scale_y = 1.5
+        row.operator(TM_OT_ImportItem.bl_idname, text=f"Import .Item.Gbx", icon=ICON_IMPORT)

@@ -402,6 +402,8 @@ def generate_mesh_XML(item: ExportedItem) -> str:
 
 
     for mat in materials:
+        if mat is None:
+            continue
         mat_name                = mat.name
         mat_game_is_tm2020      = mat.gameType.lower() == "trackmania2020"
         mat_game_is_maniaplanet = mat.gameType.lower() == "maniaplanet"

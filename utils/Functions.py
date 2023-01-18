@@ -61,7 +61,7 @@ def get_addon_assets_blendfiles_path() -> str:
 def get_blendermania_dotnet_path() -> str:
     from .Constants import BLENDER_INSTANCE_IS_DEV
     if BLENDER_INSTANCE_IS_DEV:
-        return fr"D:\Art\Blender\blendermania-dotnet\blendermania-dotnet\bin\Release\net6.0\win-x64\publish\blendermania-dotnet.exe"
+        return fr"D:\Art\Blender\blendermania-dotnet\blendermania-dotnet\bin\Release\net7.0\win-x64\publish\blendermania-dotnet.exe"
     else:
         return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
 
