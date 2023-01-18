@@ -176,7 +176,7 @@ URL_RELEASES      = "https://api.github.com/repos/skyslide22/blendermania-addon/
 URL_REGEX         = "https://regex101.com/"
 
 # dotnet addon name and version
-BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.3"
+BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.4"
 
 # Assets CDN Links
 GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-assets/releases/download/"
