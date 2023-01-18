@@ -2,7 +2,10 @@ from email.policy import default
 import bpy
 
 from .PT_DownloadProgress import render_donwload_progress_bar
-from ..utils.MapObjects import get_selected_map_objects
+from ..utils.MapObjects import (
+    is_all_selected_in_map_collection,
+    get_selected_map_objects,
+)
 from ..operators.OT_Map_Manipulate import (
     OT_UICollectionToMap,
     OT_UIValidateMapCollection,
@@ -153,7 +156,6 @@ class PT_UIMapExport(bpy.types.Panel):
         
 
 class PT_UIMapObjectsManipulation(bpy.types.Panel):
-    # region bl_
     """Creates a Panel in the Object properties window"""
     bl_label   = "Map Blocks & Items"
     bl_idname  = "TM_PT_Map_Export_Items_Blcoks"
@@ -168,6 +170,7 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         has_map_coll = tm_props.PT_map_collection is not None
         obj:bpy.types.Object = tm_props.PT_map_object.object_item
         is_update = obj and "tm_map_object_kind" in obj
+        is_all_in_map = is_all_selected_in_map_collection()
         is_block = tm_props.PT_map_object.object_type == MAP_OBJECT_BLOCK
         select_objects = bpy.context.selected_objects
         select_map_objects = get_selected_map_objects()
@@ -182,12 +185,11 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         elif not has_map_coll:
             layout.label(text="Select Map collection first")
             return
-
-        elif len(select_objects) > 1 and len(select_map_objects) == 0:
-            layout.label(text="To create a new map object select just ONE object")
+        elif not is_all_in_map and len(select_objects) > 1 and len(select_map_objects) == 0:
+            layout.label(text="Mixed selection: both map objects and other objects selected")
             return
- 
-        elif len(select_objects) != 1 and len(select_objects) != len(select_map_objects):
+    
+        elif not is_all_in_map and len(select_objects) != 1 and len(select_objects) != len(select_map_objects):
             layout.label(text="Mixed selection: both map objects and other objects selected")
             return
  
@@ -220,7 +222,6 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
 
         row = col.row(align=True)
         row.enabled = not is_block
-        row.alert = not path_is_valid
         path_title = "Name" if is_block else "Item.Gbx"
         row.prop(tm_props.PT_map_object, "object_path", text=f"{path_title}")
 
@@ -228,12 +229,15 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         item_btn_icon = ICON_UPDATE if is_update else ICON_ADD
         
 
+        text = f"{item_action} Item {item_gbx_name}"
+        if (not is_update or len(select_map_objects) > 1) and is_all_in_map:
+            text = f"Update {len(select_objects)} objects"
         button = layout.row()
         button.scale_y = 1.5
         button.enabled = not is_block and not not not not not not not not not not not not item_gbx_name
         button.operator(
             OT_UICreateUpdateMapItemBlock.bl_idname, 
-            text=f"{item_action} Item {item_gbx_name}",
+            text=text,
             icon=item_btn_icon)
             
 

@@ -54,6 +54,17 @@ def get_selected_map_objects() -> list[bpy.types.Object]:
 
     return res
 
+def is_all_selected_in_map_collection() -> bool:
+    tm_props                      = get_global_props()
+    map_coll:bpy.types.Collection = tm_props.PT_map_collection
+    is_in                         = True
+
+    for obj in bpy.context.selected_objects:
+        if not map_coll.all_objects.get(obj.name):
+            is_in = False
+
+    return is_in
+
 def create_update_map_object():
     tm_props                         = get_global_props()
     map_coll:bpy.types.Collection    = tm_props.PT_map_collection
@@ -62,6 +73,8 @@ def create_update_map_object():
     object_path:str                  = fix_slash(tm_props.PT_map_object.object_path)
     doc_path                         = get_game_doc_path()
     selected_objects                 = get_selected_map_objects()
+    all_selected                     = bpy.context.selected_objects
+    is_all_in_map_coll               = is_all_selected_in_map_collection()
     
     if not map_coll:
         return "No map collection selected"
@@ -77,9 +90,17 @@ def create_update_map_object():
 
 
     # update path on selected objects if there is more than one selected
-    if len(selected_objects) > 1:
+    if is_all_in_map_coll and len(all_selected) > 0:
+        for obj in all_selected:
+            obj.name = _make_object_name(object_path, object_type)
+            obj["tm_map_object_kind"] = object_type
+            obj["tm_map_object_path"] = object_path
+
+        set_active_object(object_item)
+    elif len(selected_objects) > 1:
         for obj in selected_objects:
             obj.name = _make_object_name(object_path, object_type)
+            obj["tm_map_object_kind"] = object_type
             obj["tm_map_object_path"] = object_path
 
         set_active_object(object_item)
