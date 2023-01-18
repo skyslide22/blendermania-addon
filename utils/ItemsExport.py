@@ -49,6 +49,7 @@ def _is_collection_exportable(coll: bpy.types.Collection)->bool:
     is_exportable = False
     for obj in coll.objects:
         is_exportable = _is_object_exportable(obj)
+        if is_exportable: break
     
     return is_exportable
 
@@ -144,7 +145,10 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
 
             debug(f"create new file: {new_item.fbx_path}")
             copyfile(item.fbx_path, new_item.fbx_path)
-            copyfile(item.icon_path, new_item.icon_path)
+            try:
+                copyfile(item.icon_path, new_item.icon_path)
+            except FileNotFoundError:
+                pass
 
             current_scale -= scale_step
 

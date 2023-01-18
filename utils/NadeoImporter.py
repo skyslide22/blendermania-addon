@@ -476,7 +476,7 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         name = get_path_filename(item_to_convert.fbx_path, remove_extension=True)
         item = tm_props_convertingItems.add()
         item.name = name
-        item.name_raw = item_to_convert.name
+        item.name_raw = item_to_convert.name_raw #fixing name to name_raw costed me 30 min ahhh
         items_convert_index[ name ] = counter
         counter += 1
 

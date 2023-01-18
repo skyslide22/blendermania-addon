@@ -157,7 +157,11 @@ class TM_PT_Items_Export(Panel):
             box = layout.box()
             box.use_property_split = True
 
-            exported_cols = [bpy.data.collections[exp_col.name_raw] for exp_col in get_convert_items_props()]
+            # exported_cols = [bpy.data.collections[exp_col.name_raw] for exp_col in get_convert_items_props()]
+            exported_cols = []
+            for exp_col in get_convert_items_props():
+                exported_cols.append(bpy.data.collections[exp_col.name_raw])
+
             embed_space   = 0
             for col in exported_cols:
                 embed_space += get_embedspace_of_collection(col)
