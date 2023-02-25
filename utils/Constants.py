@@ -7,6 +7,7 @@ MIN_BLENDER_VERSION = (3, 3, 0)
 DOTNET_COMMANDS = (
     PLACE_OBJECTS_ON_MAP             := "place-objects-on-map",
     CONVERT_ITEM_TO_OBJ              := "convert-item-to-obj",
+    REPLACE_ITEM_IMAGE               := "replace-item-image",
     GET_MEDIATRACKER_CLIPS           := "get-mediatracker-clips",
     PLACE_MEDIATRACKER_CLIPS_ON_MAP  := "place-mediatracker-clips-on-map",
 )
@@ -176,7 +177,7 @@ URL_RELEASES      = "https://api.github.com/repos/skyslide22/blendermania-addon/
 URL_REGEX         = "https://regex101.com/"
 
 # dotnet addon name and version
-BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.4"
+BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.5"
 
 # Assets CDN Links
 GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-assets/releases/download/"

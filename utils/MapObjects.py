@@ -59,6 +59,9 @@ def is_all_selected_in_map_collection() -> bool:
     map_coll:bpy.types.Collection = tm_props.PT_map_collection
     is_in                         = True
 
+    if tm_props.PT_map_collection is None:
+        return False
+
     for obj in bpy.context.selected_objects:
         if not map_coll.all_objects.get(obj.name):
             is_in = False

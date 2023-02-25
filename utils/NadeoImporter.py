@@ -10,6 +10,7 @@ from .Models import ExportedItem
 
 from .Constants import PATH_CONVERT_REPORT
 from ..utils.NadeoXML import generate_mesh_XML, generate_item_XML
+from ..utils.Dotnet import run_replace_item_image
 from ..utils.Functions import (
     debug,
     timer,
@@ -25,6 +26,7 @@ from ..utils.Functions import (
     get_convert_items_props,
     get_nadeo_importer_path,
     is_game_maniaplanet,
+    is_blendermania_dotnet_installed,
 )
 
 class ConvertStep():
@@ -517,6 +519,18 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
 
         if failed: fail_count    += 1
         else:      success_count += 1
+
+        try:
+            if not failed:
+                # fix icon for most recent importer
+                if not is_game_maniaplanet() and tm_props.ST_nadeoImporter_TM_current == "2022_7_12":
+                    item_icon_path = convertTheFBX.fbx_filepath.replace(f"{convertTheFBX.name_raw}.fbx", f"Icon/{convertTheFBX.name_raw}.tga")
+                    if is_file_existing(item_icon_path) and is_blendermania_dotnet_installed():
+                        run_replace_item_image(convertTheFBX.gbx_item_filepath, item_icon_path)
+        except e:
+            print("Icon generation error for broken nadeo importer")
+            print(e)
+
 
         @in_new_thread
         def setItemProps():

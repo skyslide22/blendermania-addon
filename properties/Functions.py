@@ -512,6 +512,11 @@ def getIconWorlds() -> list:
 
 def getIconPXdimensions() -> list:
     return EnumProps().add(
+        id   = "64",
+        name = "64 px",
+        desc = "Icon size in pixel",
+        icon = "FILE_IMAGE",
+    ).add(
         id   = "128",
         name = "128 px",
         desc = "Icon size in pixel",
