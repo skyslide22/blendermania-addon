@@ -543,7 +543,7 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         try:
             if not failed:
                 # fix icon for most recent importer
-                if not is_game_maniaplanet() and tm_props.ST_nadeoImporter_TM_current == "2022_7_12":
+                if not is_game_maniaplanet() and tm_props.ST_nadeoImporter_TM_current == "2022_7_12" and not tm_props.CB_overwriteIcon:
                     item_icon_path = convertTheFBX.fbx_filepath.replace(f"{convertTheFBX.name_raw}.fbx", f"Icon/{convertTheFBX.name_raw}.tga")
                     if is_file_existing(item_icon_path) and is_blendermania_dotnet_installed():
                         run_replace_item_image(convertTheFBX.gbx_item_filepath, item_icon_path)
