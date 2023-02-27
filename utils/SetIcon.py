@@ -24,9 +24,7 @@ def set_icon(path_item, path_icon):
     from PIL import Image
 
     with Image.open(path_icon) as im:
-        print(im.format, im.size, im.mode)
         im = im.resize((64,64))
-        print(im.format, im.size, im.mode)
         
         out = BytesIO()
         for y in range(32):
@@ -92,7 +90,6 @@ def set_icon(path_item, path_icon):
         (_u01, old_webp_data_size) = br.unpack(f"<HI")
 
         offset_len = len(webp_data) - old_webp_data_size
-        print(f"offset_len: {offset_len}")
 
         new_icon_data = bytearray(icon_data[:br.index] + webp_data + icon_data[br.index+old_webp_data_size:])
         # set new user_data_size
