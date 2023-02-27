@@ -136,6 +136,7 @@ ICON_OVERWRITE          = "CURRENT_FILE"
 ICON_FILE               = "FILE_BLANK"
 ICON_FILE_NEW           = "FILE_NEW"
 ICON_IMAGE_DATA         = "IMAGE_DATA"
+ICON_SET_ICON           = "IMAGE_DATA"
 
 
 MAP_GRID_OBJECT_NAME    = "_ignore_map_grid_helper"

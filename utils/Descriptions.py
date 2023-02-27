@@ -117,7 +117,10 @@ DESC_ITEM_XML_NOT_ON_ITEM = f"""
     to cycle through the pivots of the current item
 """.replace("\n", "")
 
-
+DESC_ITEM_XML_OVERWRITE_ICON = f"""
+    When exporting the item using the 2022_07_12 NadeoImporter, the icon appears broken.
+    If enabled, the item icon will be overwritten by a custom script.
+""".replace("\n", "")
 
 
 

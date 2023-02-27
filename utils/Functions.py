@@ -561,6 +561,8 @@ def install_nadeoimporter_addon_assets()->None:
         filename = tm_props.LI_nadeoImporters_TM
         full_path= base_path + "/Trackmania2020/" + filename
     
+    tm_props.CB_overwriteIcon = False # reset to default
+    
     debug(f"install nadeoimporter: {get_path_filename(full_path)}")
     unzip_nadeoimporter(zipfilepath=fix_slash(full_path))
     

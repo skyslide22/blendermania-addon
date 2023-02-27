@@ -28,6 +28,7 @@ from ..utils.Functions import (
     is_game_maniaplanet,
     is_blendermania_dotnet_installed,
 )
+from .SetIcon import set_icon
 
 class ConvertStep():
     def __init__(self, title, additional_infos: tuple=()):
@@ -48,7 +49,7 @@ class ConvertResult():
 
 
 class CONVERT_ITEM(threading.Thread):
-    def __init__(self, fbxfilepath: str, game: str, physic_hack=True) -> None:
+    def __init__(self, fbxfilepath: str, game: str, physic_hack=True, icon_path: str="") -> None:
         super(CONVERT_ITEM, self).__init__() #need to call init from Thread, otherwise error
         
         
@@ -67,6 +68,7 @@ class CONVERT_ITEM(threading.Thread):
         self.gbx_item_filepath       = self.gbx_filepath.replace(".fbx", ".Item.Gbx")
         self.gbx_shape_filepath      = self.gbx_filepath.replace(".fbx", ".Shape.Gbx")
         self.gbx_shape_filepath_old  = self.gbx_filepath.replace(".fbx", ".Shape.Gbx.old")
+        self.icon_path               = icon_path
         
         # name to display in UI and error report
         self.name     = self.fbx_filepath.split("/")[-1]
@@ -115,6 +117,9 @@ class CONVERT_ITEM(threading.Thread):
             
             if not self.convert_has_failed:
                 self.pascalCaseGBXfileNames()
+            
+            if not self.convert_has_failed and self.icon_path != "" and get_global_props().CB_overwriteIcon:
+                self.overwriteIconItemGBX()
             
         
         # maniaplanet convert process
@@ -283,6 +288,21 @@ class CONVERT_ITEM(threading.Thread):
         except FileNotFoundError as e:
             self.addProgressStep(f"""Renaming .Shape.gbx to .Shape.gbx.old failed""", [e])
             self.convert_has_failed = True
+    
+    def overwriteIconItemGBX(self) -> None:
+        """fix icon in item.gbx"""
+        self.addProgressStep(f"""Overwrite icon in .Item.gbx""")
+        
+        (error, msg) = set_icon(self.gbx_item_filepath, self.icon_path)
+        
+        self.convert_has_failed          = error != 0
+        self.convert_message_item_gbx    = msg
+        self.convert_returncode_item_gbx = error
+
+        if not self.convert_has_failed:
+            self.addProgressStep(f"""Overwrite icon .Item.gbx successfully""")
+        else:
+            self.addProgressStep(f"""Overwrite icon .Item.gbx failed""")
 
         
 
@@ -498,7 +518,7 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         current_convert_timer = Timer()
         current_convert_timer.start()
         
-        convertTheFBX = CONVERT_ITEM(fbxfilepath=item.fbx_path, game=game, physic_hack=item.physic_hack)
+        convertTheFBX = CONVERT_ITEM(fbxfilepath=item.fbx_path, game=game, physic_hack=item.physic_hack, icon_path=item.icon_path)
         convertTheFBX.start() #start the convert (call internal run())
         convertTheFBX.join()  #waits until the thread terminated (function/convert is done..)
         
