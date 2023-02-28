@@ -1,5 +1,4 @@
 from pydoc import text
-import importlib
 import bpy
 from bpy.types import Panel
 
@@ -210,8 +209,6 @@ class TM_PT_Settings_NadeoImporter(Panel):
                 row = layout.row()
                 row.alert = True
                 row.label(text="Failed to parse NadeoMaterialLib.txt, syntax error?")
-
-                    
 
 
 
