@@ -211,19 +211,6 @@ class TM_PT_Settings_NadeoImporter(Panel):
                 row.alert = True
                 row.label(text="Failed to parse NadeoMaterialLib.txt, syntax error?")
 
-            if datetime.strptime(current_importer, "%Y_%m_%d") == datetime.strptime(latest_importer, "%Y_%m_%d"):
-                row = col.row()
-                row.prop(tm_props, "CB_overwriteIcon", icon=ICON_SET_ICON)
-
-                if tm_props.CB_overwriteIcon and importlib.util.find_spec("PIL") is None:
-                    row = col.row()
-                    row.alignment = "CENTER"
-                    row.alert = True
-                    row.label(text="The 'Pillow' package needs to be installed manually.", icon="ERROR")
-                    row = col.row()
-                    row.alignment = "CENTER"
-                    row.alert = True
-                    row.label(text="You can use the 'Python module manager' addon for that.")
                     
 
 

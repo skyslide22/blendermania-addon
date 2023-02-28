@@ -8,9 +8,8 @@ import xml.etree.ElementTree as ET
 
 from .Models import ExportedItem
 
-from .Constants import PATH_CONVERT_REPORT
+from .Constants import PATH_CONVERT_REPORT, NADEO_IMPORTER_ICON_OVERWRITE_VERSION
 from ..utils.NadeoXML import generate_mesh_XML, generate_item_XML
-from ..utils.Dotnet import run_replace_item_image
 from ..utils.Functions import (
     debug,
     timer,
@@ -26,7 +25,6 @@ from ..utils.Functions import (
     get_convert_items_props,
     get_nadeo_importer_path,
     is_game_maniaplanet,
-    is_blendermania_dotnet_installed,
 )
 from .SetIcon import set_icon
 
@@ -107,18 +105,21 @@ class CONVERT_ITEM(threading.Thread):
         """method called when method start() is called on an instance of this class"""
         debug()
         self.addProgressStep(f"""Start convert to game {self.game}""")
+
+        tm_props = get_global_props()
         
         # trackmania 2020 convert process
         if self.game_is_trackmania2020:
             self.convertItemGBX()
             
-            if get_global_props().CB_generateMeshAndShapeGBX and not self.convert_has_failed:
+            if tm_props.CB_generateMeshAndShapeGBX and not self.convert_has_failed:
                 self.convertMeshAndShapeGBX()
             
             if not self.convert_has_failed:
                 self.pascalCaseGBXfileNames()
-            
-            if not self.convert_has_failed and self.icon_path != "" and get_global_props().CB_overwriteIcon:
+
+            if not self.convert_has_failed and self.icon_path != "" and \
+                not is_game_maniaplanet() and tm_props.ST_nadeoImporter_TM_current == NADEO_IMPORTER_ICON_OVERWRITE_VERSION:
                 self.overwriteIconItemGBX()
             
         
@@ -539,17 +540,6 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
 
         if failed: fail_count    += 1
         else:      success_count += 1
-
-        try:
-            if not failed:
-                # fix icon for most recent importer
-                if not is_game_maniaplanet() and tm_props.ST_nadeoImporter_TM_current == "2022_7_12" and not tm_props.CB_overwriteIcon:
-                    item_icon_path = convertTheFBX.fbx_filepath.replace(f"{convertTheFBX.name_raw}.fbx", f"Icon/{convertTheFBX.name_raw}.tga")
-                    if is_file_existing(item_icon_path) and is_blendermania_dotnet_installed():
-                        run_replace_item_image(convertTheFBX.gbx_item_filepath, item_icon_path)
-        except e:
-            print("Icon generation error for broken nadeo importer")
-            print(e)
 
 
         @in_new_thread

@@ -91,7 +91,6 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_multiScaleExportFactor   : FloatProperty(name="Steps", min=0, soft_max=8, default=0.25)
     CB_useMultiScaleExport      : BoolProperty(default=True, name="Scale exports", description=DESC_MULTI_SCALE_EXPORT)
     CB_overwriteMultiScaleFactor: BoolProperty(default=False, name="Step factor" , description=DESC_MULTI_SCALE_EXPORT)
-    CB_overwriteIcon            : BoolProperty(default=False, name="Overwrite icon" , description=DESC_ITEM_XML_OVERWRITE_ICON)
     
     #convert
     NU_convertCount              : IntProperty(min=0,               default=0, update=redraw_panels)

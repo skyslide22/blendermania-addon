@@ -531,8 +531,7 @@ def get_installed_nadeoimporter_version() -> str:
             result  = process.communicate()
             version = result[0].decode("ascii")
             version = version.replace("\r\n",  "")
-            version = version.replace(".", "_")
-            version = version[:-5] # remove hh:mm and keep yy:mm:dd
+            version = datetime.strptime(version, "%Y.%m.%d.%H%M").strftime("%Y_%m_%d")
     return version
     
 
@@ -560,8 +559,6 @@ def install_nadeoimporter_addon_assets()->None:
     else:
         filename = tm_props.LI_nadeoImporters_TM
         full_path= base_path + "/Trackmania2020/" + filename
-    
-    tm_props.CB_overwriteIcon = False # reset to default
     
     debug(f"install nadeoimporter: {get_path_filename(full_path)}")
     unzip_nadeoimporter(zipfilepath=fix_slash(full_path))
