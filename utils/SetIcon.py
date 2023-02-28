@@ -27,10 +27,10 @@ def get_icon_data(icon_path):
 
     icon = bpy.data.images.load(icon_path).copy()
 
-    # transform icon for TM
-
+    # resize for TM
     icon.scale(64,64)
 
+    # flip icon upside down and apply premultiplied alpha for TM
     for y in range(32):
         for x in range(64):
             idx_top = (y*64 + x) * 4
@@ -39,16 +39,19 @@ def get_icon_data(icon_path):
             px_bottom = transform_premul_px(icon.pixels[idx_bottom : idx_bottom + 4])
             icon.pixels[idx_top : idx_top + 4] = px_bottom
             icon.pixels[idx_bottom : idx_bottom + 4] = px_top
+    
+    # ensure at least one pixel has a bit of transparence else TM won't decode the webp
+    # because it has no alpha channel
+    icon.pixels[3] = 0.99 
 
+    # apply new pixels
     icon.update()
 
-    # save icon as webp
-
+    # save icon as webp lossless for TM
     icon.file_format = "WEBP"
     icon.save(filepath=temp_icon_path, quality=100)
 
     # get icon data and remove temp file
-
     with open(temp_icon_path, "rb") as f:
         webp_data = f.read()
 
