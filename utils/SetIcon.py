@@ -5,7 +5,7 @@ from collections import namedtuple
 
 HeaderChunk = namedtuple("HeaderChunk", ["id", "size"])
 
-class DataReader:
+class BinaryReader:
     index = 0
 
     def __init__(self, data):
@@ -66,35 +66,35 @@ def set_icon(item_path, icon_path):
     with open(item_path, "r+b") as f_item:
         # read item file
         icon_data = f_item.read()
-        datar = DataReader(icon_data)
+        byter = BinaryReader(icon_data)
 
         # check version
-        (version,) = datar.unpack("<3xH")
+        (version,) = byter.unpack("<3xH")
         if version != 6:
             return (1, f"GBX version not supported, must be 6, got {version}")
         
         # check class_id
-        (class_id, ) = datar.unpack("<4xI")
+        (class_id, ) = byter.unpack("<4xI")
         if class_id != 0x2e002000:
             return (2, f"Only Item.Gbx are supported, got class_id {hex(class_id)}")
 
         # header chunks
-        index_user_data_size = datar.index
-        (user_data_size, num_headerchunks) = datar.unpack("<II")
+        index_user_data_size = byter.index
+        (user_data_size, num_headerchunks) = byter.unpack("<II")
 
         chunks = []
         icon_chunk_idx = -1
         index_icon_chunk_size = -1
 
         for i in range(num_headerchunks):
-            (chunk_id, chunk_size) = datar.unpack("<II")
+            (chunk_id, chunk_size) = byter.unpack("<II")
 
             chunk_size &= 0x7FFFFFFF # remove heavy flag
             chunks.append(HeaderChunk(chunk_id, chunk_size))
 
             if chunk_id == 0x2e001004:
                 icon_chunk_idx = i
-                index_icon_chunk_size = datar.index - 4
+                index_icon_chunk_size = byter.index - 4
 
         if icon_chunk_idx < 0:
             return (3, f"No existing icon chunk detected in the Item.Gbx")
@@ -102,9 +102,9 @@ def set_icon(item_path, icon_path):
         # read until icon chunk
 
         for chunk in chunks[:icon_chunk_idx]:
-            datar.index += chunk.size
+            byter.index += chunk.size
 
-        # parse icon chunk
+        # overwrite icon chunk
 
         old_icon_chunk = chunks[icon_chunk_idx]
 
@@ -112,7 +112,7 @@ def set_icon(item_path, icon_path):
         icon_chunk = metadata + webp_data
         new_icon_chunk_size = len(icon_chunk)
 
-        new_icon_data = bytearray(icon_data[:datar.index] + icon_chunk + icon_data[datar.index + old_icon_chunk.size:])
+        new_icon_data = bytearray(icon_data[:byter.index] + icon_chunk + icon_data[byter.index + old_icon_chunk.size:])
 
         # set new user_data_size
         pack_into("<I", new_icon_data, index_user_data_size, user_data_size - old_icon_chunk.size + new_icon_chunk_size)
