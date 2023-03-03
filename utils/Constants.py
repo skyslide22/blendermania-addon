@@ -7,7 +7,6 @@ MIN_BLENDER_VERSION = (3, 3, 0)
 DOTNET_COMMANDS = (
     PLACE_OBJECTS_ON_MAP             := "place-objects-on-map",
     CONVERT_ITEM_TO_OBJ              := "convert-item-to-obj",
-    REPLACE_ITEM_IMAGE               := "replace-item-image",
     GET_MEDIATRACKER_CLIPS           := "get-mediatracker-clips",
     PLACE_MEDIATRACKER_CLIPS_ON_MAP  := "place-mediatracker-clips-on-map",
 )

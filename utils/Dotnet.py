@@ -134,19 +134,6 @@ class DotnetConvertItemToObj:
     def jsonable(self):
         return self.__dict__
 
-class DotnetReplaceItemImage:
-    def __init__(
-        self,
-        ItemPath: str,
-        ImagePath: str,
-    ):
-        self.ItemPath = ItemPath
-        self.ImagePath = ImagePath
-
-    def jsonable(self):
-        return self.__dict__
-
-
 class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
         if hasattr(obj,'jsonable'):
@@ -211,24 +198,6 @@ def run_convert_item_to_obj(
 
 def run_get_mediatracker_clips(map_path: str) -> DotnetExecResult:
     return _run_dotnet(GET_MEDIATRACKER_CLIPS, map_path)
-
-def run_replace_item_image(
-    item_path: str,
-    image_path: str,
-) -> DotnetExecResult:
-    config_path = fix_slash(os.path.dirname(get_abs_path(item_path)))+'/replace-item-image.json'
-    with open(config_path, 'w+', encoding='utf-8') as outfile:
-        json.dump(DotnetReplaceItemImage(item_path, image_path), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
-        outfile.close()
-
-        res = _run_dotnet(REPLACE_ITEM_IMAGE, config_path)
-        res.message = res.message.replace("SUCCESS: ", "")
-        print(res)
-        try:
-            os.remove(config_path)
-        except FileNotFoundError:
-            pass
-        return res
 
 def run_place_mediatracker_clips_on_map(
     map_path: str,
