@@ -20,7 +20,11 @@ def duplicate_object_to(obj: bpy.types.Object, destColl: bpy.types.Collection, l
     move_obj_to_coll(newObj, destColl)
     return newObj
 
-def create_collection_in(destColl: bpy.types.Collection, name: str) -> bpy.types.Collection:
+def create_collection_in(destColl: bpy.types.Collection, name: str, overwrite: bool = False) -> bpy.types.Collection:
+    if overwrite == False:
+        if destColl.children.get(name) is not None:
+            return destColl.children.get(name)
+
     coll = bpy.context.blend_data.collections.new(name=name)
     destColl.children.link(coll)
     return coll

@@ -6,6 +6,9 @@ from bpy.props import *
 from ..utils.Descriptions   import *
 from .Functions             import *
 from .MapObjectProperties   import *
+from ..utils.MediaTracker import (
+    get_mt_types
+)
 
 
 
@@ -69,8 +72,12 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_map_clean_blocks       : BoolProperty(name="Clean existed blocks", default=False, description="Blocks are very unstable at the moment")
     CB_map_clean_items        : BoolProperty(name="Clean existed items", default=True)
     ST_map_clip_name          : StringProperty(name="", search=provide_current_map_mt_clip_names)
+    CB_map_clean_items        : StringProperty(name="", default="")
     # map other
-    CB_map_use_grid_helper : BoolProperty(default=False, name="Map Grid Helper", update=on_grid_helper_toggle)
+    CB_map_use_grid_helper    : BoolProperty(default=False, name="Map Grid Helper", update=on_grid_helper_toggle)
+    # mt
+    LI_map_mt_type            : EnumProperty(items=get_mt_types(), default=1)
+    PT_map_mt_triangle_object : PointerProperty(type=bpy.types.Object)
 
     #object manipulation
     NU_objMplScaleFrom      : IntProperty(default=7, min=1, max=20)

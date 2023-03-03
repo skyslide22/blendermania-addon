@@ -38,6 +38,15 @@ class DotnetVector3:
     def jsonable(self):
         return self.__dict__
 
+class DotnetVector4:
+    def __init__(self, X: float = 0, Y: float = 0, Z: float = 0, W: float = 0) -> None:
+        self.X = X
+        self.Y = Y
+        self.Z = Z
+        self.W = W
+
+    def jsonable(self):
+        return self.__dict__
 
 class DotnetInt3:
     def __init__(self, X: int = 0, Y: int = 0, Z: int = 0) -> None:
@@ -73,14 +82,105 @@ class DotnetItem:
     def jsonable(self):
         return self.__dict__
 
+class MediaTrackerBlockTriangleKey:
+    def __init__(
+        self, 
+        Time: float,
+        Positions: list[DotnetVector3],
+    ):
+        self.Time = Time
+        self.Positions = Positions
+    
+    def jsonable(self):
+        return self.__dict__
+
+class DotnetMediaTrackerTriangle:
+    def __init__(
+        self, 
+        Id: int,
+        Keys: list[MediaTrackerBlockTriangleKey],
+        Vertices: list[DotnetVector4],
+        Triangles: list[DotnetInt3],
+    ):
+        self.Id = Id
+        self.Keys = Keys
+        self.Vertices = Vertices
+        self.Triangles = Triangles
+
+    
+    def jsonable(self):
+        return self.__dict__
+
+class DotnetMediaTrackerBlock:
+    def __init__(
+        self, 
+        Id: int,
+        Trinagles2D: list[DotnetMediaTrackerTriangle],
+        Trinagles3D: list[DotnetMediaTrackerTriangle],
+    ):
+        self.Id = Id
+        self.Trinagles2D = Trinagles2D
+        self.Trinagles3D = Trinagles3D
+    
+    def jsonable(self):
+        return self.__dict__
+
+class DotnetMediaTrackerTrack:
+    def __init__(
+        self, 
+        Id: int,
+        Name: str,
+        Blocks: list[DotnetMediaTrackerBlock],
+    ):
+        self.Id = Id
+        self.Name = Name
+        self.Blocks = Blocks
+    
+    def jsonable(self):
+        return self.__dict__
 
 class DotnetMediatrackerClip:
     def __init__(
         self, 
+        Id: int,
         Name: str, 
-        Positions: list[DotnetVector3]):
-            self.Name = Name
-            self.Positions = Positions
+        Positions: list[DotnetVector3],
+        Tracks: list[DotnetMediaTrackerTrack]
+    ):
+        self.Id = Id
+        self.Name = Name
+        self.Positions = Positions
+        self.Tracks = Tracks
+    
+    def jsonable(self):
+        return self.__dict__
+    
+class DotnetMediaTrackerClipsGroup:
+    def __init__(
+        self, 
+        Id: int,
+        Clips: list[DotnetMediatrackerClip], 
+    ):
+        self.Id = Id
+        self.Clips = Clips
+    
+    def jsonable(self):
+        return self.__dict__
+    
+class DotnetMediatrackerClips:
+    def __init__(
+        self, 
+        Intro: DotnetMediatrackerClip,
+        InGame: DotnetMediaTrackerClipsGroup,
+        EndRace: DotnetMediaTrackerClipsGroup,
+        Podium: DotnetMediatrackerClip,
+        Ambiance: DotnetMediatrackerClip,
+    ):
+        self.Intro = Intro
+        self.InGame = InGame
+        self.EndRace = EndRace
+        self.Podium = Podium
+        self.Ambiance = Ambiance
     
     def jsonable(self):
         return self.__dict__
@@ -96,15 +196,16 @@ class DotnetPlaceObjectsOnMap:
         MapSuffix: str = "_modified",
         CleanBlocks: bool = True,
         CleanItems: bool = True,
-        Env: str = "Stadium2020"):
-            self.MapPath = MapPath
-            self.Blocks = Blocks
-            self.Items = Items
-            self.ShouldOverwrite = ShouldOverwrite
-            self.MapSuffix = MapSuffix
-            self.CleanBlocks = CleanBlocks
-            self.CleanItems = CleanItems
-            self.Env = Env
+        Env: str = "Stadium2020",
+    ):
+        self.MapPath = MapPath
+        self.Blocks = Blocks
+        self.Items = Items
+        self.ShouldOverwrite = ShouldOverwrite
+        self.MapSuffix = MapSuffix
+        self.CleanBlocks = CleanBlocks
+        self.CleanItems = CleanItems
+        self.Env = Env
 
     def jsonable(self):
         return self.__dict__
@@ -114,7 +215,8 @@ class DotnetPlaceMediatrackerClipsOnMap:
     def __init__(
         self,
         MapPath: str,
-        Clips: list[DotnetItem]):
+        Clips: list[DotnetItem],
+    ):
             self.MapPath = MapPath
             self.Clips = Clips
 
@@ -146,6 +248,23 @@ class DotnetReplaceItemImage:
     def jsonable(self):
         return self.__dict__
 
+class DotnetPlaceTrianglesOnMap:
+    def __init__(
+        self,
+        MapPath: str,
+        Sequence: str,
+        ObjectName: str,
+        TrinagleType: str,
+        Triangle: DotnetMediaTrackerTriangle,
+    ):
+        self.MapPath = MapPath
+        self.Sequence = Sequence
+        self.TrinagleType = TrinagleType
+        self.ObjectName = ObjectName
+        self.Triangle = Triangle
+
+    def jsonable(self):
+        return self.__dict__
 
 class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -212,6 +331,9 @@ def run_convert_item_to_obj(
 def run_get_mediatracker_clips(map_path: str) -> DotnetExecResult:
     return _run_dotnet(GET_MEDIATRACKER_CLIPS, map_path)
 
+def run_read_mediatracker(map_path: str) -> DotnetExecResult:
+    return _run_dotnet(READ_MEDITRACKER, map_path)
+
 def run_replace_item_image(
     item_path: str,
     image_path: str,
@@ -228,6 +350,27 @@ def run_replace_item_image(
             os.remove(config_path)
         except FileNotFoundError:
             pass
+        return res
+    
+    
+def run_place_triangle_on_map(
+    map_path: str,
+    sequence: str,
+    object_name: str,
+    triangle_type: str,
+    triangle: DotnetMediaTrackerTriangle,
+) -> DotnetExecResult:
+    config_path = fix_slash(os.path.dirname(get_abs_path(map_path)))+'/place-trinagle-on-map.json'
+    with open(config_path, 'w+', encoding='utf-8') as outfile:
+        json.dump(DotnetPlaceTrianglesOnMap(map_path, sequence, object_name, triangle_type, triangle), outfile, cls=ComplexEncoder, ensure_ascii=False, indent=4)
+        outfile.close()
+
+        res = _run_dotnet(PLACE_TRIANGLE_ON_MAP, config_path)
+        res.message = res.message.replace("SUCCESS: ", "")
+        #try:
+        #    os.remove(config_path)
+        #except FileNotFoundError:
+        #    pass
         return res
 
 def run_place_mediatracker_clips_on_map(

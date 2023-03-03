@@ -483,7 +483,7 @@ def export_mediatracker_clips() -> DotnetExecResult:
             temp_clips[mtclip_name].append(position)
 
     for clip_name, intarrs in temp_clips.items():
-        clip = DotnetMediatrackerClip(clip_name, intarrs)
+        clip = DotnetMediatrackerClip(Name=clip_name, Positions=intarrs)
         clips.append(clip)
 
     return run_place_mediatracker_clips_on_map(map_path, clips)

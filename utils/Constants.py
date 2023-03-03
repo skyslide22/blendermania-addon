@@ -9,7 +9,9 @@ DOTNET_COMMANDS = (
     CONVERT_ITEM_TO_OBJ              := "convert-item-to-obj",
     REPLACE_ITEM_IMAGE               := "replace-item-image",
     GET_MEDIATRACKER_CLIPS           := "get-mediatracker-clips",
+    READ_MEDITRACKER                 := "read-mediatracker",
     PLACE_MEDIATRACKER_CLIPS_ON_MAP  := "place-mediatracker-clips-on-map",
+    PLACE_TRIANGLE_ON_MAP            := "place-trinagle-on-map",
 )
 
 

@@ -309,4 +309,3 @@ class PT_UIMediatrackerClips(bpy.types.Panel):
             row = col_right.row(align=True)
             row.scale_y = 0.6
             row.label(text=f"(0) None" )
-

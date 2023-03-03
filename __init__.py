@@ -62,6 +62,7 @@ from .operators.OT_WikiLink                import *
 from .operators.OT_Textures                import * 
 from .operators.OT_Imports                 import * 
 from .operators.OT_VisibilitySelection     import *
+from .operators.OT_Map_Mediatracker        import *
 
 from .panels.PT_Map_Manipulate          import *
 from .panels.PT_Imports                 import *
@@ -75,6 +76,7 @@ from .panels.PT_Items_Manipulate        import *
 from .panels.PT_UV_Manipulate           import *
 from .panels.PT_Textures                import *
 from .panels.PT_VisibilitySelection     import *
+from .panels.PT_Map_Mediatracker        import *
 
 
 
@@ -205,6 +207,10 @@ classes = (
     OT_UIChangeMediatrackerTriggerClipName,
     OT_UIRefreshMediatrackerTriggerClipNamesFromMap,
     OT_UISelectMediatrackerTriggersByName,
+
+    # map mediatracker
+    OT_UIMapExportMediatrackerTriangle,
+    PT_UIMediatracker,
 
     # util
     OT_UIWikiLink
