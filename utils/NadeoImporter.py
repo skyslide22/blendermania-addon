@@ -8,9 +8,8 @@ import xml.etree.ElementTree as ET
 
 from .Models import ExportedItem
 
-from .Constants import PATH_CONVERT_REPORT
+from .Constants import PATH_CONVERT_REPORT, NADEO_IMPORTER_ICON_OVERWRITE_VERSION
 from ..utils.NadeoXML import generate_mesh_XML, generate_item_XML
-from ..utils.Dotnet import run_replace_item_image
 from ..utils.Functions import (
     debug,
     timer,
@@ -26,8 +25,8 @@ from ..utils.Functions import (
     get_convert_items_props,
     get_nadeo_importer_path,
     is_game_maniaplanet,
-    is_blendermania_dotnet_installed,
 )
+from .SetIcon import set_icon
 
 class ConvertStep():
     def __init__(self, title, additional_infos: tuple=()):
@@ -48,7 +47,7 @@ class ConvertResult():
 
 
 class CONVERT_ITEM(threading.Thread):
-    def __init__(self, fbxfilepath: str, game: str, physic_hack=True) -> None:
+    def __init__(self, fbxfilepath: str, game: str, physic_hack=True, icon_path: str="") -> None:
         super(CONVERT_ITEM, self).__init__() #need to call init from Thread, otherwise error
         
         
@@ -67,6 +66,7 @@ class CONVERT_ITEM(threading.Thread):
         self.gbx_item_filepath       = self.gbx_filepath.replace(".fbx", ".Item.Gbx")
         self.gbx_shape_filepath      = self.gbx_filepath.replace(".fbx", ".Shape.Gbx")
         self.gbx_shape_filepath_old  = self.gbx_filepath.replace(".fbx", ".Shape.Gbx.old")
+        self.icon_path               = icon_path
         
         # name to display in UI and error report
         self.name     = self.fbx_filepath.split("/")[-1]
@@ -105,16 +105,22 @@ class CONVERT_ITEM(threading.Thread):
         """method called when method start() is called on an instance of this class"""
         debug()
         self.addProgressStep(f"""Start convert to game {self.game}""")
+
+        tm_props = get_global_props()
         
         # trackmania 2020 convert process
         if self.game_is_trackmania2020:
             self.convertItemGBX()
             
-            if get_global_props().CB_generateMeshAndShapeGBX and not self.convert_has_failed:
+            if tm_props.CB_generateMeshAndShapeGBX and not self.convert_has_failed:
                 self.convertMeshAndShapeGBX()
             
             if not self.convert_has_failed:
                 self.pascalCaseGBXfileNames()
+
+            if not self.convert_has_failed and self.icon_path != "" and \
+                not is_game_maniaplanet() and tm_props.ST_nadeoImporter_TM_current == NADEO_IMPORTER_ICON_OVERWRITE_VERSION:
+                self.overwriteIconItemGBX()
             
         
         # maniaplanet convert process
@@ -283,6 +289,21 @@ class CONVERT_ITEM(threading.Thread):
         except FileNotFoundError as e:
             self.addProgressStep(f"""Renaming .Shape.gbx to .Shape.gbx.old failed""", [e])
             self.convert_has_failed = True
+    
+    def overwriteIconItemGBX(self) -> None:
+        """fix icon in item.gbx"""
+        self.addProgressStep(f"""Overwrite icon in .Item.gbx""")
+        
+        (error, msg) = set_icon(self.gbx_item_filepath, self.icon_path)
+        
+        self.convert_has_failed          = error != 0
+        self.convert_message_item_gbx    = msg
+        self.convert_returncode_item_gbx = error
+
+        if not self.convert_has_failed:
+            self.addProgressStep(f"""Overwrite icon .Item.gbx successfully""")
+        else:
+            self.addProgressStep(f"""Overwrite icon .Item.gbx failed""")
 
         
 
@@ -498,7 +519,7 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         current_convert_timer = Timer()
         current_convert_timer.start()
         
-        convertTheFBX = CONVERT_ITEM(fbxfilepath=item.fbx_path, game=game, physic_hack=item.physic_hack)
+        convertTheFBX = CONVERT_ITEM(fbxfilepath=item.fbx_path, game=game, physic_hack=item.physic_hack, icon_path=item.icon_path)
         convertTheFBX.start() #start the convert (call internal run())
         convertTheFBX.join()  #waits until the thread terminated (function/convert is done..)
         
@@ -519,17 +540,6 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
 
         if failed: fail_count    += 1
         else:      success_count += 1
-
-        try:
-            if not failed:
-                # fix icon for most recent importer
-                if not is_game_maniaplanet() and tm_props.ST_nadeoImporter_TM_current == "2022_7_12":
-                    item_icon_path = convertTheFBX.fbx_filepath.replace(f"{convertTheFBX.name_raw}.fbx", f"Icon/{convertTheFBX.name_raw}.tga")
-                    if is_file_existing(item_icon_path) and is_blendermania_dotnet_installed():
-                        run_replace_item_image(convertTheFBX.gbx_item_filepath, item_icon_path)
-        except e:
-            print("Icon generation error for broken nadeo importer")
-            print(e)
 
 
         @in_new_thread
