@@ -16,57 +16,41 @@ class BinaryReader:
         self.index += calcsize(format)
         return res
 
-def transform_premul_px(px):
-    r, g, b, a = px
-    return (r*a, g*a, b*a, a)
-
-def get_icon_data(icon_path):
-    temp_icon_path = icon_path.replace(".tga", ".webp")
-
+def get_icon_chunk(icon_path):
     # Load original TGA icon
-
-    icon = bpy.data.images.load(icon_path).copy()
+    icon = bpy.data.images.load(icon_path)
 
     # resize for TM
     icon.scale(64,64)
-
-    # flip icon upside down and apply premultiplied alpha for TM
-    for y in range(32):
-        for x in range(64):
-            idx_top = (y*64 + x) * 4
-            idx_bottom = ((63-y) * 64 + x) * 4
-            px_top = transform_premul_px(icon.pixels[idx_top : idx_top + 4])
-            px_bottom = transform_premul_px(icon.pixels[idx_bottom : idx_bottom + 4])
-            icon.pixels[idx_top : idx_top + 4] = px_bottom
-            icon.pixels[idx_bottom : idx_bottom + 4] = px_top
     
-    # ensure at least one pixel has a bit of transparence else TM won't decode the webp
-    # because it has no alpha channel
-    icon.pixels[3] = 0.99 
+    # ensure at least one pixel has a bit of transparence else
+    # it won't work if TM convert it to webp
+    if icon.pixels[3] > 0.99:
+        icon.pixels[3] = 0.99
 
-    # apply new pixels
-    icon.update()
+    # Create the chunk
+    chunk = bytearray(64*64*4)
+    for y in range(63, -1, -1):
+        for x in range(64):
+            idx = (y * 64 + x) * 4
+            chunk[idx + 0] = int(icon.pixels[idx + 2] * 255)
+            chunk[idx + 1] = int(icon.pixels[idx + 1] * 255)
+            chunk[idx + 2] = int(icon.pixels[idx + 0] * 255)
+            chunk[idx + 3] = int(icon.pixels[idx + 3] * 255)
+    
+    # Close icon file
+    bpy.data.images.remove(icon)
 
-    # save icon as webp lossless for TM
-    icon.file_format = "WEBP"
-    icon.save(filepath=temp_icon_path, quality=100)
-
-    # get icon data and remove temp file
-    with open(temp_icon_path, "rb") as f:
-        webp_data = f.read()
-
-    os.remove(temp_icon_path)
-
-    return webp_data
+    return pack("<HH", 64, 64) + chunk
 
 def set_icon(item_path, icon_path):
     
-    webp_data = get_icon_data(icon_path)
+    icon_chunk = get_icon_chunk(icon_path)
 
     with open(item_path, "r+b") as f_item:
         # read item file
-        icon_data = f_item.read()
-        byter = BinaryReader(icon_data)
+        item_data = f_item.read()
+        byter = BinaryReader(item_data)
 
         # check version
         (version,) = byter.unpack("<3xH")
@@ -106,22 +90,19 @@ def set_icon(item_path, icon_path):
 
         # overwrite icon chunk
 
-        old_icon_chunk = chunks[icon_chunk_idx]
-
-        metadata = pack("<HHHI", 64 | 0x8000, 64 | 0x8000, 1, len(webp_data))
-        icon_chunk = metadata + webp_data
+        old_icon_chunk_size = chunks[icon_chunk_idx].size
         new_icon_chunk_size = len(icon_chunk)
 
-        new_icon_data = bytearray(icon_data[:byter.index] + icon_chunk + icon_data[byter.index + old_icon_chunk.size:])
+        new_item_data = bytearray(item_data[:byter.index] + icon_chunk + item_data[byter.index + old_icon_chunk_size:])
 
         # set new user_data_size
-        pack_into("<I", new_icon_data, index_user_data_size, user_data_size - old_icon_chunk.size + new_icon_chunk_size)
+        pack_into("<I", new_item_data, index_user_data_size, user_data_size - old_icon_chunk_size + new_icon_chunk_size)
 
-        # set icon chunk size with heavy flag
-        pack_into("<I", new_icon_data, index_icon_chunk_size, new_icon_chunk_size | 0x80000000)
+        # set new icon chunk size with heavy flag
+        pack_into("<I", new_item_data, index_icon_chunk_size, new_icon_chunk_size | 0x80000000)
         
         f_item.seek(0)
-        f_item.write(new_icon_data)
+        f_item.write(new_item_data)
         f_item.truncate()
 
     return (0, "")
