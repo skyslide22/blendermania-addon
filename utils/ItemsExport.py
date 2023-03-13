@@ -164,6 +164,8 @@ def _move_collection_to(objects: list[bpy.types.Object]) -> list[float]:
     offset = get_offset_from_item_origin(objects)
     
     for obj in objects:
+        if obj.parent is not None:
+            continue
         obj.location[0] -= offset[0]
         obj.location[1] -= offset[1]
         obj.location[2] -= offset[2]
@@ -172,6 +174,8 @@ def _move_collection_to(objects: list[bpy.types.Object]) -> list[float]:
 
 def _move_collection_by(objects: list[bpy.types.Object], offset: list[float] = [0,0,0]):
     for obj in objects:
+        if obj.parent is not None:
+            continue
         obj.location[0] += offset[0]
         obj.location[1] += offset[1]
         obj.location[2] += offset[2]
