@@ -277,7 +277,7 @@ GAMETYPE_NAMES = (
 
 
 # Not all physic ids are listed in the NadeoimporterMaterialLib.txt [Maniaplanet && TM2020]
-MISSING_PHYSIC_IDS_IN_NADEOLIB = ["TechSuperMagnetic", "TechMagnetic", "TechMagneticAccel" "Offzone"]
+MISSING_PHYSIC_IDS_IN_NADEOLIB = ["TechSuperMagnetic", "TechMagnetic", "TechMagneticAccel", "Offzone"]
 
 
 # For better and faster selection in the dropdown menu
