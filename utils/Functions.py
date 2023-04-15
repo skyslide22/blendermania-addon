@@ -1878,7 +1878,7 @@ def debug_all() -> None:
     separator(1)
     
 
-    debug_file = PATH_DESKTOP + "/blender_debug_report.txt"
+    debug_file = PATH_HOME + "/blender_debug_report.txt"
     debug(save_list_to=debug_file, clear_list=True, open_file=True)
     
     show_report_popup(
