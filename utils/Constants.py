@@ -163,7 +163,7 @@ PATH_HOME                  = os.path.expanduser("~").replace("\\", "/") + "/"
 PATH_PROGRAM_DATA          = os.environ.get("ALLUSERSPROFILE").replace("\\", "/")   + "/"
 PATH_PROGRAM_FILES         = os.environ.get("PROGRAMFILES").replace("\\", "/")      + "/"
 PATH_PROGRAM_FILES_X86     = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
-PATH_CONVERT_REPORT        = PATH_DESKTOP + "convert_report.html"
+PATH_CONVERT_REPORT        = PATH_HOME + "convert_report.html"
 PATH_DEFAULT_SETTINGS_JSON = PATH_HOME + "blender_addon_for_tm2020_maniaplanet_settings.json"
 
 
