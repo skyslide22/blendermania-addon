@@ -10,6 +10,49 @@ from ..utils.Constants      import *
 
 
 
+
+
+
+class TM_OT_Textures_UpdateTextureSource(Operator):
+    bl_idname = "view3d.tm_update_texture_source"
+    bl_description = "Update Texture Source Folder"
+    bl_label = "Update Texture Sources"
+        
+    def execute(self, context):
+        update_texture_folder()
+        return {"FINISHED"}
+    
+
+def update_texture_folder():
+    tm_props = get_global_props()
+    new_tex_src = tm_props.ST_TextureSource
+
+    if new_tex_src == "": return
+
+    images = bpy.data.images
+
+    filepaths = get_folder_files(new_tex_src)
+    files = []
+
+    for file in filepaths:
+        filename = file.split("\\")[-1]
+        files.append(filename)
+    
+    found_images = []
+    for image in images:
+        if image.name in files:
+            found_images.append(image)
+
+    for image in found_images:
+        image_name = image.name
+        image.filepath = new_tex_src + "\\" + image_name
+        image.reload()
+
+
+
+
+
+
 class TM_OT_Textures_ToggleModwork(Operator):
     bl_idname = "view3d.tm_toggle_modwork"
     bl_description = "Toogle Modwork Folder Name (Enable/Disable)"

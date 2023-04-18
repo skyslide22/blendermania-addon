@@ -31,8 +31,32 @@ class TM_PT_Textures(Panel):
         tm_props = get_global_props()
 
         col = layout.column(align=True)
+        row = col.row(align=True)
+        row.prop(tm_props, "ST_TextureSource", text="Source")
+        row = col.row(align=True)
+        row.operator("view3d.tm_update_texture_source", text="Update", icon=ICON_UPDATE)
+
+
+class TM_PT_Textures_ModWork(Panel):
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "ModWork Folder"
+    bl_idname = "TM_PT_Textures_ModWork"
+    bl_parent_id = "TM_PT_Textures"
+    
+    def draw(self, context):
+
+        layout = self.layout
+        tm_props = get_global_props()
+
+        col = layout.column(align=True)
 
         modwork_enabled = is_selected_modwork_enabled()
+
+        text = "Enable" if not modwork_enabled else "Disable"
+        text = text + " modwork folder"
+
+        row = col.row(align=True)
+        row.label(text=text)
 
         row = col.row(align=True)
         scol = row.column(align=True)
@@ -44,6 +68,7 @@ class TM_PT_Textures(Panel):
             scol = row.column(align=True)
             scol.scale_x = 0.8
             scol.prop(tm_props, "LI_DL_TextureEnvi", text="",)
+
 
 
 

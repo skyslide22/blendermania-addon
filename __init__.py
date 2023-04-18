@@ -178,7 +178,9 @@ classes = (
     TM_PT_Textures,
     TM_PT_Textures_Install,
     TM_OT_Textures_ToggleModwork,
-
+    TM_PT_Textures_ModWork,
+    TM_OT_Textures_UpdateTextureSource,
+    
     # ninja
     TM_OT_Ninja17Install,
     TM_OT_Ninja20Install,

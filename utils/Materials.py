@@ -7,6 +7,7 @@ from .Functions import (
     get_abs_path,
     get_game_doc_path_items_assets_textures,
     get_game_doc_path,
+    get_global_props,
     is_file_existing,
     is_game_trackmania2020,
     load_image_into_blender,
@@ -271,8 +272,17 @@ def create_material_nodes(mat)->None:
     debug(f"material link is :  {mat.link}")
     debug(f"material is a link: {isLinkedMat}")
 
-    if isLinkedMat: tex = get_game_doc_path_items_assets_textures() + mat.environment + "/" + mat.link
-    else:           tex = re.sub(r"_?(i|d)\.dds$", "", mat.baseTexture, flags=re.IGNORECASE)
+    if isLinkedMat: 
+        tex = get_game_doc_path_items_assets_textures() + mat.environment + "/" + mat.link
+        
+        tm_props = get_global_props()
+        custom_tex_source_folder = tm_props.ST_TextureSource
+        if custom_tex_source_folder != "":
+            tex = custom_tex_source_folder + "/" + mat.link
+
+
+    else:
+        tex = re.sub(r"_?(i|d)\.dds$", "", mat.baseTexture, flags=re.IGNORECASE)
 
     if not isCustomMat:
         DTexture = _get_mat_dds(tex, "D")
