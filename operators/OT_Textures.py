@@ -13,6 +13,16 @@ from ..utils.Constants      import *
 
 
 
+class TM_OT_Textures_ResetTextureSource(Operator):
+    bl_idname = "view3d.tm_reset_texture_source"
+    bl_description = "Reset Texture Source Folder"
+    bl_label = "Reset Texture Sources"
+        
+    def execute(self, context):
+        reset_texture_folders()
+        return {"FINISHED"}
+
+
 class TM_OT_Textures_UpdateTextureSource(Operator):
     bl_idname = "view3d.tm_update_texture_source"
     bl_description = "Update Texture Source Folder"
@@ -23,11 +33,12 @@ class TM_OT_Textures_UpdateTextureSource(Operator):
         return {"FINISHED"}
     
 
-def update_texture_folder():
+def update_texture_folder(tex_src:str = ""):
     tm_props = get_global_props()
-    new_tex_src = tm_props.ST_TextureSource
+    new_tex_src = tex_src or tm_props.ST_TextureSource
 
-    if new_tex_src == "": return
+    if new_tex_src == "": 
+        return
 
     images = bpy.data.images
 
@@ -35,7 +46,7 @@ def update_texture_folder():
     files = []
 
     for file in filepaths:
-        filename = file.split("\\")[-1]
+        filename = file.replace("/", "\\").split("\\")[-1]
         files.append(filename)
     
     found_images = []
@@ -47,8 +58,17 @@ def update_texture_folder():
         image_name = image.name
         image.filepath = new_tex_src + "\\" + image_name
         image.reload()
+    
 
 
+def reset_texture_folders():
+    tm_props = get_global_props()
+    envi = tm_props.LI_materialCollection
+    root = get_game_doc_path_items_assets_textures()
+    root = root + envi + "/"
+    
+    update_texture_folder(root)
+    tm_props.ST_TextureSource = ""
 
 
 

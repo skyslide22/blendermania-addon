@@ -30,11 +30,17 @@ class TM_PT_Textures(Panel):
         layout = self.layout
         tm_props = get_global_props()
 
+        tex_source = tm_props.ST_TextureSource
+
         col = layout.column(align=True)
         row = col.row(align=True)
         row.prop(tm_props, "ST_TextureSource", text="Source")
         row = col.row(align=True)
-        row.operator("view3d.tm_update_texture_source", text="Update", icon=ICON_UPDATE)
+        col = row.column(align=True)
+        col.operator("view3d.tm_reset_texture_source", text="Reset", icon=ICON_UPDATE)
+        col = row.column(align=True)
+        col.enabled = tex_source != ""
+        col.operator("view3d.tm_update_texture_source", text="Update", icon=ICON_UPDATE)
 
 
 class TM_PT_Textures_ModWork(Panel):
