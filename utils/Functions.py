@@ -1292,6 +1292,9 @@ def parse_nadeoimporter_materiallibrary() -> None:
                 
                 if "DLibrary" in line:
                     currentLib = re.search(regex_DLibrary, line).group(1) #libname (stadium, canyon, ...)
+                    # Stadium256 is the same as Stadium for addon needs
+                    if currentLib == "Stadium256":
+                        currentLib = "Stadium"
                 
                 if currentLib not in lib:
                     lib[currentLib] = {} #first loop
@@ -1323,7 +1326,7 @@ def parse_nadeoimporter_materiallibrary() -> None:
                     if mat["NadeoTexS"] == "":  mat["NadeoTexS"] = nadeoTex if nadeoTex.lower().endswith("s.dds")  else ""  
                     if mat["NadeoTexN"] == "":  mat["NadeoTexN"] = nadeoTex if nadeoTex.lower().endswith("n.dds")  else ""  
                     if mat["NadeoTexI"] == "":  mat["NadeoTexI"] = nadeoTex if nadeoTex.lower().endswith("i.dds")  else ""  
-                
+
                 if currentLib != "":
                     if currentMat !="":
                         if currentMat in lib[currentLib].keys():
