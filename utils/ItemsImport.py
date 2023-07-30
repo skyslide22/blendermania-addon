@@ -8,6 +8,7 @@ from pathlib import Path
 from .Constants import WAYPOINTS
 from .Materials import fix_material_names, assign_mat_json_to_mat
 from .Functions import (
+    hex_to_rgb,
     fix_slash,
     deselect_all_objects,
     get_waypoint_type_of_FBX,
@@ -38,11 +39,12 @@ def _load_asset_mats(mats: list[str]):
 
     return mateirals
 
-def _create_or_update_material(name: str, link: str):
+def _create_or_update_material(name: str, link: str, color: str):
     if name in bpy.data.materials:
         return bpy.data.materials[name]
     elif name+"_asset" in bpy.data.materials:
-        return bpy.data.materials[name+"_asset"]
+        if color is None or len(color) == 0 or not name.startswith("TM_Custom"):
+            return bpy.data.materials[name+"_asset"]
 
     MAT = bpy.data.materials.new(name=name)
 
@@ -55,6 +57,8 @@ def _create_or_update_material(name: str, link: str):
     MAT.baseTexture   = ""
     MAT.name          = name
     MAT.surfaceColor  = (0,0,0)
+    if color is not None and len(color) > 0:
+        MAT.surfaceColor = hex_to_rgb(color)
     
     create_material_nodes(MAT)
 
@@ -156,46 +160,171 @@ def import_item_gbx(item_path: str, name: str = None, coll: bpy.types.Collection
 
     bpy.ops.import_scene.obj(filepath=res.message)
     objs = bpy.context.selected_objects
-    _clean_up_imported_item_gbx(objs, name, coll)
+    _clean_up_imported_item_gbx(objs, name, coll, res.message)
 
     os.remove(res.message)
 
     return None
 
-def _clean_up_imported_item_gbx(objs: list[bpy.types.Object], item_name: str, dest_coll: bpy.types.Collection):
+def _clean_up_imported_item_gbx(objs: list[bpy.types.Object], item_name: str, dest_coll: bpy.types.Collection, filepath: str):
+    extra_data = try_to_parse_extra_data(filepath)
+    extra_lightmap_uvs = extra_data["objects_cos"]
+    extra_materials_colors = extra_data["materials_colors"]
     coll = create_collection_in(dest_coll, item_name)
 
     for obj in objs:
+        # fix 0 name
+        if len(obj.data.uv_layers) > 0:
+            obj.data.uv_layers[0].name = "BaseMaterial"
+
+        # TM materials can not have . in the name, if it's there - blender added it
+        if extra_lightmap_uvs is not None:
+            clean_obj_name = obj.name.split(".")[0]
+            if clean_obj_name in extra_lightmap_uvs:
+                lm_uv_cos = extra_lightmap_uvs[clean_obj_name]
+                lm_uv = obj.data.uv_layers.new(name="LightMap", do_init=True)
+
+                for loop in obj.data.loops:
+                    lm_uv.data[loop.index].uv = lm_uv_cos[loop.index]
+
         obj:bpy.types.Object = obj
         move_obj_to_coll(obj, coll)
-        obj.name = f"{item_name} {obj.name}"
 
         # materials
         mats:list[str]= []
         for slot in obj.material_slots:
-            name, link = _get_material_name(slot.material.name)
-            mats.append(name)
+            if slot.material is not None:
+                name, link = _get_material_name(slot.material.name)
+                mats.append(name)
 
         _load_asset_mats(mats)
 
         for slot in obj.material_slots:
-            old_mat = slot.material
-            name, link = _get_material_name(slot.material.name)
-            mat = _create_or_update_material(name, link)
-            slot.material = mat
-            bpy.data.materials.remove(old_mat)
+            if slot.material is not None:
+                obj_name = re.sub(r'\.[0-9]{3}$', "", obj.name)
+                material_color = None
+                if obj_name in extra_materials_colors:
+                    material_color = extra_materials_colors[obj_name]
 
-        # fix UV
-        if len(obj.data.uv_layers) > 0:
-            obj.data.uv_layers[0].name = "BaseMaterial"
+                name, link = _get_material_name(slot.material.name)
+                if material_color is not None:
+                    name = obj_name
+
+                mat = _create_or_update_material(name, link, material_color)
+                slot.material = mat
 
         # auto smooth
         obj.data.polygons.foreach_set('use_smooth',  [True] * len(obj.data.polygons))
         obj.data.use_auto_smooth = 1
         obj.data.auto_smooth_angle = math.pi/6  # 45 degrees
 
+        
+        obj.name = f"{item_name} {obj.name}"
+
         # TODO try to add info about Start/Finish/CP?
         # TODO try to add vis/col flags and assign correct prefix?
         # TODO check what would happen with other layer types (deformation, scale etc)
 
     return None
+
+def try_to_parse_extra_data(filepath: str):
+    coords:list[list[float]] = []
+    objects_indexes:dict[str, list[list[int]]] = {}
+    objects_cos:dict[str, list[list[float]]] = {}
+    materials_colors:dict[str, str] = {}
+    last_object = ""
+    last_material = ""
+    failed = False
+    
+    with open(filepath) as f:
+        for line in f:
+            if line == '': break
+
+            if line.startswith("usemtl_original_name "):
+                parts = line.strip().split(" ")
+                if len(parts) == 2 and len(parts[1].strip()) > 0:
+                    last_material = parts[1].strip()
+            elif line.startswith("usemtl_color "):
+                if len(last_material) > 0:
+                    parts = line.strip().split(" ")
+                    if len(parts) == 2 and len(parts[1].strip()) > 0:
+                        materials_colors[last_object] = parts[1].strip()
+            else:
+                last_material = ""
+                    
+
+            if line.startswith("vt_lm "):
+                parts = line.strip().split(" ")
+                if len(parts) == 3:
+                    if parts[1] == "none":
+                        coords.append(None)
+                    else:
+                        coords.append([float(parts[1]), float(parts[2])])
+
+            if line.startswith("o "):
+                parts = line.strip().split(" ")
+                if len(parts) == 2:
+                    last_object = parts[1].strip()
+                    objects_indexes[last_object] = []
+                else:
+                    failed = True
+                    break
+
+            if line.startswith("f "):
+                if len(last_object) == 0:
+                    failed = True
+                    break
+
+                parts = line.strip().split(" ")
+                if len(parts) == 4:
+                    faceIndexes:list[int] = []
+                    for part in parts:
+                        if part == "f":
+                            continue
+                        
+                        indexes = part.strip().split("/")
+                        if len(indexes) == 3:
+                            faceIndexes.append(int(indexes[2]))
+                        else:
+                            failed = True
+                            break
+
+                    if len(faceIndexes) == 3:
+                        objects_indexes[last_object].append(faceIndexes)
+                    else:
+                        failed = True
+                        break
+                else:
+                    failed = True
+                    break
+
+    if failed:
+        return {
+            "objects_cos": None,
+            "materials_colors": materials_colors,
+        }
+    
+    for key, obj in objects_indexes.items():
+        object_cos:list[list[float]] = []
+        skip_object = False
+        for face in obj:
+            for index in face:
+                if 1 < len(coords):
+                    if coords[index-1] is None:
+                        skip_object = True
+                        break
+                    object_cos.append(coords[index-1])
+
+            if skip_object:
+                break
+        
+        if skip_object:
+            break
+
+        if len(object_cos) > 0:
+            objects_cos[key] = object_cos
+
+    return {
+        "objects_cos": objects_cos,
+        "materials_colors": materials_colors,
+    }
