@@ -66,7 +66,8 @@ def generate_lightmap(col, use_overlapping_check=False) -> None:
             set_active_object(obj)
             lm_objs.append(obj)
 
-            obj.data.uv_layers.active_index = 1 # 0=BaseMaterial; 1=LightMap
+            if len(obj.data.uv_layers) > 1:
+                obj.data.uv_layers.active_index = 1 # 0=BaseMaterial; 1=LightMap
             
 
     if lm_objs:

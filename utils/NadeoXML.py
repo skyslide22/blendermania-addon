@@ -12,9 +12,11 @@ from ..properties.PivotsProperties import PivotsProperties
 from .Models import ExportedItem
 from .Constants import (
     WAYPOINTS,
-    SPECIAL_NAME_INFIX_PIVOT
+    SPECIAL_NAME_INFIX_PIVOT,
+    NL
 )
 from .Functions import (
+    add_indents,
     rgb_to_hex,
     fix_slash,
     safe_name,
@@ -320,7 +322,7 @@ def generate_item_XML(item: ExportedItem) -> str:
         meshparams_filename = filename + ".MeshParams.xml"
         xml_mesh_tm2020 = f"""<MeshParamsLink File="{ meshparams_filename }"/>"""
         
-    fullXML = f"""
+    full_xml = f"""
         <?xml version="1.0" ?>
         <Item AuthorName="{ author }" Collection="{ envi_collection }" Type="StaticObject">
             <AddonItemXmlTemplate Name="{template.name if template else ''}" />
@@ -358,7 +360,10 @@ def generate_item_XML(item: ExportedItem) -> str:
         </Item>
     """
 
-    write_XML_file(filepath=xml_filepath, xmlstring=fullXML, pretty=tm_props.CB_xml_format_itemxml)
+    write_XML_file(filepath=xml_filepath, xmlstring=full_xml, pretty=tm_props.CB_xml_format_itemxml)
+
+    item.item_xml = full_xml
+
 
 
 
@@ -435,23 +440,23 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         if mat_game_is_tm2020:
             # TODO refactor this line, can color be always present?
             use_custom_color_attr = mat_use_custom_color and mat_link.lower().startswith("custom")
-            xml_materials += f"""
-                <Material 
-                    Name="{ mat_name }" 
-                    Link="{ mat_link }" 
-                    {f'Color="{mat_custom_color}"'     if use_custom_color_attr else ''} 
-                    {f'PhysicsId="{mat_physic_id}"'    if mat_use_physicid      else ''} 
-                    {f'GameplayId="{mat_gameplay_id}"' if mat_use_gameplay_id   else ''} 
-                />"""
+            xml_materials += f"""<Material """
+            xml_materials += f"""    Name="{ mat_name }" """
+            xml_materials += f"""    Link="{ mat_link }" """
+            
+            if use_custom_color_attr:   xml_materials += f"""    Color="{mat_custom_color}" """
+            if mat_use_physicid:        xml_materials += f"""    PhysicsId="{mat_physic_id}" """
+            if mat_use_gameplay_id:     xml_materials += f"""    GameplayId="{mat_gameplay_id}" """
+            
+            xml_materials += f"""/>"""
             
         elif mat_game_is_maniaplanet:
-            xml_materials += f"""
-                <Material 
-                    Name="{ mat_name }" 
-                    Model="{ mat_model }" 
-                    BaseTexture="{ mat_basetexture }" 
-                    PhysicsId="{ mat_physic_id }" 
-                />"""
+            xml_materials += f"""<Material"""+NL
+            xml_materials += f"""    Name="{ mat_name }" """+NL
+            xml_materials += f"""    Model="{ mat_model }" """+NL
+            xml_materials += f"""    BaseTexture="{ mat_basetexture }" """+NL
+            xml_materials += f"""    PhysicsId="{ mat_physic_id }" """+NL
+            xml_materials += f"""/>"""+NL
 
 
     for light in lights:
@@ -470,43 +475,48 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         light_color_hex   = rgb_to_hex([light_color_r, light_color_g, light_color_b]) if not global_light_color else rgb_to_hex(global_light_color)
 
 
-        lightsXML  += f"""
-            <Light 
-                Name="{ light_name }" 
-                Type="{ light_type.title() }" 
-                sRGB="{ light_color_hex }" 
-                Intensity="{ light_power }" 
-                Distance="{ light_radius }" 
-                NightOnly="{ light_night_only }"
-                PointEmissionRadius="0"
-                PointEmissionLength="0"
-                {f'SpotInnerAngle="{light_inner_angle}"' if light_is_spotlight else '' }  
-                {f'SpotOuterAngle="{light_outer_angle}"' if light_is_spotlight else '' }  
-            />"""
+        lightsXML += f"""<Light """+NL
+        lightsXML += f"""    Name="{ light_name }" """+NL
+        lightsXML += f"""    Type="{ light_type.title() }" """+NL
+        lightsXML += f"""    sRGB="{ light_color_hex }" """+NL
+        lightsXML += f"""    Intensity="{ light_power }" """+NL
+        lightsXML += f"""    Distance="{ light_radius }" """+NL
+        lightsXML += f"""    NightOnly="{ light_night_only }" """+NL
+        lightsXML += f"""    PointEmissionRadius="0" """+NL
+        lightsXML += f"""    PointEmissionLength="0" """+NL
+        
+        if light_is_spotlight:
+            lightsXML += f"""    SpotInnerAngle="{light_inner_angle}" """+NL
+            lightsXML += f"""    SpotOuterAngle="{light_outer_angle}" """+NL
+        
+        lightsXML += f"""/>"""+NL
 
-    xml_completed = f"""
-        <?xml version="1.0" ?>
-        <MeshParams 
-            Scale="{scale}" 
-            MeshType="Static" 
-            Collection="{ mat_envi_collection }" 
-            FbxFile="{ get_path_filename(item.fbx_path) }">
-                <Materials>
-                    {xml_materials}
-                </Materials>
-                <Lights>
-                    {lightsXML}
-                </Lights>
-        </MeshParams>
-    """
+
+    full_xml =  f"""<?xml version="1.0" ?>"""+NL
+    full_xml += f"""<MeshParams """+NL
+    full_xml += f"""    Scale="{ scale }" """+NL
+    full_xml += f"""    MeshType="Static" """+NL
+    full_xml += f"""    Collection="{ mat_envi_collection }" """+NL
+    full_xml += f"""    FbxFile="{ get_path_filename(item.fbx_path) }">"""+NL
+    full_xml += f"""    """+NL
+    full_xml += f"""    <Materials>"""+NL
+    full_xml += f"""{add_indents(xml_materials, 2)}"""+NL
+    full_xml += f"""    </Materials>"""+NL
+    full_xml += f"""    """+NL
+    full_xml += f"""    <Lights>"""+NL
+    full_xml += f"""{add_indents(lightsXML, 2)}"""+NL
+    full_xml += f"""    </Lights>"""+NL
+    full_xml += f"""</MeshParams>"""+NL
+    full_xml += f""""""
     
-    write_XML_file(filepath=xmlfilepath, xmlstring=xml_completed, pretty=tm_props.CB_xml_format_meshxml)
+    write_XML_file(filepath=xmlfilepath, xmlstring=full_xml, pretty=tm_props.CB_xml_format_meshxml)
 
+    item.mesh_xml = full_xml
 
 
 def write_XML_file(filepath, xmlstring, pretty:bool=False) -> None:
     
-    xmlstring = re.sub(r"^(\s|\t)+", "", xmlstring, flags=re.MULTILINE)
+    # xmlstring = re.sub(r"^(\s|\t)+", "", xmlstring, flags=re.MULTILINE)
     
     if pretty:
         xml = ET.XML(xmlstring)

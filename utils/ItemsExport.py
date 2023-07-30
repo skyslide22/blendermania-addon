@@ -37,9 +37,15 @@ from .Functions import (
     get_offset_from_item_origin,
 )
 
+
+
+
 def _is_real_object(name: str) -> bool:
     name = name.lower()
     return not name.startswith("_") or name.startswith((SPECIAL_NAME_PREFIX_NOTVISIBLE, SPECIAL_NAME_PREFIX_NOTCOLLIDABLE))
+
+
+
 
 def _is_collection_exportable(coll: bpy.types.Collection)->bool:
     if len(coll.objects) == 0\
@@ -53,6 +59,9 @@ def _is_collection_exportable(coll: bpy.types.Collection)->bool:
     
     return is_exportable
 
+
+
+
 def _is_object_exportable(obj: bpy.types.Object)-> bool:
     if obj.type != "MESH"\
     or obj.visible_get() is False\
@@ -60,6 +69,10 @@ def _is_object_exportable(obj: bpy.types.Object)-> bool:
         return False
         
     return True
+
+
+
+
 
 def _fix_uv_layers_name(objects: list[bpy.types.Object]) -> None:
     for obj in objects:
@@ -92,18 +105,35 @@ def _fix_uv_layers_name(objects: list[bpy.types.Object]) -> None:
             if not has_lm:
                 obj.data.uv_layers.new(name="LightMap",     do_init=True)
 
+
+
+
+
 def _is_physic_hack_required(objects: list[bpy.types.Object]) -> bool:
+    if is_game_maniaplanet() is False:
+        return False
+    
     physic_hack = False
-    if is_game_maniaplanet():
-        for obj in objects:
-            if obj.type == "MESH":
-                for mat in obj.data.materials:
-                    is_linked = mat.baseTexture == ""
-                    if is_linked:
-                        physic_hack = True
-                        break
+    for obj in objects:
+        if obj.type == "MESH":
+            for mat in obj.data.materials:
+                if mat is None:
+                    show_report_popup(title=obj.name, infos=("Material slot has no material, add one!",))
+                    raise ValueError(
+                        "\n\nMaterial slot has no material assigned, please remove the empty slot or add a (tm_/mp_) material to it!\n\n"
+                        + "Object: " + obj.name + "\n"
+                        + "Collection: " + ",".join([col.name for col in obj.users_collection])
+                        )
+                is_linked = mat.baseTexture == ""
+                if is_linked:
+                    physic_hack = True
+                    break
         
     return physic_hack
+
+
+
+
 
 def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
     pattern   = r"_#SCALE_(\d)+to(\d)+_x(\d)+"
@@ -159,6 +189,9 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
 
     return items
 
+
+
+
 # takes the first item and return offset from it to "location"
 def _move_collection_to(objects: list[bpy.types.Object]) -> list[float]:
     offset = get_offset_from_item_origin(objects)
@@ -172,6 +205,10 @@ def _move_collection_to(objects: list[bpy.types.Object]) -> list[float]:
 
     return offset
 
+
+
+
+
 def _move_collection_by(objects: list[bpy.types.Object], offset: list[float] = [0,0,0]):
     for obj in objects:
         if obj.parent is not None:
@@ -179,6 +216,10 @@ def _move_collection_by(objects: list[bpy.types.Object], offset: list[float] = [
         obj.location[0] += offset[0]
         obj.location[1] += offset[1]
         obj.location[2] += offset[2]
+
+
+
+
 
 def _export_item_FBX(item: ExportedItem) -> None:
     """exports fbx, creates filepath if it does not exist"""
@@ -207,6 +248,9 @@ def _export_item_FBX(item: ExportedItem) -> None:
 
     deselect_all_objects()
 
+
+
+
 def _clean_up_addon_export_settings(total: int):
     tm_props = get_global_props()
     tm_props.NU_convertCount        = total
@@ -220,6 +264,10 @@ def _clean_up_addon_export_settings(total: int):
     tm_props.NU_convertDurationSinceStart = 0
     tm_props.NU_convertStartedAt          = 0
     tm_props.NU_currentConvertDuration    = 0
+
+
+
+
 
 
 def _add_empty_socket_hide_existing(coll: bpy.types.Collection) -> None:
@@ -246,6 +294,10 @@ def _add_empty_socket_hide_existing(coll: bpy.types.Collection) -> None:
     coll.objects.link(new_socket)
     old_socket.hide_set(True) # ignored in export now
 
+
+
+
+
 def _remove_empty_socket_unhide_existing(coll:bpy.types.Collection) -> None:
     if is_game_maniaplanet():
         return
@@ -263,6 +315,9 @@ def _remove_empty_socket_unhide_existing(coll:bpy.types.Collection) -> None:
     if empty_socket: bpy.data.objects.remove(empty_socket)
     if old_socket: old_socket.hide_set(False)
 
+
+
+
 def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     current_selection                            = bpy.context.selected_objects.copy()
     tm_props                                     = get_global_props()
@@ -275,6 +330,13 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     
     export_work_path = get_export_path()
     
+    if ".." in export_work_path:
+        raise ValueError(
+            "\n\nExport path must be absolute! (can not start with '/' or '..')"
+            + "\nFix: when selecting the export folder in the window that opens, press <N> and uncheck 'Relative Path' (right tab)"
+        )
+
+
     deselect_all_objects()
 
     for coll in colls:
@@ -353,6 +415,8 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     _clean_up_addon_export_settings(len(items_to_export))
     start_batch_convert(items_to_export)
 
+
+# TODO is this still used ? no references found
 def export_objects(objects: list[bpy.types.Object])->list[ExportedItem]:
     current_selection                            = bpy.context.selected_objects.copy()
     tm_props                                     = get_global_props()

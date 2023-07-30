@@ -501,7 +501,7 @@ MODWORK_FOLDER_NAME     = "ModWork"
 MODWORK_OFF_FOLDER_NAME = "#-ModWork" 
 
 
-
+NL = "\n"
 
 
 

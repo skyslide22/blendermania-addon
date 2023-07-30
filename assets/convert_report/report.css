@@ -1,0 +1,173 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: #1b1b1b;
+  color: #c8c8c8;
+  font-family: sans-serif;
+}
+
+html,
+body {
+  margin: auto;
+  word-break: break-all;
+  padding: 0;
+  color: #949494;
+}
+
+body {
+  min-height: 120vh;
+}
+
+main {
+  max-width: 1600px;
+  margin: auto;
+  animation: show-main 1s 1s forwards ease-in-out;
+  opacity: 0;
+}
+
+header {
+  text-align: center;
+  padding-top: 5rem;
+}
+header h1 {
+  font-size: 3rem;
+  color: #c8c8c8;
+}
+
+img {
+  display: block;
+  border: 3px solid #282828;
+  border-radius: 2rem;
+  padding: 0.5em;
+  max-width: 100%;
+}
+
+hr {
+  border: none;
+  border-bottom: 2px solid #282828;
+}
+
+p {
+  color: #949494;
+}
+
+.success {
+  color: green;
+}
+
+.error {
+  color: red;
+}
+
+.result-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 3rem;
+  padding: 2rem;
+  border: 3px solid #282828;
+  border-radius: 2rem;
+  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
+  min-height: 600px;
+  position: relative;
+}
+.result-wrapper * {
+  word-break: break-word;
+}
+.result-wrapper .slash {
+  padding: 0 1em;
+}
+.result-wrapper h2 {
+  font-size: 2.3rem;
+  color: #c8c8c8;
+}
+.result-wrapper h3 {
+  font-size: 1.5rem;
+  color: #c8c8c8;
+}
+.result-wrapper small {
+  font-size: 0.66em;
+}
+.result-wrapper .item-path {
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.result-wrapper .result-code {
+  height: 700px;
+  overflow-y: auto;
+}
+.result-wrapper .progress-steps {
+  padding-left: 1.5em;
+}
+.result-wrapper .progress-steps li {
+  padding-left: 0;
+}
+
+@keyframes show-main {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 100%;
+    transform: scale(1);
+  }
+}
+#this-is-fine {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("./this-is-fine.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  animation: this-is-fine 0.5s 0.5s forwards linear;
+  z-index: 10000;
+  opacity: 1;
+  pointer-events: none;
+}
+
+@keyframes this-is-fine {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.btn {
+  display: block;
+  padding: 0.5rem 1em;
+  font-size: 0.8rem;
+  background-color: dodgerblue;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5em;
+}
+
+#help-buttons {
+  position: fixed;
+  top: 1rem;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#close-page {
+  background-color: #e87d0d;
+}
+
+#ask-for-help,
+#documentation {
+  border: 1px solid dodgerblue;
+  background-color: transparent;
+  color: dodgerblue;
+}/*# sourceMappingURL=report.css.map */

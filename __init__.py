@@ -9,6 +9,7 @@ import os
 
 
 
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
@@ -17,7 +18,7 @@ bl_info = {
     "author"        : "skyslide & juice",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 4, 0),
-    "version"       : (3, 6, 0),
+    "version"       : (3, 7, 0),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"
@@ -37,6 +38,8 @@ from .utils.Models         import *
 from .utils.NadeoImporter  import *
 from .utils.NadeoXML       import *
 from .utils.BlenderObjects import *
+
+from .utils.focus_blender_server import run_server
 
 from .properties.Functions                  import *
 from .properties.ConvertingItemsProperties  import *
@@ -379,6 +382,10 @@ def on_startup(dummy) -> None:
         pass # first try always fails
         # RuntimeError: subscribe_rna, missing bl_rna attribute from 'Scene' instance (may not be registered)
 
+    try:
+        run_server(get_addon_assets_path())
+    except:
+        print("server died hm..")
 
 
 bpy.app.handlers.load_post.append(on_startup)

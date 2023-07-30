@@ -2163,3 +2163,8 @@ def load_image_into_blender(texpath: str) -> tuple:
     else: 
         debug(f"failed to find file: {texName}")
         return False, texName
+    
+
+def add_indents(text: str, tab_count: int = 1) -> str:
+    prefix = ("    "*tab_count)
+    return prefix + text.replace("\n", "\n"+prefix)
