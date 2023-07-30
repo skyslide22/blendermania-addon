@@ -400,14 +400,14 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
                 if item_has_error:
                     pretty,\
                     original,\
-                    item_image = _beautify_nadeoimporter_error_response(error_msg_item) if item_has_error else ("", "")
+                    item_image = _beautify_nadeoimporter_error_response(error_msg_item) if item_has_error else ("", "", "")
                     html_item_error = pretty
 
                 html_mesh_error = ""
                 if mesh_has_error:
                     pretty, \
                     original, \
-                    mesh_image = _beautify_nadeoimporter_error_response(error_msg_mesh) if mesh_has_error else ("", "")
+                    mesh_image = _beautify_nadeoimporter_error_response(error_msg_mesh) if mesh_has_error else ("", "", "")
                     html_mesh_error = pretty
                 
 
