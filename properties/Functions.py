@@ -1028,7 +1028,7 @@ def getSimpleGridParams() -> list:
     #     enums.add(str(grid), str(grid))
 
     enums = EnumProps()
-    enums.add("0",  "Sticky", icon=ICON_MAGNET)
+    enums.add("0",  "", icon=ICON_MAGNET)
     # enums.add("0.5","0.5",)
     enums.add("1",  "1",)
     enums.add("2",  "2",)

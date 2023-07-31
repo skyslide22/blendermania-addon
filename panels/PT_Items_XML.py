@@ -79,14 +79,17 @@ class TM_PT_Items_ItemXML(Panel):
             z_row.label(text="Grid "+CHAR_VERTICAL)
             z_row.prop(tm_props, "LI_xml_simpleGridZ", expand=True)
 
-            gridXYis0 = tm_props.LI_xml_simpleGridXY == "0"
-            gridZis0  = tm_props.LI_xml_simpleGridZ  == "0"
-            row = main_col.row(align=True)
-            row_ghost = row.column(align=True).row(align=True)
-            row.prop(tm_props, "CB_xml_ghostMode",   icon=ICON_GHOSTMODE)
-            row_autorot = row.column(align=True).row(align=True)
-            row_autorot.enabled = gridXYis0 and gridZis0
-            row_autorot.prop(tm_props, "CB_xml_autoRot", icon=ICON_AUTO_ROTATION)
+            
+            row = layout.row(align=True)
+            
+            col_ghost = row.column(align=True)
+            col_ghost.prop(tm_props, "CB_xml_ghostMode",   icon=ICON_GHOSTMODE)
+            
+            placements_are_0 = tm_props.LI_xml_simpleGridXY == "0" and tm_props.LI_xml_simpleGridZ  == "0"
+
+            col_autorot = row.column(align=True)
+            col_autorot.enabled = placements_are_0
+            col_autorot.prop(tm_props, "CB_xml_autoRot", icon=ICON_GHOSTMODE)
 
             row = layout.row()
             row.operator("view3d.tm_save_item_placement_template", text="Save as Template", icon=ICON_SAVE)
