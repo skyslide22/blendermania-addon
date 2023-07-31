@@ -69,11 +69,20 @@ class TM_PT_Items_Export(Panel):
             
             if exportCustomFolder:
                 row_path = layout.row()
-                if "/Work/" not in fix_slash( getattr(tm_props, exportCustomFolderProp) ):
+
+                attr = getattr(tm_props, exportCustomFolderProp)
+
+                if "/work/" not in fix_slash(attr.lower()):
                     row_error= layout.row()
                     row_error.alert = True
                     row_error.label(text="Folder has to be in /Work/Items/ ...", icon=ICON_ERROR)
                     row_path.alert=True
+
+                if ".." in attr:
+                    row = layout.row()
+                    row.alert = True
+                    row.label(text="""Please use an absolute path!""", icon=ICON_ERROR)
+
                 row_path.prop(tm_props, exportCustomFolderProp)
 
 

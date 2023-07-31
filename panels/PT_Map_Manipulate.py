@@ -73,6 +73,11 @@ class PT_UIMapManipulation(bpy.types.Panel):
         row = main_col.row(align=True)
         row.alert = not has_map_file
         row.prop(tm_props, "ST_map_filepath", text="Map File")
+        
+        if ".." in tm_props.ST_map_filepath:
+            row = layout.row()
+            row.alert = True
+            row.label(text="""Please use an absolute path!""")
 
         
         
