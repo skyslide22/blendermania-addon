@@ -65,7 +65,7 @@ p {
 
 .result-wrapper {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.5fr;
   gap: 3rem;
   margin-top: 3rem;
   padding: 2rem;
@@ -96,7 +96,17 @@ p {
   font-size: 0.9rem;
   font-style: italic;
 }
-.result-wrapper .result-code {
+.result-wrapper .result-codes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.result-wrapper .result-codes .file-type {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+.result-wrapper .result-codes .result-code {
   height: 700px;
   overflow-y: auto;
 }
@@ -153,12 +163,16 @@ p {
 
 #help-buttons {
   position: fixed;
-  top: 1rem;
+  top: 0rem;
   left: 0;
+  padding: 1rem;
   width: 100%;
   display: flex;
   justify-content: center;
   gap: 1rem;
+  background-color: #1b1b1b;
+  border: 3px solid #282828;
+  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
 }
 
 #close-page {

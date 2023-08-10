@@ -1,10 +1,13 @@
 import sys
+import bpy
 
 import http.server
 from http.server import HTTPServer
 from http.server import SimpleHTTPRequestHandler
 
 import subprocess
+
+from ..operators.OT_Items_Export import close_convert_panel
 
 from .Functions import in_new_thread
 
@@ -24,6 +27,10 @@ class MyHandler(SimpleHTTPRequestHandler):
                 MyHandler.assets_path + "/convert_report/focus_blender.bat",
                 "blender"
             ])
+            try:
+                close_convert_panel()
+            except Exception as err:
+                print("SERVER ERROR: " + err)
 
         r="""Access denied""" if focus_blender else "blender focused"
         

@@ -77,7 +77,7 @@ p {
 
 .result-wrapper {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.5fr;
     gap: 3rem;
     margin-top: 3rem;
     padding: 2rem;
@@ -115,10 +115,21 @@ p {
         font-style: italic;
     }
 
-    // .result-text
-    .result-code {
-        height: 700px;
-        overflow-y: auto;
+    .result-codes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+
+        .file-type {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .result-code {
+            height: 700px;
+            overflow-y: auto;
+        }
     }
 
     .progress-steps {
@@ -181,13 +192,16 @@ p {
 
 #help-buttons {
     position: fixed;
-    top: 1rem;
+    top: 0rem;
     left: 0;
+    padding: 1rem;
     width: 100%;
     display: flex;
     justify-content: center;
     gap: 1rem;
-
+    background-color: $grayDark;
+    border: 3px solid $gray;
+    box-shadow: 0 0 1rem rgba(black, .5);
 }
 
 #close-page {

@@ -267,7 +267,8 @@ def generate_item_XML(item: ExportedItem) -> str:
         waypoint = ""
 
     if waypoint:
-        xml_waypoint = f"""<Waypoint Type="{ waypoint }"/>"""
+        xml_waypoint = f"""<Waypoint """
+        xml_waypoint = f"""    Type="{ waypoint }"/>"""
     
     xml_phy_maniaplanet  = ""
     xml_vis_maniaplanet  = ""
@@ -275,7 +276,7 @@ def generate_item_XML(item: ExportedItem) -> str:
     xml_pivots           = ""
     
     def gen_pivot_xml(x,y,z) -> str:
-        return f"""<Pivot Pos="{x} {z} {y}" />"""
+        return f"""    <Pivot Pos="{x} {z} {y}" />"""+NL
 
     if use_pivots:
         if template:
@@ -297,7 +298,9 @@ def generate_item_XML(item: ExportedItem) -> str:
                     )
 
     if xml_pivots:
-        xml_pivots = f"""<Pivots>{ xml_pivots }</Pivots>"""
+        xml_pivots += f"""<Pivots>"""+NL
+        xml_pivots += f"""    { xml_pivots }</Pivots>"""+NL
+        xml_pivots += f"""</Pivots>"""+NL
 
 
     filename    = get_path_filename(item.fbx_path)
@@ -307,58 +310,67 @@ def generate_item_XML(item: ExportedItem) -> str:
     if is_game_maniaplanet():
         shape_filename      = filename + ".Shape.gbx"
         mesh_filename       = filename + ".Mesh.gbx"
-        xml_vis_maniaplanet += f"""<Mesh      File="{ mesh_filename }"/>"""
-        xml_phy_maniaplanet += f"""<MoveShape File="{ shape_filename }" Type="Mesh"/>"""
+        xml_vis_maniaplanet += f"""<Mesh """+NL
+        xml_vis_maniaplanet += f"""    File="{ mesh_filename }"/>"""+NL
+        xml_phy_maniaplanet += f"""<MoveShape """+NL
+        xml_phy_maniaplanet += f"""    File="{ shape_filename }" """+NL
+        xml_phy_maniaplanet += f"""    Type="Mesh" />"""+NL
         
         if waypoint:
-            xml_phy_maniaplanet += f"""
-                <TriggerShape  
-                    Type="mesh" 
-                    File="{ filename_no_extension }Trigger.Shape.gbx"
-                />"""
+            xml_phy_maniaplanet += f"""<TriggerShape """  +NL
+            xml_phy_maniaplanet += f"""    Type="mesh" """  +NL
+            xml_phy_maniaplanet += f"""    File="{ filename_no_extension }Trigger.Shape.gbx" """+NL  
+            xml_phy_maniaplanet += f"""/>"""  +NL
 
     
     elif is_game_trackmania2020():
         meshparams_filename = filename + ".MeshParams.xml"
-        xml_mesh_tm2020 = f"""<MeshParamsLink File="{ meshparams_filename }"/>"""
-        
-    full_xml = f"""
-        <?xml version="1.0" ?>
-        <Item AuthorName="{ author }" Collection="{ envi_collection }" Type="StaticObject">
-            <AddonItemXmlTemplate Name="{template.name if template else ''}" />
-            {xml_waypoint}
-            {xml_mesh_tm2020}
-            <Phy>
-                {xml_phy_maniaplanet}
-            </Phy>
-            <Vis>
-                {xml_vis_maniaplanet}
-            </Vis>
-            <GridSnap   
-                HStep="{ grid_h_step }" 
-                VStep="{ grid_v_step }"
-                HOffset="{ grid_h_offset }" 
-                VOffset="{ grid_v_offset }" 
-            />
-            <Levitation 
-                HStep="{ levitation_h_step }" 
-                VStep="{ levitation_v_step }" 
-                HOffset="{ levitation_h_offset }" 
-                VOffset="{ levitation_v_offset }" 
-                GhostMode="{ use_ghost_mode}"
-            />
-            <Options    
-                AutoRotation="{ use_auto_rotation }" 
-                ManualPivotSwitch="{ use_manual_pivot_switch }" 
-                NotOnItem="{ use_not_on_item }" 
-                OneAxisRotation="{ use_one_axis_rotation }"
-            />
-            <PivotSnap  
-                Distance="{ pivot_snap_distance }"
-            />
-            {xml_pivots}
-        </Item>
-    """
+        xml_mesh_tm2020 += f"""<MeshParamsLink """+NL
+        xml_mesh_tm2020 += f"""    File="{ meshparams_filename }"/>"""+NL
+
+    full_xml  = f"""<?xml version="1.0" ?>"""+NL
+    full_xml += f"""<Item """+NL
+    full_xml += f"""    AuthorName="{ author }" """+NL
+    full_xml += f"""    Collection="{ envi_collection }" """+NL
+    full_xml += f"""    Type="StaticObject"> """+NL
+    full_xml += f"""    """+NL
+    full_xml += f"""    <AddonItemXmlTemplate """+NL
+    full_xml += f"""        Name="{template.name if template else ''}" />"""+NL
+    full_xml += f"""{add_indents(xml_waypoint, 1)}"""+NL
+    full_xml += f"""{add_indents(xml_mesh_tm2020, 1)}"""+NL
+    full_xml += f"""    <Phy>"""+NL
+    full_xml += f"""        {xml_phy_maniaplanet}"""+NL
+    full_xml += f"""    </Phy>"""+NL
+    full_xml += f"""    <Vis>"""+NL
+    full_xml += f"""        {xml_vis_maniaplanet}"""+NL
+    full_xml += f"""    </Vis>"""+NL
+    full_xml += f"""    """+NL
+    full_xml += f"""    <GridSnap """+NL
+    full_xml += f"""        HStep="{ grid_h_step }" """+NL
+    full_xml += f"""        VStep="{ grid_v_step }" """+NL
+    full_xml += f"""        HOffset="{ grid_h_offset }" """+NL
+    full_xml += f"""        VOffset="{ grid_v_offset }" """+NL
+    full_xml += f"""    />"""+NL
+    full_xml += f"""    <Levitation  """+NL
+    full_xml += f"""        HStep="{ levitation_h_step }"  """+NL
+    full_xml += f"""        VStep="{ levitation_v_step }"  """+NL
+    full_xml += f"""        HOffset="{ levitation_h_offset }"  """+NL
+    full_xml += f"""        VOffset="{ levitation_v_offset }"  """+NL
+    full_xml += f"""        GhostMode="{ use_ghost_mode}" """+NL
+    full_xml += f"""    /> """+NL
+    full_xml += f"""    <Options """+NL
+    full_xml += f"""        AutoRotation="{ use_auto_rotation }"  """+NL
+    full_xml += f"""        ManualPivotSwitch="{ use_manual_pivot_switch }"  """+NL
+    full_xml += f"""        NotOnItem="{ use_not_on_item }"  """+NL
+    full_xml += f"""        OneAxisRotation="{ use_one_axis_rotation }" """+NL
+    full_xml += f"""    /> """+NL
+    full_xml += f"""    <PivotSnap   """+NL
+    full_xml += f"""        Distance="{ pivot_snap_distance }" """+NL
+    full_xml += f"""    /> """+NL
+    full_xml += f"""{add_indents(xml_pivots, 1)}"""+NL
+    full_xml += f"""</Item>"""+NL
+
+    
 
     write_XML_file(filepath=xml_filepath, xmlstring=full_xml, pretty=tm_props.CB_xml_format_itemxml)
 
@@ -518,10 +530,10 @@ def write_XML_file(filepath, xmlstring, pretty:bool=False) -> None:
     
     # xmlstring = re.sub(r"^(\s|\t)+", "", xmlstring, flags=re.MULTILINE)
     
-    if pretty:
-        xml = ET.XML(xmlstring)
-        ET.indent(xml, space="    ")
-        xmlstring = ET.tostring(xml, encoding="unicode")
+    # if pretty:
+    #     xml = ET.XML(xmlstring)
+    #     ET.indent(xml, space="    ")
+    #     xmlstring = ET.tostring(xml, encoding="unicode")
     
     with open(filepath, "w", encoding="utf-8") as xml:
         xml.write(xmlstring)

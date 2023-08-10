@@ -18,7 +18,7 @@ bl_info = {
     "author"        : "skyslide & juice",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 4, 0),
-    "version"       : (3, 7, 0),
+    "version"       : (3, 7, 1),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic"

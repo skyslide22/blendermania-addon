@@ -35,7 +35,16 @@ class TM_PT_Settings(Panel):
         row = box.row(align=True)
         row.scale_y=.5
         row.alert = blender_too_old
-        row.label(text=f"Blender: {blender_version}", icon=ICON_BLENDER)
+        row.label(text=f"Blender: {blender_version} {'(too old)' if blender_too_old else None}", icon=ICON_BLENDER)
+
+        if(blender_too_old):
+            row = box.row()
+            row.alert = True
+            row.operator("view3d.tm_open_url", text=f"Download {MIN_BLENDER_VERSION} or newer ",   icon=ICON_ERROR
+                         ).url = URL_BLENDER_DOWNLOAD
+            box.separator(factor=1)
+
+
         row = box.row(align=True)
         row.label(text=f"""Addon: {addon_version}""", icon=ICON_ADDON)
         row.operator("view3d.tm_checkfornewaddonrelease",   text="", icon=ICON_UPDATE)
@@ -242,9 +251,9 @@ class TM_PT_Settings_Performance(Panel):
         row = col.row(align=True)
         row.prop(tm_props, "CB_compress_blendfile",  text="Save File Compressed", icon=ICON_COMPRESS, toggle=True)
         
-        row = col.row(align=True)
-        row.label(text="Formatting")
-        row.prop(tm_props, "CB_xml_format_meshxml",     text="Mesh XML", toggle=True)
-        row.prop(tm_props, "CB_xml_format_itemxml",     text="Item XML", toggle=True)
+        # row = col.row(align=True)
+        # row.label(text="Formatting")
+        # row.prop(tm_props, "CB_xml_format_meshxml",     text="Mesh XML", toggle=True)
+        # row.prop(tm_props, "CB_xml_format_itemxml",     text="Item XML", toggle=True)
 
         

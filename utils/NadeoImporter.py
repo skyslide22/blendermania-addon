@@ -454,6 +454,7 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
                             </p>
                             {f"<img src='{mesh_image}'>" if mesh_image else ""}
                             
+                            <hr />
                             
 
 
@@ -464,13 +465,32 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
                             </ul>
                         </div>   
 
-                        <div class="result-code">
-                            <!--?prettify lang=xml linenums=true?-->
-                            <pre class="prettyprint">
-                                <code>
-{html.escape(results[0].mesh_xml)}
-                                </code>
-                            </pre>
+                        <div class="result-codes">
+                            
+                            <div>
+                                <div class="file-type">.MeshParams.xml</div>
+                                <div class="result-code">
+                                    <!--?prettify lang=xml linenums=false?-->
+                                    <pre class="prettyprint">
+                                        <code>
+{html.escape(converted_item.mesh_xml)}
+                                        </code>
+                                    </pre>
+                                </div>
+                            </div>
+                        
+                            <div>
+                                <div class="file-type">.Item.xml</div>
+                                <div class="result-code">
+                                    <!--?prettify lang=xml linenums=false?-->
+                                    <pre class="prettyprint">
+                                        <code>
+{html.escape(converted_item.item_xml)}
+                                        </code>
+                                    </pre>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     """
@@ -530,8 +550,9 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
                         }}
                         catch
                         {{
-                            alert("blender server is not running, close anyway")
-                            window.close()
+                            // alert("blender server is not running, close anyway")
+                            // window.close()
+                            alert("error: blender server is not running")
                         }}
                     }}
                     </script>
@@ -576,12 +597,18 @@ def _beautify_nadeoimporter_error_response(error: str) -> tuple[str, str, str]:
     elif "no material !" in errlower:
         prettymsg= f"""Atleast one object of has no material (_trigger & _socket do not need materials)"""
     
+    elif "lightmap texcoord" in errlower:
+        prettymsg= f"""Make sure all your faces are unwrapped in your lightmap. Check for faces that are scaled to 0 (usually in the bottom left corner of the Lightmap) and make sure to unwrap those faces"""
+    
     #TODO 3221225477 error return code occours when material was not found in mat lib
     # elif "" in errlower:
         # prettymsg= f""" """
 
     if image:
         image = f"file://{get_addon_path()}assets/convert_report/{image}"
+
+    if prettymsg:
+        prettymsg = "<span style='color: orange; font-weight: 700'>Info: </span>" + prettymsg
 
     return (prettymsg, error, image)
 

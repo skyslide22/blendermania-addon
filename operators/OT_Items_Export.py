@@ -29,12 +29,18 @@ class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
     bl_label = "Close Convert Sub Panel"
         
     def execute(self, context):
-        tm_props                              = get_global_props()
-        tm_props.CB_converting                = False
-        tm_props.CB_showConvertPanel          = False
-        tm_props.CB_stopAllNextConverts       = False
-        tm_props.CB_uv_genBaseMaterialCubeMap = False # for stupid mistakes ... :)
+        close_convert_panel()
         return {"FINISHED"}
+
+
+def close_convert_panel():
+    tm_props                              = get_global_props()
+    tm_props.CB_converting                = False
+    tm_props.CB_showConvertPanel          = False
+    tm_props.CB_stopAllNextConverts       = False
+    tm_props.CB_uv_genBaseMaterialCubeMap = False # for stupid mistakes ... :)
+    debug("CB_showConvertPanel = " + str(tm_props.CB_showConvertPanel))
+
 
 def export_and_convert():
     tm_props = get_global_props()

@@ -1,8 +1,9 @@
 import os
 import json
 
+from .. import bl_info
 
-MIN_BLENDER_VERSION = (3, 3, 0)
+MIN_BLENDER_VERSION = bl_info["blender"]
 
 DOTNET_COMMANDS = (
     PLACE_OBJECTS_ON_MAP             := "place-objects-on-map",
@@ -168,12 +169,13 @@ PATH_DEFAULT_SETTINGS_JSON = PATH_HOME + "blender_addon_for_tm2020_maniaplanet_s
 
 
 # Links
-URL_DOCUMENTATION = "https://github.com/skyslide22/blendermania-addon/wiki/01.-Install-&-Configuration"
-URL_BUG_REPORT    = "https://github.com/skyslide22/blendermania-addon"
-URL_GITHUB        = "https://github.com/skyslide22/blendermania-addon"
-URL_CHANGELOG     = "https://github.com/skyslide22/blendermania-addon/releases"
-URL_RELEASES      = "https://api.github.com/repos/skyslide22/blendermania-addon/releases/latest"
-URL_REGEX         = "https://regex101.com/"
+URL_BLENDER_DOWNLOAD = "https://www.blender.org/download/"
+URL_DOCUMENTATION    = "https://github.com/skyslide22/blendermania-addon/wiki/01.-Install-&-Configuration"
+URL_BUG_REPORT       = "https://github.com/skyslide22/blendermania-addon"
+URL_GITHUB           = "https://github.com/skyslide22/blendermania-addon"
+URL_CHANGELOG        = "https://github.com/skyslide22/blendermania-addon/releases"
+URL_RELEASES         = "https://api.github.com/repos/skyslide22/blendermania-addon/releases/latest"
+URL_REGEX            = "https://regex101.com/"
 
 # dotnet addon name and version
 BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.6"
