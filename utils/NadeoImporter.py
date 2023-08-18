@@ -582,23 +582,26 @@ def _beautify_nadeoimporter_error_response(error: str) -> tuple[str, str, str]:
         prettymsg = f"""A mandatory UV Layer was not found. Are you sure that all MESH objects in your exported collection have a uv layer named "BaseMaterial" and "LightMap" ? Those are the most common ones! """
         image = "uv-layers.jpg"
 
-    elif """elem "Material" : attribute "PhysicsId" : invalid value : """"" in errlower:
-        prettymsg= f"""PhysicsId attribute of a material is empty! Be sure you have selected a physic id, or disable custom PhysicId of the material"""
+    elif "material" in errlower and "physicsid" in errlower and "invalid value" in errlower: 
+        prettymsg= f"""The "PhysicsId" attribute of a material is invalid (might be empty)! Make sure that all used materials in your object use a valid PhysicId. You could also disable the use of a custom PhysicId, if so, the default will be used. Fix: update the broken material(s) with the addon, or manipulate the material properties by hand in the "Custom Properties" section in the material panel(below Viewport Display) """
+        image="physicid-invalid-value.jpg"
 
     elif ("file not found in" in errlower
     and   ".fbx" in errlower):
-        prettymsg= f"""The mandatory .fbx file was not found, make sure your collection got exported in the correct folder (relative paths such as /../ are not supported)"""
+        prettymsg= f"""The mandatory .fbx file was not found, make sure your collection got exported in the correct folder (relative paths such as ../../Items/ are not supported)"""
+        image="relative-path.jpg"
 
     elif ("file not found in" in errlower
     and   ".xml" in errlower) or "common" in errlower:
         prettymsg= f"""A mandatory .xml file was not found, make sure your collection has xml files generated, enable this in the export panel"""
         image = "xml-required.jpg"
 
-    elif "no material !" in errlower:
+    elif "no material" in errlower:
         prettymsg= f"""Atleast one object of has no material (_trigger & _socket do not need materials)"""
     
-    elif "lightmap texcoord" in errlower:
+    elif "texcoord" in errlower:
         prettymsg= f"""Make sure all your faces are unwrapped in your lightmap. Check for faces that are scaled to 0 (usually in the bottom left corner of the Lightmap) and make sure to unwrap those faces"""
+        image = "lightmap-uvcoord-is-null.jpg"
     
     #TODO 3221225477 error return code occours when material was not found in mat lib
     # elif "" in errlower:
