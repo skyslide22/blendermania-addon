@@ -267,8 +267,8 @@ def generate_item_XML(item: ExportedItem) -> str:
         waypoint = ""
 
     if waypoint:
-        xml_waypoint = f"""<Waypoint """
-        xml_waypoint = f"""    Type="{ waypoint }"/>"""
+        xml_waypoint += f"""<Waypoint """+NL
+        xml_waypoint += f"""    Type="{ waypoint }"/>"""+NL
     
     xml_phy_maniaplanet  = ""
     xml_vis_maniaplanet  = ""
