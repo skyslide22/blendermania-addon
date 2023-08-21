@@ -528,13 +528,13 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
                     
                     <div id="help-buttons">
                         <a href="https://discord.com/channels/891279104794574948/921509901077975060" class="btn" target="_blank" id="ask-for-help">
-                            help on discord
+                            Help on Discord
                         </a>
                         <a href="https://github.com/skyslide22/blendermania-addon/wiki/06.-Converting-Troubleshooting" target="_blank" class="btn" id="documentation">
                             Open Documentation
                         </a>
                         <a href="#" target="_blank" onclick="focusBlenderAndCloseErrorReport(); return false;" class="btn" id="close-page">
-                            Back to blender
+                            Back to Blender
                         </a>
                     </div>
                     
