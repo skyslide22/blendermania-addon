@@ -14,6 +14,7 @@ from .Functions import (
     fix_slash,
     load_image_into_blender,
     get_addon_assets_path,
+    show_report_popup,
 )
 from .Constants import (
     SPECIAL_NAME_PREFIX_ICON_ONLY
@@ -69,6 +70,10 @@ def _make_empty_object(location: list[float]) -> bpy.types.Object:
 
     return empty
 
+
+
+
+
 def _add_view_layer() -> bpy.types.ViewLayer:
     ICON_VW_NAME = "ICON_VIEW_LAYER"
     icon_view_layer = bpy.context.scene.view_layers.get(ICON_VW_NAME, None)
@@ -84,16 +89,15 @@ def _add_view_layer() -> bpy.types.ViewLayer:
 
     return icon_view_layer
 
+
+
+
 def _add_camera(empty: bpy.types.Object) -> bpy.types.Camera:
-    cams     = bpy.data.cameras
-    icon_cam = cams.get("ICON_CAM", None)
 
-    if not icon_cam:
-        new_cam  = cams.new("ICON_CAMERA")
-        icon_cam = bpy.data.objects.new("ICON_CAMERA", new_cam)
-
-    if not "ICON_CAMERA" in bpy.context.scene.collection.objects:
-        bpy.context.scene.collection.objects.link(icon_cam)
+    bpy.ops.object.camera_add(location=(0, 4, 4), 
+                                rotation=(-0.7853, 0, 0))
+    icon_cam = bpy.context.object
+    icon_cam.name = "ICON_CAMERA"
 
     icon_cam.data.type        = "ORTHO"
     icon_cam.data.show_limits = False
@@ -104,8 +108,14 @@ def _add_camera(empty: bpy.types.Object) -> bpy.types.Camera:
 
     return icon_cam
 
+
+
+
 def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None):
     generate_objects_icon(coll.objects, coll.name, export_path)
+
+
+
 
 def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_path: str = None):
     tm_props           = get_global_props()
@@ -123,7 +133,7 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
     debug(f"creating icon <{icon_name}>")
     
     joined_obj = _make_joined_object(objects)
-    _add_view_layer()
+    vl = _add_view_layer()
 
     # HIDE ALL BUT JOINED
     for obj in bpy.context.scene.collection.objects:
@@ -140,10 +150,19 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
     empty.rotation_euler = style
 
     deselect_all_objects()
-    joined_obj.select_set(True)
-    bpy.ops.view3d.camera_to_view_selected()
-    camera.data.ortho_scale = camera.data.ortho_scale/icon_size
-    deselect_all_objects()
+
+    try:
+        joined_obj.select_set(True)
+        bpy.context.scene.camera = camera
+        bpy.ops.view3d.camera_to_view_selected()
+        camera.data.ortho_scale = camera.data.ortho_scale/icon_size
+        deselect_all_objects()
+        
+    except Exception as e:
+        show_report_popup("ERROR, no icon generated: Icon camera is None, please make bugreport and provide your blendfile.")
+        print(e)
+
+
     
     # RENDER----------------------
     bpy.context.scene.render.image_settings.file_format = "TARGA"
