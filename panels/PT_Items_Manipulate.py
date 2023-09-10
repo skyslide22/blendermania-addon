@@ -55,7 +55,7 @@ class TM_PT_ObjectManipulations(Panel):
         col_list = col_box.column(align=True)
         row = col_list.row(align=True)
         row.prop(tm_props, "LI_xml_waypointtype", text="")
-        row.operator(f"view3d.tm_togglecollectionignore", text=f"Ignore Export", icon=ICON_IGNORE, depress=ignore)
+        row.operator(f"view3d.tm_togglecollectionignore", text=f"No Export", icon_value=get_addon_icon("CANCEL"), depress=ignore)
 
         
         # helpers if waypoint invalid
@@ -76,7 +76,7 @@ class TM_PT_ObjectManipulations(Panel):
                 if spawn_missing:
                     row = err_box.row()
                     row.scale_y = .75
-                    row.label(text= waypoint_type + " requires a _socket_ object!")
+                    row.label(text= waypoint_type + " requires a spawnpoint (_socket_)!")
                     row = err_box.row(align=True)
                     row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon=ICON_ADD)
                     row.prop(tm_props, "LI_items_cars", text="")
@@ -84,7 +84,7 @@ class TM_PT_ObjectManipulations(Panel):
                 if has_trigger_item is False:
                     row = err_box.row()
                     row.scale_y = .5
-                    row.label(text=waypoint_type + " requires a _trigger_ object!")
+                    row.label(text=waypoint_type + " requires a Trigger (_trigger_)!")
                     row = err_box.row()
                     row.scale_y = .5
                     row.label(text="_trigger_ must not have materials")
@@ -164,7 +164,12 @@ class TM_PT_ObjectManipulations(Panel):
 
 
 
+
+        layout.separator(factor=2)
+
+
         
+
         # object properties
         # object properties
         # object properties
@@ -209,18 +214,37 @@ class TM_PT_ObjectManipulations(Panel):
         
         # ignore
         row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggleobjectignore", text=f"Ignore Export", icon=ICON_IGNORE   , depress=is_ignored)
-        row.operator(f"view3d.tm_toggleobjecticononly", text=f"Use only for icon", icon=ICON_IMAGE_DATA, depress=is_icon_only)
+        row.operator(f"view3d.tm_toggleobjectignore",   
+                     text=f"No Export",   
+                     icon_value=get_addon_icon("CANCEL"), 
+                     depress=is_ignored)
+        row.operator(f"view3d.tm_toggleobjecticononly", 
+                     text=f"Icon Dummy",  
+                     icon=ICON_IMAGE_DATA, 
+                     depress=is_icon_only)
+        
         row = col_btns.row(align=True)
-        row.operator(f"view3d.tm_toggle_origin",      text=f"_origin_",  icon=ICON_ORIGIN       , depress=is_origin)
-        row.operator(f"view3d.tm_toggle_pivot",      text=f"_pivot_",  icon=ICON_PIVOTS       , depress=is_pivot)
+        row.operator(f"view3d.tm_toggle_origin",        
+                     text=f"Origin",   
+                     icon=ICON_ORIGIN, 
+                     depress=is_origin)
+        row.operator(f"view3d.tm_toggle_pivot",         
+                     text=f"Pivot",    
+                     icon=ICON_PIVOTS, 
+                     depress=is_pivot)
         
 
         if not is_light:
 
             row = col_btns.row(align=True)
-            row.operator(f"view3d.tm_toggleobjecttrigger", text=SPECIAL_NAME_PREFIX_TRIGGER, icon=ICON_TRIGGER, depress=is_trigger)
-            row.operator(f"view3d.tm_toggleobjectsocket",  text=SPECIAL_NAME_PREFIX_SOCKET,  icon=ICON_SOCKET, depress=is_socket)
+            row.operator(f"view3d.tm_toggleobjecttrigger", 
+                        text="Trigger", 
+                        icon_value=get_addon_icon("CAR_TRIGGER"), 
+                        depress=is_trigger)
+            row.operator(f"view3d.tm_toggleobjectsocket",  
+                        text="Spawnpoint",  
+                        icon_value=get_addon_icon("CAR_SPAWN"), 
+                        depress=is_socket)
 
             # warn if waypoint is default and trigger, socket are used
             if tm_props.CB_allow_complex_panel_drawing:
@@ -229,35 +253,52 @@ class TM_PT_ObjectManipulations(Panel):
                     if waypoint not in WAYPOINT_VALID_NAMES:
                         row = col_btns.row(align=True)
                         row.alert = True
-                        row.label(text="Only waypoints require _trigger_ & _socket_")
-
-            row = col_btns.row(align=True)
-            row.operator(f"view3d.tm_toggleobjectlod0",  text=SPECIAL_NAME_SUFFIX_LOD0 + "(high)", icon=ICON_LOD_0 , depress=is_lod0)
-            row.operator(f"view3d.tm_toggleobjectlod1",  text=SPECIAL_NAME_SUFFIX_LOD1 + "(low)", icon=ICON_LOD_1  , depress=is_lod1)
-
-            if current_collection is not None:
-                has_lod0_item = check_collection_has_obj_with_fix(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD0)
-                has_lod1_item = check_collection_has_obj_with_fix(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD1)
-
-                lod0_missing = has_lod0_item and not has_lod1_item
-                lod1_missing = has_lod1_item and not has_lod0_item
-
-                if lod1_missing or lod0_missing:
-                    missing_lod_name = "Lod1" if lod1_missing else "Lod0"
-                    found_lod_name   = "Lod1" if lod0_missing else "Lod0"
-                    text             = f"{found_lod_name} also requires {missing_lod_name} (other object)"
-                    row = col_btns.row(align=True)
-                    row.alert = True
-                    row.scale_y = .75
-                    row.alignment = "CENTER"
-                    row.label(text=text)
+                        row.alignment = "CENTER"
+                        row.label(text="Since this collection is not a waypoint,")
+                        row = col_btns.row(align=True)
+                        row.alert = True
+                        row.alignment = "CENTER"
+                        row.label(text="triggers (_trigger_) & spawns (_socket_)")
+                        row = col_btns.row(align=True)
+                        row.alert = True
+                        row.alignment = "CENTER"
+                        row.label(text="will have no effect")
 
 
             if is_game_trackmania2020():
                 row = col_btns.row(align=True)
                 # row.enabled = not trigger and not socket
-                row.operator("view3d.tm_toggleobjectnotvisible",    text=SPECIAL_NAME_PREFIX_NOTVISIBLE,    icon=ICON_HIDDEN, depress=is_notvisible)
-                row.operator("view3d.tm_toggleobjectnotcollidable", text=SPECIAL_NAME_PREFIX_NOTCOLLIDABLE, icon=ICON_IGNORE, depress=is_notcollidable)
+                row.operator("view3d.tm_toggleobjectnotvisible",    text="Not Visible",    icon=ICON_HIDDEN, depress=is_notvisible)
+                row.operator("view3d.tm_toggleobjectnotcollidable", text="Not Collidable", icon=ICON_IGNORE, depress=is_notcollidable)
+
+            col = obj_box.column(align=True)
+            row = col.row(align=True)
+            row.operator(f"view3d.tm_toggleobjectlod0",  text="Highpoly", icon_value=get_addon_icon("LOD_HIGHPOLY") , depress=is_lod0)
+            row.operator(f"view3d.tm_toggleobjectlod1",  text="Lowpoly",  icon_value=get_addon_icon("LOD_LOWPOLY")  , depress=is_lod1)
+
+            if current_collection is not None:
+                has_lod0_item = check_collection_has_obj_with_fix(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD0)
+                has_lod1_item = check_collection_has_obj_with_fix(current_collection, suffix=SPECIAL_NAME_SUFFIX_LOD1)
+
+                lod0_missing = has_lod1_item and not has_lod0_item
+                lod1_missing = has_lod0_item and not has_lod1_item
+
+                if lod1_missing or lod0_missing:
+                    missing_lod_name = "Lowpoly (_Lod1)" if lod1_missing else "Highpoly (_Lod0)"
+                    found_lod_name   = "Lowpoly (_Lod1)" if lod0_missing else "Highpoly (_Lod0)"
+                    row = col.row(align=True)
+                    row.alert = True
+                    # row.scale_y = .75
+                    row.alignment = "CENTER"
+                    row.label(text=f"{found_lod_name} wont work until you")
+                    row = col.row(align=True)
+                    row.alert = True
+                    # row.scale_y = .75
+                    row.alignment = "CENTER"
+                    row.label(text=f"mark another object as {missing_lod_name}")
+                    row = col.row(align=True)
+                    row.alignment = "CENTER"
+                    row.label(text="Using _Lod(s) is optional!")
 
             # obj_box.separator(factor=UI_SPACER_FACTOR)
             if obj and obj.type == "MESH":

@@ -126,7 +126,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
 
     #uvmaps
     CB_uv_genLightMap               : BoolProperty(name="Generate LightMap",                        default=True,       update=redraw_panels)
-    CB_uv_fixLightMap               : BoolProperty(name="Only if LM has overlaps",                  default=True,       update=redraw_panels)
+    CB_uv_fixLightMap               : BoolProperty(name="Re generate only whem the lightmap uvlayer has overlapping islands",                  default=True,       update=redraw_panels)
     NU_uv_angleLimitLM              : FloatProperty(name="Angle Limit",                             default=radians(89.0),    min=0, max=radians(89.0), subtype="ANGLE")
     NU_uv_islandMarginLM            : FloatProperty(name="Island Margin",                           default=0.1,        min=0, max=1)
     NU_uv_areaWeightLM              : FloatProperty(name="Area Weight",                             default=0.0,        min=0, max=1)
