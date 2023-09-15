@@ -94,8 +94,10 @@ def _add_view_layer() -> bpy.types.ViewLayer:
 
 def _add_camera(empty: bpy.types.Object) -> bpy.types.Camera:
 
-    bpy.ops.object.camera_add(location=(0, 4, 4), 
-                                rotation=(-0.7853, 0, 0))
+    bpy.ops.object.camera_add(
+        location=(0, 0, 0), 
+        rotation=(0, 0, 0))
+
     icon_cam = bpy.context.object
     icon_cam.name = "ICON_CAMERA"
 
