@@ -3,6 +3,8 @@ import bpy
 from bpy.types import Panel
 from bpy.types import Operator
 
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
+
 from ..properties.Functions import ERROR_ENUM_ID
 from ..utils.Functions import *
 from ..utils.Constants import * 
@@ -21,6 +23,44 @@ class TM_PT_ObjectManipulations(Panel):
     def draw_header(self, context):
         layout = self.layout
         layout.label(icon=ICON_OBJECT)
+
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Manipulation Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can manipulate the behavior of collections and objects",
+            "",
+            "Collections:",
+            "-> f.e. checkpoint(blue icon) or another waypoint type",
+            "-> 'No Export', the collection will not be exported",
+            "-> Multi-Scale, export in different sizes, child collections optionally too",
+            "-> Use a Item-XML template(add in export panel), those are the placement settings in the editor",
+            "-> Display specific uv layers for the entire collection, or edit them for all",
+            "",
+            "Objects:",
+            "-> 'No Export', the object will not be exported, but other objects will!",
+            "-> 'Icon Dummy', the object will be used for icon only",
+            "-> 'Origin', the object will be the origin of the collection",
+            "----> If none is set, the first object found in the collection will be the origin",
+            "-> waypoint related object",
+            "----> 'Trigger' should be a mesh without materials and uv maps (drive through = checkpoint triggered)",
+            "----> 'Spawnpoint' can be anything, its location and rotation data will be used for respawns",
+            "-> 'Not Visible' will make your object invisible, it will still have a hitbox!",
+            "-> 'Not Collidable' will make your object act like a ghost, no collisions",
+            "-> 'Highpoly' or 'Lowpoly'",
+            "----> Need to be used together on 2 different objects in the collection",
+            "----> Highpoly object will be rendered when you are in front of it",
+            "----> Lowpoly object will be rendered when you are far away, (low quality version of you object)",
+            "-> 'Shade Smooth' will make your object look smooth between angles",
+            "-> 'Shade Flat' will make your object look flat, sharp corners",
+            "-> 'Auto Smooth' will make your object look smooth but limits it to an angle",
+            "-> 'X Y Z' Lock the movement, rotation and scale of your object (only in blender)",
+        )
 
     def draw(self, context):
 

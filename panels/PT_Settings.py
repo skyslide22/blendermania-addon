@@ -2,6 +2,8 @@ from pydoc import text
 import bpy
 from bpy.types import Panel
 
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
+
 from .PT_DownloadProgress import render_donwload_progress_bar
 from ..utils.Functions      import *
 from ..utils.Dotnet         import *
@@ -19,6 +21,22 @@ class TM_PT_Settings(Panel):
         layout = self.layout
         layout.label(icon=ICON_SETTINGS)
 
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "General Settings Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can see all the settings related to this addon.",
+            "1. Select your Nadeo.ini file, which is located next to your (Maniaplanet/Trackmania2020).exe",
+            "----> Please DO NOT use a relative path like ../../Nadeo.ini",
+            "----> Use something like C:/Users/<YOU>/Program Files/Trackmania/Nadeo.ini",
+            "2. To get started, install the Nadeoimporter for your game",
+            "3. Set your author name, this name will be displayed on ItemExchange (IX)",
+        )
 
     def draw(self, context):
         blender_version = bpy.app.version
@@ -35,7 +53,7 @@ class TM_PT_Settings(Panel):
         row = box.row(align=True)
         row.scale_y=.5
         row.alert = blender_too_old
-        row.label(text=f"Blender: {blender_version} {'(too old)' if blender_too_old else None}", icon=ICON_BLENDER)
+        row.label(text=f"Blender: {blender_version} {'(too old)' if blender_too_old else ''}", icon=ICON_BLENDER)
 
         if(blender_too_old):
             row = box.row()
@@ -81,8 +99,11 @@ class TM_PT_Settings(Panel):
 
         col = box.column(align=True)
         row = col.row(align=True)
-        row.operator("view3d.tm_open_url", text="Github", icon=ICON_WEBSITE).url = URL_GITHUB
-        row.operator("view3d.tm_open_url", text="Help",   icon=ICON_WEBSITE).url = URL_DOCUMENTATION
+        row.operator("view3d.tm_open_url", text="",icon_value=get_addon_icon("GITHUB")).url = URL_GITHUB
+        row.operator("view3d.tm_open_url", text="",icon_value=get_addon_icon("DISCORD")).url = URL_DISCORD
+        row.operator("view3d.tm_open_url", text="Open Wiki").url = URL_DOCUMENTATION
+        
+        col = box.column(align=True)
         row = col.row(align=True)
         row.operator("view3d.tm_open_folder", text="Work",   icon=ICON_FOLDER).folder = get_game_doc_path_work_items()
         row.operator("view3d.tm_open_folder", text="Items",  icon=ICON_FOLDER).folder = get_game_doc_path_items()
@@ -111,7 +132,7 @@ class TM_PT_Settings(Panel):
 
 class TM_PT_Settings_BlenderRelated(Panel):
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "Blender related settings"
+    bl_label = "Blender settings"
     bl_idname = "TM_PT_Settings_BlenderRelated"
     bl_parent_id = "TM_PT_Settings"
 
@@ -162,6 +183,22 @@ class TM_PT_Settings_NadeoImporter(Panel):
     @classmethod
     def poll(self, context):
         return is_selected_nadeoini_file_name_ok()
+    
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "NadeoImporter Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Configure the NadeoImporter",
+            "-> The NadeoImporter is a program by Nadeo which will convert",
+            "-> the exported FBX files to the game format GBX, this addon only",
+            "-> prepares the necessesary things for this program",
+            "The latest version of the NadeoImporter might have some issues, if so, try older versions!",
+        )
 
     def draw(self, context):
 
@@ -239,17 +276,13 @@ class TM_PT_Settings_Performance(Panel):
     def draw(self, context):
 
         layout = self.layout
-        tm_props        = get_global_props()
+        tm_props = get_global_props()
 
-        row = layout.row()
-        row.label(text="Disable when blender runs slow...")
-
-        col = layout.column(align=True)
-        row = col.row(align=True)
-        row.prop(tm_props, "CB_allow_complex_panel_drawing", text="Panel Extra Infos", icon=ICON_EDIT)
+        row = layout.row(align=True)
+        row.prop(tm_props, "CB_allow_complex_panel_drawing", text="Show extra panel infos")
         
-        row = col.row(align=True)
-        row.prop(tm_props, "CB_compress_blendfile",  text="Save File Compressed", icon=ICON_COMPRESS, toggle=True)
+        row = layout.row(align=True)
+        row.prop(tm_props, "CB_compress_blendfile",  text="Save file compressed")
         
         # row = col.row(align=True)
         # row.label(text="Formatting")

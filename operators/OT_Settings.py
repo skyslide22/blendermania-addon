@@ -4,7 +4,7 @@ import string
 import webbrowser
 import addon_utils
 from bpy.types import Operator
-from bpy.props import StringProperty
+from bpy.props import StringProperty, EnumProperty
 
 from ..utils.Constants      import *
 from ..utils.Functions      import *
@@ -35,6 +35,25 @@ class TM_OT_Settings_OpenUrl(Operator):
         
     def execute(self, context):
         open_url(self.url)
+        return {"FINISHED"}
+
+class TM_OT_Settings_OpenMessageBox(Operator):
+    bl_idname = "view3d.tm_open_messagebox"
+    bl_description = "Execute help"
+    bl_label = "Execute help"
+
+    @classmethod
+    def get_text(*args: [str]) -> str:
+        items = args
+        return __class__.text_splitter.join(args[1:])
+
+    text_splitter = "%%%"
+
+    title: StringProperty("")
+    infos: StringProperty("")
+        
+    def execute(self, context):
+        show_report_popup(self.title, [s for s in self.infos.split(__class__.text_splitter)], icon=ICON_INFO)
         return {"FINISHED"}
 
 

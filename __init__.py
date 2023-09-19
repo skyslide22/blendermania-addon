@@ -213,7 +213,8 @@ classes = (
     OT_UISelectMediatrackerTriggersByName,
 
     # util
-    OT_UIWikiLink
+    OT_UIWikiLink,
+    TM_OT_Settings_OpenMessageBox,
 )
 
 

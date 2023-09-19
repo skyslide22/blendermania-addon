@@ -6,6 +6,8 @@ from bpy.types import (
     Operator,
 )
 
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
+
 from ..properties.Functions import ERROR_ENUM_ID, is_convert_panel_active
 from ..utils.Functions import *
 from ..utils.Constants import * 
@@ -36,12 +38,47 @@ class TM_PT_Items_ItemXML(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
 
-        col = row.column(align=True)
-        col.enabled = tm_props.CB_xml_genItemXML
-        col.prop(tm_props, "CB_xml_overwriteItemXML",   text="", icon=ICON_UPDATE)
+        # col = row.column(align=True)
+        # col.enabled = tm_props.CB_xml_genItemXML
+        # col.prop(tm_props, "CB_xml_overwriteItemXML",   text="", icon=ICON_UPDATE)
         col = row.column(align=True)
         col.prop(tm_props, "CB_xml_genItemXML",         text="", icon=ICON_CHECKED,)
-        row=layout.row()
+
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Item XML Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure the generated item xml file",
+            "-> This file is mandatory to convert your object",
+            "-> It is recommended to overwrite it on every export",
+            "",
+            "Simple config",
+            "-> Choose a placement value for X and Y axis in meters",
+            "-> Choose a placement value for the Z axis in meters (one block in-game is 32x32x8 meters)",
+            "-> 'Ghostmode' will allow you to place it inside/ontop other objects",
+            "-> 'Auto Rotation' will auto rotate your object based on the location (grid X, Y & Z needs to be 0/manget)",
+            "",
+            "Advanced config",
+            "-> You can sync the placement settings for X, Y & Z ",
+            "-> Set the placement params for X, Y & Z ",
+            "-> Set the placement offset (0 is recommended from docs) ",
+            "-> 'Ghostmode' will allow you to place it inside/ontop other objects",
+            "-> 'Auto Rotation' will auto rotate your object based on the location (grid X, Y & Z needs to be 0/manget)",
+            "-> 'Not on Item' the item cannot be placed on another item",
+            "-> 'One Axis Rotation' the item can only be roated in the Z axis (! might be wrong)",
+            "-> 'Pivots' are placement variants, aka offsets from the original origin (choose custom positions)",
+            "----> If the switch is activated, you need to manually pivot with the Q/A key",
+            "----> Snap distance will snap other items to this pivot", 
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+
+        )        
     
     def draw(self, context):
 
@@ -53,7 +90,9 @@ class TM_PT_Items_ItemXML(Panel):
         or tm_props.CB_xml_genItemXML is False:
             return
         
-        
+        row = layout.row(align=True)
+        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="Overwrite on export (recommended)")
+
         display_type     = tm_props.LI_xml_simpleOrAdvanced
         display_simple   = display_type.upper() == "SIMPLE"
         display_advanced = display_type.upper() == "ADVANCED"
@@ -209,11 +248,32 @@ class TM_PT_Items_MeshXML(Panel):
         row = layout.row(align=True)
 
         col = row.column(align=True)
-        col.enabled = tm_props.CB_xml_genMeshXML
-        col.prop(tm_props, "CB_xml_overwriteMeshXML",   text="", icon=ICON_UPDATE)
-        col = row.column(align=True)
         col.prop(tm_props, "CB_xml_genMeshXML",         text="", icon=ICON_CHECKED,)
-        row=layout.row()
+        
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Mesh XML Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure the generated meshparams xml file",
+            "-> This file is mandatory to convert your object",
+            "-> It is recommended to overwrite it on every export",
+            "",
+            "You can overwrite some settings",
+            "-> 'Object scale' will scale all your exported object by this factor",
+            "-> 'Light power' will set a light strenght equal for all lights",
+            "-> 'Light color' will set a color equal for all lights",
+            "-> 'Light radius' will set a distance equal for all lights",
+            "----> Snap distance will snap other items to this pivot", 
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+
+        ) 
 
     
     def draw(self, context):
@@ -228,7 +288,10 @@ class TM_PT_Items_MeshXML(Panel):
             return
         
 
-        layout.label(text="Overwrite all objects/lights settings:")
+        # layout.label(text="Overwrite all objects/lights settings:")
+
+        row = layout.row(align=True)
+        row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="Overwrite on export (recommended)")
 
         #--- object scale
         row = layout.row(align=True)

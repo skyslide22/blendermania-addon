@@ -7,6 +7,8 @@ from bpy.types import (
     Panel,
     Operator,
 )
+
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 from ..utils.Functions import *
 from ..utils.Constants import * 
 from ..properties.Functions import *
@@ -38,13 +40,26 @@ class TM_PT_Items_Icon(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
 
-        col = row.column(align=True)
-        col.enabled = tm_props.CB_icon_genIcons
-        col.prop(tm_props, "CB_icon_overwriteIcons",   text="", icon=ICON_UPDATE)
+        # col = row.column(align=True)
+        # col.enabled = tm_props.CB_icon_genIcons
+        # col.prop(tm_props, "CB_icon_overwriteIcons",   text="", icon=ICON_UPDATE)
         col = row.column(align=True)
         col.prop(tm_props, "CB_icon_genIcons",         text="", icon=ICON_CHECKED,)
-        row=layout.row()
-
+        
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Icon Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure the generated icon file",
+            "-> This file is optional",
+            "-> Choose a world, used for lighting",
+            "-> Choose a camera position/angle style",
+            "-> Choose a color style",
+            "-> Set the padding for the icon (distance to border)",
+            "-> Set the background color, none means transparent",
+            "-> Choose a size for your icon, 256px is recommended",
+            "----> Your icon will NOT be embedded in the map file, so icon size does not matter", 
+        )
 
     
     def draw(self, context):
@@ -54,7 +69,8 @@ class TM_PT_Items_Icon(Panel):
         tm_props_pivots = scene.tm_props_pivots
         useTransparentBG= scene.render.film_transparent
 
-        layout.row().label(text="Camera direction is positive Y")
+        row = layout.row()
+        row.prop(tm_props, "CB_icon_overwriteIcons",   text="Re-generate icon on each export")
 
         row = layout.row()
         row.prop(tm_props, "LI_icon_world", text="World")

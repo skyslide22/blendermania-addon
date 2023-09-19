@@ -2,6 +2,8 @@ from ast import main
 import bpy
 from bpy.types import (Panel)
 
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
+
 from ..utils.Functions      import *
 
 class TM_PT_Items_Export(Panel):
@@ -18,6 +20,38 @@ class TM_PT_Items_Export(Panel):
     def draw_header(self, context):
         layout = self.layout
         layout.label(icon=ICON_EXPORT)
+
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Export Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here configure the export settings",
+            "1. Select your game",
+            "2. Select your destination folder (needs to be in Trackmania/Works/Items/<HERE>)",
+            "3. Choose your preferred way of the collection which will be exported",
+            "4. Enable optional features",
+            "----> 'Multi Convert' will convert your exported items all at the same time", 
+            "----> 'Notify' will make a popup in windows which informs you that the convert is finished", 
+            "5. Export your collection(s)",
+            "----> Files for the meshmodeler import can be generated optionally", 
+            "",
+            "Keep in mind, collections are exported, not individual objects",
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+
+        )
 
     def draw(self, context):
 

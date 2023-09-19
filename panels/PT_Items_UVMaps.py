@@ -1,5 +1,7 @@
 from bpy.types import (Panel)
 
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
+
 from ..properties.Functions import is_convert_panel_active
 
 from ..utils.Functions import *
@@ -33,12 +35,35 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
 
-        col = row.column(align=True)
-        col.enabled = tm_props.CB_uv_genLightMap
-        col.prop(tm_props, "CB_uv_fixLightMap",   text="", icon=ICON_UPDATE)
+        # col = row.column(align=True)
+        # col.enabled = tm_props.CB_uv_genLightMap
+        # col.prop(tm_props, "CB_uv_fixLightMap",   text="", icon=ICON_UPDATE)
         col = row.column(align=True)
         col.prop(tm_props, "CB_uv_genLightMap",         text="", icon=ICON_CHECKED,)
-        row=layout.row()
+        
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Lightmap UV Layer Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure the generated lightmap",
+            "-> This uv layer is mandatory",
+            "-> The lightmap is used to calculate the shadows of your object, think of a 32x32 pixel image",
+            "-> The auto generation on export is optional",
+            "-> The lightmap should NOT have overlapping islands",
+            "-> The lightmap is shared between all objects in a collection, as all objects were one object!",
+            "-> Best to make your own lightmap",
+            "----> Use 'Mark Seam' (CTRL + E) and then (U) > Unwrap", 
+            "----> 'Smart UV Project' (U) is OK, check the addon wiki for more info" , 
+            "----> 'Lightmap Pack' (U) is NOT OK, never use this unwrapping method", 
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+
+        )        
 
     
     def draw(self, context):
@@ -49,19 +74,24 @@ class TM_PT_Items_UVmaps_LightMap(Panel):
         if tm_props.CB_showConvertPanel:
             return
     
-        if tm_props.CB_uv_genLightMap is True:
+        if tm_props.CB_uv_genLightMap is False:
+            return
 
-            row = layout.row()
-            row.label(text="Generate a dev lightmap with smart uv project")
+        row = layout.row()
+        row.prop(tm_props, "CB_uv_fixLightMap",   text="Re-generate on invalid lightmap")
 
-            col = layout.column(align=True)
-            col.row(align=True).prop(tm_props, "NU_uv_angleLimitLM")
-            col.row(align=True).prop(tm_props, "NU_uv_islandMarginLM")
-            col.row(align=True).prop(tm_props, "NU_uv_areaWeightLM")
-            
-            row = col.row(align=True)
-            row.prop(tm_props, "CB_uv_scaleToBoundsLM", expand=True, toggle=True)
-            row.prop(tm_props, "CB_uv_correctAspectLM", expand=True, toggle=True)
+
+        row = layout.row()
+        row.label(text="Generate a dev lightmap with smart uv project")
+
+        col = layout.column(align=True)
+        col.row(align=True).prop(tm_props, "NU_uv_angleLimitLM")
+        col.row(align=True).prop(tm_props, "NU_uv_islandMarginLM")
+        col.row(align=True).prop(tm_props, "NU_uv_areaWeightLM")
+        
+        row = col.row(align=True)
+        row.prop(tm_props, "CB_uv_scaleToBoundsLM", expand=True, toggle=True)
+        row.prop(tm_props, "CB_uv_correctAspectLM", expand=True, toggle=True)
             
                     
         layout.separator(factor=UI_SPACER_FACTOR)
@@ -88,6 +118,7 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
         row.enabled = tm_props.CB_uv_genBaseMaterialCubeMap
         row.alert = tm_props.CB_uv_genBaseMaterialCubeMap
         row.label(text="UV BaseMaterial")
+        
     
     def draw_header_preset(self, context):
         layout = self.layout
@@ -104,8 +135,18 @@ class TM_PT_Items_UVmaps_BaseMaterial_CubeProject(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_showConvertPanel else False
-        row.prop(tm_props, "CB_uv_genBaseMaterialCubeMap",  text="", icon=ICON_CHECKED,)
-        row=layout.row()
+        col = row.column(align=True)
+        col.prop(tm_props, "CB_uv_genBaseMaterialCubeMap",  text="", icon=ICON_CHECKED,)
+        
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "BaseMaterial UV Layer Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure the generated lightmap",
+            "-> This uv layer is mandatory",
+            "-> The auto generation on export is optional and for DEV only, uncheck recommended",
+            "-> The basematerial is used for the texturing of your object, a 2d represenation of your 3d object",
+        )  
     
     def draw(self, context):
         layout = self.layout

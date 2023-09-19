@@ -7,6 +7,8 @@ from bpy.types import (
     Panel,
     Operator,
 )
+
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 from ..utils.Functions  import *
 from ..utils.Constants  import * 
 
@@ -26,6 +28,26 @@ class TM_PT_Materials(Panel):
         layout = self.layout
         layout.label(icon=ICON_MATERIAL)
     
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+    
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Material Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure your materials",
+            "-> Materials need to be created or updated with the addon",
+            "-> Materials can have any name, TM_ or MP_ will be added automatically to differ from other materials",
+            "-> Materials can have optionally a custom physic, if not set, default will be used",
+            "-> Some Materials can be colored (TM2020 only)",
+            "-> Some Materials can have a second physic called 'Gameplay' (TM2020 only)",
+            "-> Materials need to be linked to an existing material created by nadeo",
+            "----> Those materials are pre defined in the NadeoImporerMaterialLib.txt file",
+            "-> Materials can have custom, non game, textures (Maniaplanet only)",
+        ) 
+
 
     def draw(self, context):
 
