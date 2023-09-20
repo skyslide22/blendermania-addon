@@ -1,6 +1,8 @@
 import bpy
 from bpy.types import Panel
 
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
+
 from .PT_DownloadProgress import render_donwload_progress_bar
 from ..utils.Functions import is_selected_nadeoini_file_name_ok
 from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS, BLENDER_INSTANCE_IS_DEV
@@ -8,7 +10,7 @@ from ..operators.OT_NinjaRipper import *
 from ..operators.OT_Imports import TM_OT_ImportItem
 
 class TM_PT_Imports(Panel):
-    bl_label = "Import RIP"
+    bl_label = "Imports"
     bl_idname = "TM_PT_Imports"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
@@ -19,6 +21,22 @@ class TM_PT_Imports(Panel):
     def draw_header(self, context):
         layout = self.layout
         layout.label(icon="GHOST_DISABLED")
+
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Import Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure importing of RIP and GBX files",
+            "-> NinjaRipper is a program to extract geometry of games",
+            "----> v1.7.1 is free and ships with the addon",
+            "----> v2.0.x is paid, website will open",
+            "-> You can import GBX files too, experimental",
+        )
 
     def draw(self, context):
         layout = self.layout

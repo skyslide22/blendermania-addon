@@ -223,7 +223,10 @@ def create_grid_obj() -> bpy.types.Object:
         return obj
 
     mesh = bpy.data.meshes.new(name=MAP_GRID_OBJECT_NAME)
-    obj = bpy.data.objects.new(name=MAP_GRID_OBJECT_NAME, object_data=mesh)
+    obj  = bpy.data.objects.new(name=MAP_GRID_OBJECT_NAME, object_data=mesh)
+
+    obj.hide_select = True
+
     bpy.context.scene.collection.objects.link(obj)
     return obj
 

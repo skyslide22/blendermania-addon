@@ -44,16 +44,19 @@ class TM_OT_Settings_OpenMessageBox(Operator):
 
     @classmethod
     def get_text(*args: [str]) -> str:
-        items = args
-        return __class__.text_splitter.join(args[1:])
+        return __class__.text_splitter.join(args[1:]) # first item is bpy rna ?? skip..
 
     text_splitter = "%%%"
 
+    link: StringProperty("")
     title: StringProperty("")
     infos: StringProperty("")
         
     def execute(self, context):
-        show_report_popup(self.title, [s for s in self.infos.split(__class__.text_splitter)], icon=ICON_INFO)
+        if len(self.link) > 1:
+            webbrowser.open(self.link, new=2)
+        else:
+            show_report_popup(self.title, [s for s in self.infos.split(__class__.text_splitter)], icon=ICON_INFO)
         return {"FINISHED"}
 
 

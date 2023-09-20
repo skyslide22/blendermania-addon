@@ -3,6 +3,8 @@ from pydoc import text
 import bpy
 from bpy.types import Panel
 
+from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
+
 from ..operators.OT_Textures import is_selected_modwork_enabled
 
 from .PT_DownloadProgress import render_donwload_progress_bar
@@ -24,6 +26,38 @@ class TM_PT_Textures(Panel):
     def draw_header(self, context):
         layout = self.layout
         layout.label(icon=ICON_TEXTURE)
+
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Textures Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure the texture sources",
+            "-> This is optional and can be kept empty (defaults will be used)",
+            "-> Select a source folder to load all textures from",
+            "----> You can also re-link all used textures, or reset to default"
+            "----> Default textures are located in Items/_BlenderAssets/Textures/", 
+            "",
+            "Install & Update",
+            "-> You can install the game textures from a CDN",
+            "-> You can install pre defined materials which are part of an asset library",
+            "",
+            "ModWork Folder",
+            "-> Is used for development only, located in /Skins/<ENVIRONMENT>/ModWork",
+            "-> Acts like a custom mod, but will be forced over EVERY map in-game",
+            "-> Updates textures in real time in-game, .. well, if the game is not crashing..",
+            "-> Runs only locally on your machine",
+            "-> Is not zipped, should have a child folder named Image with DDS textures inside",
+            "-> Can be enabled or disabled here (rename = disable)",
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+
+        )
 
     def draw(self, context):
 

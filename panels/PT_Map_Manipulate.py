@@ -1,6 +1,8 @@
 from email.policy import default
 import bpy
 
+from .. operators.OT_Settings import TM_OT_Settings_OpenMessageBox
+
 from .PT_DownloadProgress import render_donwload_progress_bar
 from ..utils.MapObjects import (
     is_all_selected_in_map_collection,
@@ -41,7 +43,12 @@ class PT_UIMapManipulation(bpy.types.Panel):
     def draw_header_preset(self, context):
         tm_props = get_global_props()
         layout = self.layout
+        
         layout.prop(tm_props, "CB_map_use_grid_helper", text="Grid Helper", icon=ICON_GRID)
+        
+        op = layout.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.title = "Export Infos"
+        op.link = "https://github.com/skyslide22/blendermania-addon/wiki/08.-Map-export"
 
     def draw(self, context):
         layout = self.layout
