@@ -268,6 +268,9 @@ def create_grid_obj_geom_nodes_modifier() -> bpy.types.Modifier:
     node_output = nodes.get("Group Output", None) or nodes.new(type="NodeGroupOutput")
     node_output.location[0] = x(3)
 
+    # blender 3.5+
+    modifier.node_group.outputs.new(name="Geometry", type="NodeSocketGeometry")
+
     links.new(
         node_mesh_to_curve.inputs["Mesh"],
         node_grid.outputs["Mesh"]   
@@ -276,14 +279,13 @@ def create_grid_obj_geom_nodes_modifier() -> bpy.types.Modifier:
         node_set_pos.inputs["Geometry"],
         node_mesh_to_curve.outputs["Curve"]
     )
-    links.new(
+
+
+    op_link = links.new(
         node_output.inputs[0],
         node_set_pos.outputs["Geometry"]
     )
-    # ??? use 0
-    # node_output.inputs["Geometry"],
-    # KeyError: 'bpy_prop_collection[key]: key "Geometry" not found'
-
+ 
     return modifier
 
 
