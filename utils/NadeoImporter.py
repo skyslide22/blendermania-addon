@@ -8,6 +8,29 @@ import subprocess
 import threading
 import xml.etree.ElementTree as ET
 
+
+import io
+import os
+from struct import pack, pack_into, unpack_from, calcsize
+from collections import namedtuple
+import zipfile
+
+HeaderChunk = namedtuple("HeaderChunk", ["id", "size"])
+
+class BinaryReader:
+    index = 0
+
+    def __init__(self, data):
+        self.data = data
+
+    def unpack(self, format):
+        res = unpack_from(format, self.data, self.index)
+        self.index += calcsize(format)
+        return res
+    
+
+
+
 from .Models import ExportedItem
 
 from .Constants import PATH_CONVERT_REPORT, NADEO_IMPORTER_ICON_OVERWRITE_VERSION, URL_DOCUMENTATION
@@ -48,6 +71,7 @@ class ConvertResult():
         self.convert_steps = ()
         self.mesh_xml = ""
         self.item_xml = ""
+        self.embed_size = 0.0
 
 
 class ItemConvert(threading.Thread):
@@ -68,6 +92,7 @@ class ItemConvert(threading.Thread):
         self.gbx_filepath            = self.fbx_filepath.replace("/Work/Items/", "/Items/")
         self.gbx_mesh_filepath       = self.gbx_filepath.replace(".fbx", ".Mesh.Gbx")
         self.gbx_item_filepath       = self.gbx_filepath.replace(".fbx", ".Item.Gbx")
+        self.gbx_trigger_filepath    = self.gbx_filepath.replace(".fbx", ".Trigger.Shape.Gbx")
         self.gbx_shape_filepath      = self.gbx_filepath.replace(".fbx", ".Shape.Gbx")
         self.gbx_shape_filepath_old  = self.gbx_filepath.replace(".fbx", ".Shape.Gbx.old")
         self.icon_path               = icon_path
@@ -91,6 +116,8 @@ class ItemConvert(threading.Thread):
 
         self.convert_is_done    = False
         self.convert_has_failed = False
+
+        self.embed_size = 0.0
 
     
     def add_progress_step(self, step: str, additional_infos: tuple=()) -> None:
@@ -143,7 +170,8 @@ class ItemConvert(threading.Thread):
             
             
         if not self.convert_has_failed:
-            self.add_progress_step("Convert succeeded\n\n")
+            self.embed_size = self.get_item_embed_size()
+            self.add_progress_step(f"Convert succeeded - size = {self.embed_size}\n\n")
         else:
             mesh_returncode = self.convert_returncode_mesh_shape_gbx
             mesh_error_msg  = bytes(self.convert_message_mesh_shape_gbx or "", "utf-8").decode("unicode_escape")
@@ -298,7 +326,8 @@ class ItemConvert(threading.Thread):
         except FileNotFoundError as e:
             self.add_progress_step(f"""Renaming .Shape.gbx to .Shape.gbx.old failed""", [e])
             self.convert_has_failed = True
-    
+
+
     def overwrite_icon_item_gbx(self) -> None:
         """fix icon in item.gbx"""
         self.add_progress_step(f"""Overwrite icon in .Item.gbx""")
@@ -314,7 +343,83 @@ class ItemConvert(threading.Thread):
         else:
             self.add_progress_step(f"""Overwrite icon .Item.gbx failed""")
 
+
+    def get_item_embed_size(self):
         
+        files = []
+
+        if is_file_existing(self.gbx_item_filepath):     files.append(self.gbx_item_filepath)
+        if is_file_existing(self.gbx_mesh_filepath):     files.append(self.gbx_mesh_filepath)
+        if is_file_existing(self.gbx_shape_filepath):    files.append(self.gbx_shape_filepath)
+        if is_file_existing(self.gbx_trigger_filepath):  files.append(self.gbx_trigger_filepath)
+
+        total_size = 0.0
+
+        for file in files:
+            print("FILE: " + file)
+
+        for gbxfile in files:
+
+            with open(gbxfile, "r+b") as f_item:
+                # read item file
+                item_data = f_item.read()
+                
+                try:
+                    byter = BinaryReader(item_data)
+
+                    # check version
+                    (version,) = byter.unpack("<3xH")
+                    if version != 6:
+                        raise ValueError()
+                    
+                    # check class_id
+                    (class_id, ) = byter.unpack("<4xI")
+                    if class_id != 0x2e002000:
+                        raise ValueError()
+
+                    # header chunks
+                    (user_data_size, num_headerchunks) = byter.unpack("<II")
+
+                    chunks = []
+                    icon_chunk_idx = -1
+
+                    for i in range(num_headerchunks):
+                        (chunk_id, chunk_size) = byter.unpack("<II")
+
+                        chunk_size &= 0x7FFFFFFF # remove heavy flag
+                        chunks.append(HeaderChunk(chunk_id, chunk_size))
+
+                        if chunk_id == 0x2e001004:
+                            icon_chunk_idx = i
+
+                    if icon_chunk_idx < 0:
+                        raise ValueError()
+
+                    # read until icon chunk
+                    for chunk in chunks[:icon_chunk_idx]:
+                        byter.index += chunk.size
+
+                    # overwrite icon chunk
+                    old_icon_chunk_size = chunks[icon_chunk_idx].size
+
+                    gbxfile_bytes = bytearray(
+                        item_data[:byter.index] + 
+                        item_data[byter.index + chunks[icon_chunk_idx].size:]
+                    )
+                
+                except ValueError as err:
+                    gbxfile_bytes = item_data
+
+        
+                zip_buffer = io.BytesIO()
+
+                with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+                    zip_file.writestr("the-item-or-something", gbxfile_bytes)
+                    zipped_size = zip_file.getinfo("the-item-or-something").compress_size / 1000 #kb
+                    total_size +=  zipped_size
+                    print(gbxfile.split("/")[-1] + " = " +  str(zipped_size))
+
+        return total_size
 
 
 
@@ -681,12 +786,13 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         result.convert_has_failed    = conversion.convert_has_failed
         result.mesh_xml              = item.mesh_xml
         result.item_xml              = item.item_xml
+        result.embed_size            = conversion.embed_size
         results.append(result)
 
         failed              = True if conversion.convert_has_failed else False
         icon                = "CHECKMARK" if not failed else "FILE_FONT"
         current_item_index  = items_convert_index[ name ] # number
-
+        
         if failed: fail_count    += 1
         else:      success_count += 1
 
@@ -698,6 +804,7 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
             tm_props_convertingItems[ current_item_index ].failed           = failed
             tm_props_convertingItems[ current_item_index ].converted        = True
             tm_props_convertingItems[ current_item_index ].convert_duration = int(current_convert_timer.stop())
+            tm_props_convertingItems[ current_item_index ].embed_size       = result.embed_size
 
 
 

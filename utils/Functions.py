@@ -1945,7 +1945,7 @@ class Timer():
     def stop(self) -> int:
         current_time = time.perf_counter()
         self.timer_stopped = True
-        return int(current_time - self.start_time) 
+        return math.ceil(current_time - self.start_time) 
 
 
 

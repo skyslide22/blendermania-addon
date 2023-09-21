@@ -9,3 +9,4 @@ class ConvertingItemsProperties(bpy.types.PropertyGroup):
     failed            : BoolProperty(name="Convert failed?",  default=False)
     converted         : BoolProperty(name="Item converted?",  default=False)
     convert_duration  : IntProperty(name="Convert duration",  default=0, min=0, max=10000)
+    embed_size        : FloatProperty(name="Embed size",      default=0)

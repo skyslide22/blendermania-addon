@@ -175,19 +175,19 @@ class TM_PT_Items_Export(Panel):
                 row = col.row(align=True)
                 row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
 
-            if tm_props.CB_allow_complex_panel_drawing and collection_count:
-                embed_space = 0
-                if enableExportButton:
-                    for col in exportable_cols:
-                        embed_space += get_embedspace_of_collection(col)
-                row = layout.row()
-                row.scale_y = 0.5
+            # if tm_props.CB_allow_complex_panel_drawing and collection_count:
+            #     embed_space = 0
+            #     if enableExportButton:
+            #         for col in exportable_cols:
+            #             embed_space += get_embedspace_of_collection(col)
+            #     row = layout.row()
+            #     row.scale_y = 0.5
                 
-                embed_space_1024kb = embed_space < 1.024
-                if embed_space_1024kb:
-                    embed_space *= 1000
+            #     embed_space_1024kb = embed_space < 1.024
+            #     if embed_space_1024kb:
+            #         embed_space *= 1000
 
-                row.label(text=f"Max. embed space: ~ {embed_space:4.2f} {'kB' if embed_space_1024kb else 'mB'}")
+            #     row.label(text=f"Max. embed space: ~ {embed_space:4.2f} {'kB' if embed_space_1024kb else 'mB'}")
 
 
 
@@ -205,16 +205,15 @@ class TM_PT_Items_Export(Panel):
             for exp_col in get_convert_items_props():
                 exported_cols.append(bpy.data.collections[exp_col.name_raw])
 
-            embed_space   = 0
-            for col in exported_cols:
-                embed_space += get_embedspace_of_collection(col)
+            embed_space = 0
+
+            for item in get_convert_items_props():
+                embed_space += item.embed_size
+
+
             row = box.row()
-            row.scale_y = .5
-            embed_space_1024kb = embed_space < 1.024
-            if embed_space_1024kb:
-                embed_space *= 1000
-            row.label(text="Max. embedding")
-            row.label(text=f"~ {embed_space:4.2f} {'kB' if embed_space_1024kb else 'mB'}")
+            row.label(text="Embed all:")
+            row.label(text=f"{int(embed_space)} kB")
 
             #progress bar
             convert_duration_since_start = tm_props.NU_convertDurationSinceStart
@@ -224,7 +223,7 @@ class TM_PT_Items_Export(Panel):
             row = box.row()
             row.scale_y = .5
             row.label(text=f"""Duration:""")
-            row.label(text=f"""{convert_duration_since_start}s — {prev_convert_time}s?""")
+            row.label(text=f"""{convert_duration_since_start}s """) #— {prev_convert_time}s?""")
 
 
 
@@ -252,12 +251,7 @@ class TM_PT_Items_Export(Panel):
             
             
             
-            
-            
-            
-            # TODO make list of last converted collections and only convert those not "selected" or "visible"
-            # TODO make list of last converted collections and only convert those not "selected" or "visible"
-            # TODO make list of last converted collections and only convert those not "selected" or "visible"
+
             
             bcol = row.column(align=True)
             bcol.enabled = True # if any([convertDone, stopConverting]) else False
@@ -278,11 +272,16 @@ class TM_PT_Items_Export(Panel):
 
 
             for item in get_convert_items_props():
+                
+                duration = str(int(item.convert_duration))+"s" if item.converted else "    "
+                name = item.name
+                embed_size = f"{int(item.embed_size)} kB" if item.embed_size > 0 else ".."
+
                 row = layout.row(align=True)
                 col = row.column()
                 col.alert = item.failed
                 col.label(
-                    text=f"""{item.convert_duration if item.converted else "??"}s — {item.name}""", 
+                    text=f"""{duration} — {name} — {embed_size}""", 
                     icon=item.icon)
 
 
