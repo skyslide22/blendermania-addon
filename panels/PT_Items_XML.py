@@ -46,6 +46,7 @@ class TM_PT_Items_ItemXML(Panel):
 
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.link = ""
         op.title = "Item XML Infos"
         op.infos = TM_OT_Settings_OpenMessageBox.get_text(
             "Here you can configure the generated item xml file",
@@ -252,6 +253,7 @@ class TM_PT_Items_MeshXML(Panel):
         
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.link = ""
         op.title = "Mesh XML Infos"
         op.infos = TM_OT_Settings_OpenMessageBox.get_text(
             "Here you can configure the generated meshparams xml file",

@@ -191,6 +191,7 @@ class TM_PT_Settings_NadeoImporter(Panel):
 
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.link = ""
         op.title = "NadeoImporter Infos"
         op.infos = TM_OT_Settings_OpenMessageBox.get_text(
             "Configure the NadeoImporter",

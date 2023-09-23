@@ -48,6 +48,7 @@ class TM_PT_Items_Icon(Panel):
         
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.link = ""
         op.title = "Icon Infos"
         op.infos = TM_OT_Settings_OpenMessageBox.get_text(
             "Here you can configure the generated icon file",

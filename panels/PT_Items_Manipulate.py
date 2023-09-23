@@ -31,6 +31,7 @@ class TM_PT_ObjectManipulations(Panel):
 
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.link = ""
         op.title = "Manipulation Infos"
         op.infos = TM_OT_Settings_OpenMessageBox.get_text(
             "Here you can manipulate the behavior of collections and objects",
