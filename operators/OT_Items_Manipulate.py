@@ -153,6 +153,29 @@ class TM_OT_Items_CollectionManipulationToggleIgnore(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Items_CollectionManipulationToggleNICE(Operator):
+    bl_idname = "view3d.tm_togglecollectionnice"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_NICE} on selected collection"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_NICE}"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            toggleNameSpecialPrefix(get_active_collection_of_selected_object(), SPECIAL_NAME_PREFIX_NICE)
+        return {"FINISHED"}
+
+
+class TM_OT_Items_ObjectManipulationToggleGate(Operator):
+    bl_idname = "view3d.tm_toggle_gate"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_GATE} on selected object"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_GATE}"
+   
+    def execute(self, context):
+        toggleNameSpecialPrefix(bpy.context.selected_objects[0], SPECIAL_NAME_PREFIX_GATE)
+        return {"FINISHED"}
+
+
 class TM_OT_Items_ObjectManipulationToggleOrigin(Operator):
     bl_idname = "view3d.tm_toggle_origin"
     bl_description = f"Toggle {SPECIAL_NAME_INFIX_ORIGIN} on selected object"

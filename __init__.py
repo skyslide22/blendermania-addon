@@ -118,6 +118,8 @@ classes = (
     
     # object manipulation
     TM_PT_ObjectManipulations,
+    TM_PT_Items_CollectionManipulation,
+    TM_PT_Items_ObjectManipulation,
     TM_OT_Items_ObjectManipulationAddSocketItem,
     TM_OT_Items_ObjectManipulationAddTriggerItem,
     TM_OT_Items_ObjectManipulationToggleIgnore,
@@ -139,6 +141,8 @@ classes = (
     TM_OT_Items_RenameObject,
     TM_OT_Items_EditUVMap,
     TM_OT_Items_ShowUVMap,
+    TM_OT_Items_CollectionManipulationToggleNICE,
+    TM_OT_Items_ObjectManipulationToggleGate,
 
     # object visibility and selection controls
     TM_PT_VisibilitySelection,
