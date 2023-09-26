@@ -705,10 +705,10 @@ def getMaterialModelTypes()->list:
         desc = "TDSN + glow, additional texture required: _I.dds",
         icon = get_addon_icon("MODEL_TDSNI")
     ).add(
-        id   = "TDSNI_NIGHT",
-        name = "TDSNI_NIGHT",
+        id   = "TDSNI_Night",
+        name = "TDSNI_Night",
         desc = "TDSNI, but only in night and sunset mood",
-        icon = get_addon_icon("MODEL_TDSNI_NIGHT")
+        icon = get_addon_icon("MODEL_TDSNI_Night")
     ).add(
         id   = "TIAdd",
         name = "TIAdd",
