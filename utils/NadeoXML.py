@@ -452,15 +452,15 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         if mat_game_is_tm2020:
             # TODO refactor this line, can color be always present?
             use_custom_color_attr = mat_use_custom_color and mat_link.lower().startswith("custom")
-            xml_materials += f"""<Material """
-            xml_materials += f"""    Name="{ mat_name }" """
-            xml_materials += f"""    Link="{ mat_link }" """
+            xml_materials += f"""<Material """+NL
+            xml_materials += f"""    Name="{ mat_name }" """+NL
+            xml_materials += f"""    Link="{ mat_link }" """+NL
             
-            if use_custom_color_attr:   xml_materials += f"""    Color="{mat_custom_color}" """
-            if mat_use_physicid:        xml_materials += f"""    PhysicsId="{mat_physic_id}" """
-            if mat_use_gameplay_id:     xml_materials += f"""    GameplayId="{mat_gameplay_id}" """
+            if use_custom_color_attr:   xml_materials += f"""    Color="{mat_custom_color}" """+NL
+            if mat_use_physicid:        xml_materials += f"""    PhysicsId="{mat_physic_id}" """+NL
+            if mat_use_gameplay_id:     xml_materials += f"""    GameplayId="{mat_gameplay_id}" """+NL
             
-            xml_materials += f"""/>"""
+            xml_materials += f"""/>"""+NL
             
         elif mat_game_is_maniaplanet:
             xml_materials += f"""<Material"""+NL
