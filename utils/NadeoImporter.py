@@ -483,7 +483,8 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
                     sub_steps_LIs = ""
                     sub_steps_UL  = ""
                     for sub_step in sub_steps:
-                        sub_steps_LIs += f"<li>{sub_step}</li>"
+                        NL = "\n"
+                        sub_steps_LIs += f"<li>{sub_step.replace(NL, '<br />')}</li>"
                     
                     if sub_steps_LIs:
                         sub_steps_UL = f"<ul>{sub_steps_LIs}</ul>"
@@ -521,6 +522,7 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
 
                 result_list += f"""
                     <div class="result-wrapper">
+
                         <div class="result-text">
                             <h2 class="item-name">{converted_item.name_raw}</h2>
                             <p class="item-path">{item_full_hierachy}</p>
@@ -544,8 +546,6 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
 
                             <hr />
 
-                            
-
                             <h3>Mesh Code: <small>{str(converted_item.mesh_returncode)}{
                             
                                 " <span class='success'>(success)</span>" 
@@ -562,18 +562,13 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
                             {f"<img src='{mesh_image}'>" if mesh_image else ""}
                             
                             <hr />
-                            
 
-
-
-                            <h3>Conversion Log:</h3>
-                            <ul class="progress-steps">
-                                {progress_LIs}
-                            </ul>
                         </div>   
 
+
+
                         <div class="result-codes">
-                            
+        
                             <div>
                                 <div class="file-type">.MeshParams.xml</div>
                                 <div class="result-code">
@@ -597,8 +592,17 @@ def _write_convert_report(results: list[ConvertResult]) -> None:
                                     </pre>
                                 </div>
                             </div>
-
                         </div>
+
+
+                        <div class="result-text" style="grid-column: 1 / 3;">
+                            <h3>Conversion Log:</h3>
+                            <ul class="progress-steps">
+                                {progress_LIs}
+                            </ul>
+                        </div>
+
+
                     </div>
                     """
                 

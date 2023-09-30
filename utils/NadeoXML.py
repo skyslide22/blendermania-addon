@@ -326,7 +326,8 @@ def generate_item_XML(item: ExportedItem) -> str:
     elif is_game_trackmania2020():
         meshparams_filename = filename + ".MeshParams.xml"
         xml_mesh_tm2020 += f"""<MeshParamsLink """+NL
-        xml_mesh_tm2020 += f"""    File="{ meshparams_filename }"/>"""+NL
+        xml_mesh_tm2020 += f"""    File="{ meshparams_filename }" """+NL
+        xml_mesh_tm2020 += f"""/>"""+NL
 
     full_xml  = f"""<?xml version="1.0" ?>"""+NL
     full_xml += f"""<Item """+NL
@@ -335,7 +336,8 @@ def generate_item_XML(item: ExportedItem) -> str:
     full_xml += f"""    Type="StaticObject"> """+NL
     full_xml += f"""    """+NL
     full_xml += f"""    <AddonItemXmlTemplate """+NL
-    full_xml += f"""        Name="{template.name if template else ''}" />"""+NL
+    full_xml += f"""        Name="{template.name if template else ''}" """+NL
+    full_xml += f"""    />"""+NL
     full_xml += f"""{add_indents(xml_waypoint, 1)}"""+NL
     full_xml += f"""{add_indents(xml_mesh_tm2020, 1)}"""+NL
     full_xml += f"""    <Phy>"""+NL
