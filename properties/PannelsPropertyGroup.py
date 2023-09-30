@@ -116,16 +116,17 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_importFolderRecursive  : BoolProperty(name="Recursive", default=False)
 
     #icons
-    CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redraw_panels)
     CB_icon_overwriteIcons  : BoolProperty(name="Overwrite Icons",        default=True, update=redraw_panels)
     LI_icon_perspective     : EnumProperty(items=getIconPerspectives(),   name="Perspective")
     LI_icon_world           : EnumProperty(items=getIconWorlds(),         name="World", default="STANDARD")
     LI_icon_pxDimension     : EnumProperty(items=getIconPXdimensions(),   name="Size")
     NU_icon_padding         : IntProperty(min=0, max=100,     default=80, subtype="PERCENTAGE", update=redraw_panels) 
     NU_icon_bgColor         : FloatVectorProperty(name='BG Color',        subtype='COLOR', min=0, max=1, size=4, default=(1,1,1,1), update=updateWorldBG)
+    # obsolete
+    CB_icon_genIcons        : BoolProperty(name="Generate Icons",         default=True, update=redraw_panels)
 
     #uvmaps
-    CB_uv_genLightMap               : BoolProperty(name="Generate LightMap",                        default=True,       update=redraw_panels)
+    CB_uv_genLightMap               : BoolProperty(name="Overwrite LightMap",                        default=True,       update=redraw_panels)
     CB_uv_fixLightMap               : BoolProperty(name="Re-generate only when the lightmap uv layer has overlapping islands",                  default=False,       update=redraw_panels)
     NU_uv_angleLimitLM              : FloatProperty(name="Angle Limit",                             default=radians(89.0),    min=0, max=radians(89.0), subtype="ANGLE")
     NU_uv_islandMarginLM            : FloatProperty(name="Island Margin",                           default=0.1,        min=0, max=1)
@@ -145,8 +146,10 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_xml_syncGridLevi         : BoolProperty(name="Sync Grid & Levi steps",   default=True)
     CB_xml_overwriteMeshXML     : BoolProperty(name="Overwrite Mesh XML",       default=True, update=redraw_panels)
     CB_xml_overwriteItemXML     : BoolProperty(name="Overwrite Item XML",       default=True, update=redraw_panels)
+    # both obsolete
     CB_xml_genItemXML           : BoolProperty(name="Generate Item XML",        default=True, update=redraw_panels)
     CB_xml_genMeshXML           : BoolProperty(name="Generate Mesh XML",        default=True, update=redraw_panels)
+    
     LI_xml_meshtype             : EnumProperty( name="Type",                    items=getMeshXMLType())
     NU_xml_scale                : FloatProperty(name="Obj Scales",               default=1.0, min=0, soft_max=256, step=100)
     CB_xml_scale                : BoolProperty( name="Obj Scale",               default=False)

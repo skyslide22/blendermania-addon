@@ -150,11 +150,13 @@ class ItemConvert(threading.Thread):
             if not self.convert_has_failed:
                 self.pascalcase_gbx_filenames()
 
-            if not self.convert_has_failed \
-                and self.icon_path != "" \
-                and not is_game_maniaplanet() \
-                and tm_props.CB_icon_genIcons \
-                and tm_props.ST_nadeoImporter_TM_current == NADEO_IMPORTER_ICON_OVERWRITE_VERSION:
+            if (
+                not self.convert_has_failed 
+                and self.icon_path != "" 
+                and not is_game_maniaplanet() 
+                # and tm_props.CB_icon_genIcons 
+                and tm_props.ST_nadeoImporter_TM_current == NADEO_IMPORTER_ICON_OVERWRITE_VERSION
+            ):
                 self.overwrite_icon_item_gbx()
             
         
@@ -763,8 +765,11 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         nonlocal success_count
         nonlocal atleast_one_convert_failed
 
-        if tm_props.CB_xml_genItemXML: generate_item_XML(item)
-        if tm_props.CB_xml_genMeshXML: generate_mesh_XML(item)
+        # if tm_props.CB_xml_genItemXML: generate_item_XML(item)
+        # if tm_props.CB_xml_genMeshXML: generate_mesh_XML(item)
+
+        generate_item_XML(item)
+        generate_mesh_XML(item)
 
         name = get_path_filename(item.fbx_path, remove_extension=True)
 

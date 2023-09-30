@@ -96,6 +96,8 @@ def generate_lightmap(col, use_overlapping_check=False) -> None:
         if "basematerial" in obj_uvs:
             obj.data.uv_layers.active_index = 0 #BaseMaterial
 
+
+
 def _check_uv_layer_overlaps_of_col(uv_name: str, col: bpy.types.Collection)-> bool:
     """checks if uvlayer has overlapping islands, return bool"""
 

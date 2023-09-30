@@ -127,12 +127,13 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
     current_view_layer = bpy.context.window.view_layer
     current_selection  = bpy.context.selected_objects.copy()
 
-    if overwrite_icon is False and export_path:
-        if is_file_existing(export_path):
-            debug(f"icon creation cancelled, <{ icon_name }> already exists")
-            return
+    if is_file_existing(export_path):
+        if overwrite_icon:
+            debug(f"creating icon <{icon_name}>")
+        else:
+            debug(f"icon creation canceled, <{ icon_name }> already exists")
+            return      
 
-    debug(f"creating icon <{icon_name}>")
     
     joined_obj = _make_joined_object(objects)
     vl = _add_view_layer()

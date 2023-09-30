@@ -32,7 +32,7 @@ class TM_PT_Items_Icon(Panel):
         layout = self.layout
         tm_props = get_global_props()
         row = layout.row()
-        row.enabled = tm_props.CB_icon_genIcons
+        row.enabled = tm_props.CB_icon_overwriteIcons
         row.label(text="Item Icon")
     
     def draw_header_preset(self, context):
@@ -44,7 +44,7 @@ class TM_PT_Items_Icon(Panel):
         # col.enabled = tm_props.CB_icon_genIcons
         # col.prop(tm_props, "CB_icon_overwriteIcons",   text="", icon=ICON_UPDATE)
         col = row.column(align=True)
-        col.prop(tm_props, "CB_icon_genIcons",         text="", icon=ICON_CHECKED,)
+        col.prop(tm_props, "CB_icon_overwriteIcons",         text="", icon=ICON_UPDATE,)
         
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
@@ -70,8 +70,10 @@ class TM_PT_Items_Icon(Panel):
         tm_props_pivots = scene.tm_props_pivots
         useTransparentBG= scene.render.film_transparent
 
-        row = layout.row()
-        row.prop(tm_props, "CB_icon_overwriteIcons",   text="Re-generate icon on each export")
+        layout.enabled = tm_props.CB_icon_overwriteIcons
+
+        # row = layout.row()
+        # row.prop(tm_props, "CB_icon_overwriteIcons",   text="Re-generate icon on each export")
 
         row = layout.row()
         row.prop(tm_props, "LI_icon_world", text="World")

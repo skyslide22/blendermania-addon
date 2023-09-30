@@ -18,6 +18,8 @@ from .Constants import (
     SPECIAL_NAME_PREFIX_ICON_ONLY,
     SPECIAL_NAME_PREFIX_NOTVISIBLE,
     SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
+    UV_LAYER_NAME_BASEMATERIAL,
+    UV_LAYER_NAME_LIGHTMAP,
     WAYPOINT_VALID_NAMES
 )
 from .Functions import (
@@ -83,27 +85,31 @@ def _fix_uv_layers_name(objects: list[bpy.types.Object]) -> None:
             SPECIAL_NAME_PREFIX_IGNORE,
             SPECIAL_NAME_PREFIX_ICON_ONLY,
         )) and len(obj.material_slots.keys()) > 0:
-            has_bm = False
-            has_lm = False
+            has_basematerial = False
+            has_lightmap = False
 
             # fix short names and check if both BaseMaterial & LightMap exists
             for uv in obj.data.uv_layers:
                 if uv.name.lower().startswith(("base", "bm")):
-                    uv.name = "BaseMaterial"
+                    uv.name = UV_LAYER_NAME_BASEMATERIAL
                 elif uv.name.lower().startswith(("light", "lm")):
-                    uv.name = "LightMap"
+                    uv.name = UV_LAYER_NAME_LIGHTMAP
 
-                if uv.name == "BaseMaterial":
-                    has_bm = True
-                elif uv.name == "LightMap":
-                    has_lm = True
+                if uv.name == UV_LAYER_NAME_BASEMATERIAL:
+                    has_basematerial = True
+                elif uv.name == UV_LAYER_NAME_LIGHTMAP:
+                    has_lightmap = True
+
+                if uv.name.startswith("UVMap") and not has_basematerial:
+                    uv.name = UV_LAYER_NAME_BASEMATERIAL
+                    has_basematerial = True
 
             # create BaseMaterial & LightMap if they don't exist
-            if not has_bm:
-                obj.data.uv_layers.new(name="BaseMaterial", do_init=True)
+            if not has_basematerial:
+                obj.data.uv_layers.new(name=UV_LAYER_NAME_BASEMATERIAL, do_init=True)
                 
-            if not has_lm:
-                obj.data.uv_layers.new(name="LightMap",     do_init=True)
+            if not has_lightmap:
+                obj.data.uv_layers.new(name=UV_LAYER_NAME_LIGHTMAP,     do_init=True)
 
 
 
@@ -319,12 +325,17 @@ def _remove_empty_socket_unhide_existing(coll:bpy.types.Collection) -> None:
 
 
 def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
-    current_selection                            = bpy.context.selected_objects.copy()
-    tm_props                                     = get_global_props()
-    fix_lightmap                                 = tm_props.CB_uv_fixLightMap
-    generate_lightmaps                           = tm_props.CB_uv_genLightMap
-    generate_base_materials                      = tm_props.CB_uv_genBaseMaterialCubeMap
-    generate_icons                               = tm_props.CB_icon_genIcons
+    current_selection       = bpy.context.selected_objects.copy()
+    tm_props                = get_global_props()
+    
+    use_lightmap_overlapping_check = tm_props.CB_uv_fixLightMap
+    overwrite_lightmaps            = tm_props.CB_uv_genLightMap
+    
+    overwrite_basematerials = tm_props.CB_uv_genBaseMaterialCubeMap
+    
+    # generate_icons          = tm_props.CB_icon_genIcons
+    # overwrite_icon          = tm_props.CB_icon_overwriteIcons
+    
     items_to_export:list[ExportedItem]           = []
     processed_materials:list[bpy.types.Material] = []
     
@@ -379,9 +390,14 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
             if   "_lod0" in obj.name.lower(): has_lod0 = True
             elif "_lod1" in obj.name.lower(): has_lod1 = True
 
-        if not has_lod0 and not has_lod1:
-            if generate_lightmaps: generate_lightmap(coll, fix_lightmap)
-            if generate_base_materials: generate_base_material_cube_projection(coll)
+        if (
+            not has_lod0 and 
+            not has_lod1
+        ):
+            if overwrite_lightmaps: 
+                generate_lightmap(coll, use_lightmap_overlapping_check)
+            if overwrite_basematerials: 
+                generate_base_material_cube_projection(coll)
 
         if has_lod1 and not has_lod0:
             show_report_popup("Invalid collections", f"<{coll.name}> has Lod1, but not Lod0, collection skipped")
@@ -400,8 +416,7 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
         _remove_empty_socket_unhide_existing(coll)
 
         # generate icon
-        if generate_icons:
-            generate_collection_icon(coll, item_to_export.icon_path)
+        generate_collection_icon(coll, item_to_export.icon_path)
         
         # move collection back to original position
         _move_collection_by(coll.objects, offset)

@@ -30,7 +30,7 @@ class TM_PT_Items_ItemXML(Panel):
         layout = self.layout
         tm_props = get_global_props()
         row = layout.row()
-        row.enabled = tm_props.CB_xml_genItemXML
+        row.enabled = tm_props.CB_xml_overwriteItemXML
         row.label(text="Item XML")
     
     def draw_header_preset(self, context):
@@ -39,10 +39,10 @@ class TM_PT_Items_ItemXML(Panel):
         row = layout.row(align=True)
 
         # col = row.column(align=True)
-        # col.enabled = tm_props.CB_xml_genItemXML
-        # col.prop(tm_props, "CB_xml_overwriteItemXML",   text="", icon=ICON_UPDATE)
+        # col.label(text="", icon=ICON_CHECKED)
+
         col = row.column(align=True)
-        col.prop(tm_props, "CB_xml_genItemXML",         text="", icon=ICON_CHECKED,)
+        col.prop(tm_props, "CB_xml_overwriteItemXML",         text="", icon=ICON_UPDATE,)
 
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
@@ -87,12 +87,13 @@ class TM_PT_Items_ItemXML(Panel):
         tm_props        = get_global_props()
         tm_props_pivots = get_pivot_props()
         
-        if tm_props.CB_showConvertPanel \
-        or tm_props.CB_xml_genItemXML is False:
+        if tm_props.CB_showConvertPanel:
             return
         
-        row = layout.row(align=True)
-        row.prop(tm_props, "CB_xml_overwriteItemXML",   text="Overwrite on export (recommended)")
+        layout.enabled = tm_props.CB_xml_overwriteItemXML
+        
+        # row = layout.row(align=True)
+        # row.prop(tm_props, "CB_xml_overwriteItemXML",   text="Overwrite on export (recommended)")
 
         display_type     = tm_props.LI_xml_simpleOrAdvanced
         display_simple   = display_type.upper() == "SIMPLE"
@@ -240,7 +241,7 @@ class TM_PT_Items_MeshXML(Panel):
         layout = self.layout
         tm_props = get_global_props()
         row = layout.row()
-        row.enabled = tm_props.CB_xml_genMeshXML
+        row.enabled = tm_props.CB_xml_overwriteMeshXML
         row.label(text="Mesh XML")
     
     def draw_header_preset(self, context):
@@ -248,8 +249,11 @@ class TM_PT_Items_MeshXML(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
 
+        # col = row.column(align=True)
+        # col.label(text="", icon=ICON_CHECKED)
+
         col = row.column(align=True)
-        col.prop(tm_props, "CB_xml_genMeshXML",         text="", icon=ICON_CHECKED,)
+        col.prop(tm_props, "CB_xml_overwriteMeshXML",         text="", icon=ICON_UPDATE,)
         
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
@@ -286,14 +290,13 @@ class TM_PT_Items_MeshXML(Panel):
         if tm_props.CB_showConvertPanel:
             return
     
-        if tm_props.CB_xml_genItemXML is False:
-            return
-        
+        # if tm_props.CB_xml_genItemXML is False:
+        #     return
 
-        # layout.label(text="Overwrite all objects/lights settings:")
+        layout.enabled = tm_props.CB_xml_overwriteMeshXML
 
-        row = layout.row(align=True)
-        row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="Overwrite on export (recommended)")
+        # row = layout.row(align=True)
+        # row.prop(tm_props, "CB_xml_overwriteMeshXML",   text="Overwrite on export (recommended)")
 
         #--- object scale
         row = layout.row(align=True)
