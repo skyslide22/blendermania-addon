@@ -299,7 +299,7 @@ def generate_item_XML(item: ExportedItem) -> str:
 
     if xml_pivots:
         xml_pivots += f"""<Pivots>"""+NL
-        xml_pivots += f"""    { xml_pivots }</Pivots>"""+NL
+        xml_pivots += f"""    { xml_pivots }"""+NL
         xml_pivots += f"""</Pivots>"""+NL
 
 
