@@ -101,12 +101,12 @@ class TM_PT_Items_Icon(Panel):
         row3.prop(tm_props, "NU_icon_bgColor",  text="")
 
 
-        row = layout.row(align=True)
-        row2= row.row(align=True)
-        row2.label(text="Size")
+        # row = layout.row(align=True)
+        # row2= row.row(align=True)
+        # row2.label(text="Size")
         
-        row2 = row.row(align=True)
-        row2.prop(tm_props, "LI_icon_pxDimension", expand=True)
+        # row2 = row.row(align=True)
+        # row2.prop(tm_props, "LI_icon_pxDimension", expand=True)
 
         layout.separator(factor=UI_SPACER_FACTOR)
 

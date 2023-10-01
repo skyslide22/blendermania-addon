@@ -510,6 +510,7 @@ def getIconWorlds() -> list:
     ).to_list()
 
 
+# obsolete
 def getIconPXdimensions() -> list:
     return EnumProps().add(
         id   = "64",
