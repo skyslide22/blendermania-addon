@@ -6,6 +6,7 @@ import glob
 import subprocess
 import tempfile
 import threading
+from typing import List
 import urllib.request
 import urllib.error
 import bpy
@@ -1079,7 +1080,7 @@ def origin_to_center_of_mass() -> None:
 
 def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
     location: list[float] = [0,0,0]
-    offset: list[float] = []
+    offset: list[float] = [0,0,0]
     
     # take first valid object and main one
     for obj in objects:
@@ -1188,7 +1189,7 @@ def get_coll_relative_path(coll: bpy.types.Collection) -> str:
     return '/'.join(map(safe_name, get_collection_hierachy(coll.name, [coll.name])))
 
 def get_object_relative_path(obj: bpy.types.Object) -> str:
-    return '/'.join(map(safe_name, get_collection_hierachy(obj.users_collection[0].name, [obj.name])))
+    return '/'.join(map(safe_name, get_collection_hierachy(obj.users_collection[0].name, [obj.name, obj.users_collection[0].name])))
 
 def create_collection_hierachy(hierachy: list) -> object:
     """create collections hierachy from list and link root to the scene master collection"""
@@ -1204,6 +1205,13 @@ def create_collection_hierachy(hierachy: list) -> object:
     
     return cols[hierachy[-1]]
 
+
+def get_exportable_objects(objs: List[bpy.types.Object])->set:
+    objects = set()
+    for obj in objs:
+        if obj.name.startswith(SPECIAL_NAME_PREFIX_ITEM):
+            objects.add(obj)
+    return objects
 
 def get_exportable_collections(objs)->set:
     collections = set()
@@ -1229,6 +1237,17 @@ def get_exportable_collections(objs)->set:
             collections.add(col)
     
     return collections
+
+
+def get_prefix(name: str) -> str:
+    match = re.search(r"(\_\w+\_)", name)
+    prefix = "" 
+    if match:
+        group = match.group(1)
+        if group:
+            groups = match.groups()
+            prefix = groups[0]
+    return prefix
 
 
 def get_linked_materials() -> object:

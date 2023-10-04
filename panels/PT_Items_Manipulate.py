@@ -129,6 +129,7 @@ class TM_PT_Items_ObjectManipulation(Panel):
         is_light   = (obj.type == "LIGHT") if obj is not None else False 
 
         doublesided     = SPECIAL_NAME_SUFFIX_DOUBLESIDED in obj_name
+        is_item         = SPECIAL_NAME_PREFIX_ITEM in obj_name
         is_ignored      = SPECIAL_NAME_PREFIX_IGNORE in obj_name
         is_icon_only    = SPECIAL_NAME_PREFIX_ICON_ONLY in obj_name
         is_notvisible   = SPECIAL_NAME_PREFIX_NOTVISIBLE in obj_name
@@ -145,14 +146,16 @@ class TM_PT_Items_ObjectManipulation(Panel):
     
         obj_box = layout#.box()
     
-        row = obj_box.row(align=True)
 
-        # ignore
         row = obj_box.row(align=True)
         row.operator(f"view3d.tm_toggleobjectignore",   
                      text=f"No Export",   
                      icon_value=get_addon_icon("CANCEL"), 
                      depress=is_ignored)
+        row.operator(f"view3d.tm_toggleobjectitem",   
+                     text=f"Item",   
+                     icon=ICON_EXPORT, 
+                     depress=is_item)
         row.operator(f"view3d.tm_toggleobjecticononly", 
                      text=f"Icon Dummy",  
                      icon=ICON_IMAGE_DATA, 

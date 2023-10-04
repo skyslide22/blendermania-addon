@@ -124,14 +124,8 @@ class TM_PT_Items_Export(Panel):
             if bpy.context.selected_objects == [] and exportActionIsSelected:
                 enableExportButton = False
         
-        # if exportTypeIsConvertOnly:
-        #     row=layout.row()
-        #     row.alert=True
-        #     row.label(text="work in progress, soon ...")
-        #     return
 
-        
-        if not showConvertPanel:
+
             layout.separator(factor=UI_SPACER_FACTOR)
 
             text = exportType
@@ -140,26 +134,46 @@ class TM_PT_Items_Export(Panel):
             # get number of collections which can be exported
             selected_objects = bpy.context.selected_objects
             visible_objects  = bpy.context.visible_objects
+            
             objs = selected_objects if exportActionIsSelected else visible_objects
             exportable_cols:list[bpy.types.Collection] = None
 
+            item_prefix_detected = False
+            for obj in objs: 
+                item_prefix_detected = obj.name.startswith(SPECIAL_NAME_PREFIX_ITEM)
+                if item_prefix_detected:
+                    break
+
             if tm_props.CB_allow_complex_panel_drawing:
                 exportable_cols  = get_exportable_collections(objs=objs)
+                exportable_objs  = get_exportable_objects(objs=objs)
                 collection_count = len(exportable_cols)
+                objects_count    = len(exportable_objs)
 
-                plural = "s" if collection_count > 1 else ""
-                text=f"Export & Convert {collection_count} Collection{plural}"
+                type = ""
 
-                if collection_count == 0:
+                if objects_count > 0:
+                    type = "Object"
+                    if objects_count > 1:
+                        type += "s"
+                
+                elif collection_count > 0:
+                    type = "Collection"
+                    if collection_count > 1:
+                        type += "s"
+                
+                else:
                     enableExportButton = False
-            else:
-                text = "Export Collections"
-                enableExportButton = True
+                
+                text = f"Export & Convert {type}"
 
-            if exportType == "EXPORT":
-                icon=ICON_EXPORT
-            elif exportType == "EXPORT_CONVERT":
-                icon=ICON_CONVERT
+
+            else:
+                type = "Objects" if item_prefix_detected else "Collections"
+                type = type if enableExportButton else ""
+                text = f"Export {type}"
+                # enableExportButton = True
+
 
             col = layout.column(align=True)
 
@@ -167,7 +181,10 @@ class TM_PT_Items_Export(Panel):
             row.scale_y = 1.5
             row.enabled = enableExportButton 
             row.alert   = not enableExportButton #red button, 0 selected
-            row.operator("view3d.tm_export", text=text,   icon=icon)
+            row.operator("view3d.tm_export", text=text,   icon=ICON_CONVERT)
+
+            # row = col.row()
+            # row.label(text=f"expobjs={[obj.name for obj in exportable_objs]}")
             
         
 
@@ -200,11 +217,6 @@ class TM_PT_Items_Export(Panel):
 
             box = layout.box()
             box.use_property_split = True
-
-            # exported_cols = [bpy.data.collections[exp_col.name_raw] for exp_col in get_convert_items_props()]
-            exported_cols = []
-            for exp_col in get_convert_items_props():
-                exported_cols.append(bpy.data.collections[exp_col.name_raw])
 
             embed_space = 0
 

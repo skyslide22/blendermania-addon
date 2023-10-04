@@ -70,6 +70,18 @@ class TM_OT_Items_ObjectManipulationToggleLod0(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Items_ObjectManipulationToggleItem(Operator):
+    bl_idname = "view3d.tm_toggleobjectitem"
+    bl_description = f"Toggle {SPECIAL_NAME_PREFIX_ITEM} on selected object"
+    bl_icon = 'ADD'
+    bl_label = f"Toggle {SPECIAL_NAME_PREFIX_ITEM}"
+   
+    def execute(self, context):
+        if len(bpy.context.selected_objects) == 1:
+            toggleNameSpecialPrefix(bpy.context.selected_objects[0], SPECIAL_NAME_PREFIX_ITEM)
+        return {"FINISHED"}
+
+
 class TM_OT_Items_ObjectManipulationToggleIgnore(Operator):
     bl_idname = "view3d.tm_toggleobjectignore"
     bl_description = f"Toggle {SPECIAL_NAME_PREFIX_IGNORE} on selected object"

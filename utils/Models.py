@@ -17,3 +17,4 @@ class ExportedItem:
     game_is_trackmania2020: bool = False
     game_is_maniaplanet:    bool = False
     game:                   str  = ""
+    is_single_item:         bool = False

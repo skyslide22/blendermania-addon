@@ -12,6 +12,7 @@ from .ItemsIcon import generate_collection_icon, get_icon_path_from_fbx_path, ge
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
 from .Constants import (
     NOT_ALLOWED_COLLECTION_NAMES,
+    SPECIAL_NAME_PREFIX_ITEM,
     SPECIAL_NAME_PREFIX_SOCKET,
     SPECIAL_NAME_PREFIX_TRIGGER,
     SPECIAL_NAME_PREFIX_IGNORE,
@@ -29,6 +30,7 @@ from .Functions import (
     get_global_props,
     get_coll_relative_path,
     get_export_path,
+    get_prefix,
     get_waypointtype_of_collection,
     is_game_maniaplanet,
     safe_name,
@@ -44,7 +46,14 @@ from .Functions import (
 
 def _is_real_object(name: str) -> bool:
     name = name.lower()
-    return not name.startswith("_") or name.startswith((SPECIAL_NAME_PREFIX_NOTVISIBLE, SPECIAL_NAME_PREFIX_NOTCOLLIDABLE))
+    return (
+        not name.startswith("_") 
+        or name.startswith((
+            SPECIAL_NAME_PREFIX_NOTVISIBLE, 
+            SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
+            SPECIAL_NAME_PREFIX_ITEM
+        ))
+    )
 
 
 
@@ -431,7 +440,7 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
     start_batch_convert(items_to_export)
 
 
-# TODO is this still used ? no references found
+
 def export_objects(objects: list[bpy.types.Object])->list[ExportedItem]:
     current_selection                            = bpy.context.selected_objects.copy()
     tm_props                                     = get_global_props()
@@ -449,6 +458,9 @@ def export_objects(objects: list[bpy.types.Object])->list[ExportedItem]:
             continue
         
         debug(f"Preparing <{obj.name}> for export")
+
+        prefix = get_prefix(obj.name)
+        obj.name = obj.name.replace(prefix, "")
 
         for slot in obj.material_slots:
             mat = slot.material
@@ -471,20 +483,18 @@ def export_objects(objects: list[bpy.types.Object])->list[ExportedItem]:
         # fix UVs and check lods
         _fix_uv_layers_name([obj])
 
-        # move collection to 0,0,0
-        offset = _move_collection_to([obj])
+        old_loc = obj.location.copy()
 
-        # export .fbx
         _export_item_FBX(item_to_export)
 
-        # generate icon
         if generate_icons:
             generate_objects_icon([obj], obj.name, item_to_export.icon_path)
         
-        # move collection back to original position
-        _move_collection_by([obj], offset)
+        obj.location = old_loc
 
         items_to_export += _duplicate_scaled(item_to_export)
+
+        obj.name = prefix + obj.name
 
     for obj in current_selection:
         try: select_obj(obj)

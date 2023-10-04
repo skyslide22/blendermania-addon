@@ -123,6 +123,7 @@ classes = (
     TM_OT_Items_ObjectManipulationAddSocketItem,
     TM_OT_Items_ObjectManipulationAddTriggerItem,
     TM_OT_Items_ObjectManipulationToggleIgnore,
+    TM_OT_Items_ObjectManipulationToggleItem,
     TM_OT_Items_ObjectManipulationToggleIconOnly,
     TM_OT_Items_CollectionManipulationToggleIgnore,
     TM_OT_Items_ObjectManipulationToggleNotvisible,

@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import (Operator)
 
-from ..utils.ItemsExport import export_collections
+from ..utils.ItemsExport import export_collections, export_objects
 from ..utils.Functions import *
 
 class TM_OT_Items_Export_ExportAndOrConvert(Operator):
@@ -45,6 +45,16 @@ def close_convert_panel():
 def export_and_convert():
     tm_props = get_global_props()
     
-    # take all collections or only selected
-    to_export = get_exportable_collections(bpy.context.selected_objects) if tm_props.LI_exportWhichObjs == "SELECTED" else bpy.data.collections
-    return export_collections(to_export)
+    selected_only = tm_props.LI_exportWhichObjs == "SELECTED"
+
+    # atleast one _item_ is selected
+    objs = get_exportable_objects(bpy.context.selected_objects    if selected_only 
+                                                                else bpy.context.scene.objects)
+    if objs:
+        return export_objects(objs)
+
+
+    
+    colls = get_exportable_collections(bpy.context.selected_objects   if selected_only 
+                                                                    else bpy.context.scene.objects)
+    return export_collections(colls)

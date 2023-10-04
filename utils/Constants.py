@@ -239,6 +239,7 @@ SPECIAL_NAME_PREFIXES = (
     SPECIAL_NAME_PREFIX_SOCKET        := "_socket_",
     SPECIAL_NAME_PREFIX_TRIGGER       := "_trigger_",
     SPECIAL_NAME_PREFIX_IGNORE        := "_ignore_",
+    SPECIAL_NAME_PREFIX_ITEM          := "_item_",
     SPECIAL_NAME_PREFIX_GATE          := "_gate_",
     SPECIAL_NAME_PREFIX_NICE          := "_nice_",
     SPECIAL_NAME_PREFIX_ICON_ONLY     := "_icon_only_",

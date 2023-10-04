@@ -74,7 +74,7 @@ def _make_empty_object(location: list[float]) -> bpy.types.Object:
 
 
 
-def _add_view_layer() -> bpy.types.ViewLayer:
+def _add_icon_view_layer_and_set_active() -> bpy.types.ViewLayer:
     ICON_VW_NAME = "ICON_VIEW_LAYER"
     icon_view_layer = bpy.context.scene.view_layers.get(ICON_VW_NAME, None)
 
@@ -134,9 +134,17 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
             debug(f"icon creation canceled, <{ icon_name }> already exists")
             return      
 
+    is_single_object = len(objects) == 1
+
+    joined_obj = _make_joined_object(objects) if not is_single_object else objects[0]
     
-    joined_obj = _make_joined_object(objects)
-    vl = _add_view_layer()
+    vl = _add_icon_view_layer_and_set_active()
+
+    for obj in objects:
+        try:
+            vl.active_layer_collection.collection.objects.link(obj)
+        except RuntimeError as e:
+            pass
 
     # HIDE ALL BUT JOINED
     for obj in bpy.context.scene.collection.objects:
@@ -179,9 +187,22 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
 
     bpy.ops.render.render(write_still=export_path is not None)
 
+
+    # CLEAN UP -----------------
+    # CLEAN UP -----------------
+    # CLEAN UP -----------------
     # CLEAN UP -----------------
     bpy.context.window.view_layer = current_view_layer
-    bpy.data.objects.remove(joined_obj, do_unlink=True)
+    
+    if not is_single_object:
+        bpy.data.objects.remove(joined_obj, do_unlink=True)
+
+    for obj in objects:
+        try:
+            vl.active_layer_collection.collection.objects.unlink(obj)
+        except RuntimeError as e:
+            pass
+    
     bpy.data.objects.remove(camera, do_unlink=True)
     bpy.data.objects.remove(empty, do_unlink=True)
     for obj in current_selection:
