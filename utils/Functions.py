@@ -1080,7 +1080,7 @@ def origin_to_center_of_mass() -> None:
 
 def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
     location: list[float] = [0,0,0]
-    offset: list[float] = [0,0,0]
+    offset: list[float] = []
     
     # take first valid object and main one
     for obj in objects:

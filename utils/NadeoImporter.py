@@ -360,66 +360,71 @@ class ItemConvert(threading.Thread):
         for file in files:
             print("FILE: " + file)
 
-        for gbxfile in files:
+        try:
+            for gbxfile in files:
 
-            with open(gbxfile, "r+b") as f_item:
-                # read item file
-                item_data = f_item.read()
-                
-                try:
-                    byter = BinaryReader(item_data)
-
-                    # check version
-                    (version,) = byter.unpack("<3xH")
-                    if version != 6:
-                        raise ValueError()
+                with open(gbxfile, "r+b") as f_item:
+                    # read item file
+                    item_data = f_item.read()
                     
-                    # check class_id
-                    (class_id, ) = byter.unpack("<4xI")
-                    if class_id != 0x2e002000:
-                        raise ValueError()
+                    try:
+                        byter = BinaryReader(item_data)
 
-                    # header chunks
-                    (user_data_size, num_headerchunks) = byter.unpack("<II")
+                        # check version
+                        (version,) = byter.unpack("<3xH")
+                        if version != 6:
+                            raise ValueError()
+                        
+                        # check class_id
+                        (class_id, ) = byter.unpack("<4xI")
+                        if class_id != 0x2e002000:
+                            raise ValueError()
 
-                    chunks = []
-                    icon_chunk_idx = -1
+                        # header chunks
+                        (user_data_size, num_headerchunks) = byter.unpack("<II")
 
-                    for i in range(num_headerchunks):
-                        (chunk_id, chunk_size) = byter.unpack("<II")
+                        chunks = []
+                        icon_chunk_idx = -1
 
-                        chunk_size &= 0x7FFFFFFF # remove heavy flag
-                        chunks.append(HeaderChunk(chunk_id, chunk_size))
+                        for i in range(num_headerchunks):
+                            (chunk_id, chunk_size) = byter.unpack("<II")
 
-                        if chunk_id == 0x2e001004:
-                            icon_chunk_idx = i
+                            chunk_size &= 0x7FFFFFFF # remove heavy flag
+                            chunks.append(HeaderChunk(chunk_id, chunk_size))
 
-                    if icon_chunk_idx < 0:
-                        raise ValueError()
+                            if chunk_id == 0x2e001004:
+                                icon_chunk_idx = i
 
-                    # read until icon chunk
-                    for chunk in chunks[:icon_chunk_idx]:
-                        byter.index += chunk.size
+                        if icon_chunk_idx < 0:
+                            raise ValueError()
 
-                    # overwrite icon chunk
-                    old_icon_chunk_size = chunks[icon_chunk_idx].size
+                        # read until icon chunk
+                        for chunk in chunks[:icon_chunk_idx]:
+                            byter.index += chunk.size
 
-                    gbxfile_bytes = bytearray(
-                        item_data[:byter.index] + 
-                        item_data[byter.index + chunks[icon_chunk_idx].size:]
-                    )
-                
-                except ValueError as err:
-                    gbxfile_bytes = item_data
+                        # overwrite icon chunk
+                        old_icon_chunk_size = chunks[icon_chunk_idx].size
 
-        
-                zip_buffer = io.BytesIO()
+                        gbxfile_bytes = bytearray(
+                            item_data[:byter.index] + 
+                            item_data[byter.index + chunks[icon_chunk_idx].size:]
+                        )
+                    
+                    except ValueError as err:
+                        gbxfile_bytes = item_data
 
-                with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
-                    zip_file.writestr("the-item-or-something", gbxfile_bytes)
-                    zipped_size = zip_file.getinfo("the-item-or-something").compress_size / 1000 #kb
-                    total_size +=  zipped_size
-                    print(gbxfile.split("/")[-1] + " = " +  str(zipped_size))
+            
+                    zip_buffer = io.BytesIO()
+
+                    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+                        zip_file.writestr("the-item-or-something", gbxfile_bytes)
+                        zipped_size = zip_file.getinfo("the-item-or-something").compress_size / 1000 #kb
+                        total_size +=  zipped_size
+                        print(gbxfile.split("/")[-1] + " = " +  str(zipped_size))
+
+        except PermissionError as err:
+            total_size = -1.0
+            debug(err.strerror)
 
         return total_size
 
