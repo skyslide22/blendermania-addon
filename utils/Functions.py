@@ -1240,7 +1240,7 @@ def get_exportable_collections(objs)->set:
 
 
 def get_prefix(name: str) -> str:
-    match = re.search(r"(\_\w+\_)", name)
+    match = re.search(r"(\_[A-Za-z0-9-]+\_)", name)
     prefix = "" 
     if match:
         group = match.group(1)

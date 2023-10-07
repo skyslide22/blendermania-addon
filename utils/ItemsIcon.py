@@ -127,7 +127,7 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
     current_view_layer = bpy.context.window.view_layer
     current_selection  = bpy.context.selected_objects.copy()
 
-    if is_file_existing(export_path):
+    if is_file_existing(export_path or ""):
         if overwrite_icon:
             debug(f"creating icon <{icon_name}>")
         else:
