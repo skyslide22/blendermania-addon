@@ -298,9 +298,10 @@ def generate_item_XML(item: ExportedItem) -> str:
                     )
 
     if xml_pivots:
-        xml_pivots += f"""<Pivots>"""+NL
-        xml_pivots += f"""    { xml_pivots }"""+NL
-        xml_pivots += f"""</Pivots>"""+NL
+        p = f"""<Pivots>"""+NL
+        p += f"""    { xml_pivots }"""+NL
+        p += f"""</Pivots>"""+NL
+        xml_pivots = p
 
 
     filename    = get_path_filename(item.fbx_path)
@@ -368,7 +369,7 @@ def generate_item_XML(item: ExportedItem) -> str:
     full_xml += f"""    /> """+NL
     full_xml += f"""    <PivotSnap   """+NL
     full_xml += f"""        Distance="{ pivot_snap_distance }" """+NL
-    full_xml += f"""    /> """+NL
+    full_xml += f"""    /> """+NL 
     full_xml += f"""{add_indents(xml_pivots, 1)}"""+NL
     full_xml += f"""</Item>"""+NL
 
