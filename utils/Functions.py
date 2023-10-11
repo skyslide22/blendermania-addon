@@ -1453,10 +1453,12 @@ def hex_to_rgb(value):
 
 def redraw_all_panels() -> None:
     """refresh panel in ui, they are not updating sometimes"""
-    for region in bpy.context.area.regions:
-        if region.type == "UI":
-            region.tag_redraw()  
-
+    try:
+        for region in bpy.context.area.regions:
+            if region.type == "UI":
+                region.tag_redraw()  
+    except AttributeError:
+        pass # on startup it fails first iteration
 
 def get_abs_path(path: str):
     return os.path.abspath(path) if path else ""

@@ -39,7 +39,7 @@ from .utils.NadeoImporter  import *
 from .utils.NadeoXML       import *
 from .utils.BlenderObjects import *
 
-from .utils.focus_blender_server import run_server
+from .utils.Server import run_server
 
 from .properties.Functions                  import *
 from .properties.ConvertingItemsProperties  import *
@@ -322,7 +322,6 @@ def on_save(what, idontknow) -> None: # on quit?
     """run on blender save"""
     saveDefaultSettingsJSON()
 
-
 # TODO runs 10 times on new blend file ??
 @persistent
 def on_startup(dummy) -> None:
@@ -389,7 +388,7 @@ def on_startup(dummy) -> None:
         # RuntimeError: subscribe_rna, missing bl_rna attribute from 'Scene' instance (may not be registered)
 
     try:
-        run_server(get_addon_assets_path())
+        run_server()
     except:
         print("server died hm..")
 

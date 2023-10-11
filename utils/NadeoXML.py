@@ -403,9 +403,9 @@ def generate_mesh_XML(item: ExportedItem) -> str:
     
 
     mat_envi_collection  = ""
-    materials   = []
+    materials   = set()
     xml_materials= ""
-    lights      = []
+    lights      = set()
     lightsXML   = ""
 
     
@@ -413,11 +413,11 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         
         if obj.type == "MESH":
             for mat_slot in obj.material_slots:
-                materials.append( mat_slot.material )
+                materials.add( mat_slot.material )
         
         if obj.type == "LIGHT":
             obj.name = safe_name(obj.name)
-            lights.append( obj )
+            lights.add( obj )
 
 
     for mat in materials:

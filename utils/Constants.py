@@ -139,6 +139,8 @@ ICON_FILE_NEW           = "FILE_NEW"
 ICON_IMAGE_DATA         = "IMAGE_DATA"
 
 
+EDITORTRAILS_OBJECT_NAME = "_ignore_editortrails"
+
 MAP_GRID_OBJECT_NAME    = "_ignore_map_grid_helper"
 MAP_GRID_GEO_NODES_NAME = "Map Grid Geo Nodes"
 
