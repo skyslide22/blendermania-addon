@@ -44,8 +44,8 @@ class MyHandler(SimpleHTTPRequestHandler):
                     data = sample["p"]
                     trail = EditorTrail()
                     trail.path_x = data[0]
-                    trail.path_y = data[1]
-                    trail.path_z = data[2] - 8
+                    trail.path_y = data[1] - 8
+                    trail.path_z = data[2]
                     trails.append(trail)
                     
                     
