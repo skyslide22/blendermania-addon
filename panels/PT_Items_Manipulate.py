@@ -178,11 +178,11 @@ class TM_PT_Items_ObjectManipulation(Panel):
 
             row = obj_box.row(align=True)
 
-            if is_game_trackmania2020():
-                row.operator(f"view3d.tm_toggle_gate",  
-                            text="Gate",  
-                            icon="OUTLINER_OB_FORCE_FIELD", 
-                            depress=is_gate)
+            # if is_game_trackmania2020():
+            #     row.operator(f"view3d.tm_toggle_gate",  
+            #                 text="Gate",  
+            #                 icon="OUTLINER_OB_FORCE_FIELD", 
+            #                 depress=is_gate)
                 
             row.operator(f"view3d.tm_toggleobjecttrigger", 
                         text="Trigger", 
@@ -450,10 +450,10 @@ class TM_PT_Items_CollectionManipulation(Panel):
         # ignore & nice
         # ignore & nice
         ignore = current_collection_name.startswith(SPECIAL_NAME_PREFIX_IGNORE)
-        nice   = current_collection_name.startswith(SPECIAL_NAME_PREFIX_NICE)
+        # nice   = current_collection_name.startswith(SPECIAL_NAME_PREFIX_NICE)
 
         row = col_box.row()
-        row.operator(f"view3d.tm_togglecollectionnice",   text=f"NICE",      icon="ORPHAN_DATA", depress=nice)
+        # row.operator(f"view3d.tm_togglecollectionnice",   text=f"NICE",      icon="ORPHAN_DATA", depress=nice)
         row.operator(f"view3d.tm_togglecollectionignore", text=f"No Export", icon_value=get_addon_icon("CANCEL"), depress=ignore)
 
 
