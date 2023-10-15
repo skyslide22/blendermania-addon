@@ -7,6 +7,7 @@ from ..utils.Constants import EDITORTRAILS_OBJECT_NAME
 from ..operators.OT_Items_Export import close_convert_panel
 
 from ..utils.Functions import (
+    debug,
     deselect_all_objects,
     editmode,
     get_addon_assets_path,
@@ -46,6 +47,26 @@ class EditorTrail:
 
 
 def update_editortrails(trails: List[EditorTrail]) -> bool:
+    can_run = bpy.context.mode == "OBJECT"
+    if can_run:
+        debug("update editortrails")
+        return _update_editortrails(trails)
+    
+    # bpy.ops.??() or in editmode will crash blender, fix things before:
+    def timed_update_editortrails():
+        debug("update editortrails timed")
+        if bpy.context.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        _update_editortrails(trails)
+        return None
+    
+    # should have correct access to bpy.context & bpy.ops
+    bpy.app.timers.register(timed_update_editortrails, 1)
+
+    return True
+        
+
+def _update_editortrails(trails: List[EditorTrail]) -> bool:
     curve = bpy.data.curves.get(EDITORTRAILS_OBJECT_NAME, None)
     if curve:
         bpy.data.curves.remove(curve)

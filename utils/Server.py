@@ -67,6 +67,9 @@ class MyHandler(SimpleHTTPRequestHandler):
         self.wfile.write(r.encode("utf-8"))
         self.wfile.flush()
 
+
+
+
     def do_GET(self):
         
         success = False
