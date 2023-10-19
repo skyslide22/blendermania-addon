@@ -104,8 +104,11 @@ class TM_PT_Items_ObjectManipulation(Panel):
         layout = self.layout
         tm_props = get_global_props()
         row = layout.row(align=True)
-    
-        row.operator("wm.tm_renameobject", text="", icon=ICON_EDIT).obj_name = bpy.context.object.name        
+
+        obj = bpy.context.object
+        name = obj.name if obj else "None"
+
+        row.operator("wm.tm_renameobject", text="", icon=ICON_EDIT).obj_name = name       
 
 
     def draw(self, context):

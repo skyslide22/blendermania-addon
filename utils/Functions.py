@@ -1213,7 +1213,16 @@ def get_exportable_objects(objs: List[bpy.types.Object])->set:
             objects.add(obj)
     return objects
 
-def get_exportable_collections(objs)->set:
+
+def get_exportable_collection_objects(objs: List[bpy.types.Object])->set:
+    objects = set()
+    for obj in objs:
+        if not obj.name.lower().startswith((SPECIAL_NAME_PREFIX_IGNORE, SPECIAL_NAME_PREFIX_ITEM)):
+            objects.add(obj)
+    return objects
+
+
+def get_exportable_collections(objs: List[bpy.types.Object])->set:
     collections = set()
 
     for obj in objs:

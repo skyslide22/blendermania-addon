@@ -27,6 +27,7 @@ from .Functions import (
     create_folder_if_necessary,
     debug,
     deselect_all_objects,
+    get_exportable_collection_objects,
     get_global_props,
     get_coll_relative_path,
     get_export_path,
@@ -364,24 +365,22 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
             continue
 
         debug(f"Preparing <{coll.name}> for export")
+        
+        objs = get_exportable_collection_objects(coll.objects)
+        
         # clean up lazy names
-        for obj in coll.objects:
-            objname_lower = obj.name.lower()
-            if objname_lower.startswith("_") is False:
-                if "socket" in objname_lower:  obj.name = "_socket_start"
-                if "trigger" in objname_lower: obj.name = "_trigger_"
-
+        for obj in objs:
             for slot in obj.material_slots:
                 mat = slot.material
-                if mat in processed_materials: continue
-                save_mat_props_json(mat)
-                processed_materials.append(mat)
+                if mat not in processed_materials: 
+                    save_mat_props_json(mat)
+                    processed_materials.append(mat)
         
         # fill metadata
         item_to_export = ExportedItem()
         item_to_export.name = safe_name(coll.name)
         item_to_export.name_raw = coll.name
-        item_to_export.objects = coll.objects
+        item_to_export.objects = objs
         item_to_export.color_tag = coll.color_tag
         item_to_export.tm_itemxml_template = coll.tm_itemxml_template
         item_to_export.r_path = get_coll_relative_path(coll)
