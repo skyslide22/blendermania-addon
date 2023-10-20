@@ -27,6 +27,11 @@ class MyHandler(SimpleHTTPRequestHandler):
 
             jsoncontent = json.loads(post_body)
             trails: List[EditorTrail] = []
+
+            # print(jsoncontent)
+            # return
+
+            newjson = []
             
             for entry in jsoncontent:
                 samples = entry["samples"]
@@ -43,10 +48,25 @@ class MyHandler(SimpleHTTPRequestHandler):
                     
                     data = sample["p"]
                     trail = EditorTrail()
-                    trail.path_x = data[0]
-                    trail.path_y = data[1] - 8
-                    trail.path_z = data[2]
+                    
+                    trail.path_x = sample["p"][0]
+                    trail.path_y = sample["p"][1] - 8
+                    trail.path_z = sample["p"][2]
+
+                    trail.velo_x = sample["v"][0]
+                    trail.velo_y = sample["v"][1]
+                    trail.velo_z = sample["v"][2]
+                    
+                    trail.quat_x = sample["q"][0]
+                    trail.quat_y = sample["q"][1]
+                    trail.quat_z = sample["q"][2]
+                    trail.quat_w = sample["q"][3]
+
+                    trail.time = sample["t"]
+                    
                     trails.append(trail)
+
+
                     
                     
             
