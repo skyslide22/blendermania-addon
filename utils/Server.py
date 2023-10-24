@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from typing import List
 import bpy
@@ -9,69 +10,30 @@ from http.server import SimpleHTTPRequestHandler
 
 import subprocess
 
-from .ServerActions import EditorTrail, focus_blender, update_editortrails
+import mathutils
+
+from .ServerActions import EditorTrail, focus_blender, process_editor_trails
 from ..operators.OT_Items_Export import close_convert_panel
 from .Functions import in_new_thread
 
 
 
 class MyHandler(SimpleHTTPRequestHandler):
-  
+
     def do_POST(self):
         success = False
-        
+
         # if self.path == "/update_editortrails":
         if self.path == "/trails":
             content_len = int(self.headers.get('Content-Length'))
             post_body = self.rfile.read(content_len).decode().replace("}{", "},{")
 
+            # with open("post_body.json", "w") as f:
+            #     f.write(post_body)
+            #     print(f"Wrote out to post_body.json. {os.curdir}")
+
             jsoncontent = json.loads(post_body)
-            trails: List[EditorTrail] = []
-
-            # print(jsoncontent)
-            # return
-
-            newjson = []
-            
-            for entry in jsoncontent:
-                samples = entry["samples"]
-                
-                first_pos = None
-                
-                for i, sample in enumerate(samples):
-                    
-                    if first_pos == sample:
-                        break # double data ????
-                    
-                    if i == 0:
-                        first_pos = sample
-                    
-                    data = sample["p"]
-                    trail = EditorTrail()
-                    
-                    trail.path_x = sample["p"][0]
-                    trail.path_y = sample["p"][1] - 8
-                    trail.path_z = sample["p"][2]
-
-                    trail.velo_x = sample["v"][0]
-                    trail.velo_y = sample["v"][1]
-                    trail.velo_z = sample["v"][2]
-                    
-                    trail.quat_x = sample["q"][0]
-                    trail.quat_y = sample["q"][1]
-                    trail.quat_z = sample["q"][2]
-                    trail.quat_w = sample["q"][3]
-
-                    trail.time = sample["t"]
-                    
-                    trails.append(trail)
-
-
-                    
-                    
-            
-            update_editortrails(trails)
-            success = True
+            success = process_editor_trails(jsoncontent)
 
         else:
             print("no post data")
@@ -88,18 +50,16 @@ class MyHandler(SimpleHTTPRequestHandler):
         self.wfile.flush()
 
 
-
-
     def do_GET(self):
-        
+
         success = False
-        
+
         if self.path == "/focus_blender":
             success = focus_blender()
 
 
         r="""Access denied""" if not success else "Success"
-        
+
         self.send_response(200 if success else 403)
         self.send_header("Content-type", "application/json;charset=utf-8")
 
@@ -126,7 +86,7 @@ def run_server() -> None:
 
     try:
         httpd = socketserver.TCPServer(server_address, HandlerClass)
-        print ("Server Started")
+        print(f"Server Started: {port}")
         httpd.serve_forever()
 
     except OSError as err:
@@ -135,7 +95,3 @@ def run_server() -> None:
     except KeyboardInterrupt:
         print('Shutting down server')
         httpd.socket.close()
-
-
-
-

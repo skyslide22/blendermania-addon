@@ -8,3 +8,6 @@ Blendermania_Dotnet_*.exe
 map-export.json
 convert-item.json
 *.bak
+
+post_body.json
+post_body.json.back
