@@ -373,6 +373,21 @@ def create_material_nodes(mat)->None:
 
 
 
+def is_material_exportable(mat) -> bool:
+    valid = True
+
+    # link or baseTexture needs to have a value
+    # if not, material has not been modified with the addon
+    if not mat.link and not mat.baseTexture:
+        valid = False
+
+    # if physicsid is enabled but has no value, material is invalid
+    if mat.usePhysicsId and not mat.physicsId:
+        valid = False
+
+    return valid
+
+
 def save_mat_props_json(mat) -> None:
     DICT = {}
     

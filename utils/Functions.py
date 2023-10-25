@@ -2067,6 +2067,9 @@ def get_scene() -> object:
 
 def get_global_props() -> object:
     return bpy.context.scene.tm_props
+
+def get_invalid_materials_props() -> object:
+    return bpy.context.scene.tm_props_invalidMaterials
     
 def get_map_object_props() -> object:
     return bpy.context.scene.tm_props.PT_map_object

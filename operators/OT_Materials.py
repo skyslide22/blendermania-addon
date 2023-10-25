@@ -121,3 +121,18 @@ def _create_or_update_material(action)->None:
 
     create_material_nodes(MAT)
     applyMaterialLiveChanges()
+
+
+
+
+
+class TM_OT_Materials_CloseInvalidPanel(Operator):
+    bl_idname = "view3d.tm_closeinvalidmaterialpanel"
+    bl_label = "Close"
+    bl_description = "close invalid materials panel"
+   
+    def execute(self, context):
+        get_invalid_materials_props().clear()
+        context.scene.tm_props.CB_showInvalidMatsPanel = False
+        context.region.tag_redraw()
+        return {"FINISHED"}

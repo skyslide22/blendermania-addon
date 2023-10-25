@@ -13,6 +13,7 @@ from ..utils.Functions import (
     deselect_all_objects,
     editmode,
     get_addon_assets_path,
+    get_global_props,
     objectmode,
     select_obj,
     set_active_object
@@ -109,10 +110,6 @@ def process_editor_trails(json_data):
 
 
 def update_editortrails(trails: List[EditorTrail]) -> bool:
-    can_run = bpy.context.mode == "OBJECT"
-    if can_run:
-        debug("update editortrails")
-        return _update_editortrails(trails)
 
     # bpy.ops.??() or in editmode will crash blender, fix things before:
     def timed_update_editortrails():
@@ -129,9 +126,13 @@ def update_editortrails(trails: List[EditorTrail]) -> bool:
 
 
 def _update_editortrails(trails: List[EditorTrail]) -> bool:
-    curve = bpy.data.curves.get(EDITORTRAILS_OBJECT_NAME, None)
-    if curve:
-        bpy.data.curves.remove(curve)
+    tm_props = get_global_props()
+
+    if tm_props.CB_etrail_overwriteOnImport:
+        curve = bpy.data.curves.get(EDITORTRAILS_OBJECT_NAME, None)
+        if curve:
+            bpy.data.curves.remove(curve)
+
 
     coords_list = []
 

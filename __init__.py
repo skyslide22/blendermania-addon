@@ -98,7 +98,7 @@ classes = (
     ConvertingItemsProperties,
     LinkedMaterialsProperties,
     ItemXMLTemplate,
-    # TM_Properties_ItemXMLTemplates,
+    InvalidMaterial,
 
     # settings
     TM_PT_Settings,
@@ -183,6 +183,8 @@ classes = (
     TM_OT_Materials_Create_Asset_Lib,
     TM_OT_Materials_ClearBaseMaterial,
     TM_OT_Materials_RevertCustomColor,
+    TM_OT_Materials_CloseInvalidPanel,
+    
 
     # textures
     TM_PT_Textures,
@@ -241,9 +243,11 @@ def register():
     bpy.types.Scene.tm_props_generated        = CollectionProperty(type=GeneratedProperties)
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=ConvertingItemsProperties)
     bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=LinkedMaterialsProperties)
+    bpy.types.Scene.tm_props_invalidMaterials = CollectionProperty(type=InvalidMaterial)
     # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=ItemXMLTemplatesProperties)
     bpy.types.Scene.tm_props_itemxml_templates_ui     = EnumProperty(items=get_itemxml_template_names_enum)
     bpy.types.Scene.tm_props_itemxml_templates        = CollectionProperty(type=ItemXMLTemplate)
+
 
     bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)
     bpy.types.Light.night_only          = BoolProperty(default=False)

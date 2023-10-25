@@ -211,6 +211,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     ST_materialBaseTexture      : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
     LI_materialChooseSource     : EnumProperty(name="Custom Texture or Link",     items=getMaterialTextureSourceOptions())
     ST_selectedLinkedMat        : StringProperty(name="Linked mat", default="")
+    CB_showInvalidMatsPanel     : BoolProperty(name="Show invalid materials", default=False)
 
     #textures
     LI_DL_TextureEnvi      : EnumProperty(items=getGameTextureZipFileNames(), update=redraw_panels)
@@ -222,3 +223,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     # cars
     LI_items_cars     : EnumProperty(name="Car",     items=get_car_names())
     LI_items_triggers : EnumProperty(name="Trigger", items=getTriggerNames())
+
+
+class InvalidMaterial(bpy.types.PropertyGroup):
+    material: PointerProperty(type=bpy.types.Material)

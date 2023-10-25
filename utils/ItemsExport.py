@@ -4,7 +4,7 @@ import bpy
 from copy import copy
 from shutil import copyfile
 
-from .Materials import save_mat_props_json
+from .Materials import is_material_exportable, save_mat_props_json
 
 from .Models import ExportedItem
 from .NadeoImporter import start_batch_convert
@@ -31,6 +31,7 @@ from .Functions import (
     get_global_props,
     get_coll_relative_path,
     get_export_path,
+    get_invalid_materials_props,
     get_prefix,
     get_waypointtype_of_collection,
     is_game_maniaplanet,
@@ -334,7 +335,7 @@ def _remove_empty_socket_unhide_existing(coll:bpy.types.Collection) -> None:
 
 
 
-def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
+def export_collections(colls: list[bpy.types.Collection]):
     current_selection       = bpy.context.selected_objects.copy()
     tm_props                = get_global_props()
     
@@ -367,15 +368,26 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
         debug(f"Preparing <{coll.name}> for export")
         
         objs = get_exportable_collection_objects(coll.objects)
-        
-        # clean up lazy names
+
+        invalid_mats = get_invalid_materials_props()
+
         for obj in objs:
             for slot in obj.material_slots:
                 mat = slot.material
                 if mat not in processed_materials: 
-                    save_mat_props_json(mat)
-                    processed_materials.append(mat)
+                    if is_material_exportable(mat):
+                        save_mat_props_json(mat)
+                        # processed_materials.append()
+                    else:
+                        imat = invalid_mats.add()
+                        imat.material = mat
         
+        if invalid_mats.items():
+            tm_props.CB_showInvalidMatsPanel = True
+            debug("Export stopped, found invalid materials")
+            return
+            
+
         # fill metadata
         item_to_export = ExportedItem()
         item_to_export.name = safe_name(coll.name)
@@ -440,7 +452,7 @@ def export_collections(colls: list[bpy.types.Collection])->list[ExportedItem]:
 
 
 
-def export_objects(objects: list[bpy.types.Object])->list[ExportedItem]:
+def export_objects(objects: list[bpy.types.Object]) -> None:
     current_selection                            = bpy.context.selected_objects.copy()
     tm_props                                     = get_global_props()
     generate_icons                               = tm_props.CB_icon_genIcons
@@ -463,6 +475,8 @@ def export_objects(objects: list[bpy.types.Object])->list[ExportedItem]:
 
         for slot in obj.material_slots:
             mat = slot.material
+            if not is_material_exportable(mat):
+                return
             if mat in processed_materials: continue
             save_mat_props_json(mat)
             processed_materials.append(mat)
