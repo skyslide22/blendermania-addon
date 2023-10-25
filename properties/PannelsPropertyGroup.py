@@ -80,6 +80,10 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     #visibility and selection controls toggle
     CB_visSel_use_visibility       : BoolProperty(name="", default=False, description="Switch between Visibility and Selection Controls")
 
+    #editor trails
+    CB_etrail_overwriteOnImport         : BoolProperty(default=True)
+    NU_etrail_animationProgress         : FloatProperty(min=0, max=100, default=0, subtype="PERCENTAGE")
+
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)
     LI_exportFolderType         : EnumProperty(items=getExportFolderTypes,    name="Folder", default=0)

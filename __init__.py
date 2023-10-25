@@ -10,6 +10,7 @@ import os
 
 
 
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
@@ -78,6 +79,7 @@ from .panels.PT_Items_Manipulate        import *
 from .panels.PT_UV_Manipulate           import *
 from .panels.PT_Textures                import *
 from .panels.PT_VisibilitySelection     import *
+from .panels.PT_EditorTrails            import *
 
 
 
@@ -210,12 +212,15 @@ classes = (
     PT_UIMapExport,
     PT_UIMapObjectsManipulation,
     OT_UICreateUpdateMapItemBlock,
-    PT_UIMediatrackerClips,
     OT_UIImportMediatrackerClips,
     OT_UIExportMediatrackerClips,
+    PT_UIMediatrackerClips,
     OT_UIChangeMediatrackerTriggerClipName,
     OT_UIRefreshMediatrackerTriggerClipNamesFromMap,
     OT_UISelectMediatrackerTriggersByName,
+    
+    # editor trails
+    TM_PT_UIEditorTrails,
 
     # util
     OT_UIWikiLink,
