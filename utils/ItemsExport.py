@@ -365,7 +365,7 @@ def export_collections(colls: list[bpy.types.Collection]):
         if not _is_collection_exportable(coll):
             continue
 
-        debug(f"Preparing <{coll.name}> for export")
+        debug(f"Preparing collection <{coll.name}> for export")
         
         objs = get_exportable_collection_objects(coll.objects)
 
@@ -377,7 +377,7 @@ def export_collections(colls: list[bpy.types.Collection]):
                 if mat not in processed_materials: 
                     if is_material_exportable(mat):
                         save_mat_props_json(mat)
-                        # processed_materials.append()
+                        processed_materials.append(mat)
                     else:
                         imat = invalid_mats.add()
                         imat.material = mat
@@ -463,23 +463,34 @@ def export_objects(objects: list[bpy.types.Object]) -> None:
     
     deselect_all_objects()
 
+
     for obj in objects:
         obj:bpy.types.Object = obj
         if not _is_object_exportable(obj):
             continue
         
-        debug(f"Preparing <{obj.name}> for export")
+        debug(f"Preparing object<{obj.name}> for export")
 
         prefix = get_prefix(obj.name)
         obj.name = obj.name.replace(prefix, "")
 
+        invalid_mats = get_invalid_materials_props()
+
         for slot in obj.material_slots:
             mat = slot.material
-            if not is_material_exportable(mat):
-                return
-            if mat in processed_materials: continue
-            save_mat_props_json(mat)
-            processed_materials.append(mat)
+            if mat not in processed_materials: 
+                if is_material_exportable(mat):
+                    save_mat_props_json(mat)
+                    processed_materials.append(mat)
+                else:
+                    imat = invalid_mats.add()
+                    imat.material = mat
+        
+        if invalid_mats.items():
+            tm_props.CB_showInvalidMatsPanel = True
+            debug("Export stopped, found invalid materials")
+            obj.name = prefix + obj.name
+            return
 
         # fill metadata
         item_to_export = ExportedItem()

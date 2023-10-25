@@ -77,9 +77,11 @@ def draw_invalid_materials_panel(self:Panel) -> None:
     mats = get_invalid_materials_props()
     SPACER_FACTOR = 1
 
+    invalid_count = len(mats)
+
     row = layout.row()
     row.alert = True
-    row.label(text=f"Export failed, {len(mats)} invalid materials found!")
+    row.label(text=f"""Export failed, {invalid_count} invalid material{"s" if invalid_count > 1 else ""} found!""")
 
     row = layout.row()
     row.operator("view3d.tm_closeinvalidmaterialpanel", text="Ok")
