@@ -27,6 +27,7 @@ from .Functions import (
     create_folder_if_necessary,
     debug,
     deselect_all_objects,
+    get_convert_items_failed_props,
     get_exportable_collection_objects,
     get_global_props,
     get_coll_relative_path,
@@ -447,6 +448,8 @@ def export_collections(colls: list[bpy.types.Collection]):
         try: select_obj(obj)
         except: pass
 
+    clean_failed_converts()
+
     _clean_up_addon_export_settings(len(items_to_export))
     start_batch_convert(items_to_export)
 
@@ -524,5 +527,25 @@ def export_objects(objects: list[bpy.types.Object]) -> None:
         try: select_obj(obj)
         except: pass
 
+    clean_failed_converts()
+
     _clean_up_addon_export_settings(len(items_to_export))
     start_batch_convert(items_to_export)
+
+
+
+
+
+def clean_failed_converts() -> None:
+    failes = get_convert_items_failed_props()
+    failes.objects.clear()
+    # failes.collections.clear()
+
+
+
+
+
+
+
+
+

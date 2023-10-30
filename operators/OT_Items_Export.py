@@ -19,6 +19,23 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
 
         return {"FINISHED"}
+
+
+class TM_OT_Items_Export_ExportAndOrConverFailedOnes(Operator):
+    """export and or convert an item"""
+    bl_idname = "view3d.tm_export_failed_ones"
+    bl_description = "Export and convert items"
+    bl_icon = 'MATERIAL'
+    bl_label = "Export or/and Convert the collection which failed in the last approach"
+    bl_options = {"REGISTER", "UNDO"} #without, ctrl+Z == crash
+        
+    def execute(self, context):
+        if save_blend_file():
+            export_and_convert(only_failed_ones=True)
+        else:
+            show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
+
+        return {"FINISHED"}
     
 
 class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
@@ -33,6 +50,9 @@ class TM_OT_Items_Export_CloseConvertSubPanel(Operator):
         return {"FINISHED"}
 
 
+
+
+
 def close_convert_panel():
     tm_props                              = get_global_props()
     tm_props.CB_converting                = False
@@ -42,19 +62,27 @@ def close_convert_panel():
     debug("CB_showConvertPanel = " + str(tm_props.CB_showConvertPanel))
 
 
-def export_and_convert():
+
+
+
+def export_and_convert(only_failed_ones: bool=False):
     tm_props = get_global_props()
+    failed = get_convert_items_failed_props()
     
     selected_only = tm_props.LI_exportWhichObjs == "SELECTED"
 
-    # atleast one _item_ is selected
-    objs = get_exportable_objects(bpy.context.selected_objects    if selected_only 
-                                                                else bpy.context.scene.objects)
-    if objs:
-        return export_objects(objs)
+    objs = bpy.context.selected_objects if selected_only else bpy.context.scene.objects
+    objs = [obj.object for obj in failed.objects] if only_failed_ones else objs
 
+    # atleast one object whose name startswith _item_ is selected
+    if single_objs := get_exportable_objects(objs):
+        return export_objects(single_objs)
+    
+    # export normal way
+    if colls := get_exportable_collections(objs):
+        return export_collections(colls)
+    
+    show_report_popup("Error", "No objects/collections found to export!")
 
     
-    colls = get_exportable_collections(bpy.context.selected_objects   if selected_only 
-                                                                    else bpy.context.scene.objects)
-    return export_collections(colls)
+    

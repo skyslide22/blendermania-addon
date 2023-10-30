@@ -1,4 +1,6 @@
 import bpy
+from bpy.props import * 
+from bpy.types import PropertyGroup
 
 class ExportedItem: 
     name:                   str  = ""
@@ -18,3 +20,17 @@ class ExportedItem:
     game_is_maniaplanet:    bool = False
     game:                   str  = ""
     is_single_item:         bool = False
+
+
+# bpy.types does not work for CollectionProperty(type=X)
+# so create a class which contains a bpy.types object ... eh
+
+class FailedConvertObject(PropertyGroup):
+    object: PointerProperty(type=bpy.types.Object)
+
+class FailedConvertCollection(PropertyGroup):
+    collection: PointerProperty(type=bpy.types.Collection)
+
+class FailedConverts(PropertyGroup):
+    objects:        CollectionProperty(type=FailedConvertObject)
+    # collections:    CollectionProperty(type=FailedConvertCollection)

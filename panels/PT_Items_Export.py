@@ -42,16 +42,11 @@ class TM_PT_Items_Export(Panel):
             "----> Files for the meshmodeler import can be generated optionally", 
             "",
             "Keep in mind, collections are exported, not individual objects",
-            # "-> ",
-            # "-> ",
-            # "-> ",
-            # "-> ",
-            # "-> ",
-            # "----> ", 
-            # "----> ", 
-            # "----> ", 
-            # "----> ", 
-
+            "-> If you want to export objecs only, mark them as _item_",
+            "",
+            "Embed size means the item file size, the total map maximums embed size are:",
+            f"-> {MAX_EMBED_SIZE_TRACKMANIA2020} kilobytes for trackmania2020",
+            f"-> {MAX_EMBED_SIZE_MANIAPLANET} kilobytes for maniaplanet",
         )
 
     def draw(self, context):
@@ -203,6 +198,9 @@ def draw_export_panel(self:Panel) -> None:
     col.scale_x = 0.8
     col.prop(tm_props, "CB_notifyPopupWhenDone",  text="Notify",           icon=ICON_INFO)
 
+    if is_game_trackmania2020():
+        right_col.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Meshmodeler importable", toggle=True, icon=ICON_IMPORT)
+
     
     if exportCustomFolder:
         row_path = layout.row()
@@ -291,10 +289,6 @@ def draw_export_panel(self:Panel) -> None:
 
 
 
-    if is_game_trackmania2020():
-        row = col.row(align=True)
-        row.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Create files for meshmodeler import", toggle=True)
-
     # if tm_props.CB_allow_complex_panel_drawing and collection_count:
     #     embed_space = 0
     #     if enableExportButton:
@@ -317,9 +311,11 @@ def draw_convert_panel(self:Panel) -> None:
     layout = self.layout
     tm_props = get_global_props()
 
-    atlestOneConvertFailed  = tm_props.NU_convertedError > 0
-    converted               = tm_props.NU_convertedRaw
-    convertCount            = tm_props.NU_convertCount
+    atlest_1_convert_failed  = tm_props.NU_convertedError > 0
+    converted                = tm_props.NU_convertedRaw
+    convert_count            = tm_props.NU_convertCount
+    convert_failed_count     = tm_props.NU_convertedError
+
     layout.separator(factor=UI_SPACER_FACTOR)
 
     box = layout.box()
@@ -330,10 +326,15 @@ def draw_convert_panel(self:Panel) -> None:
     for item in get_convert_items_props():
         embed_space += item.embed_size
 
+    MAX_EMBED_SIZE = MAX_EMBED_SIZE_TRACKMANIA2020 if is_game_trackmania2020() else MAX_EMBED_SIZE_MANIAPLANET
+
+    embed_space = int(embed_space)
+    embed_space_in_percent = int(embed_space / MAX_EMBED_SIZE * 100)
 
     row = box.row()
+    row.scale_y = .7
     row.label(text="Embed all:")
-    row.label(text=f"{int(embed_space)} kB")
+    row.label(text=f"{embed_space} kB ({embed_space_in_percent}%)")
 
     #progress bar
     convert_duration_since_start = tm_props.NU_convertDurationSinceStart
@@ -341,68 +342,109 @@ def draw_convert_panel(self:Panel) -> None:
 
     # convert time since start
     row = box.row()
-    row.scale_y = .5
+    row.scale_y = .7
     row.label(text=f"""Duration:""")
     row.label(text=f"""{convert_duration_since_start}s """) #— {prev_convert_time}s?""")
-
-
+    
+    row = box.row()
+    row.scale_y = .7
+    row.alert = atlest_1_convert_failed
+    row.label(text=f"""Failed:""")
+    row.label(text=f"""{convert_failed_count} of {convert_count}""")
 
 
     col = layout.column(align=True)
     row = col.row(align=True)
-    row.alert   = atlestOneConvertFailed
-    row.prop(tm_props, "NU_converted", text=f"{converted} of {convertCount}")
+    # row.alert   = atlest_1_convert_failed
+    row.prop(tm_props, "NU_converted", text=f"{converted} of {convert_count}")
     row.prop(tm_props, "CB_stopAllNextConverts", icon_only=True, text="", icon=ICON_CANCEL)
 
-    failed    = str(tm_props.ST_convertedErrorList).split("%%%")
-    failed    = [f for f in failed if f!=""]
+
     
 
-    #buttons OK, REPORT
     row = col.row(align=True)
-    row.alert   = atlestOneConvertFailed
+    # row.alert   = atlest_1_convert_failed
     row.scale_y = 1.25
     
-    if(failed):
+    # SHOW ERROR BUTTON
+    if(atlest_1_convert_failed):
         bcol = row.column(align=True)
         bcol.scale_x = 1.25
         bcol.operator("view3d.tm_open_convert_report", text="Show errors",  icon="HELP")
-    
-    
-    
-    
+ 
 
-    
+    # OK BUTTON
     bcol = row.column(align=True)
     bcol.enabled = True # if any([convertDone, stopConverting]) else False
     bcol.operator("view3d.tm_closeconvertsubpanel", text="OK", icon=ICON_SUCCESS)
 
-    # bcol = row.column(align=True)
-    # bcol.enabled = enableExportButton 
-    # bcol.operator("view3d.tm_export", text="Convert Again", icon=ICON_CONVERT)
-    
-
-
-
-    #result of fails
-    if failed:
+    # CONVERT AGAIN BUTTON
+    if atlest_1_convert_failed:
         row = layout.row()
-        row.alert = True if failed else False
-        row.label(text=f"Failed converts: {len(failed)}")
+        row.scale_y = 1.5
+        row.alert = True
+        row.operator("view3d.tm_export_failed_ones", text="Convert failed ones again", icon=ICON_CONVERT)
 
+
+    split = layout.row(align=True).split(factor=.6)
+    left = split.column()
+    right = split.column()
+
+    row = left.row()
+    row.enabled = False
+    col = row.column().label(text="", icon="BLANK1")
+    col = row.column().label(text=f"""NAME""")
+    col = row.column()
+    col.alignment = "RIGHT"
+    col.label(text=f"""TIME""")
+    
+    row = right.row()
+    row.enabled = False
+    rsplit = row.split(factor=.6)
+    col = rsplit.column()
+    col.alignment = "RIGHT"
+    col.label(text=f"""kB""")
+    col = rsplit.column()
+    col.alignment = "RIGHT"
+    col.label(text=f"""%""")
 
     for item in get_convert_items_props():
         
-        duration = str(int(item.convert_duration))+"s" if item.converted else "    "
-        name = item.name
-        embed_size = f"{int(item.embed_size)} kB" if item.embed_size > 0 else ".."
+        duration = str(int(item.convert_duration))+"s" if item.converted and not item.failed else ".."
+        name = item.name 
+        embed_size = f"{int(item.embed_size)}" if item.embed_size > 0 else ".."
+        embed_size_percent = f" {int(item.embed_size / MAX_EMBED_SIZE * 100)}" if item.embed_size > 0 else ".."
 
-        row = layout.row(align=True)
+        row = left.row()
+        row.alert = item.failed
+
+        # state RUNNING | SUCCESS | FAILURE
         col = row.column()
-        col.alert = item.failed
-        col.label(
-            text=f"""{duration} — {name} — {embed_size}""", 
-            icon=item.icon)
+        col.label(text=f"", icon=item.icon)
+        
+        col = row.column()
+        col.label(text=f"""{name}""")
+
+        # convert duration in seconds
+        col = row.column()
+        # col.scale_x = 0.3
+        col.alignment = "RIGHT"
+        col.label(text=f"""{duration}""")
+        
+        # # split = right.split(factor=.6)
+
+        row = right.row()
+        row.alert = item.failed
+
+        rsplit = row.split(factor=.6)
+        
+        col = rsplit.column()
+        col.alignment = "RIGHT"
+        col.label(text=f"""{embed_size}""")
+
+        col = rsplit.column()
+        col.alignment = "RIGHT"
+        col.label(text=f"""{embed_size_percent}""")
 
 
 

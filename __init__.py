@@ -99,6 +99,9 @@ classes = (
     LinkedMaterialsProperties,
     ItemXMLTemplate,
     InvalidMaterial,
+    FailedConvertObject,
+    FailedConvertCollection,
+    FailedConverts,
 
     # settings
     TM_PT_Settings,
@@ -159,6 +162,7 @@ classes = (
     TM_PT_Items_Export,
     TM_OT_Items_Export_ExportAndOrConvert,
     TM_OT_Items_Export_CloseConvertSubPanel,
+    TM_OT_Items_Export_ExportAndOrConverFailedOnes,
 
     # xml,
     TM_PT_Items_MeshXML,
@@ -244,6 +248,7 @@ def register():
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=ConvertingItemsProperties)
     bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=LinkedMaterialsProperties)
     bpy.types.Scene.tm_props_invalidMaterials = CollectionProperty(type=InvalidMaterial)
+    bpy.types.Scene.tm_props_failed_converts  = PointerProperty(type=FailedConverts)
     # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=ItemXMLTemplatesProperties)
     bpy.types.Scene.tm_props_itemxml_templates_ui     = EnumProperty(items=get_itemxml_template_names_enum)
     bpy.types.Scene.tm_props_itemxml_templates        = CollectionProperty(type=ItemXMLTemplate)

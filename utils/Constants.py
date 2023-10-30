@@ -144,6 +144,8 @@ EDITORTRAILS_OBJECT_NAME = "_ignore_editortrails"
 MAP_GRID_OBJECT_NAME    = "_ignore_map_grid_helper"
 MAP_GRID_GEO_NODES_NAME = "Map Grid Geo Nodes"
 
+MAX_EMBED_SIZE_MANIAPLANET = 1024 # kB
+MAX_EMBED_SIZE_TRACKMANIA2020 = 4096 # kB
 
 # used for visibility/selection
 ALL_OBJECTS             = "__ALL__"

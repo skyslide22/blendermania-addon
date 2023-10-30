@@ -37,6 +37,7 @@ from .Constants import PATH_CONVERT_REPORT, NADEO_IMPORTER_ICON_OVERWRITE_VERSIO
 from ..utils.NadeoXML import generate_mesh_XML, generate_item_XML
 from ..utils.Functions import (
     debug,
+    get_convert_items_failed_props,
     timer,
     Timer,
     fix_slash,
@@ -809,6 +810,12 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         
         if failed: fail_count    += 1
         else:      success_count += 1
+
+        if failed:
+            fails = get_convert_items_failed_props()
+            for obj in item.objects:
+                fails.objects.add().object = obj
+                
 
 
         @in_new_thread

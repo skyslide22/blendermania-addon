@@ -2083,6 +2083,9 @@ def get_pivot_props() -> object:
 def get_convert_items_props() -> object:
     return bpy.context.scene.tm_props_convertingItems
 
+def get_convert_items_failed_props() -> object:
+    return bpy.context.scene.tm_props_failed_converts
+
 
 
 def apply_custom_blender_grid_size(self, context) -> None:
