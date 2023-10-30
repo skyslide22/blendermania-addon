@@ -346,11 +346,12 @@ def draw_convert_panel(self:Panel) -> None:
     row.label(text=f"""Duration:""")
     row.label(text=f"""{convert_duration_since_start}s """) #— {prev_convert_time}s?""")
     
-    row = box.row()
-    row.scale_y = .7
-    row.alert = atlest_1_convert_failed
-    row.label(text=f"""Failed:""")
-    row.label(text=f"""{convert_failed_count} of {convert_count}""")
+    if atlest_1_convert_failed:
+        row = box.row()
+        row.scale_y = .7
+        row.alert = True
+        row.label(text=f"""Failed:""")
+        row.label(text=f"""{convert_failed_count} of {convert_count}""")
 
 
     col = layout.column(align=True)
@@ -386,27 +387,29 @@ def draw_convert_panel(self:Panel) -> None:
         row.operator("view3d.tm_export_failed_ones", text="Convert failed ones again", icon=ICON_CONVERT)
 
 
-    split = layout.row(align=True).split(factor=.6)
+    # split = layout.row(align=True).split(factor=.6)
+    split = layout.row(align=True).split(factor=.75)
     left = split.column()
     right = split.column()
 
     row = left.row()
     row.enabled = False
     col = row.column().label(text="", icon="BLANK1")
-    col = row.column().label(text=f"""NAME""")
+    col = row.column().label(text=f"""Name""")
     col = row.column()
     col.alignment = "RIGHT"
-    col.label(text=f"""TIME""")
+    col.label(text=f"""Time""")
     
     row = right.row()
     row.enabled = False
-    rsplit = row.split(factor=.6)
+    rsplit = row.split(factor=1)
+    # rsplit = row.split(factor=.6)
     col = rsplit.column()
     col.alignment = "RIGHT"
-    col.label(text=f"""kB""")
-    col = rsplit.column()
-    col.alignment = "RIGHT"
-    col.label(text=f"""%""")
+    col.label(text=f"""Embed""")
+    # col = rsplit.column()
+    # col.alignment = "RIGHT"
+    # col.label(text=f"""%""")
 
     for item in get_convert_items_props():
         
@@ -436,15 +439,16 @@ def draw_convert_panel(self:Panel) -> None:
         row = right.row()
         row.alert = item.failed
 
-        rsplit = row.split(factor=.6)
+        # rsplit = row.split(factor=.6)
+        rsplit = row.split(factor=1)
         
         col = rsplit.column()
         col.alignment = "RIGHT"
-        col.label(text=f"""{embed_size}""")
+        col.label(text=f"""{embed_size} kB""")
 
-        col = rsplit.column()
-        col.alignment = "RIGHT"
-        col.label(text=f"""{embed_size_percent}""")
+        # col = rsplit.column()
+        # col.alignment = "RIGHT"
+        # col.label(text=f"""{embed_size_percent}""")
 
 
 
