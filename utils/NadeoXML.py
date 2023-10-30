@@ -309,18 +309,20 @@ def generate_item_XML(item: ExportedItem) -> str:
 
 
     if is_game_maniaplanet():
-        shape_filename      = filename + ".Shape.gbx"
-        mesh_filename       = filename + ".Mesh.gbx"
+        shape_filename      = filename + ".Shape.Gbx"
+        mesh_filename       = filename + ".Mesh.Gbx"
         xml_vis_maniaplanet += f"""<Mesh """+NL
-        xml_vis_maniaplanet += f"""    File="{ mesh_filename }"/>"""+NL
+        xml_vis_maniaplanet += f"""    File="{ mesh_filename }" """+NL
+        xml_vis_maniaplanet += f"""/>"""+NL
         xml_phy_maniaplanet += f"""<MoveShape """+NL
         xml_phy_maniaplanet += f"""    File="{ shape_filename }" """+NL
-        xml_phy_maniaplanet += f"""    Type="Mesh" />"""+NL
+        xml_phy_maniaplanet += f"""    Type="Mesh" """+NL
+        xml_phy_maniaplanet += f"""/>"""+NL
         
         if waypoint:
             xml_phy_maniaplanet += f"""<TriggerShape """  +NL
             xml_phy_maniaplanet += f"""    Type="mesh" """  +NL
-            xml_phy_maniaplanet += f"""    File="{ filename_no_extension }Trigger.Shape.gbx" """+NL  
+            xml_phy_maniaplanet += f"""    File="{ filename_no_extension }Trigger.Shape.Gbx" """+NL  
             xml_phy_maniaplanet += f"""/>"""  +NL
 
     
@@ -342,10 +344,10 @@ def generate_item_XML(item: ExportedItem) -> str:
     full_xml += f"""{add_indents(xml_waypoint, 1)}"""+NL
     full_xml += f"""{add_indents(xml_mesh_tm2020, 1)}"""+NL
     full_xml += f"""    <Phy>"""+NL
-    full_xml += f"""        {xml_phy_maniaplanet}"""+NL
+    full_xml += f"""{add_indents(xml_phy_maniaplanet, 2)}"""+NL
     full_xml += f"""    </Phy>"""+NL
     full_xml += f"""    <Vis>"""+NL
-    full_xml += f"""        {xml_vis_maniaplanet}"""+NL
+    full_xml += f"""{add_indents(xml_vis_maniaplanet, 2)}"""+NL
     full_xml += f"""    </Vis>"""+NL
     full_xml += f"""    """+NL
     full_xml += f"""    <GridSnap """+NL

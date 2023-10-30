@@ -170,6 +170,9 @@ class ItemConvert(threading.Thread):
 
             if not self.convert_has_failed: 
                 self.convert_item_gbx()
+
+            if not self.convert_has_failed:
+                self.pascalcase_gbx_filenames()
             
             
         if not self.convert_has_failed:
@@ -209,6 +212,8 @@ class ItemConvert(threading.Thread):
         try:   os.rename(self.gbx_mesh_filepath  , re.sub(r"mesh\.gbx$",  "Mesh.Gbx",  self.gbx_mesh_filepath  , flags=re.IGNORECASE))
         except FileNotFoundError: pass
         try:   os.rename(self.gbx_shape_filepath , re.sub(r"shape\.gbx$", "Shape.Gbx", self.gbx_shape_filepath , flags=re.IGNORECASE))
+        except FileNotFoundError: pass
+        try:   os.rename(self.gbx_trigger_filepath , re.sub(r"trigger\.shape\.gbx$", "Trigger.Shape.Gbx", self.gbx_trigger_filepath , flags=re.IGNORECASE))
         except FileNotFoundError: pass
     
 
@@ -357,9 +362,6 @@ class ItemConvert(threading.Thread):
         if is_file_existing(self.gbx_trigger_filepath):  files.append(self.gbx_trigger_filepath)
 
         total_size = 0.0
-
-        for file in files:
-            print("FILE: " + file)
 
         try:
             for gbxfile in files:
