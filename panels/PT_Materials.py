@@ -71,6 +71,8 @@ class TM_PT_Materials(Panel):
         if not can_use_physicsid:
             col.enabled = False
             col.label(text="Not supported")
+            # col.operator("view3d.tm_open_url", text=f"Show Workaround", icon=ICON_QUESTION).url = URL_WORKAROUND_PHYSICID
+            
 
         elif use_physicsId:
             col.prop(tm_props, "LI_materialPhysicsId", text="")

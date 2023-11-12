@@ -183,6 +183,8 @@ URL_CHANGELOG        = "https://github.com/skyslide22/blendermania-addon/release
 URL_RELEASES         = "https://api.github.com/repos/skyslide22/blendermania-addon/releases/latest"
 URL_REGEX            = "https://regex101.com/"
 
+URL_WORKAROUND_PHYSICID = "https://github.com/skyslide22/blendermania-addon/wiki/06.-Converting-Troubleshooting#physicid-workaround-for-customxxx-materials"
+
 # dotnet addon name and version
 BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.6"
 
