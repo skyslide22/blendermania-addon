@@ -373,6 +373,24 @@ LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID = [
     "RoadTech",
 ]
 
+# # all customXXX are incompatible ...
+# LINKED_MATERIALS_INCOMPATIBLE_WITH_PHYSICS_ID = [
+#     "CustomBricks",
+#     "CustomConcrete",
+#     "CustomDirt",
+#     "CustomGlass",
+#     "CustomGrass",
+#     "CustomIce",
+#     "CustomMetal",
+#     "CustomMetalPainted",
+#     "CustomPlastic",
+#     "CustomPlasticShiny",
+#     "CustomRock",
+#     "CustomRoughWood",
+#     "CustomSand",
+#     "CustomSnow",
+# ]
+
 
 
 # Blender has some issues with our usage of collections with those names

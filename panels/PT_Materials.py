@@ -64,13 +64,25 @@ class TM_PT_Materials(Panel):
         left.label(text="Physic")
         row = right.row(align=True)
         col = row.column()
-        if use_physicsId:
+
+        link = tm_props.ST_selectedLinkedMat
+        can_use_physicsid = not link.lower().startswith("custom")
+        
+        if not can_use_physicsid:
+            col.enabled = False
+            col.label(text="Not supported")
+
+        elif use_physicsId:
             col.prop(tm_props, "LI_materialPhysicsId", text="")
+            col = row.column()
+            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
+
         else:
             col.enabled = False
             col.label(text="Disabled")
-        col = row.column()
-        col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
+            col = row.column()
+            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
+
 
         selected_mat = tm_props.ST_selectedLinkedMat
         can_use_gameplay = selected_mat in LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID
@@ -213,6 +225,7 @@ class TM_PT_Materials(Panel):
         row.scale_y = 1.5
 
         if action_is_update:
+            row.enabled = tm_props.ST_selectedExistingMaterial != ""
             row.operator("view3d.tm_updatematerial", text=f"Update {mat_name_old}", icon=ICON_UPDATE)
 
         else:

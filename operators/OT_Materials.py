@@ -122,6 +122,10 @@ def _create_or_update_material(action)->None:
     create_material_nodes(MAT)
     applyMaterialLiveChanges()
 
+    if action == "CREATE":
+        tm_props.ST_selectedLinkedMat = ""
+        tm_props.ST_materialAddName = ""
+
 
 
 

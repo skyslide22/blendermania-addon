@@ -18,6 +18,12 @@ def _make_texsrc_abspath(self, context):
     if path.startswith("//"):
         self.ST_TextureSource = bpy.path.abspath(path)
 
+
+def _set_ST_materialAddName_when_select_link(self, context):
+    tm_props = get_global_props()
+    if tm_props.LI_materialAction == "CREATE":
+        self.ST_materialAddName = tm_props.ST_selectedLinkedMat
+
 #? CB = CheckBox => BoolProperty
 #? LI = List     => EnumProperty
 #? NU = Number   => IntProperty, FloatProperty
@@ -115,7 +121,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_convertStartedAt          : IntProperty(min=-1,              default=-1,   update=redraw_panels)
     NU_currentConvertDuration    : IntProperty(min=0,               default=0,    update=redraw_panels)
     NU_prevConvertDuration       : IntProperty(min=0,               default=0,    update=redraw_panels)
-    CB_generateMeshAndShapeGBX   : BoolProperty(default=True,       update=redraw_panels, description="To import your item in meshmodeler, those 2 additional files are required")
+    CB_generateMeshAndShapeGBX   : BoolProperty(default=False,      update=redraw_panels, description="To import your item in meshmodeler, those 2 additional files are required")
 
     #import
     LI_importMatFailed        : StringProperty()
@@ -201,7 +207,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)
     #LI_materials                : EnumProperty(name="Material",                   items=getMaterials, update=updateMaterialSettings)
     LI_materialAction           : EnumProperty(name="Material Action",            default=0, items=getMaterialActions())
-    ST_materialAddName          : StringProperty(name="Name",                     default="Matname...")
+    ST_materialAddName          : StringProperty(name="Name",                     default="")
     LI_materialCollection       : EnumProperty(name="Collection",                 items=getMaterialCollectionTypes(), update=gameTypeGotUpdated)
     CB_materialUsePhysicsId     : BoolProperty(name="Use PhysicsId",              default=False)
     LI_materialPhysicsId        : EnumProperty(name="PhysicId",                   items=getMaterialPhysicIds)
@@ -213,7 +219,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_materialCustomColor      : FloatVectorProperty(name='Lightcolor',          subtype='COLOR', min=0, max=1, step=1000, default=(0.0,0.319,0.855, 1.0), size=4, update=setMaterialCustomColorLiveChanges)
     ST_materialBaseTexture      : StringProperty(name="BaseTexture",              default="", subtype="FILE_PATH", description="Custom texture located in Documents / Items / <Folders?> / <YouTexturename_D.dds>")
     LI_materialChooseSource     : EnumProperty(name="Custom Texture or Link",     items=getMaterialTextureSourceOptions())
-    ST_selectedLinkedMat        : StringProperty(name="Linked mat", default="")
+    ST_selectedLinkedMat        : StringProperty(name="Linked mat", default="",   update=_set_ST_materialAddName_when_select_link)
     CB_showInvalidMatsPanel     : BoolProperty(name="Show invalid materials", default=False)
 
     #textures
