@@ -65,8 +65,8 @@ class TM_PT_Materials(Panel):
         row = right.row(align=True)
         col = row.column()
 
-        link = tm_props.ST_selectedLinkedMat
-        can_use_physicsid = not link.lower().startswith("custom")
+        link = tm_props.ST_selectedLinkedMat.lower()
+        can_use_physicsid = not link.startswith("custom") or link.startswith("custommod")
         
         if not can_use_physicsid:
             col.enabled = False
