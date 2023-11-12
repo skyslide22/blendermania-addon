@@ -69,9 +69,15 @@ class TM_PT_Materials(Panel):
         #row = box.row()
         #row.operator("view3d.tm_createassetlib", text=f"Create {tm_props.LI_gameType} Assets Library", icon="ADD")
 
+        row = layout.row()
+        left = row.column()
+        left.scale_x = 0.8
+        right = row.column()
 
+        
         # choose action & mat name
-        layout.row().prop(tm_props, "LI_materialAction", expand=True)
+        left.label(text="Method")
+        right.row().prop(tm_props, "LI_materialAction", expand=True)
 
         if action_is_update:
             layout.row().prop_search(tm_props, "ST_selectedExistingMaterial", bpy.data, "materials") 

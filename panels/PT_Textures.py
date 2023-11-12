@@ -60,55 +60,69 @@ class TM_PT_Textures(Panel):
 
         )
 
-    def draw(self, context):
 
-        layout = self.layout
-        tm_props = get_global_props()
+    def draw_custom_source(self, tm_props) -> bool:
+        self.layout.prop(tm_props, "ST_TextureSource", text="Path")
 
-        tex_source = tm_props.ST_TextureSource
+        return tm_props.ST_TextureSource != ""
 
-        col = layout.column(align=True)
-        row = col.row(align=True)
-        row.prop(tm_props, "ST_TextureSource", text="Source")
-        row = col.row(align=True)
+
+    def draw_default_source(self) -> bool:
+        return True
+
+    
+    def draw_modwork_source(self, tm_props) -> bool:
+        modwork_enabled = is_selected_modwork_enabled()
+
+        row = self.layout.row(align=True)
+        row.alert = not modwork_enabled
+        
         col = row.column(align=True)
-        col.operator("view3d.tm_reset_texture_source", text="Reset", icon=ICON_UPDATE)
+        col.operator("view3d.tm_toggle_modwork", text="Enabled" if modwork_enabled else "Disabled", icon=ICON_TEXTURE, depress=modwork_enabled)
+        
+        if is_game_maniaplanet():
+            col = row.column(align=True)
+            col.prop(tm_props, "LI_DL_TextureEnvi", text="",)
+        
         col = row.column(align=True)
-        col.enabled = tex_source != ""
-        col.operator("view3d.tm_update_texture_source", text="Update", icon=ICON_UPDATE)
+        col.scale_x = 0.85
+        col.enabled = modwork_enabled
+        col.operator("view3d.tm_open_folder",    text="Open", icon=ICON_FOLDER).folder = get_game_doc_path_skins_envi()
 
-
-class TM_PT_Textures_ModWork(Panel):
-    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "ModWork Folder"
-    bl_idname = "TM_PT_Textures_ModWork"
-    bl_parent_id = "TM_PT_Textures"
+        return modwork_enabled
+    
     
     def draw(self, context):
 
         layout = self.layout
         tm_props = get_global_props()
 
-        col = layout.column(align=True)
+        tex_source = tm_props.ST_TextureSource
+        tex_source_type = tm_props.LI_TextureSources
 
-        modwork_enabled = is_selected_modwork_enabled()
+        row=layout.row()
+        col_left = row.column()
+        col_right = row.column()
+        col_left.scale_x = 0.4
 
-        text = "Enable" if not modwork_enabled else "Disable"
-        text = text + " modwork folder"
+        col_left.label(text="Use")
+        col_right.row().prop(tm_props, "LI_TextureSources", expand=True, text="Use")
 
-        row = col.row(align=True)
-        row.label(text=text)
+        enable_update_btn = False
 
-        row = col.row(align=True)
-        scol = row.column(align=True)
-        scol.operator("view3d.tm_toggle_modwork", text="ModWork", icon=ICON_TEXTURE, depress=modwork_enabled)
-        scol = row.column(align=True)
-        scol.operator("view3d.tm_open_folder",    text="", icon=ICON_FOLDER).folder = get_game_doc_path_skins_envi()
+        if tex_source_type == "CUSTOM":
+            enable_update_btn = self.draw_custom_source(tm_props)
+        elif tex_source_type == "DEFAULT":
+            enable_update_btn = self.draw_default_source()
+        elif tex_source_type == "MODWORK":
+            enable_update_btn = self.draw_modwork_source(tm_props)
+        
+        row = layout.row()
+        row.scale_y = 1.5
+        row.enabled = enable_update_btn
+        row.operator("view3d.tm_update_texture_source", text="Update Textures", icon=ICON_UPDATE)
 
-        if is_game_maniaplanet():
-            scol = row.column(align=True)
-            scol.scale_x = 0.8
-            scol.prop(tm_props, "LI_DL_TextureEnvi", text="",)
+
 
 
 

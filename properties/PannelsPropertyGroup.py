@@ -13,7 +13,10 @@ from .MapObjectProperties   import *
 #     return context.scene.tm_props_itemxml_templates.templates_ui.to_list() or ERROR_ENUM_PROPS
 
 
-
+def _make_texsrc_abspath(self, context):
+    path = self.ST_TextureSource
+    if path.startswith("//"):
+        self.ST_TextureSource = bpy.path.abspath(path)
 
 #? CB = CheckBox => BoolProperty
 #? LI = List     => EnumProperty
@@ -219,10 +222,13 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_DL_Progress         : FloatProperty(min=0, max=100,                    default=0, subtype="PERCENTAGE", update=redraw_panels)
     ST_DL_ProgressErrors   : StringProperty(name="Status",                    default="")
     CB_DL_ProgressShow     : BoolProperty(default=False,                      update=redraw_panels)
-    ST_TextureSource       : StringProperty(name="Texture Source", subtype="DIR_PATH")
+    ST_TextureSource       : StringProperty(name="Texture Source", subtype="DIR_PATH", update=_make_texsrc_abspath)
+    LI_TextureSources      : EnumProperty(items=get_texture_sources(), update=redraw_panels)
     # cars
     LI_items_cars     : EnumProperty(name="Car",     items=get_car_names())
     LI_items_triggers : EnumProperty(name="Trigger", items=getTriggerNames())
+
+
 
 
 class InvalidMaterial(bpy.types.PropertyGroup):

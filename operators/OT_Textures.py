@@ -10,19 +10,6 @@ from ..utils.Constants      import *
 
 
 
-
-
-
-class TM_OT_Textures_ResetTextureSource(Operator):
-    bl_idname = "view3d.tm_reset_texture_source"
-    bl_description = "Reset Texture Source Folder"
-    bl_label = "Reset Texture Sources"
-        
-    def execute(self, context):
-        reset_texture_folders()
-        return {"FINISHED"}
-
-
 class TM_OT_Textures_UpdateTextureSource(Operator):
     bl_idname = "view3d.tm_update_texture_source"
     bl_description = "Update Texture Source Folder"
@@ -33,16 +20,39 @@ class TM_OT_Textures_UpdateTextureSource(Operator):
         return {"FINISHED"}
     
 
+    
+
 def update_texture_folder(tex_src:str = ""):
     tm_props = get_global_props()
-    new_tex_src = tex_src or tm_props.ST_TextureSource
+    
+    tex_src_new = tex_src # DEFAULT
+    tex_src_type= tm_props.LI_TextureSources
 
-    if new_tex_src == "": 
-        return
+    if tex_src_type == "CUSTOM":
+        tex_src_new = tm_props.ST_TextureSource
+        if tex_src_new == "": 
+            show_report_popup("No path specified", ["Custom path is empty, select a folder with dds files!"])
+            return
+
+    elif tex_src_type == "MODWORK":
+        tex_src_new, _ = get_modwork_paths()
+        tex_src_new += "/Image"
+        if not is_folder_existing(tex_src_new):
+            show_report_popup("ModWork diabled", ["ModWork folder is disabled, please enable it before you update the texture sources"])
+            return
+
+    elif tex_src_type == "DEFAULT":
+        envi = tm_props.LI_materialCollection
+        root = get_game_doc_path_items_assets_textures()
+        tex_src_new = root + envi + "/"
+    
+    else:
+        raise ValueError(f"Type {tex_src_type} not supported")
+
 
     images = bpy.data.images
 
-    filepaths = get_folder_files(new_tex_src)
+    filepaths = get_folder_files(tex_src_new)
     files = []
 
     for file in filepaths:
@@ -56,19 +66,10 @@ def update_texture_folder(tex_src:str = ""):
 
     for image in found_images:
         image_name = image.name
-        image.filepath = new_tex_src + "\\" + image_name
+        image.filepath = tex_src_new + "\\" + image_name
         image.reload()
     
 
-
-def reset_texture_folders():
-    tm_props = get_global_props()
-    envi = tm_props.LI_materialCollection
-    root = get_game_doc_path_items_assets_textures()
-    root = root + envi + "/"
-    
-    update_texture_folder(root)
-    tm_props.ST_TextureSource = ""
 
 
 
@@ -123,8 +124,7 @@ def check_modwork_folders_enabled() -> bool:
 
 
 
-def toggle_modwork_folder() -> None:
-
+def get_modwork_paths() -> tuple[str]:
     tm_props = get_global_props()
     collection_folder = tm_props.LI_DL_TextureEnvi
 
@@ -134,6 +134,19 @@ def toggle_modwork_folder() -> None:
     modwork_root     = get_game_doc_path() + "/Skins/" + collection_folder
     modwork_path     = fix_slash(modwork_root + "/" + MODWORK_FOLDER_NAME)
     modwork_off_path = fix_slash(modwork_root + "/" + MODWORK_OFF_FOLDER_NAME)
+
+    return (modwork_path, modwork_off_path)
+
+
+def toggle_modwork_folder() -> None:
+
+    tm_props = get_global_props()
+    collection_folder = tm_props.LI_DL_TextureEnvi
+
+    if is_game_trackmania2020():
+        collection_folder = "Stadium"
+
+    modwork_path, modwork_off_path = get_modwork_paths()
     
     modwork_exist     = is_folder_existing(fix_slash(modwork_path))
     modwork_off_exist = is_folder_existing(fix_slash(modwork_off_path))
@@ -141,7 +154,7 @@ def toggle_modwork_folder() -> None:
     enabled_text = False
 
     if not modwork_exist and not modwork_off_exist:
-        create_folder_if_necessary(modwork_path)
+        create_folder_if_necessary(modwork_path + "/Image")
         modwork_exist = True
 
     try:

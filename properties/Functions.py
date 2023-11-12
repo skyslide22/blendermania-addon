@@ -882,6 +882,25 @@ def getMaterialGameplayIds(self, context)->None:
     return gameplay_id_props_list.to_list()
 
 
+
+def get_texture_sources() -> list:
+    return EnumProps().add(
+        id   = "CUSTOM",
+        name = "Custom",
+        desc = "Custom path",
+        # icon = "FILE_FOLDER"
+    ).add(
+        id   = "DEFAULT",
+        name = "Default",
+        desc = "Default path",
+        # icon = "FILE_FOLDER"
+    ).add(
+        id   = "MODWORK",
+        name = "ModWork",
+        desc = "Take textures from active modwork/image folder",
+        # icon = "NEWFOLDER"
+    ).to_list()
+
 def get_car_names() -> list:
     return EnumProps().add(
         id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM,
