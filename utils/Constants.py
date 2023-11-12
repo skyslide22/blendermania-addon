@@ -442,9 +442,6 @@ NADEO_MATLIB_DLIBRARYS = (
 )
 
 
-# https://cdn.discordapp.com/attachments/905181250053107722/941599717182275594/unknown.png
-GBX_COMPRESSION_RATIO = 0.666
-TRI_TO_MEGABYTE_RATIO = 0.000066
 
 ADDON_ICONS_PATH = os.path.join(os.path.dirname(__file__), os.pardir) + "/icons"
 

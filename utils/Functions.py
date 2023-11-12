@@ -1710,20 +1710,7 @@ def get_tricount_of_collection(col: bpy.types.Collection) -> int:
 
 
 
-def triangles_to_mb(tri_count) -> float:
-    return (
-        tri_count 
-        * TRI_TO_MEGABYTE_RATIO 
-        * GBX_COMPRESSION_RATIO 
-        / 1024 
-        / 1024 
-        * 1000 
-        * 1000)
 
-def get_embedspace_of_collection(col: bpy.types.Collection) -> float:
-    tri_count   = get_tricount_of_collection(col)
-    embed_space = triangles_to_mb(tri_count)
-    return embed_space
 
 def check_collection_has_obj_with_fix(col: bpy.types.Collection, prefix:str=None, infix:str=None, suffix:str=None) -> None:
     objs          = col.objects

@@ -283,28 +283,6 @@ def draw_export_panel(self:Panel) -> None:
     row.alert   = not enableExportButton #red button, 0 selected
     row.operator("view3d.tm_export", text=text,   icon=ICON_CONVERT)
 
-    # row = col.row()
-    # row.label(text=f"expobjs={[obj.name for obj in exportable_objs]}")
-    
-
-
-
-    # if tm_props.CB_allow_complex_panel_drawing and collection_count:
-    #     embed_space = 0
-    #     if enableExportButton:
-    #         for col in exportable_cols:
-    #             embed_space += get_embedspace_of_collection(col)
-    #     row = layout.row()
-    #     row.scale_y = 0.5
-        
-    #     embed_space_1024kb = embed_space < 1.024
-    #     if embed_space_1024kb:
-    #         embed_space *= 1000
-
-    #     row.label(text=f"Max. embed space: ~ {embed_space:4.2f} {'kB' if embed_space_1024kb else 'mB'}")
-
-
-
 
 
 def draw_convert_panel(self:Panel) -> None:

@@ -50,6 +50,116 @@ class TM_PT_Materials(Panel):
         ) 
 
 
+    def draw_trackmania2020(self, left, right, tm_props, use_physicsId, use_gameplayId, action_is_update) -> None:
+        
+        left.label(text="Link")
+        row = right.row()
+        row.prop_search(
+            tm_props, "ST_selectedLinkedMat", # value of selection
+            bpy.context.scene, "tm_props_linkedMaterials", # list to search in 
+            icon=ICON_LINKED,
+            text="") 
+        
+        # TODO disable physicsid based on customxxx materials ??
+        left.label(text="Physic")
+        row = right.row(align=True)
+        col = row.column()
+        if use_physicsId:
+            col.prop(tm_props, "LI_materialPhysicsId", text="")
+        else:
+            col.enabled = False
+            col.label(text="Disabled")
+        col = row.column()
+        col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
+
+        selected_mat = tm_props.ST_selectedLinkedMat
+        can_use_gameplay = selected_mat in LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID
+    
+        left.label(text="Gameplay")
+        row = right.row(align=True)
+        col = row.column()
+        
+        if not can_use_gameplay:
+            col.enabled = False
+            col.label(text="Not supported")
+
+        elif use_gameplayId:
+            col.prop(tm_props, "LI_materialGameplayId", text="")
+            col = row.column()
+            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon=ICON_CHECKED)
+        
+        else:
+            col.enabled = False
+            col.label(text="Disabled")
+            col = row.column()
+            col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon=ICON_CHECKED)
+            
+        
+        # custom color for materials starts with "custom"
+        can_use_custom_color = selected_mat.lower().startswith("custom")
+
+        left.label(text="Color")
+        row = right.row(align=True)
+        if can_use_custom_color:
+            row.prop(tm_props, "NU_materialCustomColor", text="")
+            if action_is_update:
+                row.operator("view3d.tm_revertcustomcolor", icon=ICON_UPDATE, text="")
+        
+        else:
+            row.enabled = False
+            row.label(text="Not supported")
+
+
+
+    def draw_maniaplanet(self, left, right, tm_props, use_physicsId) -> None:
+        left.label(text="Envi")
+        right.prop(tm_props, "LI_materialCollection", text="")
+        
+        left.label(text="Physic")
+        row = right.row(align=True)
+        col = row.column()
+        if use_physicsId:
+            col.prop(tm_props, "LI_materialPhysicsId", text="")
+        else:
+            col.enabled = False
+            col.label(text="Disabled")
+        col = row.column()
+        col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
+        
+        left.label(text="Texture")
+        right.row().prop(tm_props, "LI_materialChooseSource", expand=True)
+        
+        using_custom_texture = tm_props.LI_materialChooseSource == "CUSTOM"
+
+        if using_custom_texture:
+            left.label(text="Path")
+            row=right.row(align=True)
+            row.alert = True if "/Items/" not in fix_slash(tm_props.ST_materialBaseTexture) else False
+            row.prop(tm_props, "ST_materialBaseTexture", text="")
+            row.operator("view3d.tm_clearbasetexture", icon=ICON_CANCEL, text="")
+
+            if row.alert:
+                left.label(text="")
+                row=right.row()
+                row.alert = True
+                row.label(text=".dds file in Documents/Maniaplanet/Items/")
+
+            # model
+            left.label(text="Model")
+            right.row().prop(tm_props, "LI_materialModel", text="")
+        
+
+        # link
+        else:
+            left.label(text="Link")
+            right.row().prop_search(
+                tm_props, "ST_selectedLinkedMat", # value of selection
+                bpy.context.scene, "tm_props_linkedMaterials", # list to search in 
+                icon=ICON_LINKED,
+                text="") 
+
+
+
     def draw(self, context):
 
         layout   = self.layout
@@ -70,129 +180,34 @@ class TM_PT_Materials(Panel):
         #row.operator("view3d.tm_createassetlib", text=f"Create {tm_props.LI_gameType} Assets Library", icon="ADD")
 
         row = layout.row()
-        left = row.column()
+        left = row.column(align=True)
         left.scale_x = 0.8
-        right = row.column()
+        right = row.column(align=True)
 
         
-        # choose action & mat name
         left.label(text="Method")
         right.row().prop(tm_props, "LI_materialAction", expand=True)
 
+        left.separator(factor=2)
+        right.separator(factor=2)
+
         if action_is_update:
-            layout.row().prop_search(tm_props, "ST_selectedExistingMaterial", bpy.data, "materials") 
+            left.label(text="Material")
+            right.prop_search(tm_props, "ST_selectedExistingMaterial", bpy.data, "materials", text="") 
     
-        matcol = layout.column(align=True)
-        matcol.prop(tm_props, "ST_materialAddName")
-
-        # row = layout.row()
-        # row.enabled = True if not tm_props.CB_converting else False
-        # row.prop(tm_props, "LI_gameType", text="Game")
-
-
-
+        left.label(text="Name")
+        right.prop(tm_props, "ST_materialAddName", text="")
 
 
         if is_game_maniaplanet():
-            matcol.prop(tm_props, "LI_materialCollection", text="Collection")
-            
-            enable = True if use_physicsId else False
-            icon   = ICON_CHECKED if enable else ICON_UNCHECKED
-
-            row = matcol.row(align=True)
-            col = row.column()
-            col.enabled = enable
-            col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
-            col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
-            
-            layout.separator(factor=UI_SPACER_FACTOR)
-
-            # choose custom tex or linked mat
-            
-            src_col = layout.column(align=True)
-            row = src_col.row(align=True)
-            row.prop(tm_props, "LI_materialChooseSource", expand=True)
-            
-            using_custom_texture = tm_props.LI_materialChooseSource == "CUSTOM"
-
-            # basetexture
-            if using_custom_texture:
-                row = src_col.row(align=True)
-                row.alert = True if "/Items/" not in fix_slash(tm_props.ST_materialBaseTexture) else False
-                row.prop(tm_props, "ST_materialBaseTexture", text="Location")
-                row.operator("view3d.tm_clearbasetexture", icon=ICON_CANCEL, text="")
-
-                if row.alert:
-                    row=src_col.row()
-                    row.alert = True
-                    row.label(text=".dds file in Documents/Maniaplanet/Items/")
-
-                # model
-                row = src_col.row()
-                row.prop(tm_props, "LI_materialModel")
-            
-
-            # link
-            else:
-                row = src_col.row()
-                row.prop_search(
-                    tm_props, "ST_selectedLinkedMat", # value of selection
-                    context.scene, "tm_props_linkedMaterials", # list to search in 
-                    icon=ICON_LINKED,
-                    text="Link") 
-
-
+            self.draw_maniaplanet(left, right, tm_props, use_physicsId)
 
 
         elif is_game_trackmania2020():
-            # physics id
-            enable = True if use_physicsId else False
+            self.draw_trackmania2020(left, right, tm_props, use_physicsId, use_gameplayId, action_is_update)
 
-            # TODO disable physicsid based on customxxx materials ??
-            row = matcol.row(align=True)
-            col = row.column()
-            col.enabled = enable
-            col.prop(tm_props, "LI_materialPhysicsId", text="Physics")
-            col = row.column()
-            col.prop(tm_props, "CB_materialUsePhysicsId", text="", toggle=True, icon=ICON_CHECKED)
 
-            selected_mat = tm_props.ST_selectedLinkedMat
-
-            # gameplay id
-            if selected_mat in LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID:
-                row = matcol.row(align=True)
-                col = row.column()
-                col.enabled = use_gameplayId
-                col.prop(tm_props, "LI_materialGameplayId", text="Gameplay")
-                col = row.column()
-                col.prop(tm_props, "CB_materialUseGameplayId", text="", toggle=True, icon=ICON_CHECKED)
-            # else:
-            #     row = matcol.row(align=True)
-            #     row.label(text="Gameplay:")
-            #     row.label(text="Material not supported")
-                
-            # custom color for materials starts with "custom"
-            mat_uses_custom_color = selected_mat.lower().startswith("custom")
-
-            row = matcol.row(align=True)
-            row.alert = mat_uses_custom_color
-            col = row.column()
-            col.scale_x = .55
-            col.label(text="Color")
-            col = row.column()
-            col.prop(tm_props, "NU_materialCustomColor", text="")
-            if action_is_update:
-                row.operator("view3d.tm_revertcustomcolor", icon=ICON_UPDATE, text="")
-            
-            # Link
-            row = matcol.row()
-            row.prop_search(
-                tm_props, "ST_selectedLinkedMat", # value of selection
-                context.scene, "tm_props_linkedMaterials", # list to search in 
-                icon=ICON_LINKED,
-                text="Link") 
-
+        layout.separator(factor=UI_SPACER_FACTOR)
 
         row = layout.row()
         row.scale_y = 1.5
