@@ -138,13 +138,19 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
 
     joined_obj = _make_joined_object(objects) if not is_single_object else objects[0]
     
+    joined_obj.hide_render = False
+
     vl = _add_icon_view_layer_and_set_active()
+
+    # objects in root collection "Scene Collection" need to stay linked/relinked after icon creation
+    # other objects/collections can be unlinked
+    root_coll_objs = []
 
     for obj in objects:
         try:
             vl.active_layer_collection.collection.objects.link(obj)
         except RuntimeError as e:
-            pass
+            root_coll_objs.append(obj)
 
     # HIDE ALL BUT JOINED
     for obj in bpy.context.scene.collection.objects:
@@ -192,16 +198,23 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
     # CLEAN UP -----------------
     # CLEAN UP -----------------
     # CLEAN UP -----------------
-    bpy.context.window.view_layer = current_view_layer
     
+    # remove icon dummy if it was generated from a collection
+    # single item with _item_ prefix needs to stay
     if not is_single_object:
         bpy.data.objects.remove(joined_obj, do_unlink=True)
 
     for obj in objects:
-        try:
-            vl.active_layer_collection.collection.objects.unlink(obj)
-        except RuntimeError as e:
-            pass
+        coll = vl.active_layer_collection.collection
+        coll.objects.unlink(obj)
+    
+    for obj in root_coll_objs:
+        coll = vl.active_layer_collection.collection
+        coll.objects.link(obj)
+
+
+    
+    bpy.context.window.view_layer = current_view_layer
     
     bpy.data.objects.remove(camera, do_unlink=True)
     bpy.data.objects.remove(empty, do_unlink=True)
@@ -212,6 +225,7 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
 
     debug(f"created icon <{icon_name}>")
 
+    # show render window (test render button clicked)
     if export_path is None:
         bpy.ops.render.view_show("INVOKE_DEFAULT")
 

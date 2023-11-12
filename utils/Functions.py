@@ -977,7 +977,10 @@ def is_collection_excluded_or_hidden(col) -> bool:
         
         #set first collection
         if current_col == "": 
-            current_col = view_layer.layer_collection.children[hierachy_col]
+            try:
+                current_col = view_layer.layer_collection.children[hierachy_col]
+            except KeyError as e: # "Scene Collection"
+                continue
         
         else:
             current_col = current_col.children[hierachy_col]
