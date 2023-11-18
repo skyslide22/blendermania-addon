@@ -15,14 +15,14 @@ ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
 bl_info = {
-    "name"          : "Trackmania Export & Convert .fbx > .gbx Addon",
+    "name"          : "Blendermania",
     "author"        : "skyslide & juice",
     "description"   : "Export collections, create icons, generate xml files and convert items",
     "blender"       : (3, 4, 0),
-    "version"       : (3, 12, 0),
+    "version"       : (3, 12, 1),
     "location"      : "View3D",
     "warning"       : "",
-    "category"      : "Generic"
+    "category"      : "Generic",
 }                    
 
 
