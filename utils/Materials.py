@@ -196,11 +196,18 @@ def create_material_nodes(mat)->None:
     NODE_output = nodes.new(type="ShaderNodeOutputMaterial")
     NODE_output.location = x(4), y(1)
 
+    # bsdf node input changes in blender 4.0 +
+    blender_is_v4_or_newer = bpy.app.version[0] >= 4
+
+    input_name_specular = "Specular IOR Level" if blender_is_v4_or_newer else "Specular"
+    input_name_emission = "Emission Color" if blender_is_v4_or_newer else "Emission"
+    
+
     # big node with all stuff
     NODE_bsdf = nodes.new(type="ShaderNodeBsdfPrincipled")
     NODE_bsdf.subsurface_method = "BURLEY"
     NODE_bsdf.location = x(3), y(1)
-    NODE_bsdf.inputs["Specular"].default_value = 0 #.specular
+    NODE_bsdf.inputs[input_name_specular].default_value = 0 #.specular
     NODE_bsdf.inputs["Emission Strength"].default_value = 3.0
     NODE_bsdf.inputs["Base Color"].default_value = surfaceColor
 
@@ -359,7 +366,7 @@ def create_material_nodes(mat)->None:
     
     links.new(NODE_tex_H.outputs["Color"],  NODE_bsdf.inputs["Emission Strength"]) if HTextureSuccess else None
 
-    links.new(NODE_tex_I.outputs["Color"], NODE_bsdf.inputs["Emission"]) if ITextureSuccess else None
+    links.new(NODE_tex_I.outputs["Color"], NODE_bsdf.inputs[input_name_emission]) if ITextureSuccess else None
     
     links.new(NODE_bsdf.outputs["BSDF"],  NODE_output.inputs["Surface"])
     
