@@ -226,8 +226,15 @@ class TM_PT_Materials(Panel):
         row = layout.row()
         row.scale_y = 1.5
 
+        enable_button = tm_props.ST_selectedExistingMaterial != ""
+        enable_button = enable_button and tm_props.ST_materialAddName != ""
+        
+        if is_game_trackmania2020():
+            enable_button = enable_button and tm_props.ST_selectedLinkedMat != ""
+
+        row.enabled = enable_button
+
         if action_is_update:
-            row.enabled = tm_props.ST_selectedExistingMaterial != ""
             row.operator("view3d.tm_updatematerial", text=f"Update {mat_name_old}", icon=ICON_UPDATE)
 
         else:
