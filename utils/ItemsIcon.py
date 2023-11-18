@@ -210,7 +210,10 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
     
     for obj in root_coll_objs:
         coll = vl.active_layer_collection.collection
-        coll.objects.link(obj)
+        try: # object could have been removed
+            coll.objects.link(obj)
+        except ReferenceError:
+            pass # ReferenceError: StructRNA of type Object has been removed
 
 
     
