@@ -67,7 +67,6 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redraw_panels)
     ST_addonUpdateDLmsg       : StringProperty(     name="Status",  default="", update=redraw_panels)
     CB_addonUpdateDLshow      : BoolProperty(       default=False,  update=redraw_panels)
-    CB_addonUpdateAvailable   : BoolProperty(       default=False,  update=redraw_panels)
 
     #map manipulation
     ST_map_filepath           : StringProperty(name="Map file", default="",   subtype="FILE_PATH")

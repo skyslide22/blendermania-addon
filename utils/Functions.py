@@ -306,17 +306,23 @@ def reload_current_blend_file() -> None:
 
 class AddonUpdate:
     from .. import bl_info
-    addon_version     :tuple = bl_info["version"]
-    new_addon_version :tuple = (0,0,0)
-    download_url      :str   = None
-
-    def check_can_update(cls) -> bool:
-        can_update = cls.new_addon_version > cls.addon_version
-        debug(f"new addon version available: {can_update}")
-        return can_update
+    addon_version:tuple             = bl_info["version"]
+    new_addon_version:tuple         = (0,0,0)
+    new_addon_blender_version:tuple = (0,0,0)
+    download_url:str                = None
+    
+    current_blender_too_old:bool = False
+    new_addon_available:bool = False
 
     @classmethod
-    def check_for_new_release(cls) -> bool:
+    def check_can_update(cls) :
+        cls.new_addon_available     = cls.new_addon_version > cls.addon_version
+        cls.current_blender_too_old = cls.new_addon_blender_version > bpy.app.version
+        pass
+
+
+    @classmethod
+    def check_for_new_release(cls):
         try:
             json_string = urllib.request.urlopen(URL_RELEASES).read()
             json_object = json.loads(json_string.decode('utf-8'))
@@ -324,30 +330,23 @@ class AddonUpdate:
             
             cls.new_addon_version = tuple( map( int, tag_name.split(".") ))
             cls.download_url      = json_object["assets"][0]["browser_download_url"]
+
+            try:
+                pattern = rf"(?P<major>\d+)\.(?P<minor>\d+)\.zip$"
+                match = re.search(pattern, cls.download_url, flags=re.IGNORECASE)
+                major = match.group("major")
+                minor = match.group("minor")
+                cls.new_addon_blender_version = (int(major), int(minor), 0)
+                # cls.new_addon_blender_version = (4, 0, 0)
+            
+            except:
+                cls.new_addon_blender_version = (0, 0, 0)
         
         except Exception as e:
             pass
 
-        finally: 
-            can_update = cls.check_can_update(cls)
-            max_trys   = 10
-            try_count  = 0
-            def update(): # if run in new thread, bpy.context is blocking randomly, bruteforce here
-                nonlocal max_trys
-                nonlocal try_count
-                
-                if try_count > 10:
-                    return None
+        cls.check_can_update()
 
-                try_count += 1
-                try:
-                    get_global_props().CB_addonUpdateAvailable = can_update
-                    return None
-                except AttributeError:
-                    return 1
-            
-            timer(update, 0)
-            return can_update
 
 
     # C:\Users\User>curl -I https://api.github.com/users/skyslide22

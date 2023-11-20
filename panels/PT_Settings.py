@@ -25,6 +25,13 @@ class TM_PT_Settings(Panel):
         layout = self.layout
         tm_props = get_global_props()
         row = layout.row(align=True)
+        
+        if AddonUpdate.new_addon_available:
+            col = row.column(align=True)
+            box = col.box()
+            # box.enabled = False
+            box.alert = True
+            box.label(text=" Update!")
 
         col = row.column(align=True)
         op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
@@ -39,52 +46,32 @@ class TM_PT_Settings(Panel):
         )
 
     def draw(self, context):
-        blender_version = bpy.app.version
 
-        addon_version   = bl_info["version"]
-        blender_too_old = blender_version < MIN_BLENDER_VERSION
+        blender_version     = bpy.app.version
+        addon_version       = bl_info["version"]
         
         layout          = self.layout
         tm_props        = get_global_props()
-
 
         box = layout.box()
         box.separator(factor=0)
         row = box.row(align=True)
         row.scale_y=.5
-        row.alert = blender_too_old
-        row.label(text=f"Blender: {blender_version} {'(too old)' if blender_too_old else ''}", icon=ICON_BLENDER)
-
-        if(blender_too_old):
-            row = box.row()
-            row.alert = True
-            row.operator("view3d.tm_open_url", text=f"Download {MIN_BLENDER_VERSION} or newer ",   icon=ICON_ERROR
-                         ).url = URL_BLENDER_DOWNLOAD
-            box.separator(factor=1)
-
+        row.label(text=f"Blender: {blender_version}", icon=ICON_BLENDER)
 
         row = box.row(align=True)
         row.label(text=f"""Addon: {addon_version}""", icon=ICON_ADDON)
         row.operator("view3d.tm_checkfornewaddonrelease",   text="", icon=ICON_UPDATE)
         row.operator("view3d.tm_debug_all",                 text="", icon=ICON_DEBUG)
         
-        if blender_too_old:
-            row = box.row()
-            row.alert = False
-            row.label(text=f"Blender {blender_too_old} or newer required!")
 
-        update_available = tm_props.CB_addonUpdateAvailable
-
-        if update_available:
-
-            next_version = AddonUpdate.new_addon_version
+        if AddonUpdate.new_addon_available:
 
             col = box.column(align=True)
-            col.alert = BLENDER_INSTANCE_IS_DEV
             row = col.row(align=True)
             row.scale_y = 1.5
-            row.enabled = tm_props.CB_addonUpdateDLshow is False
-            row.operator("view3d.tm_updateaddonrestartblender", text=f"Update to {next_version}", icon=ICON_UPDATE)
+            row.enabled = tm_props.CB_addonUpdateDLshow is False and not AddonUpdate.current_blender_too_old
+            row.operator("view3d.tm_updateaddonrestartblender", text=f"Update to {AddonUpdate.new_addon_version}", icon=ICON_UPDATE)
             row = col.row(align=True)
             # TODO change link
             row.operator("view3d.tm_open_url", text="Open changelog").url = URL_CHANGELOG
@@ -96,6 +83,17 @@ class TM_PT_Settings(Panel):
                 row.alert = "error" in dl_msg.lower()
                 row.prop(tm_props, "NU_addonUpdateDLProgress", text=f"{dl_msg}" if dl_msg else "Download progress")
 
+            if AddonUpdate.current_blender_too_old:
+                row = col.row()
+                row.alert = True
+                row.label(text="Your blender is too old!")
+                row = col.row()
+                row.scale_y = 1.5
+                row.operator("view3d.tm_open_url", 
+                             text=f"Download newer Blender",   
+                             icon=ICON_ERROR
+                ).url = URL_BLENDER_DOWNLOAD
+                
 
         col = box.column(align=True)
         row = col.row(align=True)

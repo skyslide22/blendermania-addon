@@ -197,14 +197,10 @@ class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
     bl_options = {"REGISTER"}
         
     def execute(self, context):
-        update_available = AddonUpdate.check_for_new_release()
-        if not update_available:
+        AddonUpdate.check_for_new_release()
+        if not AddonUpdate.new_addon_available:
             show_report_popup(
-                "No update available", 
-                [
-                    f"your version: {AddonUpdate.addon_version}",
-                    f"new version: {AddonUpdate.new_addon_version}",
-                ])
+"No update available")
         return {"FINISHED"}
 
 
