@@ -158,7 +158,11 @@ def import_item_gbx(item_path: str, name: str = None, coll: bpy.types.Collection
     if not res.success:
         return res.message
 
-    bpy.ops.import_scene.obj(filepath=res.message)
+    if bpy.app.version[0] >= 4:
+        bpy.ops.wm.obj_import(filepath=res.message)
+    else:
+        bpy.ops.import_scene.obj(filepath=res.message)
+    
     objs = bpy.context.selected_objects
     _clean_up_imported_item_gbx(objs, name, coll, res.message)
 
