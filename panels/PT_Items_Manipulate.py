@@ -406,8 +406,8 @@ class TM_PT_Items_CollectionManipulation(Panel):
             has_trigger_item = check_collection_has_obj_with_fix(current_collection, prefix=SPECIAL_NAME_PREFIX_TRIGGER)
             waypoint_type    = get_waypoint_of_active_objects_collection()
             
-            trigger_missing = has_trigger_item is False
-            spawn_missing   = has_spawn_item   is False
+            trigger_missing = has_trigger_item is False and waypoint_type != WAYPOINT_NAME_START
+            spawn_missing   = has_spawn_item   is False and waypoint_type != WAYPOINT_NAME_FINISH
 
             if trigger_missing or spawn_missing:
                 err_box = col_box.box()
@@ -421,7 +421,7 @@ class TM_PT_Items_CollectionManipulation(Panel):
                     row.operator("view3d.tm_createsocketitemincollection", text="Add spawn", icon=ICON_ADD)
                     row.prop(tm_props, "LI_items_cars", text="")
                                     
-                if has_trigger_item is False:
+                if trigger_missing:
                     row = err_box.row()
                     row.scale_y = .5
                     row.label(text=waypoint_type + " requires a trigger (_trigger_)!")

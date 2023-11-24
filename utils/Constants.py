@@ -186,7 +186,7 @@ URL_REGEX            = "https://regex101.com/"
 URL_WORKAROUND_PHYSICID = "https://github.com/skyslide22/blendermania-addon/wiki/06.-Converting-Troubleshooting#physicid-workaround-for-customxxx-materials"
 
 # dotnet addon name and version
-BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.6"
+BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.7"
 
 # Assets CDN Links
 GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-assets/releases/download/"
@@ -373,6 +373,7 @@ LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID = [
     "RoadDirt",
     "RoadIce",
     "RoadTech",
+    "ThemeSnowRoad",
 ]
 
 # # all customXXX are incompatible ...

@@ -311,6 +311,7 @@ def _add_empty_socket_hide_existing(coll: bpy.types.Collection) -> None:
 
     coll.objects.link(new_socket)
     old_socket.hide_set(True) # ignored in export now
+    return new_socket
 
 
 
@@ -425,7 +426,9 @@ def export_collections(colls: list[bpy.types.Collection]):
             return
 
         # tm2020 socket fix
-        _add_empty_socket_hide_existing(coll)
+        tmp_socket = _add_empty_socket_hide_existing(coll)
+        if tmp_socket:
+            item_to_export.objects.add(tmp_socket)
 
         # move collection to 0,0,0
         offset = _move_collection_to(coll.objects)
@@ -434,6 +437,8 @@ def export_collections(colls: list[bpy.types.Collection]):
         _export_item_FBX(item_to_export)
         
         # tm2020 socket fix
+        if tmp_socket:
+            item_to_export.objects.remove(tmp_socket)
         _remove_empty_socket_unhide_existing(coll)
 
         # generate icon
