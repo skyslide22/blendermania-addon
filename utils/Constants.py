@@ -373,7 +373,6 @@ LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID = [
     "RoadDirt",
     "RoadIce",
     "RoadTech",
-    "ThemeSnowRoad",
 ]
 
 # # all customXXX are incompatible ...
