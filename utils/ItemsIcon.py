@@ -185,8 +185,8 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
     bpy.context.scene.render.image_settings.file_format = "TARGA"
     bpy.context.scene.render.filepath = export_path if export_path is not None else ""
     bpy.context.scene.render.use_single_layer = True
-    bpy.context.scene.render.resolution_x = 512 # int(tm_props.LI_icon_pxDimension) # MP & TM are are always 64px
-    bpy.context.scene.render.resolution_y = 512 # int(tm_props.LI_icon_pxDimension) # MP & TM are are always 64px
+    bpy.context.scene.render.resolution_x = 256 # int(tm_props.LI_icon_pxDimension) # MP & TM are are always 64px
+    bpy.context.scene.render.resolution_y = 256 # int(tm_props.LI_icon_pxDimension) # MP & TM are are always 64px
     bpy.context.scene.eevee.taa_render_samples = 16
 
     generate_world_node()
