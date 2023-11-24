@@ -70,6 +70,9 @@ def _create_or_update_material(action)->None:
     matColor         = tm_props.NU_materialCustomColor
     MAT              = None
 
+    selected_mat = tm_props.ST_selectedLinkedMat
+    can_use_gameplay = selected_mat in LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID
+
     matTexSourceIsCustom = tm_props.LI_materialChooseSource == "CUSTOM"
 
     if is_game_trackmania2020():
@@ -98,7 +101,7 @@ def _create_or_update_material(action)->None:
     MAT.environment   = matCollection
     MAT.usePhysicsId  = matUsePhysicsId
     MAT.physicsId     = matPhysicsId
-    MAT.useGameplayId = matUseGameplayId
+    MAT.useGameplayId = matUseGameplayId if can_use_gameplay else False
     MAT.gameplayId    = matGameplayId
     MAT.model         = matModel
     MAT.link          = matLink
