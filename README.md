@@ -33,7 +33,7 @@ This addon will make your blender experience way better and help you with the fo
 - **UVMaps** – add/view/edit BaseMaterial & LightMap
 
 # Links
-Download the latest release –  <https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases>  
+Download the latest release –  <https://github.com/skyslide22/blendermania-addon/releases>  
 Documentation – <https://github.com/skyslide22/blendermania-addon/wiki/01.-Install-&-Configuration>  
 Installation – <https://www.youtube.com/watch?v=JXINd6oBTw4>  
 UVMaps workshop – <https://www.youtube.com/watch?v=KvXMiI5LKx8>  
