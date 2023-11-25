@@ -1,28 +1,48 @@
 # Blendermania 
-### A Blender Addon for Trackmania2020 and ManiaPlanet
+## A Blender Addon for Trackmania2020 and ManiaPlanet
 
-This addon is for **min Blender 3.4**, it will simplify all necessary steps and help you with:
-- creating icons
-- creating materials for the games
-- install `NadeoImporter.exe` with one click
-- install textures with one click
-- install assets with one click
-- export & convert items(collections) from fbx to gbx
-- export items in a map collection to a .Map.Gbx file (create map in blender)
-- import/export mediatracker clips (can go beyond 64x64x64 area without openplanet)
+This addon will make your blender experience way better and help you with the following things:
 
-## Documentation & Tutorials
-- addon wiki: https://github.com/skyslide22/blendermania-addon/wiki
-- installation: https://www.youtube.com/watch?v=JXINd6oBTw4
-- in depth workshop about the addon: https://www.youtube.com/watch?v=EIJKl_q6w10 
-- uv maps workshop: https://www.youtube.com/watch?v=KvXMiI5LKx8
+### Creations:
+- **Icons** for your objects
+- Mandatory **materials** to convert your item to the game (container for texture & physicid/gameplayid)
+- Waypoint templates like **Checkpoints**, start, finish & multilap behavior
+- Templates for in-game placement (**.Item.xml**)
 
-## Todo list
-- https://github.com/skyslide22/blendermania-addon/projects/1
+### One Click Installs:
+- Built-in addon **updater**
+- **Textures** for the selected game/environment
+- Different **nadeo-importer** versions – this program (developed by nadeo itself) actually converts your exported item (.fbx) to the game (.gbx)
+- Useful **assets** for blender related to trackmania
+- Install/Import a program called **Ninjaripper** (used to extract geometry of various games, aka ripping them (free/paid))
+- Blendermania-dotnet (manipulation of gbx files using gbx.net)
 
-## Help & Contact
-Contact us(skyslide, Juice) on discord:
-- Trackmania Scenery Hub https://discord.gg/yMSnpjUPEG #blendermania-addon
+### Export & Converting
+- Single **object** or objects in a **collection** as one object
+- Multi **scale exports**, create one version and export automatically in different sizes
+- Batch/**Parallel**, export all your creations at the same time (collections/objects)
+- **Map** export based on existing/linked objects
+- Automatic generation of the mandatory **.Meshparams.xml** and **.Item.xml** files
+- Automatic **lightmap** generation (consider making your own when you have finished your object!)
+- Automatic **icon** generation
+
+### Manipulations
+- Toggle of various **marker settings** like \_notcollidable\_, \_trigger\_ or \_Lod0 and so on
+- Toggle the **ModWork** folder
+- Change **texture sources** for blender with one click
+- **UVMaps** – add/view/edit BaseMaterial & LightMap
+
+# Links
+Download the latest release –  <https://github.com/skyslide22/blender-addon-for-trackmania-and-maniaplanet/releases>  
+Documentation – <https://github.com/skyslide22/blendermania-addon/wiki/01.-Install-&-Configuration>  
+Installation – <https://www.youtube.com/watch?v=JXINd6oBTw4>  
+UVMaps workshop – <https://www.youtube.com/watch?v=KvXMiI5LKx8>  
+Workshop – <https://www.youtube.com/watch?v=EIJKl_q6w10>  
+
+# Community
+We are mainly active in our dedicated discord server for this and other addons:  
+https://discord.gg/s3WgRBCbG5
+
 
 ![addon image](https://github.com/skyslide22/blendermania-addon/wiki/img/wheretofind.jpg)
 
