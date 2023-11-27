@@ -224,18 +224,26 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         col = layout.column(align=True)
         row = col.row(align=True)
         row.enabled = not is_multi
-        row.prop(tm_props.PT_map_object, "object_type", text="Type")
+        
+        col_left = row.column()
+        col_right = row.column()
+        
+        col_left.label(text="Type")
+        col_right.row().prop(tm_props.PT_map_object, "object_type", expand=True)
 
-        row = col.row(align=True)
+        col_left.label(text="Placeholder")
+        row = col_right.row(align=True)
         row.enabled = not is_block and not is_multi
-        row.prop(tm_props.PT_map_object, "object_item", text="Placeholder")
+        row.prop(tm_props.PT_map_object, "object_item", text="")
             
         path_is_valid = tm_props.PT_map_object.object_path.lower().endswith("item.gbx")
 
-        row = col.row(align=True)
-        row.enabled = not is_block
         path_title = "Name" if is_block else "Item.Gbx"
-        row.prop(tm_props.PT_map_object, "object_path", text=f"{path_title}")
+        
+        col_left.label(text=path_title)
+        row = col_right.row(align=True)
+        row.enabled = not is_block
+        row.prop(tm_props.PT_map_object, "object_path", text="")
 
         item_gbx_name = (tm_props.PT_map_object.object_path).split("/")[-1].split(".")[0]
         item_btn_icon = ICON_UPDATE if is_update else ICON_ADD
@@ -243,10 +251,10 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
 
         text = f"{item_action} Item {item_gbx_name}"
         if (not is_update or len(select_map_objects) > 1) and is_all_in_map:
-            text = f"Update {len(select_objects)} objects"
+            text = f"Update {len(select_objects)} object" + ("s" if len(select_objects) > 1 else "")
         button = layout.row()
         button.scale_y = 1.5
-        button.enabled = not is_block and not not not not not not not not not not not not item_gbx_name
+        button.enabled = not is_block and len(item_gbx_name) > 0 and len(select_objects) > 0
         button.operator(
             OT_UICreateUpdateMapItemBlock.bl_idname, 
             text=text,

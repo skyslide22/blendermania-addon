@@ -54,6 +54,7 @@ def get_selected_map_objects() -> list[bpy.types.Object]:
 
     return res
 
+
 def is_all_selected_in_map_collection() -> bool:
     tm_props                      = get_global_props()
     map_coll:bpy.types.Collection = tm_props.PT_map_collection
@@ -62,6 +63,7 @@ def is_all_selected_in_map_collection() -> bool:
     if tm_props.PT_map_collection is None:
         return False
 
+    # TODO should we break on false set ??
     for obj in bpy.context.selected_objects:
         if not map_coll.all_objects.get(obj.name):
             is_in = False

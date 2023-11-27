@@ -207,14 +207,17 @@ class TM_PT_Items_ObjectManipulation(Panel):
                     if waypoint not in WAYPOINT_VALID_NAMES:
                         row = obj_box.row(align=True)
                         row.alert = True
+                        row.scale_y = 0.6
                         row.alignment = "CENTER"
                         row.label(text="Since this collection is not a waypoint,")
                         row = obj_box.row(align=True)
                         row.alert = True
+                        row.scale_y = 0.6
                         row.alignment = "CENTER"
                         row.label(text="triggers (_trigger_) & spawns (_socket_)")
                         row = obj_box.row(align=True)
                         row.alert = True
+                        row.scale_y = 0.6
                         row.alignment = "CENTER"
                         row.label(text="will have no effect")
 

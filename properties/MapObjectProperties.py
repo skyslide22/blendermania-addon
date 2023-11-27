@@ -1,4 +1,6 @@
 import bpy
+
+from ..properties.Functions import get_ingame_vanilla_item_names
 from ..utils.Constants import MAP_OBJECT_ITEM, MAP_OBJECT_BLOCK
 from ..utils.Functions import get_global_props, get_obj_potential_item_path
 
@@ -32,4 +34,4 @@ class MapObjectProperties(bpy.types.PropertyGroup):
         default=MAP_OBJECT_ITEM,
         update=on_update_map_obj_kind
     )
-    object_path: bpy.props.StringProperty(name="Name/path of Item or Block", subtype="FILE_PATH")
+    object_path: bpy.props.StringProperty(name="Name/path of Item or Block", search=get_ingame_vanilla_item_names, subtype="FILE_PATH")

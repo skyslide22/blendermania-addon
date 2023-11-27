@@ -2016,7 +2016,7 @@ def show_windows_toast(title: str, text: str, baloon_icon: str="Info", duration:
     icon = "MANIAPLANET.ico" if is_game_maniaplanet() else "TRACKMANIA2020.ico"
     icon = get_addon_icon_path(icon)
 
-    assetpath = fix_slash( get_addon_assets_path() )
+    assetpath = fix_slash( get_addon_assets_path() + "/misc/" )
     cmd = [
         "PowerShell", 
         "-File",        f"""{assetpath}/make_toast.ps1""", 

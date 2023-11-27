@@ -939,6 +939,28 @@ def getTriggerNames() -> list:
     ).to_list()
 
 
+vanilla_items:List[str] = None
+def get_ingame_vanilla_item_names(self, context, edit_text) -> List[str]:
+    global vanilla_items
+    
+    if vanilla_items:
+        return vanilla_items
+
+    items = []
+    fpath = fix_slash(get_addon_assets_path() + "/misc/item_list.txt")
+
+    with open(fpath, "r") as file:
+        for line in file.readlines():
+            match = re.search(r"^(?P<name>\w+|\-+)", line, flags=re.IGNORECASE)
+            name = match.group("name")
+
+            if name:
+                items.append(name)
+    
+    vanilla_items = items
+    return vanilla_items
+
+
 
 def getWorkspaceNames(self, context) -> list:
     workspaces = [w.name for w in bpy.data.workspaces]

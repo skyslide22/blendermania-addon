@@ -244,11 +244,11 @@ def _export_item_FBX(item: ExportedItem) -> None:
     create_folder_if_necessary(item.fbx_path[:item.fbx_path.rfind("/")]) #deletes all after last slash
 
     tm_props    = get_global_props()
-    objTypes    = tm_props.LI_exportValidTypes.split("_") 
-    objTypes    = {ot for ot in objTypes} #MESH_LIGHT_EMPTY
+    # objTypes    = tm_props.LI_exportValidTypes.split("_") 
+    # objTypes    = {ot for ot in objTypes} #MESH_LIGHT_EMPTY
     exportArgs  = {
         "filepath":             item.fbx_path,
-        "object_types":         objTypes,
+        # "object_types":         objTypes,
         "use_selection":        True,
         "use_custom_props":     True,
         "apply_unit_scale":     False,
