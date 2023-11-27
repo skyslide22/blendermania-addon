@@ -60,7 +60,7 @@ class TM_PT_Settings(Panel):
         row.label(text=f"Blender: {blender_version}", icon=ICON_BLENDER)
 
         row = box.row(align=True)
-        row.label(text=f"""Addon: {addon_version}""", icon=ICON_ADDON)
+        row.label(text=f"""Addon: {addon_version}""", icon_value=get_addon_icon("BLENDERMANIA"))
         row.operator("view3d.tm_checkfornewaddonrelease",   text="", icon=ICON_UPDATE)
         row.operator("view3d.tm_debug_all",                 text="", icon=ICON_DEBUG)
         
