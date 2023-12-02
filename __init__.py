@@ -222,6 +222,7 @@ classes = (
     OT_UIChangeMediatrackerTriggerClipName,
     OT_UIRefreshMediatrackerTriggerClipNamesFromMap,
     OT_UISelectMediatrackerTriggersByName,
+    PT_UIMapHelpers,
     
     # editor trails
     TM_PT_UIEditorTrails,

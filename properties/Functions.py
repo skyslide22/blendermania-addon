@@ -156,6 +156,44 @@ def gameTypeGotUpdated(self=None,context=None)->None:
     return None
 
 
+def get_grid_helper_area_sizes_xy()->list:
+    return EnumProps()\
+        .add("16","16",)\
+        .add("32","32")\
+        .add("64","64")\
+        .to_list()
+
+def get_grid_helper_area_sizes_z()->list:
+    return EnumProps()\
+        .add("4","4",)\
+        .add("8","8")\
+        .add("16","16")\
+        .to_list()
+
+def get_grid_helper_min_steps()->list:
+    return EnumProps()\
+        .add("2","2",)\
+        .add("4","4")\
+        .add("16","16")\
+        .to_list()
+
+
+def get_map_volume_sizes_xy()->list:
+    return EnumProps()\
+        .add("32","32",)\
+        .add("48","48")\
+        .add("64","64")\
+        .add("256","256")\
+        .to_list()
+
+def get_map_volume_sizes_z()->list:
+    return EnumProps()\
+        .add("32","32",)\
+        .add("48","48")\
+        .add("64","64")\
+        .add("256","256")\
+        .to_list()
+
 
 def getGameTextureZipFileNames()->list:
     return EnumProps().add(

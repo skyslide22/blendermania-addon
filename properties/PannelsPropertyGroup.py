@@ -78,7 +78,14 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_map_clean_items        : BoolProperty(name="Clean existed items", default=True)
     ST_map_clip_name          : StringProperty(name="", search=provide_current_map_mt_clip_names)
     # map other
-    CB_map_use_grid_helper : BoolProperty(default=False, name="Map Grid Helper", update=on_grid_helper_toggle)
+    CB_map_use_grid_helper:             BoolProperty(default=False, name="Map Grid Helper",     update=on_grid_helper_toggle)
+    LI_map_grid_helper_area_size_xy:    EnumProperty(items=get_grid_helper_area_sizes_xy(),     name="Area Size", default=1)
+    LI_map_grid_helper_area_size_z:     EnumProperty(items=get_grid_helper_area_sizes_z(),      name="Area Size", default=1)
+    LI_map_grid_helper_area_min_step:   EnumProperty(items=get_grid_helper_min_steps(),         name="Area Size", default=1)
+    CB_map_use_volume_helper:           BoolProperty(default=False, name="Map Volume Helper",   update=on_map_volume_helper_toggle)
+    LI_map_volume_helper_xy:            EnumProperty(items=get_map_volume_sizes_xy(),           name="Volume Size", default=1, update=on_map_volume_area_xy_changed)
+    LI_map_volume_helper_z:             EnumProperty(items=get_map_volume_sizes_z(),            name="Volume Size", default=1, update=on_map_volume_area_z_changed)
+
 
     #object manipulation
     NU_objMplScaleFrom      : IntProperty(default=7, min=1, max=20)

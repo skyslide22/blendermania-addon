@@ -29,10 +29,14 @@ from ..utils.Functions import (
     debug,
 )
 from ..utils.Constants import (
+    MAP_VOLUME_NODES_CUBE_NODE_NAME,
     MAP_GRID_GEO_NODES_NAME,
     MAP_GRID_OBJECT_NAME,
     MAP_OBJECT_ITEM,
     MAP_OBJECT_BLOCK,
+    MAP_VOLUME_GEO_NODES_NAME,
+    MAP_VOLUME_NODES_SETPOSITION_NODE_NAME,
+    MAP_VOLUME_OBJECT_NAME,
     SPECIAL_NAME_PREFIX_MTTRIGGER,
     ADDON_ITEM_FILEPATH_MT_TRIGGER_10_66x8,
 )
@@ -217,6 +221,78 @@ def export_map_collection() -> DotnetExecResult:
 
 
 
+def create_map_volume_obj_geom_nodes_modifier() -> bpy.types.Modifier:
+    obj      = create_map_volume_obj()
+    modifier = obj.modifiers.get(MAP_VOLUME_GEO_NODES_NAME, None)
+
+    if modifier is None:
+        modifier = obj.modifiers.new(name=MAP_VOLUME_GEO_NODES_NAME, type="NODES")
+    
+    bpy_nodes = bpy.data.node_groups
+    nodes     = bpy_nodes.get(MAP_VOLUME_GEO_NODES_NAME, None)
+
+    if nodes is None:
+        nodes = bpy_nodes.new(MAP_VOLUME_GEO_NODES_NAME, "GeometryNodeTree")
+    
+    links = nodes.links
+    nodes = nodes
+
+    modifier.node_group = nodes
+    nodes = nodes.nodes
+
+    xstep = 300
+    ystep = 300
+    x = lambda step:  (xstep * step)
+    y = lambda step: -(ystep * step)
+
+
+    node_cube = nodes.new(type="GeometryNodeMeshCube")
+    node_cube.location[0] = x(0)
+    node_cube.name = MAP_VOLUME_NODES_CUBE_NODE_NAME
+    node_cube.label = MAP_VOLUME_NODES_CUBE_NODE_NAME
+    
+    node_set_pos = nodes.new(type="GeometryNodeSetPosition")
+    node_set_pos.location[0] = x(1)
+    node_set_pos.name = MAP_VOLUME_NODES_SETPOSITION_NODE_NAME
+    node_set_pos.label = MAP_VOLUME_NODES_SETPOSITION_NODE_NAME
+
+    
+    node_output = nodes.get("Group Output", None) or nodes.new(type="NodeGroupOutput")
+    node_output.location[0] = x(2)
+
+    # blender 3.5+
+    modifier.node_group.outputs.new(name="Geometry", type="NodeSocketGeometry")
+
+    links.new(
+        node_set_pos.inputs["Geometry"],
+        node_cube.outputs["Mesh"]   
+    )
+    links.new(
+        node_output.inputs["Geometry"],
+        node_set_pos.outputs["Geometry"]
+    )
+ 
+    return modifier
+
+
+def create_map_volume_obj() -> bpy.types.Object:
+    obj = bpy.data.objects.get(MAP_GRID_OBJECT_NAME, None)
+    if obj: 
+        if obj.name not in bpy.context.scene.collection.objects:
+            bpy.context.scene.collection.objects.link(obj)
+        return obj
+
+    mesh = bpy.data.meshes.new(name=MAP_VOLUME_GEO_NODES_NAME)
+    obj  = bpy.data.objects.new(name=MAP_VOLUME_OBJECT_NAME, object_data=mesh)
+
+    obj.hide_select = True
+    obj.display_type = "WIRE"
+
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+
 def create_grid_obj() -> bpy.types.Object:
     obj = bpy.data.objects.get(MAP_GRID_OBJECT_NAME, None)
     if obj: 
@@ -231,6 +307,7 @@ def create_grid_obj() -> bpy.types.Object:
 
     bpy.context.scene.collection.objects.link(obj)
     return obj
+
 
 
 def create_grid_obj_geom_nodes_modifier() -> bpy.types.Modifier:
@@ -298,6 +375,13 @@ def delete_map_grid_helper_and_cleanup() -> None:
         bpy.data.node_groups.remove(node)
 
 
+def delete_map_volume_helper_and_cleanup() -> None:
+    if obj := bpy.data.objects.get(MAP_VOLUME_OBJECT_NAME, None):
+        bpy.data.objects.remove(obj)
+    if node := bpy.data.node_groups.get(MAP_VOLUME_GEO_NODES_NAME, None):
+        bpy.data.node_groups.remove(node)
+
+
 @persistent
 def listen_object_move(scene):
     tm_props = get_global_props()
@@ -346,14 +430,15 @@ def get_obj_grid_pos(step: float, position: float) -> float:
 
 
 def handle_object_movement_for_grid_helper(obj: bpy.types.Object) -> None:
+    tm_props = get_global_props()
 
     if obj.location_before != obj.location:
         obj.location_before = obj.location
     
     # todo make dynamic
-    z_step   = 8
-    x_step   = 32
-    y_step   = 32
+    z_step   = int(tm_props.LI_map_grid_helper_area_size_z)
+    x_step   = int(tm_props.LI_map_grid_helper_area_size_xy)
+    y_step   = int(tm_props.LI_map_grid_helper_area_size_xy)
     xy_step  = x_step + y_step
     min_steps= 2
 

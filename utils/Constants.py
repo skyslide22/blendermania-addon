@@ -143,6 +143,10 @@ EDITORTRAILS_OBJECT_NAME = "_ignore_editortrails"
 
 MAP_GRID_OBJECT_NAME    = "_ignore_map_grid_helper"
 MAP_GRID_GEO_NODES_NAME = "Map Grid Geo Nodes"
+MAP_VOLUME_OBJECT_NAME    = "_ignore_map_volume_helper"
+MAP_VOLUME_GEO_NODES_NAME = "Map Volume Geo Nodes"
+MAP_VOLUME_NODES_CUBE_NODE_NAME = "Volume Cube"
+MAP_VOLUME_NODES_SETPOSITION_NODE_NAME = "Set Cube Position"
 
 MAX_EMBED_SIZE_MANIAPLANET = 1024 # kB
 MAX_EMBED_SIZE_TRACKMANIA2020 = 4096 # kB

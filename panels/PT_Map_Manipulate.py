@@ -44,7 +44,7 @@ class PT_UIMapManipulation(bpy.types.Panel):
         tm_props = get_global_props()
         layout = self.layout
         
-        layout.prop(tm_props, "CB_map_use_grid_helper", text="Grid Helper", icon=ICON_GRID)
+        layout.prop(tm_props, "CB_map_use_grid_helper", text="Grid", icon=ICON_GRID)
         
         op = layout.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
         op.title = "Export Infos"
@@ -330,6 +330,75 @@ class PT_UIMediatrackerClips(bpy.types.Panel):
             row.scale_y = 0.6
             row.label(text=f"(0) None" )
             
+            
+
+class PT_UIMapHelpers(bpy.types.Panel):
+    bl_label   = "Helper"
+    bl_idname  = "TM_PT_UIMapHelpers"
+    bl_context = "objectmode"
+    bl_parent_id = "TM_PT_Map_Manipulate"
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+
+    def draw(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+
+        main_col = layout.column(align=True)
+        row = main_col.row(align=True)
+        row.prop(tm_props, "CB_map_use_grid_helper", toggle=True)
+        
+        row = main_col.row(align=True)
+        col_left = row.column(align=True)
+        col_right = row.column(align=True)
+
+        use_grid_helper = tm_props.CB_map_use_grid_helper
+
+        col_left.enabled = use_grid_helper
+        col_right.enabled = use_grid_helper
+
+        col_left.label(text="Area XY")
+        col_right.row().prop(tm_props, "LI_map_grid_helper_area_size_xy", expand=True)
+        
+        col_left.label(text="Area Z")
+        col_right.row().prop(tm_props, "LI_map_grid_helper_area_size_z", expand=True)
+        
+        # col_left.label(text="Padding")
+        # col_right.row().prop(tm_props, "LI_map_grid_helper_area_min_step", expand=True)
         
         
+        layout.separator(factor=UI_SPACER_FACTOR)
+        
+        main_col = layout.column(align=True)
+        row = main_col.row(align=True)
+        row.prop(tm_props, "CB_map_use_volume_helper", toggle=True)
+        
+        row = main_col.row(align=True)
+        col_left = row.column(align=True)
+        col_right = row.column(align=True)
+
+        use_volume_helper = tm_props.CB_map_use_volume_helper
+
+        col_left.enabled = use_volume_helper
+        col_right.enabled = use_volume_helper
+        col_left.scale_x = 1.44
+
+        col_left.label(text="Volume XY")
+        col_right.row().prop(tm_props, "LI_map_volume_helper_xy", expand=True)
+        
+        col_left.label(text="Volume Z")
+        col_right.row().prop(tm_props, "LI_map_volume_helper_z", expand=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

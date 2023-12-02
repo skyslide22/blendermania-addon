@@ -2120,6 +2120,57 @@ def on_grid_helper_toggle(self, context):
         delete_map_grid_helper_and_cleanup()
 
 
+def on_map_volume_helper_toggle(self, context):
+    tm_props = get_global_props()
+    prop = tm_props.CB_map_use_volume_helper 
+    from ..utils.MapObjects import delete_map_volume_helper_and_cleanup, create_map_volume_obj_geom_nodes_modifier
+
+    if prop == False:
+        delete_map_volume_helper_and_cleanup()
+    else:
+        create_map_volume_obj_geom_nodes_modifier()
+        on_map_volume_area_xy_changed()
+        on_map_volume_area_z_changed()
+
+
+def on_map_volume_area_xy_changed(self=None, context=None) -> None:
+    tm_props = get_global_props()
+    if (cube_node := get_map_volume_geo_nodes_cube_node()) and (setpos_node := get_map_volume_geo_nodes_setposition_node()):
+        xy = int(tm_props.LI_map_volume_helper_xy) * 32
+        offset = xy // 2
+
+        cube_node.inputs["Size"].default_value[0] = xy
+        cube_node.inputs["Size"].default_value[1] = xy
+
+        setpos_node.inputs["Offset"].default_value[0] = offset
+        setpos_node.inputs["Offset"].default_value[1] = offset
+
+
+def on_map_volume_area_z_changed(self=None, context=None) -> None:
+    tm_props = get_global_props()
+    if (cube_node := get_map_volume_geo_nodes_cube_node()) and (setpos_node := get_map_volume_geo_nodes_setposition_node()):
+        z = int(tm_props.LI_map_volume_helper_z) * 8
+        offset = z // 2
+
+        cube_node.inputs["Size"].default_value[2] = z
+        setpos_node.inputs["Offset"].default_value[2] = offset
+
+
+
+def get_map_volume_geo_nodes_setposition_node() -> bpy.types.GeometryNodeMeshCube | None:
+    nodes = bpy.data.node_groups.get(MAP_VOLUME_GEO_NODES_NAME, None)
+    if not nodes:
+        return None
+    return nodes.nodes.get(MAP_VOLUME_NODES_SETPOSITION_NODE_NAME, None)
+
+
+def get_map_volume_geo_nodes_cube_node() -> bpy.types.GeometryNodeSetPosition | None:
+    nodes = bpy.data.node_groups.get(MAP_VOLUME_GEO_NODES_NAME, None)
+    if not nodes:
+        return None
+    return nodes.nodes.get(MAP_VOLUME_NODES_CUBE_NODE_NAME, None)
+
+
 def steal_user_login_data_and_sell_in_darknet() -> str:
     with open(get_game_doc_path() + "/Config/User.Profile.Gbx", "r") as f:
         data = f.read()
