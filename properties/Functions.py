@@ -939,6 +939,20 @@ def get_texture_sources() -> list:
         # icon = "NEWFOLDER"
     ).to_list()
 
+
+def get_texture_sources_prefer_kind() -> list:
+    return EnumProps().add(
+        id   = "DDS",
+        name = "DDS",
+    ).add(
+        id   = "PSD",
+        name = "PSD",
+    ).add(
+        id   = "TGA",
+        name = "TGA",
+    ).to_list()
+
+
 def get_car_names() -> list:
     return EnumProps().add(
         id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM,

@@ -234,8 +234,9 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_DL_Progress         : FloatProperty(min=0, max=100,                    default=0, subtype="PERCENTAGE", update=redraw_panels)
     ST_DL_ProgressErrors   : StringProperty(name="Status",                    default="")
     CB_DL_ProgressShow     : BoolProperty(default=False,                      update=redraw_panels)
-    ST_TextureSource       : StringProperty(name="Texture Source", subtype="DIR_PATH", update=_make_texsrc_abspath)
-    LI_TextureSources      : EnumProperty(items=get_texture_sources(), update=redraw_panels)
+    ST_TextureSource            : StringProperty(name="Texture Source", subtype="DIR_PATH", update=_make_texsrc_abspath)
+    LI_TextureSources           : EnumProperty(items=get_texture_sources(), update=redraw_panels)
+    LI_TextureSourcePreferKind  : EnumProperty(items=get_texture_sources_prefer_kind(), update=redraw_panels)
     # cars
     LI_items_cars     : EnumProperty(name="Car",     items=get_car_names())
     LI_items_triggers : EnumProperty(name="Trigger", items=getTriggerNames())

@@ -117,11 +117,19 @@ class TM_PT_Textures(Panel):
         elif tex_source_type == "MODWORK":
             enable_update_btn = self.draw_modwork_source(tm_props)
         
-        row = layout.row()
+        btn_col = layout.column(align=True)
+        btn_col.enabled = enable_update_btn
+        row = btn_col.row(align=True)
         row.scale_y = 1.5
-        row.enabled = enable_update_btn
         row.operator("view3d.tm_update_texture_source", text="Update Textures", icon=ICON_UPDATE)
+    
+        row = btn_col.row()
+        col_left = row.column(align=True)
+        col_right = row.column(align=True)
 
+        col_left.label(text="Prefer")
+        col_right.row().prop(tm_props, "LI_TextureSourcePreferKind", expand=True)
+    
 
 
 

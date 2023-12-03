@@ -21,6 +21,8 @@ class TM_OT_Textures_UpdateTextureSource(Operator):
     
 
     
+def get_raw_filename(path: str) -> str:
+    return path.replace("/", "\\").split("\\")[-1].split(".")[0]
 
 def update_texture_folder(tex_src:str = ""):
     tm_props = get_global_props()
@@ -48,25 +50,34 @@ def update_texture_folder(tex_src:str = ""):
     
     else:
         raise ValueError(f"Type {tex_src_type} not supported")
-
+    
+    
+    pref_format = tm_props.LI_TextureSourcePreferKind
 
     images = bpy.data.images
 
     filepaths = get_folder_files(tex_src_new)
-    files = []
+    filenames = []
 
     for file in filepaths:
-        filename = file.replace("/", "\\").split("\\")[-1]
-        files.append(filename)
+        filename = get_raw_filename(file) # raw name no ext/path
+        filenames.append(filename.lower())
     
     found_images = []
     for image in images:
-        if image.name in files:
+        if image.name.split(".")[0].lower() in filenames:
             found_images.append(image)
 
     for image in found_images:
-        image_name = image.name
-        image.filepath = tex_src_new + "\\" + image_name
+        image_name = image.name.split(".")[0]
+
+        new_path = tex_src_new + "\\" + image_name + "." + pref_format.lower()
+        if not is_file_existing(new_path):
+            new_path = new_path.split(".")[0] + ".dds"
+            if not is_file_existing(new_path):
+                continue 
+        
+        image.filepath = new_path
         image.reload()
     
 
