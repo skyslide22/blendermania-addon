@@ -1,4 +1,10 @@
-# Blendermania 
+<div>
+  <img src="https://github.com/skyslide22/blendermania-addon/blob/master/icons/BLENDERMANIA.png" alt="logo" align="left" height="45">
+
+  # Blendermania 
+</div>
+
+
 ## A Blender Addon for Trackmania2020 and ManiaPlanet
 
 This addon will make your blender experience way better and help you with the following things:
