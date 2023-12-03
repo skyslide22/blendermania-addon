@@ -183,7 +183,8 @@ def get_map_volume_sizes_xy()->list:
         .add("32","32",)\
         .add("48","48")\
         .add("64","64")\
-        .add("256","256")\
+        .add("128","128")\
+        .add("255","255")\
         .to_list()
 
 def get_map_volume_sizes_z()->list:
