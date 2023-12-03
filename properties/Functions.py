@@ -188,12 +188,7 @@ def get_map_volume_sizes_xy()->list:
         .to_list()
 
 def get_map_volume_sizes_z()->list:
-    return EnumProps()\
-        .add("32","32",)\
-        .add("48","48")\
-        .add("64","64")\
-        .add("256","256")\
-        .to_list()
+    return get_map_volume_sizes_xy()
 
 
 def getGameTextureZipFileNames()->list:
