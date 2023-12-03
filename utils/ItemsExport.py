@@ -463,7 +463,6 @@ def export_collections(colls: list[bpy.types.Collection]):
 def export_objects(objects: list[bpy.types.Object]) -> None:
     current_selection                            = bpy.context.selected_objects.copy()
     tm_props                                     = get_global_props()
-    generate_icons                               = tm_props.CB_icon_genIcons
     items_to_export:list[ExportedItem]           = []
     processed_materials:list[bpy.types.Material] = []
     
@@ -519,8 +518,7 @@ def export_objects(objects: list[bpy.types.Object]) -> None:
 
         _export_item_FBX(item_to_export)
 
-        if generate_icons:
-            generate_objects_icon([obj], obj.name, item_to_export.icon_path)
+        generate_objects_icon([obj], obj.name, item_to_export.icon_path)
         
         obj.location = old_loc
 

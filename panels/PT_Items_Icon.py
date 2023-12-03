@@ -41,8 +41,8 @@ class TM_PT_Items_Icon(Panel):
         row = layout.row(align=True)
 
         # col = row.column(align=True)
-        # col.enabled = tm_props.CB_icon_genIcons
-        # col.prop(tm_props, "CB_icon_overwriteIcons",   text="", icon=ICON_UPDATE)
+        # col.prop(tm_props, "CB_icon_genIcons",   text="", icon=ICON_CHECKED)
+
         col = row.column(align=True)
         col.prop(tm_props, "CB_icon_overwriteIcons",         text="", icon=ICON_UPDATE,)
         
