@@ -50,3 +50,6 @@ class TM_PT_UIEditorTrails(bpy.types.Panel):
         row = layout.row(align=True)
         row.enabled = False
         row.prop(tm_props, "NU_etrail_animationProgress", text="Animate Car (WIP)")
+
+        # TODO testing
+        # state = layout.progress(text='test', text_ctxt='', translate=True, factor=.5, type='BAR')

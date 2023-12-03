@@ -6,6 +6,8 @@ from bpy.types import Operator
 from ..utils.Functions import *
 from ..utils.Constants import * 
 
+
+# TODO remove this feature
 class TM_OT_VisibilitySelection_Toggle(Operator):
     bl_idname = "view3d.tm_visibilityselection_toggle"
     bl_description = f"Toggle"

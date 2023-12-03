@@ -260,8 +260,13 @@ def create_map_volume_obj_geom_nodes_modifier() -> bpy.types.Modifier:
     node_output = nodes.get("Group Output", None) or nodes.new(type="NodeGroupOutput")
     node_output.location[0] = x(2)
 
-    # blender 3.5+
-    modifier.node_group.outputs.new(name="Geometry", type="NodeSocketGeometry")
+    if bpy.app.version[0] < 4:
+        # blender 3.5+
+        modifier.node_group.outputs.new(name="Geometry", type="NodeSocketGeometry")
+    else:
+        # blender 4.0+
+        modifier.node_group.interface.new_socket("Geometry", in_out="OUTPUT", socket_type="NodeSocketGeometry")
+
 
     links.new(
         node_set_pos.inputs["Geometry"],
@@ -276,7 +281,7 @@ def create_map_volume_obj_geom_nodes_modifier() -> bpy.types.Modifier:
 
 
 def create_map_volume_obj() -> bpy.types.Object:
-    obj = bpy.data.objects.get(MAP_GRID_OBJECT_NAME, None)
+    obj = bpy.data.objects.get(MAP_VOLUME_OBJECT_NAME, None)
     if obj: 
         if obj.name not in bpy.context.scene.collection.objects:
             bpy.context.scene.collection.objects.link(obj)
@@ -326,6 +331,7 @@ def create_grid_obj_geom_nodes_modifier() -> bpy.types.Modifier:
     links = nodes.links
     nodes = nodes
 
+    
     modifier.node_group = nodes
     nodes = nodes.nodes
 
@@ -347,8 +353,12 @@ def create_grid_obj_geom_nodes_modifier() -> bpy.types.Modifier:
     node_output = nodes.get("Group Output", None) or nodes.new(type="NodeGroupOutput")
     node_output.location[0] = x(3)
 
-    # blender 3.5+
-    modifier.node_group.outputs.new(name="Geometry", type="NodeSocketGeometry")
+    if bpy.app.version[0] < 4:
+        # blender 3.5+
+        modifier.node_group.outputs.new(name="Geometry", type="NodeSocketGeometry")
+    else:
+        # blender 4.0+
+        modifier.node_group.interface.new_socket("Geometry", in_out="OUTPUT", socket_type="NodeSocketGeometry")
 
     links.new(
         node_mesh_to_curve.inputs["Mesh"],
@@ -361,7 +371,7 @@ def create_grid_obj_geom_nodes_modifier() -> bpy.types.Modifier:
 
 
     op_link = links.new(
-        node_output.inputs[0],
+        node_output.inputs["Geometry"],
         node_set_pos.outputs["Geometry"]
     )
  

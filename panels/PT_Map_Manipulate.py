@@ -44,7 +44,9 @@ class PT_UIMapManipulation(bpy.types.Panel):
         tm_props = get_global_props()
         layout = self.layout
         
-        layout.prop(tm_props, "CB_map_use_grid_helper", text="Grid", icon=ICON_GRID)
+        row = layout.row(align=True)
+        row.prop(tm_props, "CB_map_use_grid_helper", text="", icon=ICON_GRID)
+        row.prop(tm_props, "CB_map_use_volume_helper", text="", icon=ICON_BOUNDBOX)
         
         op = layout.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
         op.title = "Export Infos"
