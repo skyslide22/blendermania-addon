@@ -312,39 +312,56 @@ class TM_PT_Items_ObjectManipulation(Panel):
             is_spotlight  = obj.data.type == "SPOT"
             is_pointlight = obj.data.type == "POINT"
 
+            if len(bpy.context.selected_objects) > 1:
+                is_spotlight  = all([obj.data.type == "SPOT"  for obj in bpy.context.selected_objects]) or None
+                is_pointlight = all([obj.data.type == "POINT" for obj in bpy.context.selected_objects]) or None
 
             row = col.row(align=True)
-            row.operator("view3d.tm_togglelighttype", text="Spot" , icon=ICON_LIGHT_SPOT , depress=is_spotlight).light_type = "SPOT"
-            row.operator("view3d.tm_togglelighttype", text="Point", icon=ICON_LIGHT_POINT, depress=is_pointlight).light_type = "POINT"
+            row.operator("view3d.tm_togglelighttype", text="Spot" , icon=ICON_LIGHT_SPOT , depress=(is_spotlight  is True)).light_type = "SPOT"
+            row.operator("view3d.tm_togglelighttype", text="Point", icon=ICON_LIGHT_POINT, depress=(is_pointlight is True)).light_type = "POINT"
 
+
+            light_is_nightonly = obj.data.night_only
+            if len(bpy.context.selected_objects) > 1:
+                all_false = all([obj.data.night_only is False for obj in bpy.context.selected_objects])
+                all_true =  all([obj.data.night_only is True  for obj in bpy.context.selected_objects])
+                
+                if all_false:
+                    light_is_nightonly = False
+                elif all_true:
+                    light_is_nightonly = True
+                else:
+                    light_is_nightonly = None
 
 
             row = col.row(align=True)
-            row.operator("view3d.tm_togglenightonly", text="Day+Night" , icon=ICON_DAYTIME).night_only = False
-            row.operator("view3d.tm_togglenightonly", text="Night only", icon=ICON_DAYTIME).night_only = True
+            row.operator("view3d.tm_togglenightonly", text="Day+Night" , icon=ICON_DAYTIME, depress=(light_is_nightonly is False)).night_only = False
+            row.operator("view3d.tm_togglenightonly", text="Night Only", icon=ICON_DAYTIME, depress=(light_is_nightonly is True) ).night_only = True
 
-            row = col.row(align=True)
-            row.label(text="Color", icon=ICON_LIGHT_COLOR)
-            row.prop(bpy.context.object.data, "color",  text="") 
-            
-            row = col.row(align=True)
-            row.label(text="Power", icon=ICON_LIGHT_POWER)
-            row.prop(bpy.context.object.data, "energy", text="") 
-            
-            row = col.row(align=True)
-            row.label(text="Radius", icon=ICON_LIGHT_RADIUS)
-            row.row().prop(bpy.context.object.data, "shadow_soft_size", text="") 
-
-            if is_spotlight:
+            if len(bpy.context.selected_objects) == 1 or True:
                 row = col.row(align=True)
-                row.label(text="Outer angle", icon=ICON_LIGHT_RADIUS_OUT)
-                row.row().prop(bpy.context.object.data, "spot_size", text="") 
-
+                row.label(text="Color", icon=ICON_LIGHT_COLOR)
+                row.prop(bpy.context.object.data, "color",  text="") 
+                
                 row = col.row(align=True)
-                row.label(text="Inner angle", icon=ICON_LIGHT_RADIUS_IN)
-                row.row().prop(bpy.context.object.data, "spot_blend", text="", slider=True) 
+                row.label(text="Power", icon=ICON_LIGHT_POWER)
+                row.prop(bpy.context.object.data, "energy", text="") 
+                
+                row = col.row(align=True)
+                row.label(text="Radius", icon=ICON_LIGHT_RADIUS)
+                row.row().prop(bpy.context.object.data, "shadow_soft_size", text="") 
 
-                col.row().prop(bpy.context.object.data, "show_cone", toggle=True) 
+
+                if is_spotlight is True:
+                    row = col.row(align=True)
+                    row.label(text="Outer angle", icon=ICON_LIGHT_RADIUS_OUT)
+                    row.row().prop(bpy.context.object.data, "spot_size", text="") 
+
+                    row = col.row(align=True)
+                    row.label(text="Inner angle", icon=ICON_LIGHT_RADIUS_IN)
+                    row.row().prop(bpy.context.object.data, "spot_blend", text="", slider=True) 
+
+                    col.row().prop(bpy.context.object.data, "show_cone", toggle=True) 
         
         layout.separator(factor=2)
 

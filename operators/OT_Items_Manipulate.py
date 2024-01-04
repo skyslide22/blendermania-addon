@@ -348,7 +348,8 @@ class TM_OT_Items_ToggleLightType(Operator):
     light_type: bpy.props.StringProperty()
 
     def execute(self, context):
-        toggleLightType(bpy.context.object, self.light_type)
+        for obj in bpy.context.selected_objects:
+            set_lighttype(obj, self.light_type)
         return {"FINISHED"}
 
 
@@ -361,7 +362,9 @@ class TM_OT_Items_ToggleNightOnly(Operator):
     night_only: bpy.props.BoolProperty()
 
     def execute(self, context):
-        toggleLightNightOnly(bpy.context.object, self.night_only)
+        for obj in bpy.context.selected_objects:
+            set_light_nightonly(obj, self.night_only)
+
         return {"FINISHED"}
 
 
@@ -607,11 +610,11 @@ def setScaledCollectionName(col:bpy.types.Collection, remove:bool=False) -> None
 
     
 
-def toggleLightType(obj: bpy.types.Object, type: str) -> None:
+def set_lighttype(obj: bpy.types.Object, type: str) -> None:
     obj.data.type = type
 
 
-def toggleLightNightOnly(obj: bpy.types.Object, value: bool) -> None:
+def set_light_nightonly(obj: bpy.types.Object, value: bool) -> None:
     obj.data.night_only = value
 
 
