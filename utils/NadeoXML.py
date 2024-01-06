@@ -441,7 +441,10 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         mat_color               = mat.diffuse_color     # extract diffuse collor by default
         
         if mat.use_nodes: # replace with BSDF color
-            mat_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
+            if "cus_color" in mat.node_tree.nodes:
+                mat_color = mat.node_tree.nodes["cus_color"].outputs[0].default_value
+            else:
+                mat_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
 
         mat_custom_color     = rgb_to_hex(mat_color, "", True) # convert to Hex with gamma correction
         mat_use_custom_color = mat_color[3] > 0                # use custom color only if material color has Alpha > 0

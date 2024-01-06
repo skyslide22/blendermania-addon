@@ -516,13 +516,14 @@ ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8  = get_addon_assets_path() + "/item_trigge
 ADDON_ITEM_FILEPATH_MT_TRIGGER_10_66x8 = get_addon_assets_path() + "/item_mt_triggers/MT_TRIGGER_10_66x8.fbx"
 
 # materials map for tm 2020 (someday nadeo gonna have corrent filenames for materials...)
-MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = get_addon_assets_path()+"/materials/materials-map-trackmania2020.json"
+MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = get_addon_assets_path()+"/materials/materials-map-trackmania2020_18122023.json"
 MATERIALS_MAP_TM2020 = {}
 
 if is_file_existing(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
     with open(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020, "r") as f:
         data = f.read()
-        for item in json.loads(data):
+        fileData = json.loads(data).items()
+        for key, item in fileData:
             MATERIALS_MAP_TM2020[item["Name"]] = item
 
 

@@ -19,7 +19,7 @@ from .Functions import (
 )
 from .Dotnet import run_convert_item_to_obj
 from .BlenderObjects import create_collection_in, move_obj_to_coll
-from ..utils.Materials import create_material_nodes
+from ..utils.Materials import create_material_shader
 
 def _load_asset_mats(mats: list[str]):
     mateirals = []
@@ -60,7 +60,7 @@ def _create_or_update_material(name: str, link: str, color: str):
     if color is not None and len(color) > 0:
         MAT.surfaceColor = hex_to_rgb(color)
     
-    create_material_nodes(MAT)
+    create_material_shader(MAT)
 
     return MAT
 

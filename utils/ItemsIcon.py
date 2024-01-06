@@ -9,6 +9,7 @@ from .Functions import (
     get_path_filename,
     is_file_existing,
     is_obj_visible_by_name,
+    radians,
     radian_list,
     set_active_object,
     fix_slash,
@@ -251,7 +252,7 @@ def generate_world_node():
     if tm_props.LI_icon_world == "STANDARD":
         _generate_standartd_world_node(tm_world)
     else:
-        _generate_trackmania_world_nodes(tm_world)
+        _generate_trackmania_world_nodes(tm_world, tm_props.LI_icon_world.split('-')[-1].lower())
 
 def _generate_standartd_world_node(world: bpy.types.World):
     white = (1,1,1,1)
@@ -315,38 +316,104 @@ def _generate_standartd_world_node(world: bpy.types.World):
     links.new( bg_node.outputs[0],      mix_node.inputs[2])
     links.new( mix_node.outputs[0],     output_node.inputs[0])
 
-def _generate_trackmania_world_nodes(world: bpy.types.World):
+def _generate_trackmania_world_nodes(world: bpy.types.World, daytime:str = "day"):
     nodes = world.node_tree.nodes
     links = world.node_tree.links
 
     for node in nodes: nodes.remove(node)
 
-    RGB = _get_or_create_node(nodes, "TM_RGB", "ShaderNodeRGB", (-5, 1))
-    image = _get_or_create_node(nodes, "TM_IMAGE", "ShaderNodeTexEnvironment", (-5, 0))
-    mixRGB = _get_or_create_node(nodes, "TM_MIX_RGB", "ShaderNodeMixRGB", (-3, 1))
-    lightPath = _get_or_create_node(nodes, "TM_LIGHT_PATH", "ShaderNodeLightPath", (-2, 3))
-    bgLight = _get_or_create_node(nodes, "TM_BACKGROUND_LIGHT", "ShaderNodeBackground", (-2, 1))
-    bgWorld = _get_or_create_node(nodes, "TM_BACKGROUND_WORLD", "ShaderNodeBackground", (-2, 0))
-    mix = _get_or_create_node(nodes, "TM_MIX_SHADER", "ShaderNodeMixShader", (-1, 0))
-    output = _get_or_create_node(nodes, "TM_OUTPUT", "ShaderNodeOutputWorld")
+    # nodes
+    texCoords:bpy.types.ShaderNodeTexCoord = _get_or_create_node(nodes, "TM_TEXCOORD", "ShaderNodeTexCoord", (0, 0))
 
-    # main texture
-    links.new(image.outputs[0], bgWorld.inputs[0])
-    links.new(bgWorld.outputs[0], mix.inputs[2])
-    links.new(mix.outputs[0], output.inputs[0])
+    lightVectorMath:bpy.types.ShaderNodeMapping = _get_or_create_node(nodes, "TM_LIGHT_VM", "ShaderNodeMapping", (1, 0))
+    lightVectorMath.vector_type = "POINT"
+    
+    grad:bpy.types.ShaderNodeTexGradient = _get_or_create_node(nodes, "TM_GRADIENT", "ShaderNodeTexGradient", (2, 0))
+    
+    ceil:bpy.types.ShaderNodeMath = _get_or_create_node(nodes, "TM_CEILT", "ShaderNodeMath", (3, 0))
+    ceil.operation = "CEIL"
+    blackBody:bpy.types.ShaderNodeBlackbody = _get_or_create_node(nodes, "TM_BLACK_BODY", "ShaderNodeBlackbody", (3, -1))
+    
+    mixRGB:bpy.types.ShaderNodeMix = _get_or_create_node(nodes, "TM_MIX_RGB", "ShaderNodeMix", (4, 0))
+    mixRGB.data_type = "RGBA"
+    mixRGB.inputs["A"].default_value = (0.0,0.0,0.0,1.0)
+    
+    emmision:bpy.types.ShaderNodeEmission = _get_or_create_node(nodes, "TM_EMMISION", "ShaderNodeEmission", (5, 0))
 
-    # light part
-    links.new(RGB.outputs[0], mixRGB.inputs[1])
-    links.new(image.outputs[0], mixRGB.inputs[2])
-    links.new(mixRGB.outputs[0], bgLight.inputs[0])
-    links.new(bgLight.outputs[0], mix.inputs[1])
-    links.new(lightPath.outputs[0], mix.inputs[0])
-    RGB.outputs[0].default_value = (1,1,1,1)
-    bgLight.inputs[1].default_value = 3
+    hdriVectorMath:bpy.types.ShaderNodeMapping = _get_or_create_node(nodes, "TM_HDRI_VM", "ShaderNodeMapping", (1, 3))
+    hdriVectorMath.vector_type = "POINT"
 
-    hdri_name = "day.hdr"
+    image:bpy.types.ShaderNodeTexEnvironment = _get_or_create_node(nodes, "TM_IMAGE", "ShaderNodeTexEnvironment", (2, 3))
+    
+    lightPath:bpy.types.ShaderNodeLightPath = _get_or_create_node(nodes, "TM_LIGHT_PATH", "ShaderNodeLightPath", (6, 0))
+    mixShader:bpy.types.ShaderNodeMixShader = _get_or_create_node(nodes, "TM_MIX_SHADER", "ShaderNodeMixShader", (6, 1))
+    addShader:bpy.types.ShaderNodeAddShader = _get_or_create_node(nodes, "TM_ADD_SHADER", "ShaderNodeAddShader", (6, 2))
+   
+    lastMixShader:bpy.types.ShaderNodeMixShader = _get_or_create_node(nodes, "TM_LAST_MIX_SHADER", "ShaderNodeMixShader", (7, 1))
+
+    output:bpy.types.ShaderNodeOutputWorld = _get_or_create_node(nodes, "TM_OUTPUT", "ShaderNodeOutputWorld", (8, 1))
+
+    # links
+    links.new(texCoords.outputs[0], lightVectorMath.inputs[0])
+    links.new(texCoords.outputs[0], hdriVectorMath.inputs[0])
+    
+    links.new(lightVectorMath.outputs[0], grad.inputs[0])
+    links.new(hdriVectorMath.outputs[0], image.inputs[0])
+    
+    links.new(grad.outputs[1], ceil.inputs[0])
+    
+    links.new(ceil.outputs[0], mixRGB.inputs[0])
+    links.new(blackBody.outputs[0], mixRGB.inputs["B"])
+    
+    links.new(mixRGB.outputs["Result"], emmision.inputs[0])
+    
+    links.new(emmision.outputs[0], addShader.inputs[0])
+    links.new(emmision.outputs[0], mixShader.inputs[1])
+    links.new(image.outputs[0], addShader.inputs[1])
+    links.new(image.outputs[0], mixShader.inputs[2])
+    
+    links.new(lightPath.outputs[0], lastMixShader.inputs[0])
+    links.new(addShader.outputs[0], lastMixShader.inputs[1])
+    links.new(mixShader.outputs[0], lastMixShader.inputs[2])
+    
+    links.new(lastMixShader.outputs[0], output.inputs[0])
+
+    # settings
+    hdri_name = "Day.dds"
+    if daytime == "night":
+        lightVectorMath.inputs[1].default_value = (-0.999, 0, 0)
+        lightVectorMath.inputs[2].default_value = (radians(25), 0, radians(135))
+        hdriVectorMath.inputs[2].default_value = (0, 0, radians(135))
+        blackBody.inputs[0].default_value = 6000
+        emmision.inputs[1].default_value = 50
+        mixShader.inputs[0].default_value = 0.995
+        hdri_name = "Night.dds"
+    elif daytime == "sunset":
+        lightVectorMath.inputs[1].default_value = (-0.999, 0, 0)
+        lightVectorMath.inputs[2].default_value = (radians(-15), 0, radians(260))
+        hdriVectorMath.inputs[2].default_value = (0, 0, radians(260))
+        blackBody.inputs[0].default_value = 3000
+        emmision.inputs[1].default_value = 200
+        mixShader.inputs[0].default_value = 0.995
+        hdri_name = "Sunset.dds"
+    elif daytime == "sunrise":
+        lightVectorMath.inputs[1].default_value = (-0.999, 0, 0)
+        lightVectorMath.inputs[2].default_value = (radians(15), 0, radians(110))
+        hdriVectorMath.inputs[2].default_value = (0, 0, radians(110))
+        blackBody.inputs[0].default_value = 4000
+        emmision.inputs[1].default_value = 200
+        mixShader.inputs[0].default_value = 0.995
+        hdri_name = "Sunrise.dds"
+    else:
+        lightVectorMath.inputs[1].default_value = (-0.997, 0, 0)
+        lightVectorMath.inputs[2].default_value = (radians(45), 0, radians(135))
+        hdriVectorMath.inputs[2].default_value = (0, 0, radians(135))
+        blackBody.inputs[0].default_value = 6000
+        emmision.inputs[1].default_value = 200
+        mixShader.inputs[0].default_value = 0.8
 
     success, name = load_image_into_blender(get_addon_assets_path()+"hdri/"+hdri_name)
+    print(success, name)
     if success and name in bpy.data.images:
         image.image = bpy.data.images[name]
 
