@@ -5,7 +5,7 @@ from bpy.props import *
 from bpy.app.handlers import persistent
 
 import os
-
+import bl_info
 
 
 
@@ -14,16 +14,7 @@ import os
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
-bl_info = {
-    "name"          : "Blendermania",
-    "author"        : "skyslide22, juice & schadocalex",
-    "description"   : "Makes creating objects for Trackmania more easy and fun!",
-    "blender"       : (3, 6, 0),
-    "version"       : (3, 15, 0),
-    "location"      : "View3D",
-    "warning"       : "",
-    "category"      : "Generic",
-}                    
+bl_info = bl_info.bl_info                  
 
 
 from .utils.Constants      import *

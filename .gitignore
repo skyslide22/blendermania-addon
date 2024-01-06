@@ -1,4 +1,5 @@
 __pycache__/
+*.pyc
 
 /tests
 /test_version
@@ -8,6 +9,8 @@ Blendermania_Dotnet_*.exe
 map-export.json
 convert-item.json
 *.bak
+
+blendermania-v*.zip
 
 post_body.json
 post_body.json.back
