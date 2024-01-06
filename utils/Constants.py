@@ -201,9 +201,7 @@ WEBSPACE_TEXTURES_MP_STORM   = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Sh
 WEBSPACE_TEXTURES_MP_LAGOON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Lagoon/Textures_ManiaPlanet_Lagoon.zip"
 WEBSPACE_TEXTURES_MP_CANYON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Canyon/Textures_ManiaPlanet_Canyon.zip"
 WEBSPACE_TEXTURES_TM_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_TrackMania2020/Textures_TrackMania2020.zip"
-WEBSPACE_NADEOIMPORTER_MP    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_ManiaPlanet/NadeoImporter_ManiaPlanet.zip"
-WEBSPACE_NADEOIMPORTER_TM    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_TrackMania2020/NadeoImporter_TrackMania2020.zip"
-WEBSPACE_ASSETS_TM_STADIUM   = GITHUB_ASSETS_BASE_URL + "Assets_Library_TrackMania2020/Assets_Library_TrackMania2020.zip"
+WEBSPACE_ASSETS_TM_STADIUM   = GITHUB_ASSETS_BASE_URL + "Assets_Library_TrackMania2020-v2.0.0/Assets_Library_TrackMania2020.zip"
 WEBSPACE_ASSETS_MP           = GITHUB_ASSETS_BASE_URL + "Assets_Library_Maniaplanet/Assets_Library_Maniaplanet.zip"
 WEBSPACE_DOTNET_EXECUTABLE   = GITHUB_ASSETS_BASE_URL + BLENDERMANIA_DOTNET+"/"+BLENDERMANIA_DOTNET+".zip"
 
