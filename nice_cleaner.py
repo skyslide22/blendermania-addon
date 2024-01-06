@@ -10,6 +10,7 @@ patterns_to_keep = [
     "src/my_construct.py",
     "src/parser.py",
     "src/utils/content.py",
+    "src/utils/math.py",
     "__init__.py",
     "src/__init__.py",
     "src/utils/__init__.py",
