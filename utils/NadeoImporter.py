@@ -156,7 +156,7 @@ class ItemConvert(threading.Thread):
                 and self.icon_path != "" 
                 and not is_game_maniaplanet() 
                 # and tm_props.CB_icon_genIcons 
-                and tm_props.ST_nadeoImporter_TM_current == NADEO_IMPORTER_ICON_OVERWRITE_VERSION
+                and tm_props.ST_nadeoImporter_TM_current in NADEO_IMPORTER_ICON_OVERWRITE_VERSION
             ):
                 self.overwrite_icon_item_gbx()
             

@@ -562,7 +562,15 @@ def install_nadeoimporter_addon_assets()->None:
     
     debug(f"install nadeoimporter: {get_path_filename(full_path)}")
     unzip_nadeoimporter(zipfilepath=fix_slash(full_path))
+
+    install_nadeoimporter_matlib_file()
     
+def install_nadeoimporter_matlib_file()->None:
+    if is_game_trackmania2020():
+        copyfile(
+            fix_slash(get_addon_assets_path() + "/nadeoimporters/Trackmania2020/NadeoImporterMaterialLib.txt"),
+            fix_slash(get_current_game_exe_path() + "/NadeoImporterMaterialLib.txt"),
+        )
 
 # * Not used anymore
 def install_nadeoimporter()->None:
