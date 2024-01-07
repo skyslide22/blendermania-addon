@@ -103,5 +103,7 @@ def make_release_zip():
 
     shutil.rmtree(RELEASE_WORK_DIR, onerror=shutil_rmtree_onerror)
 
+    print("\nSuccessful Release! " + release_filename)
+
 if __name__ == "__main__":
     make_release_zip()
