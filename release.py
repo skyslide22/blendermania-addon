@@ -4,6 +4,7 @@ import subprocess
 import shutil
 import glob
 import ast
+import stat
 
 RELEASE_WORK_DIR = "tmp_release/"
 
@@ -25,7 +26,9 @@ PATTERNS_TO_RELEASE = [
     "NICE/src/parser.py",
     "NICE/src/utils/content.py",
     "NICE/src/utils/math.py",
-    "NICE/**/__init__.py",
+    "NICE/__init__.py",
+    "NICE/src/__init__.py",
+    "NICE/src/utils/__init__.py",
 ]
 
 def get_bl_info():
@@ -47,6 +50,25 @@ def get_release_filename():
     fname = f"blendermania-v{bmv_major}.{bmv_minor}.{bmv_patch}-for-blender-{blv_major}.{blv_minor}.zip"
     return fname
 
+def shutil_rmtree_onerror(func, path, exc_info):
+    """
+    Error handler for ``shutil.rmtree``.
+
+    If the error is due to an access error (read only file)
+    it attempts to add write permission and then retries.
+
+    If the error is for another reason it re-raises the error.
+    
+    Usage : ``shutil.rmtree(path, onerror=shutil_rmtree_onerror)``
+
+    From: https://stackoverflow.com/a/2656405
+    """
+    # Is the error an access error?
+    if not os.access(path, os.W_OK):
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        raise
 
 def make_release_zip():
     release_filename = get_release_filename()
@@ -54,7 +76,7 @@ def make_release_zip():
     # Ensure work dir & export file are clean
 
     if os.path.exists(RELEASE_WORK_DIR):
-        shutil.rmtree(RELEASE_WORK_DIR)
+        shutil.rmtree(RELEASE_WORK_DIR, onerror=shutil_rmtree_onerror)
 
     if os.path.exists(release_filename):
         os.remove(release_filename)
@@ -68,7 +90,7 @@ def make_release_zip():
         "--recurse-submodules",
         "https://github.com/skyslide22/blendermania-addon.git",
         RELEASE_WORK_DIR
-    ])
+    ], shell=True, check=True)
 
     # generate the zip with the whitelisted files
 
@@ -79,7 +101,7 @@ def make_release_zip():
 
     # clean work dir
 
-    shutil.rmtree(RELEASE_WORK_DIR)
+    shutil.rmtree(RELEASE_WORK_DIR, onerror=shutil_rmtree_onerror)
 
 if __name__ == "__main__":
     make_release_zip()
