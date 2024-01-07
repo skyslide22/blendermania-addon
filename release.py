@@ -6,7 +6,7 @@ import glob
 import ast
 import stat
 
-RELEASE_WORK_DIR = "tmp_release/"
+RELEASE_WORK_DIR = "blendermania-addon/"
 
 PATTERNS_TO_RELEASE = [
     # blendermania
@@ -97,7 +97,7 @@ def make_release_zip():
     with zipfile.ZipFile(release_filename, 'w') as f:
         for pattern in PATTERNS_TO_RELEASE:
             for file in glob.glob(RELEASE_WORK_DIR + pattern, recursive=True):
-                f.write(file, os.path.relpath(file, RELEASE_WORK_DIR))
+                f.write(file)
 
     # clean work dir
 
