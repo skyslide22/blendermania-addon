@@ -1,21 +1,32 @@
-import bpy
 import zipfile
 import os
-from utils.gitignore_parser import parse_gitignore
+import subprocess
+import shutil
+import glob
 
 from bl_info import bl_info
 
-RELEASE_ROOT_FOLDERS = [
-    "assets",
-    "icons",
-    "NICE"
-    "operators",
-    "panels",
-    "properties",
-    "utils",
-]
-RELEASE_ROOT_FILES = [
+RELEASE_WORK_DIR = "tmp_release/"
+
+PATTERNS_TO_RELEASE = [
+    # blendermania
     "__init__.py",
+    "assets/**",
+    "icons/**",
+    "operators/**",
+    "panels/**",
+    "properties/**",
+    "utils/**",
+    # NICE
+    "NICE/nice.py",
+    "NICE/blender/**/*.py",
+    "NICE/src/gbx_enums.py",
+    "NICE/src/gbx_structs.py",
+    "NICE/src/my_construct.py",
+    "NICE/src/parser.py",
+    "NICE/src/utils/content.py",
+    "NICE/src/utils/math.py",
+    "NICE/**/__init__.py",
 ]
 
 def get_release_filename():
@@ -26,37 +37,36 @@ def get_release_filename():
     return fname
 
 
-def zip_folder(zipf, folder, gitignore):
-    for root, _, files in os.walk(folder):
-        for file in files:
-            file_path = os.path.join(root, file)
-            if not gitignore(file_path):
-                zipf.write(file_path, os.path.relpath(file_path))
-
-
-def zip_file(zipf, file, gitignore):
-    if not gitignore(file):
-        zipf.write(file, os.path.relpath(file))
-
-
 def make_release_zip():
+    # Ensure work dir is clean
+
+    if os.path.exists(RELEASE_WORK_DIR):
+        shutil.rmtree(RELEASE_WORK_DIR)
+
+    # clone the repo
+
+    subprocess.run([
+        "git", "clone",
+        "--single-branch",
+        "--branch", "master",
+        "--recurse-submodules",
+        "https://github.com/skyslide22/blendermania-addon.git",
+        RELEASE_WORK_DIR
+    ])
+
+    # generate the zip with the whitelisted files
+
     release_filename = get_release_filename()
-    with zipfile.ZipFile(release_filename, "w") as zipf:
-        gitignore_path = os.path.join(os.path.dirname(__file__), ".gitignore")
-        gitignore = parse_gitignore(gitignore_path)
 
-        for folder in RELEASE_ROOT_FOLDERS:
-            zip_folder(zipf, folder, gitignore)
-        for file in RELEASE_ROOT_FILES:
-            zip_file(zipf, file, gitignore)
+    with zipfile.ZipFile(release_filename, 'w') as f:
+        for pattern in PATTERNS_TO_RELEASE:
+            print(RELEASE_WORK_DIR + pattern)
+            for file in glob.glob(RELEASE_WORK_DIR + pattern, recursive=True):
+                f.write(file, os.path.relpath(file, RELEASE_WORK_DIR))
 
+    # clean work dir
 
-if __name__ == "__main__":
-    make_release_zip()
-
-
-
-
+    shutil.rmtree(RELEASE_WORK_DIR)
 
 if __name__ == "__main__":
     make_release_zip()
