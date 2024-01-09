@@ -538,8 +538,23 @@ def getIconWorlds() -> list:
         icon = "WORLD",
     ).add(
         id   = "TM2020-STADIUM",
-        name = "Stadium",
-        desc = "TM2020 stadium",
+        name = "Stadium Day",
+        desc = "TM2020 stadium day",
+        icon = "IMAGE_DATA",
+    ).add(
+        id   = "TM2020-STADIUM-NIGHT",
+        name = "Stadium Night",
+        desc = "TM2020 stadium night",
+        icon = "IMAGE_DATA",
+    ).add(
+        id   = "TM2020-STADIUM-SUNSET",
+        name = "Stadium Sunset",
+        desc = "TM2020 stadium sunset",
+        icon = "IMAGE_DATA",
+    ).add(
+        id   = "TM2020-STADIUM-SUNRISE",
+        name = "Stadium Sunrise",
+        desc = "TM2020 stadium sunrise",
         icon = "IMAGE_DATA",
     ).to_list()
 
@@ -614,7 +629,10 @@ def updateMaterialSettings(self, context):
 
     currentColor = matToUpdate.diffuse_color
     if matToUpdate.use_nodes:
-        currentColor = matToUpdate.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
+        if "cus_color" in matToUpdate.node_tree.nodes:
+            currentColor = matToUpdate.node_tree.nodes["cus_color"].outputs[0].default_value
+        else:
+            currentColor = matToUpdate.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
 
     assignments = [
         ("tm_props.ST_materialAddName"      , "matToUpdate.name"),
@@ -657,7 +675,11 @@ def setCurrentMatBackupColor() -> None:
     
     tm_props.NU_materialCustomColorOld = mat.diffuse_color
     if mat.use_nodes:
-        old_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
+        old_color = (0,0,0, 1)
+        if "cus_color" in mat.node_tree.nodes:
+            old_color = mat.node_tree.nodes["cus_color"].outputs[0].default_value
+        else:
+            old_color = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
         tm_props.NU_materialCustomColorOld = old_color
 
 
@@ -675,6 +697,8 @@ def applyMaterialLiveChanges() -> None:
         color = tm_props.NU_materialCustomColor
         mat.diffuse_color = color
         if mat.use_nodes:
+            if "cus_color" in mat.node_tree.nodes:
+                mat.node_tree.nodes["cus_color"].outputs[0].default_value = color
             mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
         
         tm_props.NU_materialCustomColorOld = color
@@ -694,6 +718,8 @@ def setMaterialCustomColorLiveChanges(self, context) -> None:
         color = tm_props.NU_materialCustomColor
         mat.diffuse_color = color
         if mat.use_nodes:
+            if "cus_color" in mat.node_tree.nodes:
+                mat.node_tree.nodes["cus_color"].outputs[0].default_value = color
             mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
 
 
@@ -712,6 +738,8 @@ def revertMaterialCustomColorLiveChanges() -> None:
         old_color = tm_props.NU_materialCustomColorOld
         mat.diffuse_color = old_color
         if mat.use_nodes:
+            if "cus_color" in mat.node_tree.nodes:
+                mat.node_tree.nodes["cus_color"].outputs[0].default_value = old_color
             mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = old_color
         tm_props.NU_materialCustomColor = old_color
 

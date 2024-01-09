@@ -562,49 +562,15 @@ def install_nadeoimporter_addon_assets()->None:
     
     debug(f"install nadeoimporter: {get_path_filename(full_path)}")
     unzip_nadeoimporter(zipfilepath=fix_slash(full_path))
+
+    install_nadeoimporter_matlib_file()
     
-
-# * Not used anymore
-def install_nadeoimporter()->None:
-    tm_props    = get_global_props()
-    filePath    = fix_slash( get_current_game_exe_path() + "/NadeoImporter.zip")
-    progressbar = "NU_nadeoImporterDLProgress"
-
-    tm_props.NU_nadeoImporterDLProgress = 0
-    tm_props.ST_nadeoImporterDLError    = ""
-    tm_props.CB_nadeoImporterDLshow     = True
-    
-    def on_success():
-        tm_props.CB_nadeoImporterDLRunning = False
-        def run(): 
-            tm_props.CB_nadeoImporterDLshow = False
-        timer(run, 5)
-        unzip_nadeoimporter(zipfilepath=fix_slash( get_current_game_exe_path() + "/NadeoImporter.zip" ))
-        set_nadeoimporter_installed(True)
-        debug("nadeoimporter successfully installed")
-
-    def on_error(msg):
-        tm_props.ST_nadeoImporterDLError = msg or "unknown error"
-        tm_props.CB_nadeoImporterDLRunning = False
-        debug(f"nadeoimporter not installed, error: {msg}")
-        set_nadeoimporter_installed(False)
-
-
-    if is_game_maniaplanet():
-        url = WEBSPACE_NADEOIMPORTER_MP
-    else:
-        url = WEBSPACE_NADEOIMPORTER_TM
-
-    debug("try to download & install nadeoimporter")
-
-    download = DownloadTMFile(url, filePath, progressbar, on_success, on_error)
-    download.start()
-    tm_props.CB_nadeoImporterDLRunning = True
-
-        
-    
-
-
+def install_nadeoimporter_matlib_file()->None:
+    if is_game_trackmania2020():
+        copyfile(
+            fix_slash(get_addon_assets_path() + "/nadeoimporters/Trackmania2020/NadeoImporterMaterialLib.txt"),
+            fix_slash(get_current_game_exe_path() + "/NadeoImporterMaterialLib.txt"),
+        )
 
 def unzip_game_textures(filepath, extractTo)->None:
     """unzip downloaded game textures zip file in /items/_BA..."""

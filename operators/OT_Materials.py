@@ -4,7 +4,7 @@ import re
 
 from bpy.types import (Operator)
 
-from ..utils.Materials import create_material_nodes
+from ..utils.Materials import create_material_shader
 from ..utils.Functions  import *
 from ..properties.Functions import revertMaterialCustomColorLiveChanges, applyMaterialLiveChanges
 from ..utils.Constants  import * 
@@ -122,7 +122,7 @@ def _create_or_update_material(action)->None:
         )
         debug(f"Material {matName} updated")
 
-    create_material_nodes(MAT)
+    create_material_shader(MAT)
     applyMaterialLiveChanges()
 
     if action == "CREATE":

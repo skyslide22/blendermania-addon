@@ -201,9 +201,7 @@ WEBSPACE_TEXTURES_MP_STORM   = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Sh
 WEBSPACE_TEXTURES_MP_LAGOON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Lagoon/Textures_ManiaPlanet_Lagoon.zip"
 WEBSPACE_TEXTURES_MP_CANYON  = GITHUB_ASSETS_BASE_URL + "Textures_ManiaPlanet_Canyon/Textures_ManiaPlanet_Canyon.zip"
 WEBSPACE_TEXTURES_TM_STADIUM = GITHUB_ASSETS_BASE_URL + "Textures_TrackMania2020/Textures_TrackMania2020.zip"
-WEBSPACE_NADEOIMPORTER_MP    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_ManiaPlanet/NadeoImporter_ManiaPlanet.zip"
-WEBSPACE_NADEOIMPORTER_TM    = GITHUB_ASSETS_BASE_URL + "NadeoImporter_TrackMania2020/NadeoImporter_TrackMania2020.zip"
-WEBSPACE_ASSETS_TM_STADIUM   = GITHUB_ASSETS_BASE_URL + "Assets_Library_TrackMania2020/Assets_Library_TrackMania2020.zip"
+WEBSPACE_ASSETS_TM_STADIUM   = GITHUB_ASSETS_BASE_URL + "Assets_Library_TrackMania2020-v2.0.0/Assets_Library_TrackMania2020.zip"
 WEBSPACE_ASSETS_MP           = GITHUB_ASSETS_BASE_URL + "Assets_Library_Maniaplanet/Assets_Library_Maniaplanet.zip"
 WEBSPACE_DOTNET_EXECUTABLE   = GITHUB_ASSETS_BASE_URL + BLENDERMANIA_DOTNET+"/"+BLENDERMANIA_DOTNET+".zip"
 
@@ -319,27 +317,28 @@ FAVORITE_PHYSIC_IDS = [
 # from https://doc.trackmania.com/nadeo-importer/04-how-to-create-the-meshparams-xml-file/
 # from https://doc.maniaplanet.com/nadeo-importer/import-a-mesh
 PHYSIC_IDS_TM2020 = [
-    "Asphalt",          
     "Concrete",
-    "Dirt",             
-    "Grass",
-    "Green",            
-    "Ice",
-    "Metal",            
-    "MetalTrans",
-    "NotCollidable",    
     "Pavement",
-    "ResonantMetal",    
-    "RoadIce",
-    "RoadSynthetic",    
-    "Rock",
-    "Snow",             
+    "Grass",
+    "Ice",
+    "Metal",
     "Sand",
-    "TechMagnetic",     
-    "TechMagneticAccel",
-    "TechSuperMagnetic",
+    "Dirt",
+    "Rubber",
+    "Rock",
     "Wood",
-    "Rubber"
+    "Asphalt",
+    "Snow",
+    "ResonantMetal",
+    "NotCollidable",
+    "MetalTrans",
+    "TechMagnetic",
+    "TechSuperMagnetic",
+    "TechMagneticAccel",
+    "RoadIce",
+    "RoadSynthetic",
+    "Green",
+    "Plastic"
 ]
 
 
@@ -449,7 +448,7 @@ MATERIAL_CUSTOM_PROPERTIES = [
 
 NADEO_IMPORTER_LATEST_VERSION_MANIAPLANET = "2019_10_09"
 NADEO_IMPORTER_LATEST_VERSION_TM2020      = "2022_07_12"
-NADEO_IMPORTER_ICON_OVERWRITE_VERSION     = "2022_07_12"
+NADEO_IMPORTER_ICON_OVERWRITE_VERSION     = ["2022_07_12"]
 
 
 
@@ -516,13 +515,14 @@ ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8  = get_addon_assets_path() + "/item_trigge
 ADDON_ITEM_FILEPATH_MT_TRIGGER_10_66x8 = get_addon_assets_path() + "/item_mt_triggers/MT_TRIGGER_10_66x8.fbx"
 
 # materials map for tm 2020 (someday nadeo gonna have corrent filenames for materials...)
-MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = get_addon_assets_path()+"/materials/materials-map-trackmania2020.json"
+MATERIAL_TEXTURE_MAP_FILEPATH_TM2020 = get_addon_assets_path()+"/materials/materials-map-trackmania2020_18122023.json"
 MATERIALS_MAP_TM2020 = {}
 
 if is_file_existing(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020):
     with open(MATERIAL_TEXTURE_MAP_FILEPATH_TM2020, "r") as f:
         data = f.read()
-        for item in json.loads(data):
+        fileData = json.loads(data).items()
+        for key, item in fileData:
             MATERIALS_MAP_TM2020[item["Name"]] = item
 
 
