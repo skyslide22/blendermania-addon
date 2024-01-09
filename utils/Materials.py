@@ -102,7 +102,8 @@ def _create_material_shader_specific(mat: bpy.types.Material) -> bool:
             _delete_material_nodes(mat=mat)
 
             MATERIAL_NODES_CREATORS[shaderName](mat)
-            mat.node_tree.nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0,0,0, 1)
+            if "Principled BSDF" in mat.node_tree.nodes:
+                mat.node_tree.nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0,0,0, 1)
 
             textures = matData["Textures"][shaderName]
             for texKey, texDDS in textures.items():

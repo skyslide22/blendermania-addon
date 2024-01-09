@@ -2859,6 +2859,336 @@
       }
     }
   },
+  "Invisible_Asphalt": {
+    "Name": "Invisible_Asphalt",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Asphalt",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "4a444a",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Concrete": {
+    "Name": "Invisible_Concrete",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Concrete",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Concrete",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "c3c3c3",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Dirt": {
+    "Name": "Invisible_Dirt",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Dirt",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Dirt",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "703108",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Grass": {
+    "Name": "Invisible_Grass",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Grass",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Grass",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "97b62c",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Green": {
+    "Name": "Invisible_Green",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Green",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Green",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "6bff00",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Ice": {
+    "Name": "Invisible_Ice",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Ice",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Ice",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "9adae9",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Metal": {
+    "Name": "Invisible_Metal",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Metal",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Metal",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "fda929",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_MetalTrans": {
+    "Name": "Invisible_MetalTrans",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_MetalTrans",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "e4cc9f",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_NotCollidable": {
+    "Name": "Invisible_NotCollidable",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_NotCollidable",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "NotCollidable",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "ffffff",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Pavement": {
+    "Name": "Invisible_Pavement",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Pavement",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Pavement",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "b59a89",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Plastic": {
+    "Name": "Invisible_Plastic",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Plastic",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Plastic",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "ece00b",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_ResonantMetal": {
+    "Name": "Invisible_ResonantMetal",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_ResonantMetal",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "ResonantMetal",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "c69f8c",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_RoadIce": {
+    "Name": "Invisible_RoadIce",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_RoadIce",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "RoadIce",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "bdffff",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_RoadSynthetic": {
+    "Name": "Invisible_RoadSynthetic",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_RoadSynthetic",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "RoadSynthetic",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "de3842",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Rock": {
+    "Name": "Invisible_Rock",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Rock",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Rock",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "b0b1a5",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Rubber": {
+    "Name": "Invisible_Rubber",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Rubber",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Rubber",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "797179",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Sand": {
+    "Name": "Invisible_Sand",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Sand",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Sand",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "ffd855",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Snow": {
+    "Name": "Invisible_Snow",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Snow",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Snow",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "c0e8f2",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_TechMagnetic": {
+    "Name": "Invisible_TechMagnetic",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_TechMagnetic",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "TechMagnetic",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "00a2e9",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_TechMagneticAccel": {
+    "Name": "Invisible_TechMagneticAccel",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_TechMagneticAccel",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "TechMagneticAccel",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "a7a6de",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_TechSuperMagnetic": {
+    "Name": "Invisible_TechSuperMagnetic",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_TechSuperMagnetic",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "TechSuperMagnetic",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "0000ff",
+    "Textures": { "OnlyCollidable": {} }
+  },
+  "Invisible_Wood": {
+    "Name": "Invisible_Wood",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "NONE VISIBLE",
+      "DMaterial": "Invisible_Wood",
+      "DLinkFull": "Media\\Modifier\\InvisibleDecal\\InvisibleDecal",
+      "DSurfaceId": "Wood",
+      "DGameplayId": "None",
+      "DUvLayer": [],
+      "DColor0": ""
+    },
+    "DefaultColorRGB": "ad6505",
+    "Textures": { "OnlyCollidable": {} }
+  },
   "ItemBase": {
     "Name": "ItemBase",
     "MatLibParams": {

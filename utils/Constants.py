@@ -317,27 +317,28 @@ FAVORITE_PHYSIC_IDS = [
 # from https://doc.trackmania.com/nadeo-importer/04-how-to-create-the-meshparams-xml-file/
 # from https://doc.maniaplanet.com/nadeo-importer/import-a-mesh
 PHYSIC_IDS_TM2020 = [
-    "Asphalt",          
     "Concrete",
-    "Dirt",             
-    "Grass",
-    "Green",            
-    "Ice",
-    "Metal",            
-    "MetalTrans",
-    "NotCollidable",    
     "Pavement",
-    "ResonantMetal",    
-    "RoadIce",
-    "RoadSynthetic",    
-    "Rock",
-    "Snow",             
+    "Grass",
+    "Ice",
+    "Metal",
     "Sand",
-    "TechMagnetic",     
-    "TechMagneticAccel",
-    "TechSuperMagnetic",
+    "Dirt",
+    "Rubber",
+    "Rock",
     "Wood",
-    "Rubber"
+    "Asphalt",
+    "Snow",
+    "ResonantMetal",
+    "NotCollidable",
+    "MetalTrans",
+    "TechMagnetic",
+    "TechSuperMagnetic",
+    "TechMagneticAccel",
+    "RoadIce",
+    "RoadSynthetic",
+    "Green",
+    "Plastic"
 ]
 
 

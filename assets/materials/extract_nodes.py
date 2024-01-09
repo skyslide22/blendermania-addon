@@ -40,8 +40,12 @@ def create_mat_nodes_generator(mat: bpy.types.Material, mat_kind_name: str):
         elif node_type == "ShaderNodeBsdfPrincipled":
             edf = node.inputs["Emission Strength"].default_value
             adf = node.inputs["Alpha"].default_value
+            rdf = node.inputs["Roughness"].default_value
+            twdf = node.inputs[17].default_value
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[\"Emission Strength\"].default_value = {edf}\n"
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[\"Alpha\"].default_value = {adf}\n"
+            nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[\"Roughness\"].default_value = {rdf}\n"
+            nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[17].default_value = {twdf}\n"
         elif node_type == "ShaderNodeTexImage":
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].projection = \"{node.projection}\"\n"
             #if node.image:
@@ -50,6 +54,9 @@ def create_mat_nodes_generator(mat: bpy.types.Material, mat_kind_name: str):
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].direction_type = \"{node.direction_type}\"\n"
         elif node_type == "ShaderNodeAttribute":
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].attribute_name = \"{node.attribute_name}\"\n"
+        elif node_type == "ShaderNodeHueSaturation":
+            vdf = node.inputs["Value"].default_value
+            nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[\"Value\"].default_value = {vdf}\n"
         elif node_type == "ShaderNodeBump":
             sdf = node.inputs["Strength"].default_value
             ddf = node.inputs["Distance"].default_value
@@ -105,6 +112,7 @@ for mat in bpy.data.materials:
         "TM_TDSN_CubeOut_DispIn",
         "TM_Water_MultiH",
         "TM_WaterWall",
+        "TM_OnlyCollidable",
     ]:
         continue
 

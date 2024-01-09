@@ -76,7 +76,9 @@ def generate2020Assets() -> None:
             if "Custom" in mat.name and "CustomMod" not in mat.name:
                 image_path = None
 
-            if "PlatformIce_OpenTechBorders" in mat.name or "PlatformIce_PlatformTech" in mat.name or "RoadIce" in mat.name:
+            if "Invisible" not in mat.name and (
+                "PlatformIce_OpenTechBorders" in mat.name or "PlatformIce_PlatformTech" in mat.name or "RoadIce" in mat.name
+            ):
                 image_path = mat.node_tree.nodes["tex_D"].image.filepath
 
             with bpy.context.temp_override(id=mat):
