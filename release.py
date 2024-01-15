@@ -32,7 +32,7 @@ PATTERNS_TO_RELEASE = [
 ]
 
 def get_bl_info():
-    with open("__init__.py", "r", encoding='UTF-8') as init_file:
+    with open(RELEASE_WORK_DIR + "__init__.py", "r", encoding='UTF-8') as init_file:
         data = init_file.read()
         ast_data = ast.parse(data)
         for body in ast_data.body:
@@ -71,15 +71,10 @@ def shutil_rmtree_onerror(func, path, exc_info):
         raise
 
 def make_release_zip():
-    release_filename = get_release_filename()
-
     # Ensure work dir & export file are clean
 
     if os.path.exists(RELEASE_WORK_DIR):
         shutil.rmtree(RELEASE_WORK_DIR, onerror=shutil_rmtree_onerror)
-
-    if os.path.exists(release_filename):
-        os.remove(release_filename)
 
     # clone the repo
 
@@ -91,6 +86,13 @@ def make_release_zip():
         "https://github.com/skyslide22/blendermania-addon.git",
         RELEASE_WORK_DIR
     ], shell=True, check=True)
+
+    # Get the release filename from bl_info
+
+    release_filename = get_release_filename()
+
+    if os.path.exists(release_filename):
+        os.remove(release_filename)
 
     # generate the zip with the whitelisted files
 
