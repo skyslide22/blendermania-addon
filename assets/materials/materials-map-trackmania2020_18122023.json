@@ -271,10 +271,7 @@
       "DLinkFull": "Media\\Modifier\\Boost2\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXBoost2_I.dds" } }
@@ -288,10 +285,7 @@
       "DLinkFull": "Media\\Modifier\\Boost2\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXBoost2_I.dds" } }
@@ -379,10 +373,7 @@
       "DLinkFull": "Media\\Modifier\\Boost\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXBoost_I.dds" } }
@@ -396,10 +387,7 @@
       "DLinkFull": "Media\\Modifier\\Boost\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXBoost_I.dds" } }
@@ -1183,10 +1171,7 @@
       "DLinkFull": "Media\\Modifier\\Cruise\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXCruise_I.dds" } }
@@ -1200,10 +1185,7 @@
       "DLinkFull": "Media\\Modifier\\Cruise\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXCruise_I.dds" } }
@@ -1382,10 +1364,7 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomModAddSelfIllum",
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "CustomModAddSelfIllum_I.dds" } }
@@ -1399,10 +1378,7 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomModAddSelfIllum2",
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "CustomModAddSelfIllum2_I.dds" } }
@@ -2662,10 +2638,7 @@
       "DLinkFull": "Media\\Modifier\\Fragile\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXFragile_I.dds" } }
@@ -2679,10 +2652,7 @@
       "DLinkFull": "Media\\Modifier\\Fragile\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXFragile_I.dds" } }
@@ -2797,11 +2767,8 @@
       "DLinkFull": "Media\\Material\\GlassWaterWall",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
-      "DColor0": ""
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DColor0": "yes"
     },
     "Textures": {
       "WaterWall": {
@@ -4692,10 +4659,7 @@
       "DLinkFull": "Media\\Modifier\\NoBrake\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXNoBrake_I.dds" } }
@@ -4709,10 +4673,7 @@
       "DLinkFull": "Media\\Modifier\\NoBrake\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXNoBrake_I.dds" } }
@@ -4773,10 +4734,7 @@
       "DLinkFull": "Media\\Modifier\\NoEngine\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXNoEngine_I.dds" } }
@@ -4790,10 +4748,7 @@
       "DLinkFull": "Media\\Modifier\\NoEngine\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXNoEngine_I.dds" } }
@@ -4854,10 +4809,7 @@
       "DLinkFull": "Media\\Modifier\\NoSteering\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXNoSteering_I.dds" } }
@@ -4871,10 +4823,7 @@
       "DLinkFull": "Media\\Modifier\\NoSteering\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXNoSteering_I.dds" } }
@@ -5733,10 +5682,7 @@
       "DLinkFull": "Media\\Material\\RaceTriggerFXCheckpoint",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "RaceTriggerFXCheckpoint_I.dds" } }
@@ -5750,10 +5696,7 @@
       "DLinkFull": "Media\\Material\\RaceTriggerFXFinish",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "RaceTriggerFXFinish_I.dds" } }
@@ -5767,10 +5710,7 @@
       "DLinkFull": "Media\\Material\\RaceTriggerFXMultilap",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "RaceTriggerFXMultilap_I.dds" } }
@@ -5831,10 +5771,7 @@
       "DLinkFull": "Media\\Modifier\\Reset\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXReset_I.dds" } }
@@ -5848,10 +5785,7 @@
       "DLinkFull": "Media\\Modifier\\Reset\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXReset_I.dds" } }
@@ -6093,10 +6027,7 @@
       "DLinkFull": "Media\\Modifier\\SlowMotion\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXSlowMotion_I.dds" } }
@@ -6110,10 +6041,7 @@
       "DLinkFull": "Media\\Modifier\\SlowMotion\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXSlowMotion_I.dds" } }
@@ -6173,10 +6101,7 @@
       "DLinkFull": "Media\\Material\\SpecialFXGateGameplay",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXGateGameplay_I.dds" } }
@@ -6190,10 +6115,7 @@
       "DLinkFull": "Media\\Material\\SpecialFXTurbo",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXTurbo_I.dds" } }
@@ -6698,10 +6620,7 @@
       "DLinkFull": "Media\\Material\\TriggerFXGateGameplay",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXGateGameplay_I.dds" } }
@@ -6715,10 +6634,7 @@
       "DLinkFull": "Media\\Material\\TriggerFXTurbo",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXTurbo_I.dds" } }
@@ -6806,10 +6722,7 @@
       "DLinkFull": "Media\\Modifier\\Turbo2\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXTurbo2_I.dds" } }
@@ -6823,10 +6736,7 @@
       "DLinkFull": "Media\\Modifier\\Turbo2\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXTurbo2_I.dds" } }
@@ -6914,10 +6824,7 @@
       "DLinkFull": "Media\\Modifier\\TurboRoulette\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAdd": { "_I": "SpecialFXTurboRoulette_I.dds" } }
@@ -6931,10 +6838,7 @@
       "DLinkFull": "Media\\Modifier\\TurboRoulette\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
-      ],
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
       "DColor0": "yes"
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXTurboRoulette_I.dds" } }
