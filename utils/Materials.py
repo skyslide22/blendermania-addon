@@ -52,7 +52,7 @@ def _delete_material_nodes(mat) -> None:
 
 def _create_material_tex_node(mat: bpy.types.Material, location: tuple[int, int], label: str, name: str) -> bpy.types.ShaderNodeTexImage:
     node = mat.node_tree.nodes.new(type="ShaderNodeTexImage")
-    node.location = x(tuple[0]), y(tuple[1])
+    node.location = x(location[0]), y(location[1])
     node.label = label
     node.name  = name
 
@@ -169,7 +169,9 @@ def _create_default_material_nodes(mat: bpy.types.Material)->None:
     NODE_bsdf.subsurface_method = "BURLEY"
     NODE_bsdf.location = x(3), y(1)
     NODE_bsdf.inputs[input_name_specular].default_value = 0 #.specular
-    NODE_bsdf.inputs["Emission Strength"].default_value = 3.0
+
+    is_tiadd = mat.model.lower() == "tiadd"
+    NODE_bsdf.inputs["Emission Strength"].default_value = 3.0 if is_tiadd == "tiadd" else 0.0
     NODE_bsdf.inputs["Base Color"].default_value = surfaceColor
 
     # uvmap basematerial
