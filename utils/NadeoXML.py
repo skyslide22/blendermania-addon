@@ -480,7 +480,7 @@ def generate_mesh_XML(item: ExportedItem) -> str:
 
 
     for light in lights:
-        light_is_spotlight = light.type == "SPOT"
+        light_is_spotlight = light.data.type == "SPOT"
 
         light_radius      = light.data.shadow_soft_size if not global_light_radius else global_light_radius
         light_name        = light.name
@@ -504,6 +504,7 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         lightsXML += f"""    NightOnly="{ light_night_only }" """+NL
         lightsXML += f"""    PointEmissionRadius="0" """+NL
         lightsXML += f"""    PointEmissionLength="0" """+NL
+        lightsXML += f"""    PointEmissionWidth="0" """+NL
         
         if light_is_spotlight:
             lightsXML += f"""    SpotInnerAngle="{light_inner_angle}" """+NL
