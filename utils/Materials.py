@@ -171,7 +171,7 @@ def _create_default_material_nodes(mat: bpy.types.Material)->None:
     NODE_bsdf.inputs[input_name_specular].default_value = 0 #.specular
 
     is_tiadd = mat.model.lower() == "tiadd"
-    NODE_bsdf.inputs["Emission Strength"].default_value = 3.0 if is_tiadd == "tiadd" else 0.0
+    NODE_bsdf.inputs["Emission Strength"].default_value = 3.0 if is_tiadd else 0.0
     NODE_bsdf.inputs["Base Color"].default_value = surfaceColor
 
     # uvmap basematerial

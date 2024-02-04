@@ -504,7 +504,6 @@ def generate_mesh_XML(item: ExportedItem) -> str:
         lightsXML += f"""    NightOnly="{ light_night_only }" """+NL
         lightsXML += f"""    PointEmissionRadius="0" """+NL
         lightsXML += f"""    PointEmissionLength="0" """+NL
-        lightsXML += f"""    PointEmissionWidth="0" """+NL
         
         if light_is_spotlight:
             lightsXML += f"""    SpotInnerAngle="{light_inner_angle}" """+NL
