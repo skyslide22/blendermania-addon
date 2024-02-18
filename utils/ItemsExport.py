@@ -185,6 +185,7 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
 
             new_item = copy(item)
             new_item.scale = current_scale
+            new_item.force_scale = True
             new_item.name = re.sub(pattern, f"_#{scale}", item.name)
             new_item.r_path = re.sub(pattern, f"_#{scale}", item.r_path)
             new_item.fbx_path = re.sub(pattern, f"_#{scale}", item.fbx_path)

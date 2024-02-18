@@ -402,7 +402,9 @@ def generate_mesh_XML(item: ExportedItem) -> str:
     use_global_scale   = tm_props.CB_xml_scale is True
     global_scale       = tm_props.NU_xml_scale
     
-    scale = item.scale if use_global_scale is False else global_scale 
+    scale = item.scale
+    if use_global_scale and not item.force_scale:
+        scale = global_scale
     
 
     mat_envi_collection  = ""
