@@ -13,6 +13,7 @@ class ExportedItem:
     color_tag:              str  = ""
     tm_itemxml_template:    str  = ""
     scale:                  int  = 1
+    force_scale:            bool = False
     physic_hack:            bool = True
     mesh_xml:               str  = "Not generated!"
     item_xml:               str  = "Not generated!"
