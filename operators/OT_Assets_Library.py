@@ -81,9 +81,12 @@ def generate2020Assets() -> None:
             ):
                 image_path = mat.node_tree.nodes["tex_D"].image.filepath
 
+            if image_path and get_game_doc_path_items_assets() not in image_path:
+                image_path = fix_slash(get_game_doc_path_items_assets() + fix_slash(image_path))
+
             with bpy.context.temp_override(id=mat):
                 if image_path:
-                    bpy.ops.ed.lib_id_load_custom_preview(filepath=fix_slash(get_game_doc_path_items_assets() + fix_slash(image_path)))
+                    bpy.ops.ed.lib_id_load_custom_preview(filepath=image_path)
                 else:
                     # short delay to let materials become registered
                     # otherwise preview is not generating

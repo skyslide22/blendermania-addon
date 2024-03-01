@@ -19,10 +19,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "AdScreenOff.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "AdScreenOff.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -46,10 +46,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "WarpRace16x9C.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "WarpRace16x9C.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -73,10 +73,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "Ad1x1Screen.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "Ad1x1Screen.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -100,10 +100,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "Ad2x1Screen.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "Ad2x1Screen.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -127,10 +127,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "WarpRace2x3A.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "WarpRace2x3A.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -154,10 +154,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "WarpRace2x3A.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "WarpRace2x3A.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -181,10 +181,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "Ad4x1Screen.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "Ad4x1Screen.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -228,10 +228,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignBoost2_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignBoost2_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -255,10 +255,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignBoost2Down_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignBoost2Down_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -330,10 +330,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignBoost_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignBoost_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -357,10 +357,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignBoostDown_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignBoostDown_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -487,10 +487,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "Chrono_D.dds",
         "_H": "Chrono_H.dds",
+        "_I": "Chrono_I.dds",
         "_L": "Chrono_L.dds",
         "_N": "Chrono_N.dds",
-        "_R": "Chrono_R.dds",
-        "_over_I": "Chrono_I.dds"
+        "_R": "Chrono_R.dds"
       }
     }
   },
@@ -514,10 +514,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "Chrono_D.dds",
         "_H": "Chrono_H.dds",
+        "_I": "Chrono_I.dds",
         "_L": "Chrono_L.dds",
         "_N": "Chrono_N.dds",
-        "_R": "Chrono_R.dds",
-        "_over_I": "Chrono_I.dds"
+        "_R": "Chrono_R.dds"
       }
     }
   },
@@ -541,10 +541,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "Chrono_D.dds",
         "_H": "Chrono_H.dds",
+        "_I": "Chrono_I.dds",
         "_L": "Chrono_L.dds",
         "_N": "Chrono_N.dds",
-        "_R": "Chrono_R.dds",
-        "_over_I": "Chrono_I.dds"
+        "_R": "Chrono_R.dds"
       }
     }
   },
@@ -568,10 +568,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "Chrono_D.dds",
         "_H": "Chrono_H.dds",
+        "_I": "Chrono_I.dds",
         "_L": "Chrono_L.dds",
         "_N": "Chrono_N.dds",
-        "_R": "Chrono_R.dds",
-        "_over_I": "Chrono_I.dds"
+        "_R": "Chrono_R.dds"
       }
     }
   },
@@ -595,10 +595,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "Chrono_D.dds",
         "_H": "Chrono_H.dds",
+        "_I": "Chrono_I.dds",
         "_L": "Chrono_L.dds",
         "_N": "Chrono_N.dds",
-        "_R": "Chrono_R.dds",
-        "_over_I": "Chrono_I.dds"
+        "_R": "Chrono_R.dds"
       }
     }
   },
@@ -622,10 +622,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "Chrono_D.dds",
         "_H": "Chrono_H.dds",
+        "_I": "Chrono_I.dds",
         "_L": "Chrono_L.dds",
         "_N": "Chrono_N.dds",
-        "_R": "Chrono_R.dds",
-        "_over_I": "Chrono_I.dds"
+        "_R": "Chrono_R.dds"
       }
     }
   },
@@ -649,10 +649,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "Chrono_D.dds",
         "_H": "Chrono_H.dds",
+        "_I": "Chrono_I.dds",
         "_L": "Chrono_L.dds",
         "_N": "Chrono_N.dds",
-        "_R": "Chrono_R.dds",
-        "_over_I": "Chrono_I.dds"
+        "_R": "Chrono_R.dds"
       }
     }
   },
@@ -676,10 +676,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "Chrono_D.dds",
         "_H": "Chrono_H.dds",
+        "_I": "Chrono_I.dds",
         "_L": "Chrono_L.dds",
         "_N": "Chrono_N.dds",
-        "_R": "Chrono_R.dds",
-        "_over_I": "Chrono_I.dds"
+        "_R": "Chrono_R.dds"
       }
     }
   },
@@ -703,10 +703,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoCheckpoint_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoCheckpoint_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -730,10 +730,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoCheckpoint_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoCheckpoint_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -757,10 +757,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoCheckpoint_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoCheckpoint_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -784,10 +784,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoCheckpoint_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoCheckpoint_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -811,10 +811,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoCheckpoint_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoCheckpoint_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -838,10 +838,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoCheckpoint_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoCheckpoint_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -865,10 +865,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoCheckpoint_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoCheckpoint_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -892,10 +892,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoCheckpoint_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoCheckpoint_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -919,10 +919,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoFinish_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoFinish_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -946,10 +946,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoFinish_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoFinish_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -973,10 +973,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoFinish_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoFinish_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -1000,10 +1000,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoFinish_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoFinish_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -1027,10 +1027,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoFinish_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoFinish_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -1054,10 +1054,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoFinish_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoFinish_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -1081,10 +1081,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoFinish_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoFinish_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -1108,10 +1108,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ChronoFinish_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ChronoFinish_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -1155,10 +1155,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignCruise_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignCruise_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -2582,6 +2582,29 @@
       }
     }
   },
+  "DecoTechnics": {
+    "Name": "DecoTechnics",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TECHNICS",
+      "DMaterial": "DecoTechnics",
+      "DLinkFull": "Media\\Material\\DecoTechnics",
+      "DSurfaceId": "Metal",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "DecoTechnics_D.dds",
+        "_N": "DecoTechnics_N.dds",
+        "_R": "DecoTechnics_R.dds"
+      }
+    }
+  },
   "Fragile_Decal": {
     "Name": "Fragile_Decal",
     "MatLibParams": {
@@ -2622,10 +2645,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignFragile_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignFragile_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -2657,6 +2680,80 @@
     },
     "Textures": { "TAddModCV": { "_I": "TriggerFXFragile_I.dds" } }
   },
+  "GateGameplayRally_Decal": {
+    "Name": "GateGameplayRally_Decal",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "GateGameplayRally_Decal",
+      "DLinkFull": "Media\\Modifier\\GateGameplayRally\\Decal",
+      "DSurfaceId": "NotCollidable",
+      "DGameplayId": "None",
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "DecalGeom": {
+        "_D": "DecalGateGameplay_Rally.dds",
+        "_N": "DecalGateGameplay_N.dds",
+        "_R": "DecalGateGameplay_R.dds"
+      }
+    }
+  },
+  "GateGameplayRally_Screen": {
+    "Name": "GateGameplayRally_Screen",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "GateGameplayRally_Screen",
+      "DLinkFull": "Media\\Modifier\\GateGameplayRally\\Screen",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "DefaultUVScale": 8,
+    "Textures": {
+      "TDSN_CubeOut_DispIn": {
+        "_D": "LightCells3_D.dds",
+        "_H": "LightCells3_H.dds",
+        "_I": "GateGameplayScreen_Rally.dds",
+        "_L": "LightCells3_L.dds",
+        "_N": "LightCells3_N.dds",
+        "_R": "LightCells3_R.dds"
+      }
+    }
+  },
+  "GateGameplayRally_Sign": {
+    "Name": "GateGameplayRally_Sign",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "GateGameplayRally_Sign",
+      "DLinkFull": "Media\\Modifier\\GateGameplayRally\\Sign",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "DefaultUVScale": 8,
+    "Textures": {
+      "TDSN_CubeOut_DispIn": {
+        "_D": "LightCells2_D.dds",
+        "_H": "LightCells2_H.dds",
+        "_I": "GateGameplayScreen_Snow.dds",
+        "_L": "LightCells2_L.dds",
+        "_N": "LightCells2_N.dds",
+        "_R": "LightCells2_R.dds"
+      }
+    }
+  },
   "GateGameplayScreen": {
     "Name": "GateGameplayScreen",
     "MatLibParams": {
@@ -2677,10 +2774,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "GateGameplayScreen.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "GateGameplayScreen.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -2724,10 +2821,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "GateGameplayScreen_Snow.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "GateGameplayScreen_Snow.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -2751,10 +2848,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "GateGameplayScreen_Snow.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "GateGameplayScreen_Snow.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -3245,10 +3342,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ItemAd1x1ScreenSmall_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ItemAd1x1ScreenSmall_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -3272,10 +3369,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ItemAd1x1ScreenSmallB_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ItemAd1x1ScreenSmallB_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -3299,10 +3396,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ItemAd1x1ScreenSmallC_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ItemAd1x1ScreenSmallC_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -3467,10 +3564,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ItemLamp_D.dds",
         "_H": "ItemLamp_H.dds",
+        "_I": "ItemLampB_I.dds",
         "_L": "ItemLamp_L.dds",
         "_N": "ItemLamp_N.dds",
-        "_R": "ItemLamp_R.dds",
-        "_over_I": "ItemLampB_I.dds"
+        "_R": "ItemLamp_R.dds"
       }
     }
   },
@@ -3493,10 +3590,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ItemLamp_D.dds",
         "_H": "ItemLamp_H.dds",
+        "_I": "ItemLampC_I.dds",
         "_L": "ItemLamp_L.dds",
         "_N": "ItemLamp_N.dds",
-        "_R": "ItemLamp_R.dds",
-        "_over_I": "ItemLampC_I.dds"
+        "_R": "ItemLamp_R.dds"
       }
     }
   },
@@ -3759,10 +3856,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ScreenPusher_D.dds",
         "_H": "ScreenPusher_H.dds",
+        "_I": "ScreenPusher_I.dds",
         "_L": "ScreenPusher_L_DiscontinuousLevel0.dds",
         "_N": "ScreenPusher_N.dds",
-        "_R": "ScreenPusher_R.dds",
-        "_over_I": "ScreenPusher_I.dds"
+        "_R": "ScreenPusher_R.dds"
       }
     }
   },
@@ -3786,10 +3883,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ScreenPusher_D.dds",
         "_H": "ScreenPusher_H.dds",
+        "_I": "ScreenPusher_I.dds",
         "_L": "ScreenPusher_L_DiscontinuousLevel1.dds",
         "_N": "ScreenPusher_N.dds",
-        "_R": "ScreenPusher_R.dds",
-        "_over_I": "ScreenPusher_I.dds"
+        "_R": "ScreenPusher_R.dds"
       }
     }
   },
@@ -3813,10 +3910,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ScreenPusher_D.dds",
         "_H": "ScreenPusher_H.dds",
+        "_I": "ScreenPusher_I.dds",
         "_L": "ScreenPusher_L_DiscontinuousLevel2.dds",
         "_N": "ScreenPusher_N.dds",
-        "_R": "ScreenPusher_R.dds",
-        "_over_I": "ScreenPusher_I.dds"
+        "_R": "ScreenPusher_R.dds"
       }
     }
   },
@@ -4105,10 +4202,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ScreenPusher_D.dds",
         "_H": "ScreenPusher_H.dds",
+        "_I": "ScreenPusher_I.dds",
         "_L": "ScreenPusher_L_Level0.dds",
         "_N": "ScreenPusher_N.dds",
-        "_R": "ScreenPusher_R.dds",
-        "_over_I": "ScreenPusher_I.dds"
+        "_R": "ScreenPusher_R.dds"
       }
     }
   },
@@ -4132,10 +4229,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ScreenPusher_D.dds",
         "_H": "ScreenPusher_H.dds",
+        "_I": "ScreenPusher_I.dds",
         "_L": "ScreenPusher_L_Level1.dds",
         "_N": "ScreenPusher_N.dds",
-        "_R": "ScreenPusher_R.dds",
-        "_over_I": "ScreenPusher_I.dds"
+        "_R": "ScreenPusher_R.dds"
       }
     }
   },
@@ -4159,10 +4256,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ScreenPusher_D.dds",
         "_H": "ScreenPusher_H.dds",
+        "_I": "ScreenPusher_I.dds",
         "_L": "ScreenPusher_L_Level2.dds",
         "_N": "ScreenPusher_N.dds",
-        "_R": "ScreenPusher_R.dds",
-        "_over_I": "ScreenPusher_I.dds"
+        "_R": "ScreenPusher_R.dds"
       }
     }
   },
@@ -4470,10 +4567,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "ItemAd1x1ScreenSmallWrongWay_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "ItemAd1x1ScreenSmallWrongWay_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -4643,10 +4740,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignNoBrake_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignNoBrake_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -4718,10 +4815,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignNoEngine_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignNoEngine_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -4793,10 +4890,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignNoSteering_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignNoSteering_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -5309,6 +5406,33 @@
       }
     }
   },
+  "PodiumScreen155": {
+    "Name": "PodiumScreen155",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PODIUM",
+      "DMaterial": "PodiumScreen155",
+      "DLinkFull": "Media\\Material\\PodiumScreen155",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "DefaultUVScale": 8,
+    "Textures": {
+      "TDSN_CubeOut_DispIn": {
+        "_D": "LightCells3_D.dds",
+        "_H": "LightCells3_H.dds",
+        "_I": "PodiumScreen155_I.dds",
+        "_L": "LightCells3_L.dds",
+        "_N": "LightCells3_N.dds",
+        "_R": "LightCells3_R.dds"
+      }
+    }
+  },
   "PodiumScreen16x9": {
     "Name": "PodiumScreen16x9",
     "MatLibParams": {
@@ -5329,10 +5453,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "PodiumScreen16x9_I.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "PodiumScreen16x9_I.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -5380,10 +5504,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "PodiumStepScreen.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "PodiumStepScreen.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -5456,10 +5580,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "RaceAd6x1.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "RaceAd6x1.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -5482,10 +5606,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "RaceArch_D.dds",
         "_H": "RaceArch_H.dds",
+        "_I": "RaceArchCheckpoint_I.dds",
         "_L": "RaceArch_L.dds",
         "_N": "RaceArch_N.dds",
-        "_R": "RaceArch_R.dds",
-        "_over_I": "RaceArchCheckpoint_I.dds"
+        "_R": "RaceArch_R.dds"
       }
     }
   },
@@ -5507,10 +5631,10 @@
     "Textures": {
       "TDSN_CubeOut_DispIn": {
         "_D": "RaceArch_D.dds",
+        "_I": "RaceArchCheckpoint_I.dds",
         "_L": "RaceArch_L.dds",
         "_N": "RaceArch_N.dds",
-        "_R": "RaceArch_R.dds",
-        "_over_I": "RaceArchCheckpoint_I.dds"
+        "_R": "RaceArch_R.dds"
       }
     }
   },
@@ -5585,10 +5709,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "RaceScreenStart_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "RaceScreenStart_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -5612,10 +5736,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "RaceScreenStart_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "RaceScreenStart_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -5639,10 +5763,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "RaceScreenStart_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "RaceScreenStart_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -5666,10 +5790,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "RaceScreenStart_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "RaceScreenStart_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -5755,10 +5879,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignReset_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignReset_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -5835,6 +5959,35 @@
         "_D_HueMask": "RoadDirt_D_HueMask.dds",
         "_N": "RoadDirt_N.dds",
         "_Pxyz_D": "DirtPy_D.dds",
+        "_Pxyz_N": "DirtPy_N.dds",
+        "_Pxyz_R": "DirtPy_R.dds",
+        "_Pxyz_X2": "DirtPy_X2.dds",
+        "_R": "RoadDirt_R.dds"
+      }
+    }
+  },
+  "RoadDirtFullColorize": {
+    "Name": "RoadDirtFullColorize",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "ROADS",
+      "DMaterial": "RoadDirtFullColorize",
+      "DLinkFull": "Media\\Material\\RoadDirtFullColorize",
+      "DSurfaceId": "Dirt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxzTDiffSpecNorm_PyX2Hx2": {
+        "_D": "RoadDirt_D.dds",
+        "_D_HueMask": "RoadDirt_D_HueMask.dds",
+        "_N": "RoadDirt_N.dds",
+        "_Pxyz_D": "DirtPy_D.dds",
+        "_Pxyz_D_HueMask": "DirtPy_D_HueMask.dds",
         "_Pxyz_N": "DirtPy_N.dds",
         "_Pxyz_R": "DirtPy_R.dds",
         "_Pxyz_X2": "DirtPy_X2.dds",
@@ -5937,10 +6090,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "ScreenPusher_D.dds",
         "_H": "ScreenPusher_H.dds",
+        "_I": "ScreenPusher_I.dds",
         "_L": "ScreenPusher_L.dds",
         "_N": "ScreenPusher_N.dds",
-        "_R": "ScreenPusher_R.dds",
-        "_over_I": "ScreenPusher_I.dds"
+        "_R": "ScreenPusher_R.dds"
       }
     }
   },
@@ -5964,10 +6117,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells3_D.dds",
         "_H": "LightCells3_H.dds",
+        "_I": "Show4x1.dds",
         "_L": "LightCells3_L.dds",
         "_N": "LightCells3_N.dds",
-        "_R": "LightCells3_R.dds",
-        "_over_I": "Show4x1.dds"
+        "_R": "LightCells3_R.dds"
       }
     }
   },
@@ -6011,10 +6164,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignSlowMotion_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignSlowMotion_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -6140,10 +6293,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignOff_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignOff_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -6167,10 +6320,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignTurbo_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignTurbo_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -6360,6 +6513,98 @@
         "_D": "TechnicsTrims_D.dds",
         "_N": "TechnicsTrims_N.dds",
         "_R": "TechnicsTrims_R.dds"
+      }
+    }
+  },
+  "ThemeRallyCastleBorders": {
+    "Name": "ThemeRallyCastleBorders",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "ThemeRallyCastleBorders",
+      "DLinkFull": "Media\\Material\\ThemeRallyCastleBorders",
+      "DSurfaceId": "Concrete",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "ThemeRallyCastleBorders_D.dds",
+        "_N": "ThemeRallyCastleBorders_N.dds",
+        "_R": "ThemeRallyCastleBorders_R.dds"
+      }
+    }
+  },
+  "ThemeRallyCastleBordersTransparent": {
+    "Name": "ThemeRallyCastleBordersTransparent",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "ThemeRallyCastleBordersTransparent",
+      "DLinkFull": "Media\\Material\\ThemeRallyCastleBordersTransparent",
+      "DSurfaceId": "Concrete",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDiff_Spec_Norm": {
+        "_D": "ThemeRallyCastleBorders_D.dds",
+        "_N": "ThemeRallyCastleBorders_N.dds",
+        "_R": "ThemeRallyCastleBorders_R.dds"
+      }
+    }
+  },
+  "ThemeRallyCastleWall": {
+    "Name": "ThemeRallyCastleWall",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "ThemeRallyCastleWall",
+      "DLinkFull": "Media\\Material\\ThemeRallyCastleWall",
+      "DSurfaceId": "Concrete",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxzDiff_Spec_Norm": {
+        "_D": "ThemeRallyCastleWall_D.dds",
+        "_N": "ThemeRallyCastleWall_N.dds",
+        "_R": "ThemeRallyCastleWall_R.dds"
+      }
+    }
+  },
+  "ThemeRallyCastleWallUV": {
+    "Name": "ThemeRallyCastleWallUV",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "ThemeRallyCastleWallUV",
+      "DLinkFull": "Media\\Material\\ThemeRallyCastleWallUV",
+      "DSurfaceId": "Concrete",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "ThemeRallyCastleWall_D.dds",
+        "_N": "ThemeRallyCastleWall_N.dds",
+        "_R": "ThemeRallyCastleWall_R.dds"
       }
     }
   },
@@ -6679,10 +6924,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignTurbo2_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignTurbo2_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -6706,10 +6951,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignTurbo2Off_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignTurbo2Off_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -6781,10 +7026,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignTurboRoulette_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignTurboRoulette_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -6808,10 +7053,10 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells2_D.dds",
         "_H": "LightCells2_H.dds",
+        "_I": "SpecialSignTurboRouletteOff_I.dds",
         "_L": "LightCells2_L.dds",
         "_N": "LightCells2_N.dds",
-        "_R": "LightCells2_R.dds",
-        "_over_I": "SpecialSignTurboRouletteOff_I.dds"
+        "_R": "LightCells2_R.dds"
       }
     }
   },
@@ -7120,10 +7365,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "WarpLight_D.dds",
         "_H": "WarpLight_H.dds",
-        "_I": "WarpLight_I.dds",
+        "_I": "WarpLightRay_L.tga",
         "_N": "WarpLight_N.dds",
-        "_R": "WarpLight_R.dds",
-        "_over_I": "WarpLightRay_L.tga"
+        "_R": "WarpLight_R.dds"
       }
     }
   },
@@ -7146,10 +7390,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "WarpLight_D.dds",
         "_H": "WarpLight_H.dds",
-        "_I": "WarpLight_I.dds",
+        "_I": "WarpLightRay_L.tga",
         "_N": "WarpLight_N.dds",
-        "_R": "WarpLight_R.dds",
-        "_over_I": "WarpLightRay_L.tga"
+        "_R": "WarpLight_R.dds"
       }
     }
   },
@@ -7197,10 +7440,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace16x9C.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace16x9C.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7224,10 +7466,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace16x9B.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace16x9B.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7251,10 +7492,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace16x9C.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace16x9C.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7278,10 +7518,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace1x4A.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace1x4A.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7305,10 +7544,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace2x1A.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace2x1A.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7332,10 +7570,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace2x3A.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace2x3A.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7359,10 +7596,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace2x3B.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace2x3B.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7386,10 +7622,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace4x1A.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace4x1A.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7413,10 +7648,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace4x1B.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace4x1B.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7440,10 +7674,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace16x1A.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace16x1A.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7467,10 +7700,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
-        "_I": "LightCells_I.dds",
+        "_I": "WarpRace8x1A.dds",
         "_N": "LightCells_N.dds",
-        "_R": "LightCells_R.dds",
-        "_over_I": "WarpRace8x1A.dds"
+        "_R": "LightCells_R.dds"
       }
     }
   },
@@ -7493,10 +7725,9 @@
       "TDSN_CubeOut_DispIn": {
         "_D": "WarpSpotLight_D.dds",
         "_H": "WarpSpotLight_H.dds",
-        "_I": "WarpSpotLight_I.dds",
+        "_I": "WarpSpotLightLogo_D.dds",
         "_N": "WarpSpotLight_N.dds",
-        "_R": "WarpSpotLight_R.dds",
-        "_over_I": "WarpSpotLightLogo_D.dds"
+        "_R": "WarpSpotLight_R.dds"
       }
     }
   },

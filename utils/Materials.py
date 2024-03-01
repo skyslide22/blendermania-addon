@@ -126,10 +126,14 @@ def _create_material_shader_specific(mat: bpy.types.Material) -> bool:
             if "uv_scale" in mat.node_tree.nodes and "DefaultUVScale" in matData and matData["DefaultUVScale"] > 0:
                 mat.node_tree.nodes["uv_scale"].inputs["Scale"].default_value = matData["DefaultUVScale"]
 
-            if f"tex_D" in mat.node_tree.nodes and mat.node_tree.nodes["tex_D"].image:
+            if "tex_D" in mat.node_tree.nodes and mat.node_tree.nodes["tex_D"].image:
                 mat.node_tree.nodes.active = mat.node_tree.nodes["tex_D"]
-            elif f"tex_I" in mat.node_tree.nodes and mat.node_tree.nodes["tex_I"].image:
+            elif "tex_I" in mat.node_tree.nodes and mat.node_tree.nodes["tex_I"].image:
                 mat.node_tree.nodes.active = mat.node_tree.nodes["tex_I"]
+
+            if "Principled BSDF" in mat.node_tree.nodes:
+                if "tex_I" not in mat.node_tree.nodes or not mat.node_tree.nodes["tex_I"].image:
+                    mat.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0
 
             return True
 

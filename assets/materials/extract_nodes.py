@@ -39,10 +39,12 @@ def create_mat_nodes_generator(mat: bpy.types.Material, mat_kind_name: str):
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].mode = \"{node.mode}\"\n"
         elif node_type == "ShaderNodeBsdfPrincipled":
             edf = node.inputs["Emission Strength"].default_value
+            ecdf = node.inputs["Emission Color"].default_value
             adf = node.inputs["Alpha"].default_value
             rdf = node.inputs["Roughness"].default_value
             twdf = node.inputs[17].default_value
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[\"Emission Strength\"].default_value = {edf}\n"
+            nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[\"Emission Color\"].default_value = ({ecdf[0]},{ecdf[1]},{ecdf[2]},{ecdf[3]})\n"
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[\"Alpha\"].default_value = {adf}\n"
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[\"Roughness\"].default_value = {rdf}\n"
             nodes_py += f"\tcreated_nodes[\"{node.name}\"].inputs[17].default_value = {twdf}\n"

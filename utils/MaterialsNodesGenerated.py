@@ -82,6 +82,7 @@ def _create_nodes_DecalGeom(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -189,6 +190,7 @@ def _create_nodes_DecalGeom_TOp_PyPxzDSN_X2(mat: bpy.types.Material) -> bpy.type
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -278,6 +280,7 @@ def _create_nodes_DynaFacing_ForceNMap_CubeOut_TestOp(mat: bpy.types.Material) -
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -347,6 +350,7 @@ def _create_nodes_GlassBasic(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 0.800000011920929
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.0
 	created_nodes["Principled BSDF"].inputs[17].default_value = 1.0
@@ -377,6 +381,7 @@ def _create_nodes_GrassX2(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = ""
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 3.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.0
 	created_nodes["Principled BSDF"].inputs[17].default_value = 1.0
@@ -499,6 +504,7 @@ def _create_nodes_PyPxz_Hue(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 3.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -589,6 +595,7 @@ def _create_nodes_PyPxzDiff_Spec_Norm(mat: bpy.types.Material) -> bpy.types.Mate
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 1.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -755,6 +762,7 @@ def _create_nodes_PyPxzDiff_Spec_Norm_LM1(mat: bpy.types.Material) -> bpy.types.
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -906,6 +914,7 @@ def _create_nodes_PyPxzTDiffSpecNorm_PyX2Hx2(mat: bpy.types.Material) -> bpy.typ
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -1154,6 +1163,7 @@ def _create_nodes_PyPxzTLayered(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -1323,6 +1333,7 @@ def _create_nodes_TAdd(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 3.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -1342,8 +1353,8 @@ def _create_nodes_TAdd(mat: bpy.types.Material) -> bpy.types.Material:
 	links = mat.node_tree.links
 	links.new(created_nodes["UV Map"].outputs[0], created_nodes["tex_I"].inputs[0])
 	links.new(created_nodes["Principled BSDF"].outputs[0], created_nodes["Material Output"].inputs[0])
-	links.new(created_nodes["tex_I"].outputs[0], created_nodes["Principled BSDF"].inputs[26])
 	links.new(created_nodes["Math"].outputs[0], created_nodes["Principled BSDF"].inputs[4])
+	links.new(created_nodes["tex_I"].outputs[0], created_nodes["Principled BSDF"].inputs[26])
 
 	return mat
 
@@ -1361,15 +1372,6 @@ def _create_nodes_TAddModCV(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Material Output"].name = "Material Output"
 	created_nodes["Material Output"].label = ""
 
-	created_nodes["Principled BSDF"] = nodes.new(type="ShaderNodeBsdfPrincipled")
-	created_nodes["Principled BSDF"].location = 480.0,-300.0
-	created_nodes["Principled BSDF"].name = "Principled BSDF"
-	created_nodes["Principled BSDF"].label = "Principled BSDF"
-	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 3.0
-	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
-	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
-
 	created_nodes["Math"] = nodes.new(type="ShaderNodeMath")
 	created_nodes["Math"].location = 200.0,-580.0
 	created_nodes["Math"].name = "Math"
@@ -1381,6 +1383,16 @@ def _create_nodes_TAddModCV(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Attribute"].label = ""
 	created_nodes["Attribute"].attribute_name = "Color"
 
+	created_nodes["Principled BSDF"] = nodes.new(type="ShaderNodeBsdfPrincipled")
+	created_nodes["Principled BSDF"].location = 480.0,-300.0
+	created_nodes["Principled BSDF"].name = "Principled BSDF"
+	created_nodes["Principled BSDF"].label = "Principled BSDF"
+	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 3.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
+	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
+	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
+	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+
 	created_nodes["tex_I"] = nodes.new(type="ShaderNodeTexImage")
 	created_nodes["tex_I"].location = 200.0,-300.0
 	created_nodes["tex_I"].name = "tex_I"
@@ -1391,9 +1403,9 @@ def _create_nodes_TAddModCV(mat: bpy.types.Material) -> bpy.types.Material:
 	links = mat.node_tree.links
 	links.new(created_nodes["UV Map"].outputs[0], created_nodes["tex_I"].inputs[0])
 	links.new(created_nodes["Principled BSDF"].outputs[0], created_nodes["Material Output"].inputs[0])
-	links.new(created_nodes["tex_I"].outputs[0], created_nodes["Principled BSDF"].inputs[26])
 	links.new(created_nodes["Math"].outputs[0], created_nodes["Principled BSDF"].inputs[4])
 	links.new(created_nodes["Attribute"].outputs[3], created_nodes["Math"].inputs[0])
+	links.new(created_nodes["tex_I"].outputs[0], created_nodes["Principled BSDF"].inputs[26])
 
 	return mat
 
@@ -1427,6 +1439,7 @@ def _create_nodes_TDiff_Spec_Norm(mat: bpy.types.Material) -> bpy.types.Material
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
@@ -1516,15 +1529,6 @@ def _create_nodes_TDSN_CubeOut(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Separate Color"].label = ""
 	created_nodes["Separate Color"].mode = "RGB"
 
-	created_nodes["Principled BSDF"] = nodes.new(type="ShaderNodeBsdfPrincipled")
-	created_nodes["Principled BSDF"].location = 1660.0,-300.0
-	created_nodes["Principled BSDF"].name = "Principled BSDF"
-	created_nodes["Principled BSDF"].label = "Principled BSDF"
-	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 3.0
-	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
-	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
-
 	created_nodes["use_hue_color"] = nodes.new(type="ShaderNodeValue")
 	created_nodes["use_hue_color"].location = 300.0,60.0
 	created_nodes["use_hue_color"].name = "use_hue_color"
@@ -1584,6 +1588,16 @@ def _create_nodes_TDSN_CubeOut(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["tex_D_HueMask"].name = "tex_D_HueMask"
 	created_nodes["tex_D_HueMask"].label = "Texture Diffuse HueMask _D_HueMask.dds"
 	created_nodes["tex_D_HueMask"].projection = "FLAT"
+
+	created_nodes["Principled BSDF"] = nodes.new(type="ShaderNodeBsdfPrincipled")
+	created_nodes["Principled BSDF"].location = 1660.0,-300.0
+	created_nodes["Principled BSDF"].name = "Principled BSDF"
+	created_nodes["Principled BSDF"].label = "Principled BSDF"
+	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 3.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
+	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
+	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
+	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
 
 
 	links = mat.node_tree.links
@@ -1684,16 +1698,6 @@ def _create_nodes_TDSN_CubeOut_DispIn(mat: bpy.types.Material) -> bpy.types.Mate
 	created_nodes["Normal Map"].name = "Normal Map"
 	created_nodes["Normal Map"].label = "Normal Map"
 
-	created_nodes["Mix Illums"] = nodes.new(type="ShaderNodeMix")
-	created_nodes["Mix Illums"].location = 480.0,-1700.0
-	created_nodes["Mix Illums"].name = "Mix Illums"
-	created_nodes["Mix Illums"].label = "Mix Illums"
-	created_nodes["Mix Illums"].blend_type = "ADD"
-	created_nodes["Mix Illums"].data_type = "RGBA"
-	created_nodes["Mix Illums"].inputs["Factor"].default_value = 1.0
-	created_nodes["Mix Illums"].inputs["A"].default_value = (0.5,0.5,0.5,1.0)
-	created_nodes["Mix Illums"].inputs["B"].default_value = (0.5,0.5,0.5,1.0)
-
 	created_nodes["Mix _L and _I"] = nodes.new(type="ShaderNodeMix")
 	created_nodes["Mix _L and _I"].location = 860.0,-580.0
 	created_nodes["Mix _L and _I"].name = "Mix _L and _I"
@@ -1730,15 +1734,6 @@ def _create_nodes_TDSN_CubeOut_DispIn(mat: bpy.types.Material) -> bpy.types.Mate
 	created_nodes["Get _L HueMask"].name = "Get _L HueMask"
 	created_nodes["Get _L HueMask"].label = "Get _L HueMask"
 	created_nodes["Get _L HueMask"].mode = "RGB"
-
-	created_nodes["Principled BSDF"] = nodes.new(type="ShaderNodeBsdfPrincipled")
-	created_nodes["Principled BSDF"].location = 1480.0,-300.0
-	created_nodes["Principled BSDF"].name = "Principled BSDF"
-	created_nodes["Principled BSDF"].label = "Principled BSDF"
-	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 10.0
-	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
-	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
 
 	created_nodes["Split _R"] = nodes.new(type="ShaderNodeSeparateColor")
 	created_nodes["Split _R"].location = 480.0,-1140.0
@@ -1796,18 +1791,6 @@ def _create_nodes_TDSN_CubeOut_DispIn(mat: bpy.types.Material) -> bpy.types.Mate
 	created_nodes["tex_N"].label = "Texture Normal _N.dds"
 	created_nodes["tex_N"].projection = "FLAT"
 
-	created_nodes["tex_I"] = nodes.new(type="ShaderNodeTexImage")
-	created_nodes["tex_I"].location = 200.0,-1700.0
-	created_nodes["tex_I"].name = "tex_I"
-	created_nodes["tex_I"].label = "Texture Illum _I.dds"
-	created_nodes["tex_I"].projection = "FLAT"
-
-	created_nodes["tex_over_I"] = nodes.new(type="ShaderNodeTexImage")
-	created_nodes["tex_over_I"].location = 200.0,-1980.0
-	created_nodes["tex_over_I"].name = "tex_over_I"
-	created_nodes["tex_over_I"].label = "Main Texture Illum _I.dds"
-	created_nodes["tex_over_I"].projection = "FLAT"
-
 	created_nodes["uv_scale"] = nodes.new(type="ShaderNodeVectorMath")
 	created_nodes["uv_scale"].location = -840.0,-40.0
 	created_nodes["uv_scale"].name = "uv_scale"
@@ -1857,6 +1840,22 @@ def _create_nodes_TDSN_CubeOut_DispIn(mat: bpy.types.Material) -> bpy.types.Mate
 	created_nodes["Apply _L Hue"].inputs["A"].default_value = (0.5,0.5,0.5,1.0)
 	created_nodes["Apply _L Hue"].inputs["B"].default_value = (0.5,0.5,0.5,1.0)
 
+	created_nodes["Principled BSDF"] = nodes.new(type="ShaderNodeBsdfPrincipled")
+	created_nodes["Principled BSDF"].location = 1480.0,-300.0
+	created_nodes["Principled BSDF"].name = "Principled BSDF"
+	created_nodes["Principled BSDF"].label = "Principled BSDF"
+	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 10.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
+	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
+	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
+	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+
+	created_nodes["tex_I"] = nodes.new(type="ShaderNodeTexImage")
+	created_nodes["tex_I"].location = 200.0,-1700.0
+	created_nodes["tex_I"].name = "tex_I"
+	created_nodes["tex_I"].label = "Texture Illum _I.dds"
+	created_nodes["tex_I"].projection = "FLAT"
+
 
 	links = mat.node_tree.links
 	links.new(created_nodes["Split _R"].outputs[1], created_nodes["Principled BSDF"].inputs[1])
@@ -1888,10 +1887,6 @@ def _create_nodes_TDSN_CubeOut_DispIn(mat: bpy.types.Material) -> bpy.types.Mate
 	links.new(created_nodes["uv_scale"].outputs[0], created_nodes["tex_I"].inputs[0])
 	links.new(created_nodes["uv_scale"].outputs[0], created_nodes["tex_H"].inputs[0])
 	links.new(created_nodes["uv_scale"].outputs[0], created_nodes["tex_L_HueMask"].inputs[0])
-	links.new(created_nodes["UV Map"].outputs[0], created_nodes["tex_over_I"].inputs[0])
-	links.new(created_nodes["tex_I"].outputs[0], created_nodes["Mix Illums"].inputs[6])
-	links.new(created_nodes["tex_over_I"].outputs[0], created_nodes["Mix Illums"].inputs[7])
-	links.new(created_nodes["Mix Illums"].outputs[2], created_nodes["Mix _L and _I"].inputs[6])
 	links.new(created_nodes["cross_pr"].outputs[0], created_nodes["dor_cross_pr"].inputs[1])
 	links.new(created_nodes["Tangent"].outputs[0], created_nodes["cross_pr"].inputs[1])
 	links.new(created_nodes["Paralax Geometry"].outputs[4], created_nodes["dot_pr"].inputs[0])
@@ -1908,6 +1903,7 @@ def _create_nodes_TDSN_CubeOut_DispIn(mat: bpy.types.Material) -> bpy.types.Mate
 	links.new(created_nodes["subs_uv"].outputs[0], created_nodes["tex_L"].inputs[0])
 	links.new(created_nodes["Apply _L Hue"].outputs[2], created_nodes["Add _D Alpha"].inputs[6])
 	links.new(created_nodes["tex_D"].outputs[1], created_nodes["Add _D Alpha"].inputs[0])
+	links.new(created_nodes["tex_I"].outputs[0], created_nodes["Mix _L and _I"].inputs[6])
 
 	return mat
 
@@ -1956,6 +1952,7 @@ def _create_nodes_Water_MultiH(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = ""
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 3.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.0
 	created_nodes["Principled BSDF"].inputs[17].default_value = 1.0
@@ -1991,6 +1988,7 @@ def _create_nodes_WaterWall(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].name = "Principled BSDF"
 	created_nodes["Principled BSDF"].label = "Principled BSDF"
 	created_nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 0.800000011920929
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
 	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
