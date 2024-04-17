@@ -4451,6 +4451,20 @@
       }
     }
   },
+  "ItemTorchFlame": {
+    "Name": "ItemTorchFlame",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "ItemTorchFlame",
+      "DLinkFull": "Media\\Material\\ItemTorchFlame",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DColor0": "yes"
+    },
+    "Textures": { "TAdd": { "_I": "ItemTorchFlame_I.dds" } }
+  },
   "ItemTrackBarrier": {
     "Name": "ItemTrackBarrier",
     "MatLibParams": {
@@ -6516,6 +6530,29 @@
       }
     }
   },
+  "ThemeRallyBarrier": {
+    "Name": "ThemeRallyBarrier",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "ThemeRallyBarrier",
+      "DLinkFull": "Media\\Material\\ThemeRallyBarrier",
+      "DSurfaceId": "Concrete",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "ThemeRallyBarrier_D.dds",
+        "_N": "ThemeRallyBarrier_N.dds",
+        "_R": "ThemeRallyBarrier_R.dds"
+      }
+    }
+  },
   "ThemeRallyCastleBorders": {
     "Name": "ThemeRallyCastleBorders",
     "MatLibParams": {
@@ -6562,6 +6599,30 @@
       }
     }
   },
+  "ThemeRallyCastleRoof": {
+    "Name": "ThemeRallyCastleRoof",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME RALLY",
+      "DMaterial": "ThemeRallyCastleRoof",
+      "DLinkFull": "Media\\Material\\ThemeRallyCastleRoof",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        { "ID": 0, "Name": "BaseMaterial" },
+        { "ID": 1, "Name": "Lightmap" }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "ThemeRallyCastleRoof_D.dds",
+        "_D_HueMask": "ThemeRallyCastleRoof_D_HueMask.dds",
+        "_N": "ThemeRallyCastleRoof_N.dds",
+        "_R": "ThemeRallyCastleRoof_R.dds"
+      }
+    }
+  },
   "ThemeRallyCastleWall": {
     "Name": "ThemeRallyCastleWall",
     "MatLibParams": {
@@ -6572,8 +6633,7 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        { "ID": 0, "Name": "Lightmap" }
       ],
       "DColor0": "yes"
     },

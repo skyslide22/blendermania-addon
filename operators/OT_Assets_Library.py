@@ -81,7 +81,7 @@ def generate2020Assets() -> None:
             ):
                 image_path = mat.node_tree.nodes["tex_D"].image.filepath
 
-            if image_path and get_game_doc_path_items_assets() not in image_path:
+            if image_path and get_game_doc_path_items_assets() not in fix_slash(image_path):
                 image_path = fix_slash(get_game_doc_path_items_assets() + fix_slash(image_path))
 
             with bpy.context.temp_override(id=mat):
