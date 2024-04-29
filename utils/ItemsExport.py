@@ -154,7 +154,7 @@ def _is_physic_hack_required(objects: list[bpy.types.Object]) -> bool:
 
 
 def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
-    pattern   = r"_#SCALE_(\d)+to(\d)+_x(\d)+"
+    pattern   = r"_#SCALE_(\d+)to(\d+)_x(\d+)"
     scale_list = re.findall(pattern, item.name, flags=re.IGNORECASE)
 
     items = [item]
