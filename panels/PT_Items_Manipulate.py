@@ -264,12 +264,14 @@ class TM_PT_Items_ObjectManipulation(Panel):
                 editmode = obj.mode == "EDIT"
                 row.operator("object.shade_smooth" if not editmode else "mesh.faces_shade_smooth", icon=ICON_SMOOTH)
                 row.operator("object.shade_flat"   if not editmode else "mesh.faces_shade_flat", icon=ICON_FLAT)
-                row= col.row(align=True)
-                innercol = row.column(align=True)
-                innercol.scale_x = 1.2
-                innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=ICON_FLAT_SMOOTH)
-                innercol = row.column(align=True)
-                innercol.prop(obj.data, "auto_smooth_angle", text="")
+                
+                if bpy.app.version < (4, 1, 0): # 4.1 changed auto smooth to geo nodes AHHHH
+                    row= col.row(align=True)
+                    innercol = row.column(align=True)
+                    innercol.scale_x = 1.2
+                    innercol.prop(obj.data, "use_auto_smooth", toggle=True, icon=ICON_FLAT_SMOOTH)
+                    innercol = row.column(align=True)
+                    innercol.prop(obj.data, "auto_smooth_angle", text="")
 
         
         

@@ -218,10 +218,23 @@ def _clean_up_imported_item_gbx(objs: list[bpy.types.Object], item_name: str, de
                 slot.material = mat
 
         # auto smooth
-        obj.data.polygons.foreach_set('use_smooth',  [True] * len(obj.data.polygons))
-        obj.data.use_auto_smooth = 1
-        obj.data.auto_smooth_angle = math.pi/6  # 45 degrees
+        use_old_smoothing = bpy.app.version < (4, 1, 0)
 
+        if use_old_smoothing:
+            obj.data.polygons.foreach_set('use_smooth',  [True] * len(obj.data.polygons))
+            obj.data.use_auto_smooth = 1
+            obj.data.auto_smooth_angle = math.pi/6  # 45 degrees
+
+        else:
+            # ugly access, maybe there is a better way to get the "nodes?" by name...
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.modifier_add_node_group(
+                asset_library_type='ESSENTIALS', 
+                asset_library_identifier="", 
+                relative_asset_identifier="geometry_nodes\\smooth_by_angle.blend\\NodeTree\\Smooth by Angle")
+            mod = obj.modifiers[-1]
+            mod["Input_1"]      = math.pi/2 # float "Angle"
+            mod["Socket_1"]     = True      # bool  "Ignore Sharpness"
         
         obj.name = f"{item_name} {obj.name}"
 
