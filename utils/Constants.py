@@ -500,6 +500,8 @@ from .Functions import (
 )
 
 # custom items included in addon for import
+ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_SNOW    = get_addon_assets_path() + "/item_cars/CAR_Trackmania2020_SnowCar_Lowpoly.fbx"
+ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_RALLY   = get_addon_assets_path() + "/item_cars/CAR_Trackmania2020_RallyCar_Lowpoly.fbx"
 ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM = get_addon_assets_path() + "/item_cars/CAR_Trackmania2020_StadiumCar_Lowpoly.fbx"
 ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM    = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_StadiumCar_Lowpoly.fbx"
 ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_LagoonCar_Lowpoly.fbx"

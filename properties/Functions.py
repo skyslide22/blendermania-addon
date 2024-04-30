@@ -984,6 +984,16 @@ def get_car_names() -> list:
         desc = "Stadium",
         icon = get_addon_icon("TRACKMANIA2020")
     ).add(
+        id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_SNOW,
+        name = "Car Snow",
+        desc = "Stadium",
+        icon = get_addon_icon("TRACKMANIA2020")
+    ).add(
+        id   = ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_RALLY,
+        name = "Car Rally",
+        desc = "Stadium",
+        icon = get_addon_icon("TRACKMANIA2020")
+    ).add(
         id   = ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM,
         name = "Car Stadium",
         desc = "Stadium",
