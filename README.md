@@ -53,3 +53,11 @@ https://discord.gg/s3WgRBCbG5
 
 ![addon image](https://github.com/skyslide22/blendermania-addon/wiki/img/wheretofind.jpg)
 
+# Related Repos
+
+Blendermania-dotnet.exe (GBX.NET) (C# Console App) 
+- https://github.com/frolad/blendermania-dotnet
+
+Blendermania Assets (CDN for blendermania-dotnet, asset library and texture packs)
+- https://github.com/skyslide22/blendermania-assets
+
