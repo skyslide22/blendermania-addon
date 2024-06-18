@@ -642,30 +642,13 @@ def showUVMap(col: bpy.types.Collection, uv_name: str) -> None:
 
 def addBasematerialAndLightmap(obj: bpy.types.Object) -> None:
     uvs = obj.data.uv_layers
-
-    is_lightmap     = lambda uv: uv.name.lower() == UV_LAYER_NAME_LIGHTMAP
-    is_basematerial = lambda uv: uv.name.lower() == UV_LAYER_NAME_BASEMATERIAL
-
-    for uvlayer in uvs:
-        # uvlayer name is case sensitive, correnct name 
-        if is_lightmap(uvlayer):     
-            uvlayer.name = UV_LAYER_NAME_LIGHTMAP 
-        if is_basematerial(uvlayer): 
-            uvlayer.name = UV_LAYER_NAME_BASEMATERIAL 
-
     
     if len(uvs) == 0: uvs.new(do_init=True)
     if len(uvs) == 1: uvs.new(do_init=True)
 
-    for i, uvlayer in enumerate(uvs):
-        if i == 0:
-            if not is_basematerial(uvlayer):
-                uvlayer.name = UV_LAYER_NAME_BASEMATERIAL
-        if i == 1:
-            if not is_lightmap(uvlayer):
-                uvlayer.name = UV_LAYER_NAME_LIGHTMAP
-        if i > 1:
-            break
+    # len is now >= 2
+    uvs[0].name = UV_LAYER_NAME_BASEMATERIAL
+    uvs[1].name = UV_LAYER_NAME_LIGHTMAP
 
 
 
