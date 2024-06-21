@@ -4,6 +4,9 @@ import math
 from bpy.app.handlers import persistent
 
 from ..utils.Dotnet import (
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSETS,
+    DOTNET_ITEM_DIFFICULTY_COLORS,
+    DOTNET_ITEM_LIGHTMAP_QUALITIES,
     DotnetInt3,
     DotnetItem,
     DotnetBlock,
@@ -53,7 +56,7 @@ def get_selected_map_objects() -> list[bpy.types.Object]:
     res:list[bpy.types.Object] = []
 
     for obj in bpy.context.selected_objects:
-        if "tm_map_object_kind" in obj:
+        if obj.tm_map_object_kind:
             res.append(obj)
 
     return res
@@ -80,6 +83,9 @@ def create_update_map_object():
     object_item:bpy.types.Object     = tm_props.PT_map_object.object_item
     object_type:str                  = tm_props.PT_map_object.object_type
     object_path:str                  = fix_slash(tm_props.PT_map_object.object_path)
+    object_item_animphaseoffset:str  = tm_props.PT_map_object.object_item_animphaseoffset
+    object_item_difficultycolor:str  = tm_props.PT_map_object.object_item_difficultycolor
+    object_item_lightmapquality:str  = tm_props.PT_map_object.object_item_lightmapquality
     doc_path                         = get_game_doc_path()
     selected_objects                 = get_selected_map_objects()
     all_selected                     = bpy.context.selected_objects
@@ -96,26 +102,34 @@ def create_update_map_object():
 
     if len(object_path) == 0:
         return f"Name/Path can not be empty"
+    
+    debug("update map object", object_path, object_type, object_item_animphaseoffset, object_item_difficultycolor)
 
 
     # update path on selected objects if there is more than one selected
     if is_all_in_map_coll and len(all_selected) > 0:
         for obj in all_selected:
             obj.name = _make_object_name(object_path, object_type)
-            obj["tm_map_object_kind"] = object_type
-            obj["tm_map_object_path"] = object_path
-
+            obj.tm_map_object_kind = object_type
+            obj.tm_map_object_path = object_path
+            obj.tm_map_object_animphaseoffset = object_item_animphaseoffset
+            obj.tm_map_object_difficultycolor = object_item_difficultycolor
+            obj.tm_map_object_lightmapquality = object_item_lightmapquality
         set_active_object(object_item)
+
     elif len(selected_objects) > 1:
         for obj in selected_objects:
             obj.name = _make_object_name(object_path, object_type)
-            obj["tm_map_object_kind"] = object_type
-            obj["tm_map_object_path"] = object_path
+            obj.tm_map_object_kind = object_type
+            obj.tm_map_object_path = object_path
+            obj.tm_map_object_animphaseoffset = object_item_animphaseoffset
+            obj.tm_map_object_difficultycolor = object_item_difficultycolor
+            obj.tm_map_object_lightmapquality = object_item_lightmapquality
 
         set_active_object(object_item)
     else:
         # update object if it's already map_object else create a new one
-        if object_item and "tm_map_object_kind" in object_item:
+        if object_item and object_item.tm_map_object_kind:
             obj_to_update = object_item
         else:
             if not object_item:
@@ -126,8 +140,11 @@ def create_update_map_object():
                 obj_to_update = duplicate_object_to(object_item, map_coll, True)
         
         obj_to_update.name = _make_object_name(object_path, object_type)
-        obj_to_update["tm_map_object_kind"] = object_type
-        obj_to_update["tm_map_object_path"] = object_path
+        obj_to_update.tm_map_object_kind = object_type
+        obj_to_update.tm_map_object_path = object_path
+        obj_to_update.tm_map_object_animphaseoffset = object_item_animphaseoffset
+        obj_to_update.tm_map_object_difficultycolor = object_item_difficultycolor
+        obj_to_update.tm_map_object_lightmapquality = object_item_lightmapquality
 
         set_active_object(obj_to_update)
 
@@ -142,10 +159,10 @@ def validate_map_collection() -> str:
     for obj in map_coll.all_objects:
         obj:bpy.types.Object = obj
 
-        if "tm_map_object_kind" not in obj or "tm_map_object_path" not in obj:
+        if not obj.tm_map_object_kind or not obj.tm_map_object_path:
             return f"Map collection contains invalid object: {obj.name}"
 
-        if obj["tm_map_object_kind"] == MAP_OBJECT_BLOCK:
+        if obj.tm_map_object_kind == MAP_OBJECT_BLOCK:
             if min(obj.location) < 0:
                 return f"Block position can not be negative! Object: {obj.name}"
 
@@ -155,9 +172,9 @@ def validate_map_collection() -> str:
             if (round(math.degrees(obj.rotation_euler[2]))) % 90 != 0:
                 return f"Rotation on Z must be multiple of 90deg! Object: {obj.name}"
         
-        if obj["tm_map_object_kind"] == MAP_OBJECT_ITEM:
-            if doc_path in obj["tm_map_object_path"] and not is_file_existing(obj["tm_map_object_path"]):
-                return f"Item with path: {obj['tm_map_object_path']} does not exist. Object name: {obj.name}"
+        if obj.tm_map_object_kind == MAP_OBJECT_ITEM:
+            if doc_path in obj.tm_map_object_path and not is_file_existing(obj.tm_map_object_path):
+                return f"Item with path: {obj.tm_map_object_path} does not exist. Object name: {obj.name}"
 
 def export_map_collection() -> DotnetExecResult:
     err = validate_map_collection()
@@ -181,8 +198,8 @@ def export_map_collection() -> DotnetExecResult:
     for obj in map_coll.all_objects:
         obj:bpy.types.Object = obj
 
-        if obj["tm_map_object_kind"] == MAP_OBJECT_ITEM:
-            name = obj["tm_map_object_path"]
+        if obj.tm_map_object_kind == MAP_OBJECT_ITEM:
+            name = obj.tm_map_object_path
             is_custom_item = fix_slash(doc_path.lower()) in fix_slash(name.lower())
 
             if is_custom_item:
@@ -195,15 +212,18 @@ def export_map_collection() -> DotnetExecResult:
             # obj which is used to create item(map) needs to have rotation(0,0,0) else invalid data
             dotnet_items.append(DotnetItem(
                 Name=name,
-                Path=obj["tm_map_object_path"] if is_custom_item else "",
+                Path=obj.tm_map_object_path if is_custom_item else "",
                 Position=DotnetVector3(obj.location[1], obj.location[2]+8, obj.location[0]),
                 # Rotation=DotnetVector3(obj.rotation_euler[2] - math.radians(90), obj.rotation_euler[1], obj.rotation_euler[0]),
                 Rotation=DotnetVector3(obj.rotation_euler[2] - math.radians(90), obj.rotation_euler[0], math.radians((math.degrees(obj.rotation_euler[1]))*-1)),
                 Pivot=DotnetVector3(0),
+                AnimPhaseOffset=get_animphaseoffset_of_obj(obj),
+                DifficultyColor=get_difficultycolor_of_obj(obj),
+                LightmapQuality=get_lightmapquality_of_obj(obj),
             ))
-        elif obj["tm_map_object_kind"] == MAP_OBJECT_BLOCK:
+        elif obj.tm_map_object_kind == MAP_OBJECT_BLOCK:
             dotnet_blocks.append(DotnetBlock(
-                Name=obj["tm_map_object_path"],
+                Name=obj.tm_map_object_path,
             Direction=get_block_dir_for_angle(math.degrees(obj.rotation_euler[2])),
                 Position=DotnetInt3(int(int(obj.location[1])/32), int(int(obj.location[2])/32)+9, int(int(obj.location[0])/32)),
             ))
@@ -590,3 +610,49 @@ def export_mediatracker_clips() -> DotnetExecResult:
         clips.append(clip)
 
     return run_place_mediatracker_clips_on_map(map_path, clips)
+
+
+
+def get_animphaseoffset_of_obj(obj: bpy.types.Object) -> str|None:
+    val = obj.tm_map_object_animphaseoffset
+    
+    if val is None:
+        return None
+    
+    if val == "":
+        return None
+    
+    if val not in DOTNET_ITEM_ANIMATION_PHASE_OFFSETS:
+        raise Exception(f"Object {obj.name} has an invalid animation phase offset: '{val}', either use none OR one of {DOTNET_ITEM_ANIMATION_PHASE_OFFSETS}")
+    
+    return val
+
+
+def get_difficultycolor_of_obj(obj: bpy.types.Object) -> str|None:
+    val = obj.tm_map_object_difficultycolor
+    
+    if val is None:
+        return None
+    
+    if val == "":
+        return None
+    
+    if val not in DOTNET_ITEM_DIFFICULTY_COLORS:
+        raise Exception(f"Object {obj.name} has an invalid color: '{val}', either use none OR one of {DOTNET_ITEM_DIFFICULTY_COLORS}")
+    
+    return val
+
+
+def get_lightmapquality_of_obj(obj: bpy.types.Object) -> str|None:
+    val = obj.tm_map_object_lightmapquality
+    
+    if val is None:
+        return None
+    
+    if val == "":
+        return None
+    
+    if val not in DOTNET_ITEM_LIGHTMAP_QUALITIES:
+        raise Exception(f"Object {obj.name} has an invalid animation phase offset: '{val}', either use none OR one of {DOTNET_ITEM_LIGHTMAP_QUALITIES}")
+    
+    return val

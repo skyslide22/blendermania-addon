@@ -139,6 +139,17 @@ ICON_FILE               = "FILE_BLANK"
 ICON_FILE_NEW           = "FILE_NEW"
 ICON_IMAGE_DATA         = "IMAGE_DATA"
 
+ICON_COLOR_RED          = "SEQUENCE_COLOR_01"
+ICON_COLOR_ORANGE       = "SEQUENCE_COLOR_02"
+ICON_COLOR_YELLOW       = "SEQUENCE_COLOR_03"
+ICON_COLOR_GREEN        = "SEQUENCE_COLOR_04"
+ICON_COLOR_BLUE         = "SEQUENCE_COLOR_05"
+ICON_COLOR_VIOLET       = "SEQUENCE_COLOR_06"
+ICON_COLOR_PINK         = "SEQUENCE_COLOR_07"
+ICON_COLOR_BROWN        = "SEQUENCE_COLOR_08"
+ICON_COLOR_GRAY         = "SEQUENCE_COLOR_09"
+ICON_COLOR_BLACK        = "COLORSET_16_VEC"
+ICON_COLOR_WHITE        = "SNAP_FACE"
 
 EDITORTRAILS_OBJECT_NAME = "_ignore_editortrails"
 
@@ -191,7 +202,7 @@ URL_REGEX            = "https://regex101.com/"
 URL_WORKAROUND_PHYSICID = "https://github.com/skyslide22/blendermania-addon/wiki/06.-Converting-Troubleshooting#physicid-workaround-for-customxxx-materials"
 
 # dotnet addon name and version
-BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.7"
+BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.8"
 
 # Assets CDN Links
 GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-assets/releases/download/"

@@ -14,6 +14,44 @@ DOTNET_BLOCKS_DIRECTION = (
     DOTNET_BLOCKS_DIRECTION_WEST    := 3,
 )
 
+DOTNET_ITEM_ANIMATION_PHASE_OFFSETS = (
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSET_NONE := "None",
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSET_ONE8TH := "One8th",
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSET_TWO8TH := "Two8th",
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSET_THREE8TH := "Three8th",
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSET_FOUR8TH := "Four8th",
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSET_FIVE8TH := "Five8th",
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSET_SIX8TH := "Six8th",
+    DOTNET_ITEM_ANIMATION_PHASE_OFFSET_SEVEN8TH := "Seven8th"
+)
+
+DOTNET_ITEM_DIFFICULTY_COLORS = (
+    DOTNET_ITEM_DIFFICULTY_COLOR_DEFAULT := "Default",
+    DOTNET_ITEM_DIFFICULTY_COLOR_WHITE := "White",
+    DOTNET_ITEM_DIFFICULTY_COLOR_GREEN := "Green",
+    DOTNET_ITEM_DIFFICULTY_COLOR_BLUE := "Blue",
+    DOTNET_ITEM_DIFFICULTY_COLOR_RED := "Red",
+    DOTNET_ITEM_DIFFICULTY_COLOR_BLACK := "Black"
+)
+
+DIFFICULTYCOLOR_ICON_MAP = {
+    DOTNET_ITEM_DIFFICULTY_COLOR_DEFAULT: ICON_COLOR_GRAY,
+    DOTNET_ITEM_DIFFICULTY_COLOR_WHITE: ICON_COLOR_WHITE,
+    DOTNET_ITEM_DIFFICULTY_COLOR_GREEN: ICON_COLOR_GREEN,
+    DOTNET_ITEM_DIFFICULTY_COLOR_BLUE: ICON_COLOR_BLUE,
+    DOTNET_ITEM_DIFFICULTY_COLOR_RED: ICON_COLOR_RED,
+    DOTNET_ITEM_DIFFICULTY_COLOR_BLACK: ICON_COLOR_BLACK,
+}
+
+DOTNET_ITEM_LIGHTMAP_QUALITIES = (
+    DOTNET_ITEM_LIGHTMAP_QUALITY_NORMAL := "Normal",
+    DOTNET_ITEM_LIGHTMAP_QUALITY_HIGH := "High",
+    DOTNET_ITEM_LIGHTMAP_QUALITY_VERYHIGH := "VeryHigh",
+    DOTNET_ITEM_LIGHTMAP_QUALITY_HIGHEST := "Highest",
+    DOTNET_ITEM_LIGHTMAP_QUALITY_LOW := "Low",
+    DOTNET_ITEM_LIGHTMAP_QUALITY_VERYLOW := "VeryLow",
+    DOTNET_ITEM_LIGHTMAP_QUALITY_LOWEST := "Lowest",
+)
 
 def get_block_dir_for_angle(angle: int) -> int:
     print(math.copysign(angle%360, angle))
@@ -63,12 +101,23 @@ class DotnetBlock:
 
 
 class DotnetItem:
-    def __init__(self, Name: str, Path: str, Position: DotnetVector3, Rotation: DotnetVector3 = DotnetVector3(), Pivot: DotnetVector3 = DotnetVector3()):
+    def __init__(self, 
+                 Name: str,
+                Path: str,
+                Position: DotnetVector3,
+                Rotation: DotnetVector3 = DotnetVector3(),
+                Pivot: DotnetVector3 = DotnetVector3(),
+                AnimPhaseOffset: str = "",
+                DifficultyColor: str = "",
+                LightmapQuality: str = ""):
         self.Name = Name
         self.Path = Path
         self.Position = Position
         self.Rotation = Rotation
         self.Pivot = Pivot
+        self.AnimPhaseOffset = AnimPhaseOffset
+        self.DifficultyColor = DifficultyColor
+        self.LightmapQuality = LightmapQuality
     
     def jsonable(self):
         return self.__dict__
@@ -168,6 +217,7 @@ def run_place_objects_on_map(
         outfile.close()
 
         res = _run_dotnet(PLACE_OBJECTS_ON_MAP, config_path)
+        debug("run place objects on map: ", res.message, res.success)
         if not BLENDER_INSTANCE_IS_DEV:
             try:
                 os.remove(config_path)

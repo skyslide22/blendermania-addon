@@ -3,6 +3,8 @@ import bpy
 import bpy.utils.previews
 from bpy.props import *
 
+from ..utils.Dotnet import *
+
 from ..utils.ItemsIcon import generate_world_node
 from ..utils.Functions import *
 from ..utils.Constants import *
@@ -1183,3 +1185,26 @@ class MediaTrackerClips:
 
 def provide_current_map_mt_clip_names(self, context, edit_text) -> list:
     return MediaTrackerClips.current_names
+
+
+
+def get_animphaseoffset_values():
+    enums = EnumProps()
+    for val in DOTNET_ITEM_ANIMATION_PHASE_OFFSETS:
+        enums.add(val, val)
+    return enums.to_list()
+
+
+def get_lightmapquality_values():
+    enums = EnumProps()
+    for val in DOTNET_ITEM_LIGHTMAP_QUALITIES:
+        enums.add(val, val)
+    return enums.to_list()
+
+
+
+def get_difficultycolor_values():
+    enums = EnumProps()
+    for val in DOTNET_ITEM_DIFFICULTY_COLORS:
+        enums.add(val, val, "", DIFFICULTYCOLOR_ICON_MAP.get(val, ICON_QUESTION))
+    return enums.to_list()

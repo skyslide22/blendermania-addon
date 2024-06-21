@@ -260,9 +260,12 @@ def register():
     bpy.types.VIEW3D_MT_add.prepend(OT_ItemsEnviTemplates.add_menu_item)
 
     # object extra props
-    bpy.types.Object.tm_map_object_kind = StringProperty(name="Item (soon Block)", default="Item")
-    bpy.types.Object.tm_map_object_path = StringProperty(name="Name/Path of Item or Block", default="")
-    bpy.types.Object.tm_map_clip_name   = StringProperty(name="Name of mediatracker clip", default="")
+    bpy.types.Object.tm_map_object_kind             = StringProperty(name="Item (soon Block)", default="Item")
+    bpy.types.Object.tm_map_object_path             = StringProperty(name="Name/Path of Item or Block", default="")
+    bpy.types.Object.tm_map_object_animphaseoffset  = EnumProperty(name="Animation Phase Offset", items=get_animphaseoffset_values())
+    bpy.types.Object.tm_map_object_difficultycolor  = EnumProperty(name="Difficulty Color", items=get_difficultycolor_values())
+    bpy.types.Object.tm_map_object_lightmapquality  = EnumProperty(name="Lightmap Quality", items=get_lightmapquality_values())
+    bpy.types.Object.tm_map_clip_name               = StringProperty(name="Name of mediatracker clip", default="")
     bpy.types.Object.tm_force_grid_helper         = BoolProperty(default=False)
     bpy.types.Object.tm_forced_grid_helper_step_x = FloatProperty(default=0.0)
     bpy.types.Object.tm_forced_grid_helper_step_y = FloatProperty(default=0.0)

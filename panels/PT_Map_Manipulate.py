@@ -183,7 +183,7 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
 
         has_map_coll = tm_props.PT_map_collection is not None
         obj:bpy.types.Object = tm_props.PT_map_object.object_item
-        is_update = obj and "tm_map_object_kind" in obj
+        is_update = obj and obj.tm_map_object_kind
         is_all_in_map = is_all_selected_in_map_collection()
         is_block = tm_props.PT_map_object.object_type == MAP_OBJECT_BLOCK
         select_objects = bpy.context.selected_objects
@@ -232,6 +232,21 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         
         col_left.label(text="Type")
         col_right.row().prop(tm_props.PT_map_object, "object_type", expand=True)
+
+        col_left.label(text="AnimPhaseOffset")
+        row = col_right.row(align=True)
+        row.enabled = not is_block and not is_multi
+        row.prop(tm_props.PT_map_object, "object_item_animphaseoffset", text="")
+
+        col_left.label(text="DifficultyColor")
+        row = col_right.row(align=True)
+        row.enabled = not is_block and not is_multi
+        row.prop(tm_props.PT_map_object, "object_item_difficultycolor", text="")
+
+        col_left.label(text="LightMapQuality")
+        row = col_right.row(align=True)
+        row.enabled = not is_block and not is_multi
+        row.prop(tm_props.PT_map_object, "object_item_lightmapquality", text="")
 
         col_left.label(text="Placeholder")
         row = col_right.row(align=True)

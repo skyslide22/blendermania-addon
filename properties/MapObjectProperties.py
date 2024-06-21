@@ -1,6 +1,6 @@
 import bpy
 
-from ..properties.Functions import get_ingame_vanilla_item_names
+from ..properties.Functions import *
 from ..utils.Constants import MAP_OBJECT_ITEM, MAP_OBJECT_BLOCK
 from ..utils.Functions import get_global_props, get_obj_potential_item_path
 
@@ -8,9 +8,9 @@ def on_update_map_obj_props(self, context):
     tm_props = get_global_props()
     obj = tm_props.PT_map_object.object_item
     if obj:
-        if "tm_map_object_kind" in obj:
-            tm_props.PT_map_object.object_type = obj["tm_map_object_kind"]
-            tm_props.PT_map_object.object_path = obj["tm_map_object_path"]
+        if obj.tm_map_object_kind:
+            tm_props.PT_map_object.object_type = obj.tm_map_object_kind
+            tm_props.PT_map_object.object_path = obj.tm_map_object_path
         else:
             if tm_props.PT_map_object.object_type == MAP_OBJECT_BLOCK:
                 tm_props.PT_map_object.object_path = ""
@@ -35,3 +35,6 @@ class MapObjectProperties(bpy.types.PropertyGroup):
         update=on_update_map_obj_kind
     )
     object_path: bpy.props.StringProperty(name="Name/path of Item or Block", search=get_ingame_vanilla_item_names, subtype="FILE_PATH")
+    object_item_animphaseoffset: bpy.props.EnumProperty(items=get_animphaseoffset_values(), name="AnimPhaseOffset")
+    object_item_difficultycolor: bpy.props.EnumProperty(items=get_difficultycolor_values(), name="DifficultyColor")
+    object_item_lightmapquality: bpy.props.EnumProperty(items=get_lightmapquality_values(), name="LightmapQuality")
