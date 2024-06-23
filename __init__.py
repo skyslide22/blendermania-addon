@@ -18,7 +18,7 @@ bl_info = {
     "author"        : "skyslide22, juice & schadocalex",
     "description"   : "Makes creating objects for Trackmania more easy and fun!",
     "blender"       : (4, 0, 0),
-    "version"       : (4, 1, 1),
+    "version"       : (4, 2, 0),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic",
@@ -119,6 +119,7 @@ classes = (
     TM_OT_Settings_OpenFolder,
     TM_OT_Settings_DebugAll,
     TM_OT_Settings_OpenConvertReport,
+    TM_PT_Settings_Experimentals,
     
     # object manipulation
     TM_PT_ObjectManipulations,
@@ -148,11 +149,11 @@ classes = (
     TM_OT_Items_ShowUVMap,
     TM_OT_Items_CollectionManipulationToggleNICE,
     TM_OT_Items_ObjectManipulationToggleGate,
-
+    
     # object visibility and selection controls
     TM_PT_VisibilitySelection,
     TM_OT_VisibilitySelection_Toggle,
-    
+
     # uv manipulation
     TM_PT_UVManipulations,
     TM_OT_Items_UVManipulationsFollowActiveQuadsForFaceLoop,
@@ -229,6 +230,9 @@ classes = (
     # util
     OT_UIWikiLink,
     TM_OT_Settings_OpenMessageBox,
+
+    # experimental/dangerous
+    TM_PT_DangerousManualManipulations,
 )
 
 

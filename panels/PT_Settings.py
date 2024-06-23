@@ -260,6 +260,25 @@ class TM_PT_Settings_NadeoImporter(Panel):
 
 
 
+class TM_PT_Settings_Experimentals(Panel):
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Experimentals"
+    bl_idname = "TM_PT_Settings_Experimentals"
+    bl_parent_id = "TM_PT_Settings"
+    
+    # @classmethod
+    # def poll(self, context):
+    #     return is_selected_nadeoini_file_name_ok()
+
+    def draw(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        layout.prop(tm_props, "CB_allow_dangerous_manual_manipulations", text="Allow Dangerous Manual Manipulations")
+
+
+
+
+
 class TM_PT_Settings_Performance(Panel):
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Performance"

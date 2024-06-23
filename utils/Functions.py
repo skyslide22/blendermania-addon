@@ -1818,8 +1818,16 @@ def debug_all() -> None:
     full_debug("tm_props:")
     tm_props        = get_global_props()
     tm_prop_prefixes= ("li_", "cb_", "nu_", "st_") 
-    tm_prop_names   = [name for name in dir(tm_props) if name.lower().startswith(tm_prop_prefixes)]
     max_chars       = 0
+
+    # List to hold property names
+    tm_prop_names = []
+
+    # Iterate over the properties of the PropertyGroup
+    for prop in tm_props.bl_rna.properties:
+        # Skip over built-in properties
+        if prop.identifier not in {"rna_type"}:
+            tm_prop_names.append(prop.identifier)
 
     for name in tm_prop_names:
         prop_len = len(name)

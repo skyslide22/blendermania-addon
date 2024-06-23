@@ -63,6 +63,12 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_allow_complex_panel_drawing: BoolProperty(default=True)
     CB_compress_blendfile:          BoolProperty(default=True)
 
+    #settings
+    CB_allow_dangerous_manual_manipulations: BoolProperty(default=False)
+    LI_dangerous_manual_manipulation_mat: PointerProperty(type=bpy.types.Material)
+    LI_dangerous_manual_manipulation_types: EnumProperty(items=get_dangerous_manual_manipulation_types())
+
+
     CB_addonUpdateDLRunning   : BoolProperty(       default=False,  update=redraw_panels)
     NU_addonUpdateDLProgress  : FloatProperty(      min=0, max=100, default=0, subtype="PERCENTAGE", update=redraw_panels)
     ST_addonUpdateDLmsg       : StringProperty(     name="Status",  default="", update=redraw_panels)

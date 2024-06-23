@@ -1208,3 +1208,10 @@ def get_difficultycolor_values():
     for val in DOTNET_ITEM_DIFFICULTY_COLORS:
         enums.add(val, val, "", DIFFICULTYCOLOR_ICON_MAP.get(val, ICON_QUESTION))
     return enums.to_list()
+
+
+def get_dangerous_manual_manipulation_types():
+    props = EnumProps()
+    for prop in DANGEROUS_MANUAL_MANIPULATION_TYPES:
+        props.add(prop, prop.title())
+    return props.to_list()

@@ -542,3 +542,182 @@ class TM_PT_Items_CollectionManipulation(Panel):
 
         layout.separator(factor=2)
 
+
+
+
+class TM_PT_DangerousManualManipulations(Panel):
+    # region bl_
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = ""
+    bl_idname = "TM_PT_DangerousManualManipulations"
+    bl_parent_id = "TM_PT_ObjectManipulations"
+    # endregion
+
+    @classmethod
+    def poll(cls, context):
+        # Replace `your_boolean_condition` with the actual condition you want to check.
+        # For example, it could be a property of the context or a custom property you've defined.
+        return bpy.context.scene.tm_props.CB_allow_dangerous_manual_manipulations
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.row().label(text="Dangerous Manual Manipulations", icon=ICON_ERROR)     
+
+
+    def draw(self, context):
+        layout = self.layout
+        layout.enabled = len(bpy.context.selected_objects) > 0
+        tm_props = get_global_props()
+        
+        row = layout.row()
+        row.alert = True
+        row.label(text="Edits here can break blendermania", icon=ICON_ERROR)
+        
+        layout.prop(tm_props, "LI_dangerous_manual_manipulation_types", expand=True)
+        mtype = tm_props.LI_dangerous_manual_manipulation_types
+
+        layout.row().separator(factor=1)
+
+        if mtype == DANGEROUS_MANUAL_MANIPULATION_TYPE_MATERIAL:
+            draw_dangerous_manual_manipulation_material(self, layout)
+
+        elif mtype == DANGEROUS_MANUAL_MANIPULATION_TYPE_OBJECT:
+            draw_dangerous_manual_manipulation_object(self, layout)
+        
+        elif mtype == DANGEROUS_MANUAL_MANIPULATION_TYPE_TM_PROPS:
+            draw_dangerous_manual_manipulation_tm_props(self, layout)
+
+
+def draw_dangerous_manual_manipulation_material(self, layout):
+    tm_props = get_global_props()
+    mat = tm_props.LI_dangerous_manual_manipulation_mat
+    
+    box = layout.box()
+    split = box.row(align=True).split(factor=.35)
+    left = split.column()
+    right = split.column()
+
+    left.label(text="Material")
+    right.prop(tm_props, "LI_dangerous_manual_manipulation_mat", text="")
+
+    if not mat:
+        layout.label(text="Select/Add a material !")
+        return
+    
+    left.separator(factor=0.8)
+    right.separator(factor=0.8)
+
+    left.label(text="Game Type")
+    right.prop(mat, "gameType", text="")
+
+    left.label(text="BaseTexture")
+    right.prop(mat, "baseTexture", text="")
+
+    left.label(text="Link")
+    right.prop(mat, "link", text="")
+
+    left.label(text="PhysicsID")
+    right.prop(mat, "physicsId", text="")
+
+    left.label(text="PhysicsID")
+    right.prop(mat, "usePhysicsId", text="Use Physics ID")
+
+    left.label(text="GameplayID")
+    right.prop(mat, "gameplayId", text="")
+
+    left.label(text="GameplayID")
+    right.prop(mat, "useGameplayId", text="Use Gameplay ID")
+
+    left.label(text="Model")
+    right.prop(mat, "model", text="")
+
+    left.label(text="Environment")
+    right.prop(mat, "environment", text="")
+
+    left.label(text="Surface Color")
+    right.prop(mat, "surfaceColor", text="")
+
+
+def draw_dangerous_manual_manipulation_object(self, layout):
+    tm_props = get_global_props()
+    obj = bpy.context.object
+    if not obj:
+        layout.label(text="Select any object !")
+        return
+    
+    if len(bpy.context.selected_objects) > 1:
+        layout.label(text="Select only one object !")
+        return
+
+    # object
+    box = layout.box()
+    split = box.row(align=True).split(factor=.35)
+    left = split.column()
+    right = split.column()
+
+    left.label(text="Name")
+    right.prop(obj, "name", text="")
+
+    left.label(text="Item Type")
+    right.prop(obj, "tm_map_object_kind", text="")
+
+    left.label(text="Item Path")
+    right.prop(obj, "tm_map_object_path", text="")
+
+    left.label(text="AnimPhaseOffset")
+    right.prop(obj, "tm_map_object_animphaseoffset", text="")
+
+    left.label(text="DifficultyColor")
+    right.prop(obj, "tm_map_object_difficultycolor", text="")
+
+    left.label(text="LightmapQuality")
+    right.prop(obj, "tm_map_object_lightmapquality", text="")
+
+    left.label(text="MTClip Name")
+    right.prop(obj, "tm_map_clip_name", text="")
+
+    left.label(text="Grid Helper")
+    right.prop(obj, "tm_force_grid_helper", text="Force")
+
+    left.label(text="Grid Helper X")
+    right.prop(obj, "tm_forced_grid_helper_step_x", text="")
+
+    left.label(text="Grid Helper Y")
+    right.prop(obj, "tm_forced_grid_helper_step_y", text="")
+
+    left.label(text="Grid Helper Z")
+    right.prop(obj, "tm_forced_grid_helper_step_z", text="") 
+    
+    is_light = obj.type == "LIGHT"
+    lrow = left.row()
+    lrow.enabled = is_light
+    lrow.label(text="Night Only")
+    rrow = right.row()
+    rrow.enabled = is_light
+    if is_light:
+        rrow.prop(obj.data, "night_only", text="Disable in day & sunrise")     
+    else:
+        rrow.label(text="Only for lights !")
+        
+
+def draw_dangerous_manual_manipulation_collection(self, layout):
+    ...
+
+def draw_dangerous_manual_manipulation_tm_props(self, layout):
+    tm_props = get_global_props()
+    tm_prop_names = []
+
+    # Iterate over the properties of the PropertyGroup
+    for prop in tm_props.bl_rna.properties:
+        # Skip over built-in properties
+        if prop.identifier not in {"rna_type", "name"}:
+            tm_prop_names.append(prop.identifier)
+
+    box = layout.box()
+    split = box.row(align=True).split(factor=.35)
+    left = split.column()
+    right = split.column()
+
+    for prop in tm_prop_names:
+        left.label(text=prop)
+        right.prop(tm_props, prop, text="")
