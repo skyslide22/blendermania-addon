@@ -11,6 +11,9 @@ def on_update_map_obj_props(self, context):
         if obj.tm_map_object_kind:
             tm_props.PT_map_object.object_type = obj.tm_map_object_kind
             tm_props.PT_map_object.object_path = obj.tm_map_object_path
+            tm_props.PT_map_object.object_item_animphaseoffset = obj.tm_map_object_animphaseoffset
+            tm_props.PT_map_object.object_item_difficultycolor = obj.tm_map_object_difficultycolor
+            tm_props.PT_map_object.object_item_lightmapquality = obj.tm_map_object_lightmapquality
         else:
             if tm_props.PT_map_object.object_type == MAP_OBJECT_BLOCK:
                 tm_props.PT_map_object.object_path = ""

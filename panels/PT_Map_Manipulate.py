@@ -252,8 +252,6 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         row = col_right.row(align=True)
         row.enabled = not is_block and not is_multi
         row.prop(tm_props.PT_map_object, "object_item", text="")
-            
-        path_is_valid = tm_props.PT_map_object.object_path.lower().endswith("item.gbx")
 
         path_title = "Name" if is_block else "Item.Gbx"
         
@@ -266,9 +264,10 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         item_btn_icon = ICON_UPDATE if is_update else ICON_ADD
         
 
-        text = f"{item_action} Item {item_gbx_name}"
-        if (not is_update or len(select_map_objects) > 1) and is_all_in_map:
-            text = f"Update {len(select_objects)} object" + ("s" if len(select_objects) > 1 else "")
+        text = (f"{item_action} Item {item_gbx_name}" 
+                if len(bpy.context.selected_objects) == 1 
+                else "Select an Item!" if len(bpy.context.selected_objects) == 0 
+                else f"{item_action} all({len(select_objects)}) from {item_gbx_name}")
         button = layout.row()
         button.scale_y = 1.5
         button.enabled = not is_block and len(item_gbx_name) > 0 and len(select_objects) > 0

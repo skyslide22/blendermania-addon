@@ -1613,11 +1613,11 @@ def set_active_waypoint() -> None:
     if waypoint is not None:
         tm_props.LI_xml_waypointtype = waypoint
 
-def set_active_map_item_object() -> None:
+def set_active_map_item_obj() -> None:
     obj = bpy.context.selected_objects[0] if len(bpy.context.selected_objects) > 0 else None
     if obj:
-        panel_obj = get_map_object_props()
-        panel_obj.object_item = bpy.context.selected_objects[0] if len(bpy.context.selected_objects) > 0 else None
+        map_obj_props = get_map_object_props()
+        map_obj_props.object_item = bpy.context.object or None
 
 
 def set_waypointtype_of_selected_collection() -> None:
@@ -1663,7 +1663,7 @@ def get_waypointtype_of_collection(col: bpy.types.Collection) -> str:
 
 def on_select_obj(*args) -> None:
     set_active_waypoint()
-    set_active_map_item_object()
+    set_active_map_item_obj()
 
 
 def get_tricount_of_collection(col: bpy.types.Collection) -> int:
