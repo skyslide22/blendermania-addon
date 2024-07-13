@@ -499,14 +499,23 @@ class TM_PT_Items_CollectionManipulation(Panel):
 
         # col_itemxml_template = tm_props.LI_xml_item_template_to_add
 
-        col_itemxml_template = current_collection.tm_itemxml_template
-        if col_itemxml_template:
+        coll_itemxml_template = current_collection.tm_itemxml_template
+        coll_itemxml_template_404 = False
+
+        if coll_itemxml_template != "":
+            if coll_itemxml_template not in bpy.context.scene.tm_props_itemxml_templates:
+                coll_itemxml_template_404 = True
+                coll_itemxml_template = "NOT FOUND: " + coll_itemxml_template
+
+        
+        if coll_itemxml_template:
             row = col_box.row(align=True)
             col = row.column()
             col.label(text="Item XML Template:")
             col = row.column()
             col.enabled = False
-            col.label(text=col_itemxml_template)
+            col.alert = coll_itemxml_template_404
+            col.label(text=coll_itemxml_template)
             col = row.column()
             col.operator("view3d.tm_set_itemxml_template_of_collection", text="", icon=ICON_REMOVE).remove_template = True
         else:

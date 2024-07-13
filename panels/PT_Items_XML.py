@@ -213,7 +213,8 @@ class TM_PT_Items_ItemXML(Panel):
             row = col.row(align=True)
             row.prop(tm_props, "LI_xml_item_template_globally")
             row.operator("view3d.tm_remove_item_placement_template", text=f"", icon=ICON_REMOVE).template_name = selected_template_name
-            row.prop(tm_props, "CB_xml_ignore_assigned_templates", text=f"", icon=ICON_RECURSIVE)
+            row = layout.row()
+            row.prop(tm_props, "CB_xml_ignore_assigned_templates", text=f"Ignore assigned templates (force this)", toggle=True, icon=ICON_OVERWRITE)
             
             # if selected_template_name != ERROR_ENUM_ID:
             #     row = col.row()
