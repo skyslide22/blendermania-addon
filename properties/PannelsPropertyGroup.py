@@ -212,8 +212,8 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
 
     LI_xml_item_template_globally   : EnumProperty(name="Template", items=get_itemxml_template_names_enum)
     LI_xml_item_template_to_add     : EnumProperty(name="Template", items=get_itemxml_template_names_enum) 
-    ST_xml_item_template_add_name   : StringProperty(default="defaut_template_name")
-    CB_xml_ignore_assigned_templates: BoolProperty(name="Ignore Template of Collection, use Selected(this)", default=False)
+    ST_xml_item_template_add_name   : StringProperty(default="default_template_name")
+    CB_xml_ignore_assigned_templates: BoolProperty(name="Ignore the template that has been assigned to the collection(s)", default=False)
 
     #materials          
     ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)

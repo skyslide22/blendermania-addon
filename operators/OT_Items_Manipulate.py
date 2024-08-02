@@ -377,6 +377,7 @@ class TM_OT_Items_EditUVMap(Operator):
     uv_name: bpy.props.StringProperty()
 
     def execute(self, context):
+        objectmode()
         col = get_active_collection_of_selected_object()
         editUVMap(col, self.uv_name)
         return {"FINISHED"}
@@ -398,9 +399,9 @@ class TM_OT_Items_ShowUVMap(Operator):
 
 class TM_OT_Items_SetItemXMLTemplateOfCollection(Operator):
     bl_idname = "view3d.tm_set_itemxml_template_of_collection"
-    bl_description = f"Show uv map"
+    bl_description = f"Change Item xml template of collection"
     bl_icon = 'ADD'
-    bl_label = f"Show uv map"
+    bl_label = f"Change Item xml template of collection"
 
     remove_template: bpy.props.BoolProperty(False)
 
