@@ -75,16 +75,12 @@ def make_release_zip():
     if os.path.exists(RELEASE_WORK_DIR):
         shutil.rmtree(RELEASE_WORK_DIR, onerror=shutil_rmtree_onerror)
 
-    if input("Update local NICE submodule to prevent invalid release? (y/n): ") == "y":
-        subprocess.run(["git", "pull"], shell=True, check=True)
-        subprocess.run(["git", "submodule", "update"], shell=True, check=True)
-
     # clone the repo
     subprocess.run([
         "git", "clone",
         "--single-branch",
         "--branch", "master",
-        "--recurse-submodules", #* local NICE submodule is used when found, be sure its updated before
+        "--recurse-submodules",
         "https://github.com/skyslide22/blendermania-addon.git",
         RELEASE_WORK_DIR
     ], shell=True, check=True)
