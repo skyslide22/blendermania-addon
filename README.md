@@ -4,7 +4,8 @@
   # Blendermania 
 </div>
 
-> Note: install this addon from [the release page](https://github.com/skyslide22/blendermania-addon/releases), **do not** download it from the **&lt;&gt; Code** button!
+> [!WARNING]
+> You **must** install this addon from [the release page](https://github.com/skyslide22/blendermania-addon/releases), **do not** download it from the **&lt;&gt; Code** button!
 
 ## A Blender Addon for Trackmania2020 and ManiaPlanet
 
