@@ -6,6 +6,8 @@
 
 > [!WARNING]
 > You **must** install this addon from [the release page](https://github.com/skyslide22/blendermania-addon/releases), **do not** download it from the **&lt;&gt; Code** button!
+>
+>  Please read the [Install & Configuration Guide](https://github.com/skyslide22/blendermania-addon/wiki/01.-Install-&-Configuration)
 
 ## A Blender Addon for Trackmania2020 and ManiaPlanet
 
