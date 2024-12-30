@@ -85,7 +85,7 @@ def _create_nodes_DecalGeom(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["color0"] = nodes.new(type="ShaderNodeAttribute")
 	created_nodes["color0"].location = 840.0,-300.0
@@ -193,7 +193,7 @@ def _create_nodes_DecalGeom_TOp_PyPxzDSN_X2(mat: bpy.types.Material) -> bpy.type
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["tex_R"] = nodes.new(type="ShaderNodeTexImage")
 	created_nodes["tex_R"].location = 200.0,-580.0
@@ -283,7 +283,7 @@ def _create_nodes_DynaFacing_ForceNMap_CubeOut_TestOp(mat: bpy.types.Material) -
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["UV Map"] = nodes.new(type="ShaderNodeUVMap")
 	created_nodes["UV Map"].location = 0.0,-300.0
@@ -353,7 +353,7 @@ def _create_nodes_GlassBasic(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 0.800000011920929
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.0
-	created_nodes["Principled BSDF"].inputs[17].default_value = 1.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 1.0
 
 	created_nodes["cus_color"] = nodes.new(type="ShaderNodeRGB")
 	created_nodes["cus_color"].location = 740.0,-300.0
@@ -384,7 +384,7 @@ def _create_nodes_GrassX2(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.0
-	created_nodes["Principled BSDF"].inputs[17].default_value = 1.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 1.0
 
 	created_nodes["Geometry"] = nodes.new(type="ShaderNodeNewGeometry")
 	created_nodes["Geometry"].location = -100.0,-320.0
@@ -507,7 +507,7 @@ def _create_nodes_PyPxz_Hue(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["cus_color"] = nodes.new(type="ShaderNodeRGB")
 	created_nodes["cus_color"].location = 760.0,-100.0
@@ -598,7 +598,7 @@ def _create_nodes_PyPxzDiff_Spec_Norm(mat: bpy.types.Material) -> bpy.types.Mate
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["Geometry"] = nodes.new(type="ShaderNodeNewGeometry")
 	created_nodes["Geometry"].location = -260.0,-300.0
@@ -765,7 +765,7 @@ def _create_nodes_PyPxzDiff_Spec_Norm_LM1(mat: bpy.types.Material) -> bpy.types.
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["tex_R"] = nodes.new(type="ShaderNodeTexImage")
 	created_nodes["tex_R"].location = 200.0,-600.0
@@ -917,7 +917,7 @@ def _create_nodes_PyPxzTDiffSpecNorm_PyX2Hx2(mat: bpy.types.Material) -> bpy.typ
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["Separate Color"] = nodes.new(type="ShaderNodeSeparateColor")
 	created_nodes["Separate Color"].location = 1500.0,-520.0
@@ -1166,7 +1166,7 @@ def _create_nodes_PyPxzTLayered(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["Normal Map"] = nodes.new(type="ShaderNodeNormalMap")
 	created_nodes["Normal Map"].location = 1700.0,-840.0
@@ -1336,7 +1336,7 @@ def _create_nodes_TAdd(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["Math"] = nodes.new(type="ShaderNodeMath")
 	created_nodes["Math"].location = 200.0,-580.0
@@ -1391,7 +1391,7 @@ def _create_nodes_TAddModCV(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["tex_I"] = nodes.new(type="ShaderNodeTexImage")
 	created_nodes["tex_I"].location = 200.0,-300.0
@@ -1442,7 +1442,7 @@ def _create_nodes_TDiff_Spec_Norm(mat: bpy.types.Material) -> bpy.types.Material
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["tex_D"] = nodes.new(type="ShaderNodeTexImage")
 	created_nodes["tex_D"].location = 200.0,-300.0
@@ -1597,7 +1597,7 @@ def _create_nodes_TDSN_CubeOut(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 
 	links = mat.node_tree.links
@@ -1848,7 +1848,7 @@ def _create_nodes_TDSN_CubeOut_DispIn(mat: bpy.types.Material) -> bpy.types.Mate
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["tex_I"] = nodes.new(type="ShaderNodeTexImage")
 	created_nodes["tex_I"].location = 200.0,-1700.0
@@ -1955,7 +1955,7 @@ def _create_nodes_Water_MultiH(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 1.0
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.0
-	created_nodes["Principled BSDF"].inputs[17].default_value = 1.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 1.0
 
 	created_nodes["Combine XYZ"] = nodes.new(type="ShaderNodeCombineXYZ")
 	created_nodes["Combine XYZ"].location = 40.0,-440.0
@@ -1991,7 +1991,7 @@ def _create_nodes_WaterWall(mat: bpy.types.Material) -> bpy.types.Material:
 	created_nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0.0,0.0,0.0,1.0)
 	created_nodes["Principled BSDF"].inputs["Alpha"].default_value = 0.800000011920929
 	created_nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.5
-	created_nodes["Principled BSDF"].inputs[17].default_value = 0.0
+	created_nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.0
 
 	created_nodes["UV Map"] = nodes.new(type="ShaderNodeUVMap")
 	created_nodes["UV Map"].location = 0.0,-300.0
