@@ -211,6 +211,7 @@ class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
 def autoFindNadeoIni()->None:
     tm_props          = get_global_props()
     program_data_paths= [ fix_slash(PATH_PROGRAM_FILES_X86), fix_slash(PATH_PROGRAM_FILES) ]
+    steamapps         = "Steam/steamapps/common"
     mp_envis          = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
     alphabet          = list(string.ascii_lowercase) #[a-z]
     paths             = []
@@ -229,7 +230,7 @@ def autoFindNadeoIni()->None:
 
         for envi in mp_envis:
             for pd_path in program_data_paths:
-                paths.append(f"{pd_path}/Steam/steamapps/common/ManiaPlanet_{envi}/Nadeo.ini".replace("/", "\\"))
+                paths.append(f"{pd_path}/{steamapps}/ManiaPlanet_{envi}/Nadeo.ini".replace("/", "\\"))
 
 
     if is_game_trackmania2020():
@@ -238,6 +239,7 @@ def autoFindNadeoIni()->None:
             paths.append(f"{pd_path}/Ubisoft/Ubisoft Game Launcher/games/Trackmania/Nadeo.ini".replace("/", "\\"))
             paths.append(f"{pd_path}/Epic Games/TrackmaniaNext/Nadeo.ini".replace("/", "\\"))
             paths.append(f"{pd_path}/Trackmania/Nadeo.ini".replace("/", "\\"))
+            paths.append(f"{pd_path}/{steamapps}/Trackmania/Nadeo.ini".replace("/", "\\"))
 
         for char in alphabet:
             paths.append(fr"{char}:\Trackmania\Nadeo.ini")
