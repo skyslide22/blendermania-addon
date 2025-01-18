@@ -13,10 +13,14 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
     bl_options = {"REGISTER", "UNDO"} #without, ctrl+Z == crash
         
     def execute(self, context):
-        if save_blend_file():
-            export_and_convert()
-        else:
+        tm_props = get_global_props()
+        
+        if not save_blend_file():
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
+        elif not tm_props.ST_author:
+            show_report_popup("Athor name is empty!", ["Please add an author name in the settings panel of blendermania. This(your) name will be displayed in f.e. item.exchange."], "ERROR")
+        else:
+            export_and_convert()
 
         return {"FINISHED"}
 
@@ -30,10 +34,14 @@ class TM_OT_Items_Export_ExportAndOrConverFailedOnes(Operator):
     bl_options = {"REGISTER", "UNDO"} #without, ctrl+Z == crash
         
     def execute(self, context):
-        if save_blend_file():
-            export_and_convert(only_failed_ones=True)
-        else:
+        tm_props = get_global_props()
+        
+        if not save_blend_file():
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
+        elif not tm_props.ST_author:
+            show_report_popup("Athor name is empty!", ["Please add an author name in the settings panel of blendermania. This(your) name will be displayed in f.e. item.exchange."], "ERROR")
+        else:
+            export_and_convert(only_failed_ones=True)
 
         return {"FINISHED"}
     

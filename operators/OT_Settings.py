@@ -277,7 +277,7 @@ def getDefaultSettingsJSON() -> dict:
 
     def get_defaults() -> str:
         return  {
-            SETTINGS_AUTHOR_NAME:               os.getlogin(), #TODO DOTNET, current windows username (C:/Users/<>/...)
+            SETTINGS_AUTHOR_NAME:               "",
             SETTINGS_NADEO_INI_TRACKMANIA2020:  "",
             SETTINGS_NADEO_INI_MANIAPLANET:     "",
             SETTINGS_BLENDER_GRID_SIZE:         "",
