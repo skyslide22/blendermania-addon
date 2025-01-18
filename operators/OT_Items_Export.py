@@ -18,7 +18,7 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
         if not save_blend_file():
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
         elif not tm_props.ST_author:
-            show_report_popup("Athor name is empty!", ["Please add an author name in the settings panel of blendermania. This(your) name will be displayed in f.e. item.exchange."], "ERROR")
+            show_report_popup("Author name is empty!", ["Please fill in your name in the author input field", "You can find it in the settings panel of blendermania."], "ERROR")
         else:
             export_and_convert()
 
@@ -39,7 +39,7 @@ class TM_OT_Items_Export_ExportAndOrConverFailedOnes(Operator):
         if not save_blend_file():
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
         elif not tm_props.ST_author:
-            show_report_popup("Athor name is empty!", ["Please add an author name in the settings panel of blendermania. This(your) name will be displayed in f.e. item.exchange."], "ERROR")
+            show_report_popup("Author name is empty!", ["Please fill in your name in the author input field", "You can find it in the settings panel of blendermania."], "ERROR")
         else:
             export_and_convert(only_failed_ones=True)
 
