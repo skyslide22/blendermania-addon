@@ -9,8 +9,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -36,8 +42,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -63,8 +75,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -90,8 +108,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -117,8 +141,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -144,8 +174,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -171,8 +207,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -197,7 +239,12 @@
       "DLinkFull": "Media\\Modifier\\Boost2\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -218,8 +265,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -245,8 +298,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -271,10 +330,19 @@
       "DLinkFull": "Media\\Modifier\\Boost2\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXBoost2_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXBoost2_I.dds"
+      }
+    }
   },
   "Boost2_TriggerFX": {
     "Name": "Boost2_TriggerFX",
@@ -285,10 +353,19 @@
       "DLinkFull": "Media\\Modifier\\Boost2\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXBoost2_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXBoost2_I.dds"
+      }
+    }
   },
   "Boost_Decal": {
     "Name": "Boost_Decal",
@@ -299,7 +376,12 @@
       "DLinkFull": "Media\\Modifier\\Boost\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -320,8 +402,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -347,8 +435,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -373,10 +467,19 @@
       "DLinkFull": "Media\\Modifier\\Boost\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXBoost_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXBoost_I.dds"
+      }
+    }
   },
   "Boost_TriggerFX": {
     "Name": "Boost_TriggerFX",
@@ -387,10 +490,19 @@
       "DLinkFull": "Media\\Modifier\\Boost\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXBoost_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXBoost_I.dds"
+      }
+    }
   },
   "Canopy": {
     "Name": "Canopy",
@@ -402,8 +514,14 @@
       "DSurfaceId": "Rubber",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -426,8 +544,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -449,8 +573,14 @@
       "DSurfaceId": "Rubber",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -477,8 +607,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -504,8 +640,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -531,8 +673,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -558,8 +706,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -585,8 +739,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -612,8 +772,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -639,8 +805,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -666,8 +838,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -693,8 +871,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -720,8 +904,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -747,8 +937,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -774,8 +970,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -801,8 +1003,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -828,8 +1036,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -855,8 +1069,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -882,8 +1102,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -909,8 +1135,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -936,8 +1168,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -963,8 +1201,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -990,8 +1234,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1017,8 +1267,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1044,8 +1300,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1071,8 +1333,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1098,8 +1366,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1124,7 +1398,12 @@
       "DLinkFull": "Media\\Modifier\\Cruise\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1145,8 +1424,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1171,10 +1456,19 @@
       "DLinkFull": "Media\\Modifier\\Cruise\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXCruise_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXCruise_I.dds"
+      }
+    }
   },
   "Cruise_TriggerFX": {
     "Name": "Cruise_TriggerFX",
@@ -1185,10 +1479,19 @@
       "DLinkFull": "Media\\Modifier\\Cruise\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXCruise_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXCruise_I.dds"
+      }
+    }
   },
   "CustomBricks": {
     "Name": "CustomBricks",
@@ -1199,7 +1502,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomBricks",
       "DSurfaceId": "Pavement",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "e15a2d",
@@ -1220,7 +1528,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomConcrete",
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "ffffff",
@@ -1242,7 +1555,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomDirt",
       "DSurfaceId": "Dirt",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "f55a30",
@@ -1264,11 +1582,20 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomGlass",
       "DSurfaceId": "Green",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": ""
     },
     "DefaultColorRGB": "515151",
-    "Textures": { "GlassBasic": { "glass": "yes" } }
+    "Textures": {
+      "GlassBasic": {
+        "glass": "yes"
+      }
+    }
   },
   "CustomGrass": {
     "Name": "CustomGrass",
@@ -1279,7 +1606,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomGrass",
       "DSurfaceId": "Green",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "80ea4d",
@@ -1301,7 +1633,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomIce",
       "DSurfaceId": "Ice",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "dffffe",
@@ -1322,7 +1659,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomMetal",
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "c0c0c0",
@@ -1343,7 +1685,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomMetalPainted",
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "000080",
@@ -1364,10 +1711,19 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomModAddSelfIllum",
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "CustomModAddSelfIllum_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "CustomModAddSelfIllum_I.dds"
+      }
+    }
   },
   "CustomModAddSelfIllum2": {
     "Name": "CustomModAddSelfIllum2",
@@ -1378,10 +1734,19 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomModAddSelfIllum2",
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "CustomModAddSelfIllum2_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "CustomModAddSelfIllum2_I.dds"
+      }
+    }
   },
   "CustomModColorize": {
     "Name": "CustomModColorize",
@@ -1393,8 +1758,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1417,8 +1788,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1440,7 +1817,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomModDecal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1460,7 +1842,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomModDecal2",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1481,8 +1868,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1504,8 +1897,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1527,8 +1926,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1553,8 +1958,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1579,8 +1990,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1603,8 +2020,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1627,8 +2050,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1650,8 +2079,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -1672,7 +2107,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomPlastic",
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "e11616",
@@ -1693,7 +2133,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomPlasticShiny",
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1713,7 +2158,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomRock",
       "DSurfaceId": "Rock",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "d3d3d3",
@@ -1738,7 +2188,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomRoughWood",
       "DSurfaceId": "Wood",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "d78543",
@@ -1759,7 +2214,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomSand",
       "DSurfaceId": "Sand",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "fde88d",
@@ -1780,7 +2240,12 @@
       "DLinkFull": "Media\\Material_BlockCustom\\CustomSnow",
       "DSurfaceId": "Snow",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "Lightmap" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "Lightmap"
+        }
+      ],
       "DColor0": "yes"
     },
     "DefaultColorRGB": "dbfbfa",
@@ -1802,7 +2267,12 @@
       "DLinkFull": "Media\\Material\\DecalCurbs",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1823,7 +2293,12 @@
       "DLinkFull": "Media\\Material\\DecalGateGameplay",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1843,7 +2318,12 @@
       "DLinkFull": "Media\\Material\\DecalMarks",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1863,7 +2343,12 @@
       "DLinkFull": "Media\\Material\\DecalMarksItems",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1884,7 +2369,12 @@
       "DLinkFull": "Media\\Material\\DecalMarksRamp",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1904,7 +2394,12 @@
       "DLinkFull": "Media\\Material\\DecalMarksStart",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1925,7 +2420,12 @@
       "DLinkFull": "Media\\Material\\DecalObstaclePusher",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1945,7 +2445,12 @@
       "DLinkFull": "Media\\Material\\DecalObstacleTube",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1965,7 +2470,12 @@
       "DLinkFull": "Media\\Material\\DecalObstacleTurnstileLeft",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -1985,7 +2495,12 @@
       "DLinkFull": "Media\\Material\\DecalObstacleTurnstileRight",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2005,7 +2520,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Logo4x1",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2026,7 +2546,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Logo8x1",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2047,7 +2572,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Sponsor4x1A",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2069,7 +2599,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Sponsor4x1B",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2091,7 +2626,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Sponsor4x1C",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2113,7 +2653,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Sponsor4x1D",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2135,7 +2680,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Sponsor4x1NoColorizeA",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2156,7 +2706,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Sponsor4x1NoColorizeB",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2177,7 +2732,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Sponsor4x1NoColorizeC",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2198,7 +2758,12 @@
       "DLinkFull": "Media\\Material\\DecalPaint2Sponsor4x1NoColorizeD",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2219,7 +2784,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintLogo4x1",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2240,7 +2810,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintLogo8x1",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2261,7 +2836,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintLogo8x1Colorize",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2283,7 +2863,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintSponsor4x1A",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2305,7 +2890,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintSponsor4x1B",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2327,7 +2917,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintSponsor4x1C",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2349,7 +2944,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintSponsor4x1D",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2371,7 +2971,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintSponsor4x1NoColorizeA",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2392,7 +2997,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintSponsor4x1NoColorizeB",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2413,7 +3023,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintSponsor4x1NoColorizeC",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2434,7 +3049,12 @@
       "DLinkFull": "Media\\Material\\DecalPaintSponsor4x1NoColorizeD",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2455,7 +3075,12 @@
       "DLinkFull": "Media\\Material\\DecalPlatform",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2476,7 +3101,12 @@
       "DLinkFull": "Media\\Material\\DecalSpecialTurbo",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2496,7 +3126,12 @@
       "DLinkFull": "Media\\Material\\DecalSponsor1x1BigA",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2517,8 +3152,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -2527,6 +3168,36 @@
         "_D": "DecoCliffPxz_D.dds",
         "_N": "DecoCliffPxz_N.dds",
         "_R": "DecoCliffPxz_R.dds"
+      }
+    }
+  },
+  "DecoCliffBase": {
+    "Name": "DecoCliffBase",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "ROADS",
+      "DMaterial": "DecoCliffBase",
+      "DLinkFull": "Media\\Material\\DecoCliffBase",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "DecoCliffBase_D.dds",
+        "_D_HueMask": "DecoCliffBase_D_HueMask.dds",
+        "_N": "DecoCliffBase_N.dds",
+        "_R": "DecoCliffBase_R.dds"
       }
     }
   },
@@ -2540,8 +3211,14 @@
       "DSurfaceId": "Grass",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -2552,6 +3229,7 @@
         "_Pxyz_D": "DecoHillPy_D.dds",
         "_Pxyz_N": "DecoHillPy_N.dds",
         "_Pxyz_R": "DecoHillPy_R.dds",
+        "_Pxyz_X2": "DecoHillPy_X2.dds",
         "_R": "DecoHill_R.dds"
       }
     }
@@ -2566,8 +3244,14 @@
       "DSurfaceId": "Grass",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -2578,6 +3262,7 @@
         "_Pxyz_D": "DecoHillPy_D.dds",
         "_Pxyz_N": "DecoHillPy_N.dds",
         "_Pxyz_R": "DecoHillPy_R.dds",
+        "_Pxyz_X2": "DecoHillPy_X2.dds",
         "_R": "DecoHill_R.dds"
       }
     }
@@ -2592,8 +3277,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2614,7 +3305,12 @@
       "DLinkFull": "Media\\Modifier\\Fragile\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2635,8 +3331,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2661,10 +3363,19 @@
       "DLinkFull": "Media\\Modifier\\Fragile\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXFragile_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXFragile_I.dds"
+      }
+    }
   },
   "Fragile_TriggerFX": {
     "Name": "Fragile_TriggerFX",
@@ -2675,10 +3386,77 @@
       "DLinkFull": "Media\\Modifier\\Fragile\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXFragile_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXFragile_I.dds"
+      }
+    }
+  },
+  "GateGameplayDesert_Decal": {
+    "Name": "GateGameplayDesert_Decal",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME DESERT",
+      "DMaterial": "GateGameplayDesert_Decal",
+      "DLinkFull": "Media\\Modifier\\GateGameplayDesert\\Decal",
+      "DSurfaceId": "NotCollidable",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "DecalGeom": {
+        "_D": "DecalGateGameplay_Desert.dds",
+        "_N": "DecalGateGameplay_N.dds",
+        "_R": "DecalGateGameplay_R.dds"
+      }
+    }
+  },
+  "GateGameplayDesert_Screen": {
+    "Name": "GateGameplayDesert_Screen",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TEHEME DESERT",
+      "DMaterial": "GateGameplayDesert_Screen",
+      "DLinkFull": "Media\\Modifier\\GateGameplayDesert\\Screen",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": ""
+    },
+    "DefaultUVScale": 8,
+    "Textures": {
+      "TDSN_CubeOut_DispIn": {
+        "_D": "LightCells3_D.dds",
+        "_H": "LightCells3_H.dds",
+        "_I": "GateGameplayScreen_Desert.dds",
+        "_L": "LightCells3_L.dds",
+        "_N": "LightCells3_N.dds",
+        "_R": "LightCells3_R.dds"
+      }
+    }
   },
   "GateGameplayRally_Decal": {
     "Name": "GateGameplayRally_Decal",
@@ -2689,7 +3467,12 @@
       "DLinkFull": "Media\\Modifier\\GateGameplayRally\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2710,8 +3493,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2737,8 +3526,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2764,8 +3559,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2790,7 +3591,12 @@
       "DLinkFull": "Media\\Modifier\\GateGameplaySnow\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2811,8 +3617,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2838,8 +3650,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2864,7 +3682,12 @@
       "DLinkFull": "Media\\Material\\GlassWaterWall",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -2886,8 +3709,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2909,8 +3738,14 @@
       "DSurfaceId": "Grass",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -2936,7 +3771,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "4a444a",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Concrete": {
     "Name": "Invisible_Concrete",
@@ -2951,7 +3788,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "c3c3c3",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Dirt": {
     "Name": "Invisible_Dirt",
@@ -2966,7 +3805,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "703108",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Grass": {
     "Name": "Invisible_Grass",
@@ -2981,7 +3822,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "97b62c",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Green": {
     "Name": "Invisible_Green",
@@ -2996,7 +3839,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "6bff00",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Ice": {
     "Name": "Invisible_Ice",
@@ -3011,7 +3856,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "9adae9",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Metal": {
     "Name": "Invisible_Metal",
@@ -3026,7 +3873,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "fda929",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_MetalTrans": {
     "Name": "Invisible_MetalTrans",
@@ -3041,7 +3890,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "e4cc9f",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_NotCollidable": {
     "Name": "Invisible_NotCollidable",
@@ -3056,7 +3907,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "ffffff",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Pavement": {
     "Name": "Invisible_Pavement",
@@ -3071,7 +3924,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "b59a89",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Plastic": {
     "Name": "Invisible_Plastic",
@@ -3086,7 +3941,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "ece00b",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_ResonantMetal": {
     "Name": "Invisible_ResonantMetal",
@@ -3101,7 +3958,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "c69f8c",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_RoadIce": {
     "Name": "Invisible_RoadIce",
@@ -3116,7 +3975,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "bdffff",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_RoadSynthetic": {
     "Name": "Invisible_RoadSynthetic",
@@ -3131,7 +3992,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "de3842",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Rock": {
     "Name": "Invisible_Rock",
@@ -3146,7 +4009,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "b0b1a5",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Rubber": {
     "Name": "Invisible_Rubber",
@@ -3161,7 +4026,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "797179",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Sand": {
     "Name": "Invisible_Sand",
@@ -3176,7 +4043,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "ffd855",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Snow": {
     "Name": "Invisible_Snow",
@@ -3191,7 +4060,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "c0e8f2",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_TechMagnetic": {
     "Name": "Invisible_TechMagnetic",
@@ -3206,7 +4077,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "00a2e9",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_TechMagneticAccel": {
     "Name": "Invisible_TechMagneticAccel",
@@ -3221,7 +4094,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "a7a6de",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_TechSuperMagnetic": {
     "Name": "Invisible_TechSuperMagnetic",
@@ -3236,7 +4111,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "0000ff",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "Invisible_Wood": {
     "Name": "Invisible_Wood",
@@ -3251,7 +4128,9 @@
       "DColor0": ""
     },
     "DefaultColorRGB": "ad6505",
-    "Textures": { "OnlyCollidable": {} }
+    "Textures": {
+      "OnlyCollidable": {}
+    }
   },
   "ItemBase": {
     "Name": "ItemBase",
@@ -3263,8 +4142,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3286,8 +4171,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3309,8 +4200,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3332,8 +4229,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3359,8 +4262,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3386,8 +4295,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3412,7 +4327,12 @@
       "DLinkFull": "Media\\Material\\ItemFlagNoAnim",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -3434,8 +4354,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3458,8 +4384,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3482,8 +4414,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3506,8 +4444,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3529,8 +4473,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3555,8 +4505,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3581,8 +4537,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3607,8 +4569,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3630,8 +4598,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3653,8 +4627,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3676,8 +4656,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3699,8 +4685,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3725,8 +4717,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3751,8 +4749,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3777,8 +4781,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3800,8 +4810,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3823,8 +4839,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3846,8 +4868,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3873,8 +4901,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3900,8 +4934,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3927,8 +4967,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3953,8 +4999,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3976,8 +5028,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -3999,8 +5057,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4022,8 +5086,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4045,8 +5115,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4071,8 +5147,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4097,8 +5179,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4123,8 +5211,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4146,8 +5240,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4169,8 +5269,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4192,8 +5298,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4219,8 +5331,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4246,8 +5364,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4273,8 +5397,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4297,8 +5427,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4321,8 +5457,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4345,8 +5487,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4368,8 +5516,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4391,8 +5545,14 @@
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4414,8 +5574,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4437,8 +5603,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4460,10 +5632,19 @@
       "DLinkFull": "Media\\Material\\ItemTorchFlame",
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "ItemTorchFlame_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "ItemTorchFlame_I.dds"
+      }
+    }
   },
   "ItemTrackBarrier": {
     "Name": "ItemTrackBarrier",
@@ -4475,8 +5656,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4499,8 +5686,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4523,8 +5716,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4547,8 +5746,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4571,8 +5776,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4598,8 +5809,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4624,8 +5841,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4650,8 +5873,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4676,8 +5905,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4700,8 +5935,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4723,7 +5964,12 @@
       "DLinkFull": "Media\\Modifier\\NoBrake\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -4744,8 +5990,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4770,10 +6022,19 @@
       "DLinkFull": "Media\\Modifier\\NoBrake\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXNoBrake_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXNoBrake_I.dds"
+      }
+    }
   },
   "NoBrake_TriggerFX": {
     "Name": "NoBrake_TriggerFX",
@@ -4784,10 +6045,19 @@
       "DLinkFull": "Media\\Modifier\\NoBrake\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXNoBrake_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXNoBrake_I.dds"
+      }
+    }
   },
   "NoEngine_Decal": {
     "Name": "NoEngine_Decal",
@@ -4798,7 +6068,12 @@
       "DLinkFull": "Media\\Modifier\\NoEngine\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -4819,8 +6094,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4845,10 +6126,19 @@
       "DLinkFull": "Media\\Modifier\\NoEngine\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXNoEngine_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXNoEngine_I.dds"
+      }
+    }
   },
   "NoEngine_TriggerFX": {
     "Name": "NoEngine_TriggerFX",
@@ -4859,10 +6149,19 @@
       "DLinkFull": "Media\\Modifier\\NoEngine\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXNoEngine_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXNoEngine_I.dds"
+      }
+    }
   },
   "NoSteering_Decal": {
     "Name": "NoSteering_Decal",
@@ -4873,7 +6172,12 @@
       "DLinkFull": "Media\\Modifier\\NoSteering\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -4894,8 +6198,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4920,10 +6230,19 @@
       "DLinkFull": "Media\\Modifier\\NoSteering\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXNoSteering_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXNoSteering_I.dds"
+      }
+    }
   },
   "NoSteering_TriggerFX": {
     "Name": "NoSteering_TriggerFX",
@@ -4934,10 +6253,19 @@
       "DLinkFull": "Media\\Modifier\\NoSteering\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXNoSteering_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXNoSteering_I.dds"
+      }
+    }
   },
   "OpenTechBorders": {
     "Name": "OpenTechBorders",
@@ -4949,8 +6277,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -4972,7 +6306,12 @@
       "DLinkFull": "Media\\Modifier\\PlatformDirt\\DecalPlatform",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -4981,6 +6320,95 @@
         "_D_HueMask": "DecalPlatform_D_HueMask.dds",
         "_N": "DecalPlatform_N.dds",
         "_R": "DecalPlatform_R.dds"
+      }
+    }
+  },
+  "PlatformDirt_DecoCliff": {
+    "Name": "PlatformDirt_DecoCliff",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM DIRT",
+      "DMaterial": "PlatformDirt_DecoCliff",
+      "DLinkFull": "Media\\Modifier\\PlatformDirt\\DecoCliff",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxzDiff_Spec_Norm": {
+        "_D": "DecoCliffDirtPxz_D.dds",
+        "_N": "DecoCliffDirtPxz_N.dds",
+        "_R": "DecoCliffDirtPxz_R.dds"
+      }
+    }
+  },
+  "PlatformDirt_DecoCliffBase": {
+    "Name": "PlatformDirt_DecoCliffBase",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM DIRT",
+      "DMaterial": "PlatformDirt_DecoCliffBase",
+      "DLinkFull": "Media\\Modifier\\PlatformDirt\\DecoCliffBase",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "DecoCliffBaseDirt_D.dds",
+        "_D_HueMask": "DecoCliffBase_D_HueMask.dds",
+        "_N": "DecoCliffBase_N.dds",
+        "_R": "DecoCliffBase_R.dds"
+      }
+    }
+  },
+  "PlatformDirt_DecoGrass": {
+    "Name": "PlatformDirt_DecoGrass",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM DIRT",
+      "DMaterial": "PlatformDirt_DecoGrass",
+      "DLinkFull": "Media\\Modifier\\PlatformDirt\\DecoGrass",
+      "DSurfaceId": "Sand",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxz_Hue": {
+        "_D": "DecoHillDirtPy_D.dds",
+        "_N": "DecoHillDirtPy_N.dds",
+        "_Pxyz_X2": "DecoHillDirtPy_X2.dds",
+        "_R": "DecoHillDirtPy_R.dds"
       }
     }
   },
@@ -4994,8 +6422,14 @@
       "DSurfaceId": "Sand",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5006,6 +6440,7 @@
         "_Pxyz_D": "DecoHillDirtPy_D.dds",
         "_Pxyz_N": "DecoHillDirtPy_N.dds",
         "_Pxyz_R": "DecoHillDirtPy_R.dds",
+        "_Pxyz_X2": "DecoHillDirtPy_X2.dds",
         "_R": "DecoHillDirt_R.dds"
       }
     }
@@ -5020,8 +6455,14 @@
       "DSurfaceId": "Sand",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5032,6 +6473,7 @@
         "_Pxyz_D": "DecoHillDirtPy_D.dds",
         "_Pxyz_N": "DecoHillDirtPy_N.dds",
         "_Pxyz_R": "DecoHillDirtPy_R.dds",
+        "_Pxyz_X2": "DecoHillDirtPy_X2.dds",
         "_R": "DecoHillDirt_R.dds"
       }
     }
@@ -5046,8 +6488,14 @@
       "DSurfaceId": "Dirt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5070,8 +6518,14 @@
       "DSurfaceId": "Dirt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5084,6 +6538,35 @@
       }
     }
   },
+  "PlatformDirt_TrackWall": {
+    "Name": "PlatformDirt_TrackWall",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM DIRT",
+      "DMaterial": "PlatformDirt_TrackWall",
+      "DLinkFull": "Media\\Modifier\\PlatformDirt\\TrackWall",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxzDiff_Spec_Norm_LM1": {
+        "_D": "DecoCliffDirtPxz_D.dds",
+        "_N": "DecoCliffDirtPxz_N.dds",
+        "_R": "DecoCliffDirtPxz_R.dds"
+      }
+    }
+  },
   "PlatformGrass_DecalPlatform": {
     "Name": "PlatformGrass_DecalPlatform",
     "MatLibParams": {
@@ -5093,7 +6576,12 @@
       "DLinkFull": "Media\\Modifier\\PlatformGrass\\DecalPlatform",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -5102,6 +6590,35 @@
         "_D_HueMask": "DecalPlatform_D_HueMask.dds",
         "_N": "DecalPlatform_N.dds",
         "_R": "DecalPlatform_R.dds"
+      }
+    }
+  },
+  "PlatformGrass_DecoCliff": {
+    "Name": "PlatformGrass_DecoCliff",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM GRASS",
+      "DMaterial": "PlatformGrass_DecoCliff",
+      "DLinkFull": "Media\\Modifier\\PlatformGrass\\DecoCliff",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxzDiff_Spec_Norm": {
+        "_D": "DecoCliffPxz_D.dds",
+        "_N": "DecoCliffPxz_N.dds",
+        "_R": "DecoCliffPxz_R.dds"
       }
     }
   },
@@ -5115,8 +6632,14 @@
       "DSurfaceId": "Green",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5139,8 +6662,14 @@
       "DSurfaceId": "Green",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5149,6 +6678,35 @@
         "_D": "PlatformGrass_D.dds",
         "_N": "PlatformGrass_N.dds",
         "_R": "PlatformGrass_R.dds"
+      }
+    }
+  },
+  "PlatformGrass_TrackWall": {
+    "Name": "PlatformGrass_TrackWall",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM GRASS",
+      "DMaterial": "PlatformGrass_TrackWall",
+      "DLinkFull": "Media\\Modifier\\PlatformGrass\\TrackWall",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxzDiff_Spec_Norm_LM1": {
+        "_D": "DecoCliffPxz_D.dds",
+        "_N": "DecoCliffPxz_N.dds",
+        "_R": "DecoCliffPxz_R.dds"
       }
     }
   },
@@ -5161,7 +6719,12 @@
       "DLinkFull": "Media\\Modifier\\PlatformIce\\DecalPlatform",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -5183,8 +6746,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5193,6 +6762,66 @@
         "_D": "DecoCliffIcePxz_D.dds",
         "_N": "DecoCliffIcePxz_N.dds",
         "_R": "DecoCliffIcePxz_R.dds"
+      }
+    }
+  },
+  "PlatformIce_DecoCliffBase": {
+    "Name": "PlatformIce_DecoCliffBase",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM ICE",
+      "DMaterial": "PlatformIce_DecoCliffBase",
+      "DLinkFull": "Media\\Modifier\\PlatformIce\\DecoCliffBase",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "DecoCliffBaseIce_D.dds",
+        "_D_HueMask": "DecoCliffBase_D_HueMask.dds",
+        "_N": "DecoCliffBase_N.dds",
+        "_R": "DecoCliffBase_R.dds"
+      }
+    }
+  },
+  "PlatformIce_DecoGrass": {
+    "Name": "PlatformIce_DecoGrass",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM ICE",
+      "DMaterial": "PlatformIce_DecoGrass",
+      "DLinkFull": "Media\\Modifier\\PlatformIce\\DecoGrass",
+      "DSurfaceId": "Ice",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxz_Hue": {
+        "_D": "DecoHillIcePy_D.dds",
+        "_N": "DecoHillIcePy_N.dds",
+        "_Pxyz_X2": "DecoHillIcePy_X2.dds",
+        "_R": "DecoHillIcePy_R.dds"
       }
     }
   },
@@ -5206,8 +6835,14 @@
       "DSurfaceId": "Snow",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5218,6 +6853,7 @@
         "_Pxyz_D": "DecoHillIcePy_D.dds",
         "_Pxyz_N": "DecoHillIcePy_N.dds",
         "_Pxyz_R": "DecoHillIcePy_R.dds",
+        "_Pxyz_X2": "DecoHillIcePy_X2.dds",
         "_R": "DecoHillIce_R.dds"
       }
     }
@@ -5232,8 +6868,14 @@
       "DSurfaceId": "Snow",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5244,6 +6886,7 @@
         "_Pxyz_D": "DecoHillIcePy_D.dds",
         "_Pxyz_N": "DecoHillIcePy_N.dds",
         "_Pxyz_R": "DecoHillIcePy_R.dds",
+        "_Pxyz_X2": "DecoHillIcePy_X2.dds",
         "_R": "DecoHillIce_R.dds"
       }
     }
@@ -5258,8 +6901,14 @@
       "DSurfaceId": "RoadIce",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5286,8 +6935,14 @@
       "DSurfaceId": "RoadIce",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5303,6 +6958,35 @@
       }
     }
   },
+  "PlatformIce_TrackWall": {
+    "Name": "PlatformIce_TrackWall",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "PLATFORM ICE",
+      "DMaterial": "PlatformIce_TrackWall",
+      "DLinkFull": "Media\\Modifier\\PlatformIce\\TrackWall",
+      "DSurfaceId": "Asphalt",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": "yes"
+    },
+    "Textures": {
+      "PyPxzDiff_Spec_Norm_LM1": {
+        "_D": "DecoCliffIcePxz_D.dds",
+        "_N": "DecoCliffIcePxz_N.dds",
+        "_R": "DecoCliffIcePxz_R.dds"
+      }
+    }
+  },
   "PlatformPlastic_DecalPlatform": {
     "Name": "PlatformPlastic_DecalPlatform",
     "MatLibParams": {
@@ -5312,7 +6996,12 @@
       "DLinkFull": "Media\\Modifier\\PlatformPlastic\\DecalPlatform",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -5334,8 +7023,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5358,8 +7053,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5381,8 +7082,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5407,8 +7114,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5430,8 +7143,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5457,8 +7176,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5484,8 +7209,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5508,8 +7239,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5535,8 +7272,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5561,8 +7304,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5584,8 +7333,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5611,8 +7366,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5637,8 +7398,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5662,8 +7429,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5688,8 +7461,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5713,8 +7492,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5740,8 +7525,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5767,8 +7558,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5794,8 +7591,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5820,10 +7623,19 @@
       "DLinkFull": "Media\\Material\\RaceTriggerFXCheckpoint",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "RaceTriggerFXCheckpoint_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "RaceTriggerFXCheckpoint_I.dds"
+      }
+    }
   },
   "RaceTriggerFXFinish": {
     "Name": "RaceTriggerFXFinish",
@@ -5834,10 +7646,19 @@
       "DLinkFull": "Media\\Material\\RaceTriggerFXFinish",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "RaceTriggerFXFinish_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "RaceTriggerFXFinish_I.dds"
+      }
+    }
   },
   "RaceTriggerFXMultilap": {
     "Name": "RaceTriggerFXMultilap",
@@ -5848,10 +7669,19 @@
       "DLinkFull": "Media\\Material\\RaceTriggerFXMultilap",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "RaceTriggerFXMultilap_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "RaceTriggerFXMultilap_I.dds"
+      }
+    }
   },
   "Reset_Decal": {
     "Name": "Reset_Decal",
@@ -5862,7 +7692,12 @@
       "DLinkFull": "Media\\Modifier\\Reset\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -5883,8 +7718,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5909,10 +7750,19 @@
       "DLinkFull": "Media\\Modifier\\Reset\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXReset_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXReset_I.dds"
+      }
+    }
   },
   "Reset_TriggerFX": {
     "Name": "Reset_TriggerFX",
@@ -5923,10 +7773,19 @@
       "DLinkFull": "Media\\Modifier\\Reset\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXReset_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXReset_I.dds"
+      }
+    }
   },
   "RoadBump": {
     "Name": "RoadBump",
@@ -5938,8 +7797,14 @@
       "DSurfaceId": "RoadSynthetic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -5962,8 +7827,14 @@
       "DSurfaceId": "Dirt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -5990,8 +7861,14 @@
       "DSurfaceId": "Dirt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -6019,8 +7896,14 @@
       "DSurfaceId": "RoadIce",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -6047,8 +7930,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6071,8 +7960,14 @@
       "DSurfaceId": "RoadSynthetic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6094,8 +7989,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6121,8 +8022,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6147,7 +8054,12 @@
       "DLinkFull": "Media\\Modifier\\SlowMotion\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -6168,8 +8080,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6194,10 +8112,19 @@
       "DLinkFull": "Media\\Modifier\\SlowMotion\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXSlowMotion_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXSlowMotion_I.dds"
+      }
+    }
   },
   "SlowMotion_TriggerFX": {
     "Name": "SlowMotion_TriggerFX",
@@ -6208,10 +8135,19 @@
       "DLinkFull": "Media\\Modifier\\SlowMotion\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXSlowMotion_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXSlowMotion_I.dds"
+      }
+    }
   },
   "SpeakerFront": {
     "Name": "SpeakerFront",
@@ -6223,8 +8159,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6246,8 +8188,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6268,10 +8216,19 @@
       "DLinkFull": "Media\\Material\\SpecialFXGateGameplay",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXGateGameplay_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXGateGameplay_I.dds"
+      }
+    }
   },
   "SpecialFXTurbo": {
     "Name": "SpecialFXTurbo",
@@ -6282,10 +8239,19 @@
       "DLinkFull": "Media\\Material\\SpecialFXTurbo",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXTurbo_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXTurbo_I.dds"
+      }
+    }
   },
   "SpecialSignOff": {
     "Name": "SpecialSignOff",
@@ -6297,8 +8263,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6324,8 +8296,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6351,8 +8329,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6374,8 +8358,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6398,8 +8388,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6422,8 +8418,14 @@
       "DSurfaceId": "ResonantMetal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6446,8 +8448,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6470,8 +8478,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6493,8 +8507,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6517,14 +8537,50 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
     "Textures": {
       "TDSN_CubeOut": {
         "_D": "TechnicsTrims_D.dds",
+        "_N": "TechnicsTrims_N.dds",
+        "_R": "TechnicsTrims_R.dds"
+      }
+    }
+  },
+  "TechnicsTrimsColorize": {
+    "Name": "TechnicsTrimsColorize",
+    "MatLibParams": {
+      "DLibrary": "Stadium",
+      "Category": "TECHNICS",
+      "DMaterial": "TechnicsTrimsColorize",
+      "DLinkFull": "Media\\Material\\TechnicsTrimsColorize",
+      "DSurfaceId": "Metal",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": ""
+    },
+    "Textures": {
+      "TDSN_CubeOut": {
+        "_D": "TechnicsTrims_D.dds",
+        "_D_HueMask": "TechnicsTrims_D_HueMask.dds",
         "_N": "TechnicsTrims_N.dds",
         "_R": "TechnicsTrims_R.dds"
       }
@@ -6540,8 +8596,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6563,8 +8625,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6586,8 +8654,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6609,8 +8683,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6633,7 +8713,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -6655,8 +8742,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6678,8 +8771,14 @@
       "DSurfaceId": "Wood",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6701,14 +8800,21 @@
       "DSurfaceId": "Wood",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
     "Textures": {
       "TDSN_CubeOut": {
         "_D": "ThemeSnowRoadBorder_D.dds",
+        "_D_HueMask": "ThemeSnowRoadBorder_D_HueMask.dds",
         "_N": "ThemeSnowRoadBorder_N.dds",
         "_R": "ThemeSnowRoadBorder_R.dds"
       }
@@ -6724,14 +8830,21 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
     "Textures": {
       "TDSN_CubeOut": {
         "_D": "ThemeSnowTempleDetails_D.dds",
+        "_D_HueMask": "ThemeSnowTempleDetails_D_HueMask.dds",
         "_N": "ThemeSnowTempleDetails_N.dds",
         "_R": "ThemeSnowTempleDetails_R.dds"
       }
@@ -6747,14 +8860,21 @@
       "DSurfaceId": "Wood",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
     "Textures": {
       "TDSN_CubeOut": {
         "_D": "ThemeSnowTempleFloor_D.dds",
+        "_D_HueMask": "ThemeSnowTempleFloor_D_HueMask.dds",
         "_N": "ThemeSnowRoad_N.dds",
         "_R": "ThemeSnowRoad_R.dds"
       }
@@ -6770,8 +8890,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6796,8 +8922,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6819,8 +8951,14 @@
       "DSurfaceId": "Rubber",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6847,8 +8985,14 @@
       "DSurfaceId": "Rubber",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6874,8 +9018,14 @@
       "DSurfaceId": "Wood",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
@@ -6902,8 +9052,14 @@
       "DSurfaceId": "ResonantMetal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -6925,10 +9081,19 @@
       "DLinkFull": "Media\\Material\\TriggerFXGateGameplay",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXGateGameplay_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXGateGameplay_I.dds"
+      }
+    }
   },
   "TriggerFXTurbo": {
     "Name": "TriggerFXTurbo",
@@ -6939,10 +9104,19 @@
       "DLinkFull": "Media\\Material\\TriggerFXTurbo",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXTurbo_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXTurbo_I.dds"
+      }
+    }
   },
   "Turbo2_Decal": {
     "Name": "Turbo2_Decal",
@@ -6953,7 +9127,12 @@
       "DLinkFull": "Media\\Modifier\\Turbo2\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -6974,8 +9153,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7001,8 +9186,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7027,10 +9218,19 @@
       "DLinkFull": "Media\\Modifier\\Turbo2\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXTurbo2_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXTurbo2_I.dds"
+      }
+    }
   },
   "Turbo2_TriggerFX": {
     "Name": "Turbo2_TriggerFX",
@@ -7041,10 +9241,19 @@
       "DLinkFull": "Media\\Modifier\\Turbo2\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXTurbo2_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXTurbo2_I.dds"
+      }
+    }
   },
   "TurboRoulette_Decal": {
     "Name": "TurboRoulette_Decal",
@@ -7055,7 +9264,12 @@
       "DLinkFull": "Media\\Modifier\\TurboRoulette\\Decal",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
     "Textures": {
@@ -7076,8 +9290,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7103,8 +9323,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7129,10 +9355,19 @@
       "DLinkFull": "Media\\Modifier\\TurboRoulette\\SpecialFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAdd": { "_I": "SpecialFXTurboRoulette_I.dds" } }
+    "Textures": {
+      "TAdd": {
+        "_I": "SpecialFXTurboRoulette_I.dds"
+      }
+    }
   },
   "TurboRoulette_TriggerFX": {
     "Name": "TurboRoulette_TriggerFX",
@@ -7143,10 +9378,19 @@
       "DLinkFull": "Media\\Modifier\\TurboRoulette\\TriggerFX",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "TAddModCV": { "_I": "TriggerFXTurboRoulette_I.dds" } }
+    "Textures": {
+      "TAddModCV": {
+        "_I": "TriggerFXTurboRoulette_I.dds"
+      }
+    }
   },
   "Underwater": {
     "Name": "Underwater",
@@ -7158,8 +9402,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7181,8 +9431,14 @@
       "DSurfaceId": "Wood",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7204,8 +9460,14 @@
       "DSurfaceId": "Wood",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7227,8 +9489,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7250,8 +9518,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7273,8 +9547,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7296,8 +9576,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7319,8 +9605,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7342,8 +9634,14 @@
       "DSurfaceId": "Green",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7366,8 +9664,14 @@
       "DSurfaceId": "Green",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7390,8 +9694,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7416,8 +9726,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7441,8 +9757,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7466,8 +9788,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7480,6 +9808,7 @@
       }
     }
   },
+
   "WarpScreen16x9": {
     "Name": "WarpScreen16x9",
     "MatLibParams": {
@@ -7490,8 +9819,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7516,8 +9851,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7542,8 +9883,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7553,6 +9900,102 @@
         "_D": "LightCells_D.dds",
         "_H": "LightCells_H.dds",
         "_I": "WarpRace16x9C.dds",
+        "_N": "LightCells_N.dds",
+        "_R": "LightCells_R.dds"
+      }
+    }
+  },
+  "WarpScreen155": {
+    "Name": "WarpScreen155",
+    "MatLibParams": {
+      "DLibrary": "Stadium256",
+      "Category": "WARP",
+      "DMaterial": "WarpScreen155",
+      "DLinkFull": "Media\\Material\\WarpScreen155",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": ""
+    },
+    "DefaultUVScale": 8,
+    "Textures": {
+      "TDSN_CubeOut_DispIn": {
+        "_D": "LightCells_D.dds",
+        "_H": "LightCells_H.dds",
+        "_I": "WarpRace155.dds",
+        "_N": "LightCells_N.dds",
+        "_R": "LightCells_R.dds"
+      }
+    }
+  },
+  "WarpScreen155B": {
+    "Name": "WarpScreen155B",
+    "MatLibParams": {
+      "DLibrary": "Stadium256",
+      "Category": "WARP",
+      "DMaterial": "WarpScreen155B",
+      "DLinkFull": "Media\\Material\\WarpScreen155B",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": ""
+    },
+    "DefaultUVScale": 8,
+    "Textures": {
+      "TDSN_CubeOut_DispIn": {
+        "_D": "LightCells_D.dds",
+        "_H": "LightCells_H.dds",
+        "_I": "WarpRace155B.dds",
+        "_N": "LightCells_N.dds",
+        "_R": "LightCells_R.dds"
+      }
+    }
+  },
+  "WarpScreen155C": {
+    "Name": "WarpScreen155C",
+    "MatLibParams": {
+      "DLibrary": "Stadium256",
+      "Category": "WARP",
+      "DMaterial": "WarpScreen155C",
+      "DLinkFull": "Media\\Material\\WarpScreen155C",
+      "DSurfaceId": "MetalTrans",
+      "DGameplayId": "None",
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
+      ],
+      "DColor0": ""
+    },
+    "DefaultUVScale": 8,
+    "Textures": {
+      "TDSN_CubeOut_DispIn": {
+        "_D": "LightCells_D.dds",
+        "_H": "LightCells_H.dds",
+        "_I": "WarpRace155B.dds",
         "_N": "LightCells_N.dds",
         "_R": "LightCells_R.dds"
       }
@@ -7568,8 +10011,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7594,8 +10043,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7620,8 +10075,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7646,8 +10107,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7672,8 +10139,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7698,8 +10171,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7724,8 +10203,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7750,8 +10235,14 @@
       "DSurfaceId": "MetalTrans",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7776,8 +10267,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7801,8 +10298,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7824,8 +10327,14 @@
       "DSurfaceId": "Metal",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7847,8 +10356,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7870,8 +10385,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7893,8 +10414,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7916,8 +10443,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7939,8 +10472,14 @@
       "DSurfaceId": "Asphalt",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7961,10 +10500,19 @@
       "DLinkFull": "Media\\Material\\Water",
       "DSurfaceId": "NotCollidable",
       "DGameplayId": "None",
-      "DUvLayer": [{ "ID": 0, "Name": "BaseMaterial" }],
+      "DUvLayer": [
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        }
+      ],
       "DColor0": "yes"
     },
-    "Textures": { "Water_MultiH": { "_SxSySz": "Water_SxSySz.tga" } }
+    "Textures": {
+      "Water_MultiH": {
+        "_SxSySz": "Water_SxSySz.tga"
+      }
+    }
   },
   "WaterBorders": {
     "Name": "WaterBorders",
@@ -7976,8 +10524,14 @@
       "DSurfaceId": "Plastic",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": ""
     },
@@ -7999,8 +10553,14 @@
       "DSurfaceId": "Concrete",
       "DGameplayId": "None",
       "DUvLayer": [
-        { "ID": 0, "Name": "BaseMaterial" },
-        { "ID": 1, "Name": "Lightmap" }
+        {
+          "ID": 0,
+          "Name": "BaseMaterial"
+        },
+        {
+          "ID": 1,
+          "Name": "Lightmap"
+        }
       ],
       "DColor0": "yes"
     },
