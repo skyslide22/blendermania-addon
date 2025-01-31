@@ -234,10 +234,17 @@ class TM_PT_Settings_NadeoImporter(Panel):
             row.alignment = "CENTER"
             row.label(text=f"""(current {current_importer})""")
 
-            if current_importer == "":
+            if not current_importer:
                 row = layout.row()
                 row.alert = True
                 row.label(text="No current importer found")
+                if current_importer is None:
+                    row = layout.row()
+                    row.alert = True
+                    row.label(text="If this is your first time,")
+                    row = layout.row()
+                    row.alert = True
+                    row.label(text="please run blender as admin once!")
             else:
                 current_importer_is_not_latest = datetime.strptime(current_importer, "%Y_%m_%d") < datetime.strptime(latest_importer, "%Y_%m_%d")
 
