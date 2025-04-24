@@ -9,6 +9,12 @@
 >
 >  Please read the [Install & Configuration Guide](https://github.com/skyslide22/blendermania-addon/wiki/01.-Install-&-Configuration)
 
+
+>[!NOTE]
+> **Car**-Skinning is not supported with this addon!
+>
+> Instead join the trackmania skinning community here: <https://discord.gg/hW3HVvbbbU>
+
 ## A Blender Addon for Trackmania2020 and ManiaPlanet
 
 This addon will make your blender experience way better and help you with the following things:
