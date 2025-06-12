@@ -206,51 +206,36 @@ class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
 
 
 
-
-
-def autoFindNadeoIni()->None:
+def find_nadeo_ini_trackmania2020():
     tm_props          = get_global_props()
     program_data_paths= [ fix_slash(PATH_PROGRAM_FILES_X86), fix_slash(PATH_PROGRAM_FILES) ]
     steamapps         = "Steam/steamapps/common"
     mp_envis          = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
     alphabet          = list(string.ascii_lowercase) #[a-z]
-    paths             = []
-    ini               = ""
-    
+    paths = []
 
-    if is_game_maniaplanet(): 
+    if is_file_existing(tm_props.ST_nadeoIniFile_TM):
+        debug("Saved Nadeo.ini for trackmania2020 already found, keep using it.")
+        return
 
-        for pd_path in program_data_paths:
-            paths.append(f"{pd_path}/ManiaPlanet/Nadeo.ini".replace("/", "\\"))
-    
-        for char in alphabet:
-            paths.append(fr"{char}:\ManiaPlanet\Nadeo.ini")
-            paths.append(fr"{char}:\Games\ManiaPlanet\Nadeo.ini")
-            paths.append(fr"{char}:\Spiele\ManiaPlanet\Nadeo.ini")
+    for pd_path in program_data_paths:
+        paths.append(f"{pd_path}/Ubisoft/Ubisoft Game Launcher/games/Trackmania/Nadeo.ini".replace("/", "\\"))
+        paths.append(f"{pd_path}/Epic Games/TrackmaniaNext/Nadeo.ini".replace("/", "\\"))
+        paths.append(f"{pd_path}/Trackmania/Nadeo.ini".replace("/", "\\"))
+        paths.append(f"{pd_path}/{steamapps}/Trackmania/Nadeo.ini".replace("/", "\\"))
 
-        for envi in mp_envis:
-            for pd_path in program_data_paths:
-                paths.append(f"{pd_path}/{steamapps}/ManiaPlanet_{envi}/Nadeo.ini".replace("/", "\\"))
+    for char in alphabet:
+        paths.append(fr"{char}:\Trackmania\Nadeo.ini")
+        paths.append(fr"{char}:\Games\Trackmania\Nadeo.ini")
+        paths.append(fr"{char}:\Ubisoft\Ubisoft Game Launcher\games\Trackmania\Nadeo.ini")
+        paths.append(fr"{char}:\Ubisoft Games\Trackmania\Nadeo.ini")
+        paths.append(fr"{char}:\Ubisoft Game Launcher\games\Trackmania\Nadeo.ini")
+        paths.append(fr"{char}:\Epic Games\TrackmaniaNext\Nadeo.ini")
+        paths.append(fr"{char}:\games\uplay\Trackmania\Nadeo.ini")
 
+    debug("Try to find Nadeo.ini for trackmania2020 in most used installation paths:")
 
-    if is_game_trackmania2020():
-
-        for pd_path in program_data_paths:
-            paths.append(f"{pd_path}/Ubisoft/Ubisoft Game Launcher/games/Trackmania/Nadeo.ini".replace("/", "\\"))
-            paths.append(f"{pd_path}/Epic Games/TrackmaniaNext/Nadeo.ini".replace("/", "\\"))
-            paths.append(f"{pd_path}/Trackmania/Nadeo.ini".replace("/", "\\"))
-            paths.append(f"{pd_path}/{steamapps}/Trackmania/Nadeo.ini".replace("/", "\\"))
-
-        for char in alphabet:
-            paths.append(fr"{char}:\Trackmania\Nadeo.ini")
-            paths.append(fr"{char}:\Games\Trackmania\Nadeo.ini")
-            paths.append(fr"{char}:\Ubisoft\Ubisoft Game Launcher\games\Trackmania\Nadeo.ini")
-            paths.append(fr"{char}:\Ubisoft Games\Trackmania\Nadeo.ini")
-            paths.append(fr"{char}:\Ubisoft Game Launcher\games\Trackmania\Nadeo.ini")
-            paths.append(fr"{char}:\Epic Games\TrackmaniaNext\Nadeo.ini")
-            paths.append(fr"{char}:\games\uplay\Trackmania\Nadeo.ini")
-
-    debug("Try to find Nadeo.ini in most used installation paths:")
+    ini = ""
 
     for path in paths:
         debug(path)
@@ -258,17 +243,67 @@ def autoFindNadeoIni()->None:
             ini = path
             debug("Found!")
             break
-            
+
     if ini == "": 
         ini=MSG_ERROR_NADEO_INI_NOT_FOUND
-        debug("Nadeo.ini not found!")
+        debug("Nadeo.ini for trackmania2020 not found!")
 
-    #change inifile
-    if is_game_maniaplanet():
-        tm_props.ST_nadeoIniFile_MP = ini
+    tm_props.ST_nadeoIniFile_TM = ini
+
     
-    if is_game_trackmania2020():
-        tm_props.ST_nadeoIniFile_TM = ini
+
+
+def find_nadeo_ini_maniaplanet():
+    tm_props          = get_global_props()
+    program_data_paths= [ fix_slash(PATH_PROGRAM_FILES_X86), fix_slash(PATH_PROGRAM_FILES) ]
+    steamapps         = "Steam/steamapps/common"
+    mp_envis          = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
+    alphabet          = list(string.ascii_lowercase) #[a-z]
+    paths = []
+
+    if is_file_existing(tm_props.ST_nadeoIniFile_MP):
+        debug("Saved Nadeo.ini for maniaplanet already found, keep using it.")
+        return
+
+    for pd_path in program_data_paths:
+        paths.append(f"{pd_path}/ManiaPlanet/Nadeo.ini".replace("/", "\\"))
+
+    for char in alphabet:
+        paths.append(fr"{char}:\ManiaPlanet\Nadeo.ini")
+        paths.append(fr"{char}:\Games\ManiaPlanet\Nadeo.ini")
+        paths.append(fr"{char}:\Spiele\ManiaPlanet\Nadeo.ini")
+
+    for envi in mp_envis:
+        for pd_path in program_data_paths:
+            paths.append(f"{pd_path}/{steamapps}/ManiaPlanet_{envi}/Nadeo.ini".replace("/", "\\"))
+
+    debug("Try to find Nadeo.ini for maniaplanet in most used installation paths:")
+
+    ini = ""
+
+    for path in paths:
+        debug(path)
+        if os.path.isfile(path):
+            ini = path
+            debug("Found!")
+            break
+
+    if ini == "": 
+        ini=MSG_ERROR_NADEO_INI_NOT_FOUND
+        debug("Nadeo.ini for maniaplanet not found!")
+
+    tm_props.ST_nadeoIniFile_MP = ini
+    
+
+
+
+
+def autoFindNadeoIni()->None:
+    find_nadeo_ini_maniaplanet()
+    find_nadeo_ini_trackmania2020()
+
+
+
 
 
 # TODO snake_case & rename & separate get_defaults()
