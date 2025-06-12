@@ -36,7 +36,10 @@ def fix_slash(filepath: str) -> str:
     return filepath
 
 def is_file_existing(filepath: str) -> bool:
-    return os.path.isfile(filepath)
+    try:
+        return os.path.isfile(filepath)
+    except:
+        return false
 
 def is_folder_existing(folderpath: str) -> bool:
     return os.path.isdir(folderpath)
