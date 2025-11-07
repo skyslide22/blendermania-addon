@@ -523,6 +523,7 @@ ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = get_addon_assets_path() + "/ite
 
 # check if blender is opened by a dev (from vscode..?)
 BLENDER_INSTANCE_IS_DEV = os.path.exists(get_addon_path() + ".git")
+print("BLENDER_INSTANCE_IS_DEV:", BLENDER_INSTANCE_IS_DEV)
 
 # imported templates
 ADDON_ITEM_FILEPATH_TRIGGER_WALL_32x8  = get_addon_assets_path() + "/item_triggers/TRIGGER_WALL_32x8.fbx"

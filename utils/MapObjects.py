@@ -200,6 +200,8 @@ def export_map_collection() -> DotnetExecResult:
 
         if obj.tm_map_object_kind == MAP_OBJECT_ITEM:
             name = obj.tm_map_object_path
+
+            # TODO why this ??
             is_custom_item = fix_slash(doc_path.lower()) in fix_slash(name.lower())
 
             if is_custom_item:
