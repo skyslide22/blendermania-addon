@@ -90,7 +90,7 @@ def export_and_convert(only_failed_ones: bool=False):
     if colls := get_exportable_collections(objs):
         return export_collections(colls)
     
-    show_report_popup("Error", "No objects/collections found to export!")
+    show_report_popup("Error", ("No objects/collections found to export!",))
 
     
     

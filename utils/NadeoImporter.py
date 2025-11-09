@@ -734,6 +734,8 @@ def _process_convert_queue():
     tm_props.NU_convertDurationSinceStart = int(time.perf_counter()) - tm_props.NU_convertStartedAt
     if tm_props.CB_converting is False: 
         return None
+    
+    failobjs = get_convert_items_failed_props().objects
 
     tm_props = get_global_props()
 
@@ -751,13 +753,18 @@ def _process_convert_queue():
         print("processing convert queue...")
         msg = _CONVERT_QUEUE.get_nowait()
         # msg example: ("item_update", index, dict_of_values)
-        if msg[0] == _CONVERT_STEP_UPDATE:
+
+        convert_step = msg[0]
+
+        if convert_step == _CONVERT_STEP_UPDATE:
             idx = msg[1]
             vals = msg[2]
+            result = msg[3]
+            obj = msg[4] 
 
             debug(f"update convert queue: {idx} {vals}")
             
-            _CONVERT_RESULTS.append( msg[3] )
+            _CONVERT_RESULTS.append( result )
             
             # ensure index still valid
             try:
@@ -777,11 +784,12 @@ def _process_convert_queue():
             tm_props.NU_converted = int(tm_props.NU_convertedRaw / tm_props.NU_convertCount * 100)
             if failed:
                 tm_props.NU_convertedError += 1 
+                failobjs.add().object = obj
             else:
                 tm_props.NU_convertedSuccess += 1
 
 
-        elif msg[0] == _CONVERT_STEP_COMPLETE:
+        elif convert_step == _CONVERT_STEP_COMPLETE:
             # optional: do final UI updates, show report, etc. later i guess
             pass
 
@@ -846,7 +854,7 @@ def convert_fbx(item: ExportedItem) -> None:
         "embed_size": result.embed_size,
     }
 
-    _CONVERT_QUEUE.put( (_CONVERT_STEP_UPDATE, item.assigned_index, update, result) )
+    _CONVERT_QUEUE.put( (_CONVERT_STEP_UPDATE, item.assigned_index, update, result, next(iter(item.objects))) )
 
 
 def start_batch_convert(items: list[ExportedItem]) -> None:
@@ -899,6 +907,10 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
 
 def reset_convert_progress_values() -> None:
     """reset all convert related properties in the ui"""
+    
+    fails = get_convert_items_failed_props()
+    fails.objects.clear()
+
     tm_props = get_global_props()
     tm_props.NU_converted        = 0
     tm_props.NU_convertedRaw     = 0
