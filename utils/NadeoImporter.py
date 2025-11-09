@@ -7,7 +7,7 @@ import os.path
 import subprocess
 import threading
 import xml.etree.ElementTree as ET
-
+import queue
 
 import io
 import os
@@ -33,11 +33,12 @@ class BinaryReader:
 
 from .Models import ExportedItem
 
-from .Constants import PATH_CONVERT_REPORT, NADEO_IMPORTER_ICON_OVERWRITE_VERSION, URL_DOCUMENTATION
+from .Constants import GAMETYPE_MANIAPLANET, GAMETYPE_TRACKMANIA2020, PATH_CONVERT_REPORT, NADEO_IMPORTER_ICON_OVERWRITE_VERSION, URL_DOCUMENTATION
 from ..utils.NadeoXML import generate_mesh_XML, generate_item_XML
 from ..utils.Functions import (
     debug,
     get_convert_items_failed_props,
+    is_game_trackmania2020,
     timer,
     Timer,
     fix_slash,
@@ -196,14 +197,6 @@ class ItemConvert(threading.Thread):
             
             self.add_progress_step("Convert failed\n\n", errors)
  
-        def updateUI() -> int:
-            try:
-                update_convert_status_numbers_in_ui(convert_failed=self.convert_has_failed, obj_name=self.name)
-                return None
-            except:
-                return 0.2
-
-        timer(updateUI, 0)
 
 
     def pascalcase_gbx_filenames(self) -> None:
@@ -363,6 +356,8 @@ class ItemConvert(threading.Thread):
 
         total_size = 0.0
 
+        # debug(f"Calculating embed size for item: {self.gbx_item_filepath}")
+
         try:
             for gbxfile in files:
 
@@ -419,6 +414,8 @@ class ItemConvert(threading.Thread):
             
                     zip_buffer = io.BytesIO()
 
+
+
                     with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
                         zip_file.writestr("the-item-or-something", gbxfile_bytes)
                         zipped_size = zip_file.getinfo("the-item-or-something").compress_size / 1000 #kb
@@ -428,6 +425,8 @@ class ItemConvert(threading.Thread):
         except PermissionError as err:
             total_size = -1.0
             debug(err.strerror)
+
+        # debug(f"Total embed size for item {self.gbx_item_filepath}: {total_size}kb")
 
         return total_size
 
@@ -440,30 +439,7 @@ class ItemConvert(threading.Thread):
 
 
 
-def update_convert_status_numbers_in_ui(convert_failed: bool, obj_name: str) -> None:
-    """updates the numbers for converting which are displaed in the ui panel"""
-    tm_props = get_global_props()
 
-    if not convert_failed:
-        tm_props.NU_convertedSuccess += 1
-    
-    else:       
-        tm_props.NU_convertedError += 1
-        tm_props.ST_convertedErrorList += f"%%%{obj_name}"
-
-    tm_props.NU_convertedRaw += 1
-    tm_props.NU_converted     = int(tm_props.NU_convertedRaw / tm_props.NU_convertCount * 100)
-
-def _start_convert_timer():
-    tm_props = get_global_props()
-    def timer():
-        tm_props.NU_convertDurationSinceStart = int(time.perf_counter()) - tm_props.NU_convertStartedAt
-        if tm_props.CB_converting is False: 
-            return None
-        else: 
-           return 1
-
-    bpy.app.timers.register(timer, first_interval=1)
 
 def _write_convert_report(results: list[ConvertResult]) -> None:
     """genertate status html file of converted fbx files"""
@@ -737,149 +713,203 @@ def _beautify_nadeoimporter_error_response(error: str) -> tuple[str, str, str]:
 
 
 
-@in_new_thread
+
+_CONVERT_QUEUE = queue.Queue()
+_CONVERT_THREADS = []
+_convert_timer_running = False
+
+_CONVERT_RESULTS = []
+
+_CONVERT_STEP_UPDATE = "update"
+_CONVERT_STEP_COMPLETE = "complete"
+
+def _process_convert_queue():
+    """
+    Timer callback on main thread. Apply queued updates to bpy safely.
+    Return a float to reschedule, or None to stop.
+    """
+    debug("_process_convert_queue")
+
+    tm_props = get_global_props()
+    tm_props.NU_convertDurationSinceStart = int(time.perf_counter()) - tm_props.NU_convertStartedAt
+    if tm_props.CB_converting is False: 
+        return None
+
+    tm_props = get_global_props()
+
+    global _convert_timer_running, _CONVERT_THREADS, _CONVERT_RESULTS
+
+    try:
+        tm_props_convertingItems = bpy.context.scene.tm_props_convertingItems
+    except Exception:
+        debug("context not available yet, try later")
+        # if context not available yet, try later
+        return 0.5
+
+
+    while not _CONVERT_QUEUE.empty():
+        print("processing convert queue...")
+        msg = _CONVERT_QUEUE.get_nowait()
+        # msg example: ("item_update", index, dict_of_values)
+        if msg[0] == _CONVERT_STEP_UPDATE:
+            idx = msg[1]
+            vals = msg[2]
+
+            debug(f"update convert queue: {idx} {vals}")
+            
+            _CONVERT_RESULTS.append( msg[3] )
+            
+            # ensure index still valid
+            try:
+                entry = tm_props_convertingItems[idx]
+            except Exception:
+                continue
+            # update properties (safe on main thread)
+            for k, v in vals.items():
+                setattr(entry, k, v)
+
+            failed = vals.get("failed", False)
+
+            debug(f"update convert status numbers in ui: failed={failed} for {entry.name}")
+            debug(f"failcount before: {tm_props.NU_convertedError}")
+
+            tm_props.NU_convertedRaw += 1
+            tm_props.NU_converted = int(tm_props.NU_convertedRaw / tm_props.NU_convertCount * 100)
+            if failed:
+                tm_props.NU_convertedError += 1 
+            else:
+                tm_props.NU_convertedSuccess += 1
+
+
+        elif msg[0] == _CONVERT_STEP_COMPLETE:
+            # optional: do final UI updates, show report, etc. later i guess
+            pass
+
+    # check if any worker still alive
+    any_alive = any(t.is_alive() for t in _CONVERT_THREADS)
+    if any_alive or not _CONVERT_QUEUE.empty():
+        # keep polling
+        _convert_timer_running = True
+        debug("_process_convert_queue: still converting, continue polling")
+        return 0.5
+    
+    debug("_process_convert_queue: all done")
+    
+    tm_props.CB_converting = False
+    tm_props.NU_prevConvertDuration = tm_props.NU_convertDurationSinceStart
+
+    _write_convert_report(results=_CONVERT_RESULTS)
+
+    _convert_timer_running = False
+    _CONVERT_THREADS.clear()
+    return None
+    
+    
+
+
+def convert_fbx(item: ExportedItem) -> None:
+
+    name = get_path_filename(item.fbx_path, remove_extension=True)
+
+    current_convert_timer = Timer()
+    current_convert_timer.start()
+    
+    conversion = ItemConvert(fbxfilepath=item.fbx_path, game=item.game, physic_hack=item.physic_hack, icon_path=item.icon_path)
+    conversion.start() #start the convert (call internal run())
+    conversion.join()  #waits until the thread terminated (function/convert is done..)
+    
+    result = ConvertResult()
+    result.name_raw = conversion.name_raw
+    result.relative_fbx_filepath = conversion.fbx_filepath_relative
+    result.mesh_error_message    = conversion.convert_message_mesh_shape_gbx
+    result.mesh_returncode       = conversion.convert_returncode_mesh_shape_gbx
+    result.item_error_message    = conversion.convert_message_item_gbx
+    result.item_returncode       = conversion.convert_returncode_item_gbx
+    result.convert_steps         = conversion.convert_progress
+    result.convert_has_failed    = conversion.convert_has_failed
+    result.mesh_xml              = item.mesh_xml
+    result.item_xml              = item.item_xml
+    result.embed_size            = conversion.embed_size
+
+    debug(f"convert done for index {item.assigned_index}, embed size: {result.embed_size}kb")
+
+    failed = True if conversion.convert_has_failed else False
+    icon   = "CHECKMARK" if not failed else "FILE_FONT"
+    
+
+    update = {
+        "name": name,
+        "icon": icon,
+        "failed": failed,
+        "converted": True,
+        "convert_duration": int(current_convert_timer.stop()),
+        "embed_size": result.embed_size,
+    }
+
+    _CONVERT_QUEUE.put( (_CONVERT_STEP_UPDATE, item.assigned_index, update, result) )
+
+
 def start_batch_convert(items: list[ExportedItem]) -> None:
     """convert each fbx one after one, create a new thread for it"""
     tm_props_convertingItems = get_convert_items_props()
     tm_props        = get_global_props()
-    results         = []
-    game            = "ManiaPlanet" if is_game_maniaplanet() else "Trackmania2020"
-    notify          = tm_props.CB_notifyPopupWhenDone
-    use_multithread = tm_props.CB_convertMultiThreaded 
-
+    
+    reset_convert_progress_values()
+    
+    tm_props.CB_converting = True
     tm_props.CB_showConvertPanel = True
     tm_props.NU_convertStartedAt = int(time.perf_counter())
     
-    _start_convert_timer()
-
     tm_props_convertingItems.clear()
-
-    items_convert_index = {}
     counter = 0
 
-    fail_count    = 0
-    success_count = 0
-    atleast_one_convert_failed = fail_count > 0
+    debug(f"Starting batch convert of {len(items)} items")
 
     for item_to_convert in items:
         name = get_path_filename(item_to_convert.fbx_path, remove_extension=True)
         item = tm_props_convertingItems.add()
         item.name = name
-        item.name_raw = item_to_convert.name_raw #fixing name to name_raw costed me 30 min ahhh
-        items_convert_index[ name ] = counter
+        item.name_raw = item_to_convert.name_raw
+        item_to_convert.assigned_index = counter
+        
         counter += 1
 
         
-    def convert_fbx(item: ExportedItem) -> None:
-        nonlocal items_convert_index
-        nonlocal counter
-        nonlocal fail_count
-        nonlocal success_count
-        nonlocal atleast_one_convert_failed
+    global _CONVERT_THREADS
+    _CONVERT_THREADS.clear()
 
-        # if tm_props.CB_xml_genItemXML: generate_item_XML(item)
-        # if tm_props.CB_xml_genMeshXML: generate_mesh_XML(item)
+    debug("Generating xml and starting convert threads...")
 
+    for item in items:
+        item.game = GAMETYPE_TRACKMANIA2020 if is_game_trackmania2020() else GAMETYPE_MANIAPLANET
         generate_item_XML(item)
         generate_mesh_XML(item)
-
-        name = get_path_filename(item.fbx_path, remove_extension=True)
-
-        current_convert_timer = Timer()
-        current_convert_timer.start()
-        
-        conversion = ItemConvert(fbxfilepath=item.fbx_path, game=game, physic_hack=item.physic_hack, icon_path=item.icon_path)
-        conversion.start() #start the convert (call internal run())
-        conversion.join()  #waits until the thread terminated (function/convert is done..)
-        
-        result = ConvertResult()
-        result.name_raw = conversion.name_raw
-        result.relative_fbx_filepath = conversion.fbx_filepath_relative
-        result.mesh_error_message    = conversion.convert_message_mesh_shape_gbx
-        result.mesh_returncode       = conversion.convert_returncode_mesh_shape_gbx
-        result.item_error_message    = conversion.convert_message_item_gbx
-        result.item_returncode       = conversion.convert_returncode_item_gbx
-        result.convert_steps         = conversion.convert_progress
-        result.convert_has_failed    = conversion.convert_has_failed
-        result.mesh_xml              = item.mesh_xml
-        result.item_xml              = item.item_xml
-        result.embed_size            = conversion.embed_size
-        results.append(result)
-
-        failed              = True if conversion.convert_has_failed else False
-        icon                = "CHECKMARK" if not failed else "FILE_FONT"
-        current_item_index  = items_convert_index[ name ] # number
-        
-        if failed: fail_count    += 1
-        else:      success_count += 1
-
-        if failed:
-            fails = get_convert_items_failed_props()
-            for obj in item.objects:
-                fails.objects.add().object = obj
-                
-
-
-        @in_new_thread
-        def set_item_props():
-            tm_props_convertingItems[ current_item_index ].name             = name
-            tm_props_convertingItems[ current_item_index ].icon             = icon
-            tm_props_convertingItems[ current_item_index ].failed           = failed
-            tm_props_convertingItems[ current_item_index ].converted        = True
-            tm_props_convertingItems[ current_item_index ].convert_duration = int(current_convert_timer.stop())
-            tm_props_convertingItems[ current_item_index ].embed_size       = result.embed_size
-
-
-
-        try:
-            set_item_props()
-        except AttributeError as e: #bpy context assignment is not thread save
-            time.sleep(.1) 
-            set_item_props()
-
-
-    # init converts
-    # init converts
-    # init converts
-
-    threads = []
-
-    if use_multithread:
-        for item in items:
-            thread = threading.Thread(target=convert_fbx, args=[item,])
-            thread.start()
-            threads.append(thread)
-
-    else:
-        for item in items:
-            convert_fbx(item)
-            if tm_props.CB_stopAllNextConverts is True:
-                debug("Convert stopped, aborted by user (UI CHECKBOX)")
-                break
-
+        thread = threading.Thread(target=convert_fbx, args=[item])
+        _CONVERT_THREADS.append(thread)
+        thread.start()
     
-    for threads in threads:
-        thread.join()
+    debug("All convert threads started.")
 
-    tm_props.CB_converting = False
-    tm_props.NU_prevConvertDuration = tm_props.NU_convertDurationSinceStart
+    global _CONVERT_RESULTS
+    _CONVERT_RESULTS.clear()
+
+    bpy.app.timers.register(_process_convert_queue, first_interval=0.5)
 
 
 
-    if notify:
-        convert_count    = fail_count + success_count
-        convert_errors   = fail_count
-        convert_duration = tm_props.NU_currentConvertDuration
+def reset_convert_progress_values() -> None:
+    """reset all convert related properties in the ui"""
+    tm_props = get_global_props()
+    tm_props.NU_converted        = 0
+    tm_props.NU_convertedRaw     = 0
+    tm_props.NU_convertedSuccess = 0
+    tm_props.NU_convertedError   = 0
+    tm_props.NU_convertDurationSinceStart = 0
+    tm_props.ST_convertedErrorList = ""
+    tm_props.CB_showConvertPanel = False
 
-        if atleast_one_convert_failed:
-            title=f"""Convert failed"""
-            text =f"""{convert_errors} of {convert_count} converts failed\nDuration: {convert_duration}s"""
-            icon ="Error"
-        else:
-            title=f"""Convert successfully"""
-            text =f"""{convert_count} of {convert_count} items successfully converted \nDuration: {convert_duration}s"""
-            icon ="Info"
-
-        show_windows_toast(title, text, icon, 7000)
-    
-    _write_convert_report(results=results)
+    global _CONVERT_RESULTS, _CONVERT_THREADS, _convert_timer_running, _CONVERT_QUEUE
+    _CONVERT_RESULTS.clear()
+    _CONVERT_THREADS.clear()
+    _convert_timer_running = False
+    _CONVERT_QUEUE.queue.clear()

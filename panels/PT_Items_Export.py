@@ -191,12 +191,12 @@ def draw_export_panel(self:Panel) -> None:
     right_col.prop(tm_props, "LI_gameType", text="")
     right_col.prop(tm_props, "LI_exportFolderType", text="")
     right_col.row().prop(tm_props, "LI_exportWhichObjs", expand=True)
-    row = right_col.row(align=True)
-    col = row.column(align=True)
-    col.prop(tm_props, "CB_convertMultiThreaded", text="Multi Convert", icon=ICON_PARALLEL)
-    col = row.column(align=True)
-    col.scale_x = 0.8
-    col.prop(tm_props, "CB_notifyPopupWhenDone",  text="Notify",           icon=ICON_INFO)
+    # row = right_col.row(align=True)
+    # col = row.column(align=True)
+    # col.prop(tm_props, "CB_convertMultiThreaded", text="Multi Convert", icon=ICON_PARALLEL)
+    # col = row.column(align=True)
+    # col.scale_x = 0.8
+    # col.prop(tm_props, "CB_notifyPopupWhenDone",  text="Notify",           icon=ICON_INFO)
 
     if is_game_trackmania2020():
         right_col.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Meshmodeler importable", toggle=True, icon=ICON_IMPORT)

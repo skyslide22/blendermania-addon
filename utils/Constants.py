@@ -431,8 +431,8 @@ PANEL_CLASS_COMMON_DEFAULT_PROPS = {
 
 # Map export
 MAP_OBJECT_TYPES = {
-    MAP_OBJECT_BLOCK := "block",
-    MAP_OBJECT_ITEM := "item",
+    MAP_OBJECT_BLOCK := "Block",
+    MAP_OBJECT_ITEM := "Item",
 }
 
 MAP_OBJECT_TYPES_PROP = (

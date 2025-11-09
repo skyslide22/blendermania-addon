@@ -127,8 +127,12 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_showConvertPanel          : BoolProperty(default=False,      update=redraw_panels)
     CB_stopAllNextConverts       : BoolProperty(default=False,      update=redraw_panels, name="Stop all next converts")
     CB_converting                : BoolProperty(default=False,      update=redraw_panels)
+    
+    # obsolete
     CB_convertMultiThreaded      : BoolProperty(default=False,      update=redraw_panels, description="Don't convert all at the same time (converts can be cancelled")
+    # obsolete
     CB_notifyPopupWhenDone       : BoolProperty(default=True,       name="Notify toast when done")
+    
     NU_convertDurationSinceStart : IntProperty(min=-1,              default=-1,   update=redraw_panels)
     NU_convertStartedAt          : IntProperty(min=-1,              default=-1,   update=redraw_panels)
     NU_currentConvertDuration    : IntProperty(min=0,               default=0,    update=redraw_panels)

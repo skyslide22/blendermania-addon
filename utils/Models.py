@@ -21,6 +21,7 @@ class ExportedItem:
     game_is_maniaplanet:    bool = False
     game:                   str  = ""
     is_single_item:         bool = False
+    assigned_index:         int  = -1
 
 
 # bpy.types does not work for CollectionProperty(type=X)
