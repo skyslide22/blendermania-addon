@@ -61,31 +61,31 @@ class TM_PT_Imports(Panel):
             row.operator(TM_OT_Ninja20Install.bl_idname, text=f"Install Ninja Ripper 2.0.x addon", icon=ICON_IMPORT)
 
 
-        col = box.column(align=True)
-        row = col.row()
-        row.scale_y = 0.8
-        row.label(text="Import trackmania Item.Gbx")
+        # col = box.column(align=True)
+        # row = col.row()
+        # row.scale_y = 0.8
+        # row.label(text="Import trackmania Item.Gbx")
 
 
     
-        if not is_blendermania_dotnet_installed():
-            row = col.row()
-            row.alert = True
-            row.label(text="Blendermania dotnet installation required")
+        # if not is_blendermania_dotnet_installed():
+        #     row = col.row()
+        #     row.alert = True
+        #     row.label(text="Blendermania dotnet installation required")
             
-            row = col.row()
-            row.scale_y = 1.5
-            text = f"Install blendermania-dotnet"
-            row.operator("view3d.tm_install_blendermania_dotnet", text=text, icon=ICON_UGLYPACKAGE)
+        #     row = col.row()
+        #     row.scale_y = 1.5
+        #     text = f"Install blendermania-dotnet"
+        #     row.operator("view3d.tm_install_blendermania_dotnet", text=text, icon=ICON_UGLYPACKAGE)
 
-            render_donwload_progress_bar(layout)
-            return
-        else:
-            row = col.row()
-            row.alert = True
-            row.scale_y = 0.7
-            row.label(text="Experimental feature, not all items can be imported")
+        #     render_donwload_progress_bar(layout)
+        #     return
+        # else:
+        #     row = col.row()
+        #     row.alert = True
+        #     row.scale_y = 0.7
+        #     row.label(text="Experimental feature, not all items can be imported")
 
-            row = col.row(align=True)
-            row.scale_y = 1.5
-            row.operator(TM_OT_ImportItem.bl_idname, text=f"Import .Item.Gbx", icon=ICON_IMPORT)
+        #     row = col.row(align=True)
+        #     row.scale_y = 1.5
+        #     row.operator(TM_OT_ImportItem.bl_idname, text=f"Import .Item.Gbx", icon=ICON_IMPORT)
