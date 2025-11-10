@@ -203,7 +203,7 @@ URL_REGEX            = "https://regex101.com/"
 URL_WORKAROUND_PHYSICID = "https://github.com/skyslide22/blendermania-addon/wiki/06.-Converting-Troubleshooting#physicid-workaround-for-customxxx-materials"
 
 # dotnet addon name and version
-BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v0.0.8"
+BLENDERMANIA_DOTNET = "Blendermania_Dotnet_v1.0.0"
 
 # Assets CDN Links
 GITHUB_ASSETS_BASE_URL       = "https://github.com/skyslide22/blendermania-assets/releases/download/"
