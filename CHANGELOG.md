@@ -15,7 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **NICE:** Compatibility with more items (e.g., TM2020 gates, ConvexPolyhedron surfaces, TM2 solids)
+- Updated to blendermania-dotnet v1.0.0 (gbx.net v2)
 
 ### Fixed
 - **NICE:** Some material modifiers not being converted to Blendermania materials
 - **NICE:** Import of mesh modeler item materials (previously imported only the first one)
+- Map export now supports newer trackmania2020 map files
+- Map export will now return proper error codes and messages
+- Potential crashes raised by exporting objects fixed by changing object conversion panel updates from threading to queue (bpy.app.timer)
+
+### Removed
+- Item.Gbx file import functionality handled by gbx.net removed, now handled by NICE
+  
