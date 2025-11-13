@@ -460,7 +460,10 @@ def open_url(url: str) -> None:
     webbrowser.open(url)
 
 def open_convert_report() -> None:
-    subprocess.Popen(['start', fix_slash(PATH_CONVERT_REPORT)], shell=True)
+    open_url(fix_slash(PATH_CONVERT_REPORT))
+
+# def open_convert_report() -> None:
+#     subprocess.Popen(['start', fix_slash(PATH_CONVERT_REPORT)], shell=True)
 
 
 
