@@ -4,9 +4,11 @@ import subprocess
 import shutil
 import glob
 import ast
-import stat
+import tempfile
+import datetime
 
-RELEASE_WORK_DIR = "blendermania-addon/"
+ADDON_DIR = "blendermania-addon" + os.path.sep
+LOCAL = False
 
 PATTERNS_TO_RELEASE = [
     # blendermania
@@ -31,8 +33,9 @@ PATTERNS_TO_RELEASE = [
     "NICE/src/utils/__init__.py",
 ]
 
-def get_bl_info():
-    with open(RELEASE_WORK_DIR+"__init__.py", "r", encoding='UTF-8') as init_file:
+
+def get_bl_info(tmpdirname):
+    with open(tmpdirname + "__init__.py", "r", encoding="UTF-8") as init_file:
         data = init_file.read()
         ast_data = ast.parse(data)
         for body in ast_data.body:
@@ -41,67 +44,57 @@ def get_bl_info():
                     if getattr(body.targets[0], "id", "") == "bl_info":
                         return ast.literal_eval(body.value)
 
-def get_release_filename():
-    bl_info = get_bl_info()
+
+def get_release_filename(tmpdirname):
+    bl_info = get_bl_info(tmpdirname)
 
     bmv_major, bmv_minor, bmv_patch = bl_info["version"]
     blv_major, blv_minor, _ = bl_info["blender"]
+    nightly = ""
+    if LOCAL:
+        nightly = "-nightly" + datetime.datetime.now(datetime.UTC).strftime("%Y%m%d%H%M%S")
 
-    fname = f"blendermania-v{bmv_major}.{bmv_minor}.{bmv_patch}-for-blender-{blv_major}.{blv_minor}.zip"
+    fname = f"blendermania-v{bmv_major}.{bmv_minor}.{bmv_patch}{nightly}-for-blender-{blv_major}.{blv_minor}.zip"
     return fname
 
-def shutil_rmtree_onerror(func, path, exc_info):
-    """
-    Error handler for ``shutil.rmtree``.
-
-    If the error is due to an access error (read only file)
-    it attempts to add write permission and then retries.
-
-    If the error is for another reason it re-raises the error.
-    
-    Usage : ``shutil.rmtree(path, onerror=shutil_rmtree_onerror)``
-
-    From: https://stackoverflow.com/a/2656405
-    """
-    # Is the error an access error?
-    if not os.access(path, os.W_OK):
-        os.chmod(path, stat.S_IWUSR)
-        func(path)
-    else:
-        raise
 
 def make_release_zip():
-    # Ensure work dir & export file are clean
-    if os.path.exists(RELEASE_WORK_DIR):
-        shutil.rmtree(RELEASE_WORK_DIR, onerror=shutil_rmtree_onerror)
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        tmpdirname += os.path.sep
+        print("Using directory", tmpdirname)
 
-    # clone the repo
-    subprocess.run([
-        "git", "clone",
-        "--single-branch",
-        "--branch", "master",
-        "--recurse-submodules",
-        "https://github.com/skyslide22/blendermania-addon.git",
-        RELEASE_WORK_DIR
-    ], shell=True, check=True)
+        if LOCAL:
+            shutil.copytree("./", tmpdirname, dirs_exist_ok=True)
+        else:
+            # clone the repo
+            subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    "--single-branch",
+                    "--branch",
+                    "master",
+                    "--recurse-submodules",
+                    "https://github.com/skyslide22/blendermania-addon.git",
+                    tmpdirname,
+                ],
+                shell=True,
+                check=True,
+            )
 
-    
-    # get release version and clean existing zip 
-    release_filename = get_release_filename()
-    if os.path.exists(release_filename):
-        os.remove(release_filename)
-    
-    # generate the zip with the whitelisted files
-    with zipfile.ZipFile(release_filename, 'w') as f:
-        for pattern in PATTERNS_TO_RELEASE:
-            for file in glob.glob(RELEASE_WORK_DIR + pattern, recursive=True):
-                f.write(file)
+        # get release version and clean existing zip
+        release_filename = get_release_filename(tmpdirname)
+        if os.path.exists(release_filename):
+            os.remove(release_filename)
 
-    # clean work dir
-
-    shutil.rmtree(RELEASE_WORK_DIR, onerror=shutil_rmtree_onerror)
+        # generate the zip with the whitelisted files
+        with zipfile.ZipFile(release_filename, "w") as f:
+            for pattern in PATTERNS_TO_RELEASE:
+                for file in glob.glob(tmpdirname + pattern, recursive=True):
+                    f.write(file, ADDON_DIR + file.removeprefix(tmpdirname))
 
     print("\nSuccessful Release! " + release_filename)
+
 
 if __name__ == "__main__":
     make_release_zip()
