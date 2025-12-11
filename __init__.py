@@ -1,6 +1,5 @@
 import bpy
 import bpy.utils.previews
-import bpy_types
 from bpy.props import *
 from bpy.app.handlers import persistent
 
@@ -17,8 +16,8 @@ bl_info = {
     "name"          : "Blendermania",
     "author"        : "skyslide22, juice & schadocalex",
     "description"   : "Makes creating objects for Trackmania more easy and fun!",
-    "blender"       : (4, 5, 0),
-    "version"       : (4, 4, 0),
+    "blender"       : (5, 0, 0),
+    "version"       : (4, 4, 1),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic",
