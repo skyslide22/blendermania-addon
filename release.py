@@ -88,7 +88,7 @@ def make_release_zip():
             os.remove(release_filename)
 
         # generate the zip with the whitelisted files
-        with zipfile.ZipFile(release_filename, "w") as f:
+        with zipfile.ZipFile(release_filename, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as f:
             for pattern in PATTERNS_TO_RELEASE:
                 for file in glob.glob(tmpdirname + pattern, recursive=True):
                     f.write(file, ADDON_DIR + file.removeprefix(tmpdirname))
