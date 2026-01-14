@@ -24,6 +24,16 @@ def _set_ST_materialAddName_when_select_link(self, context):
     if tm_props.LI_materialAction == "CREATE":
         self.ST_materialAddName = tm_props.ST_selectedLinkedMat
 
+
+def saveWineSettings():
+    """Save settings immediately when Wine config changes so it persists across projects"""
+    try:
+        from ..operators.OT_Settings import saveDefaultSettingsJSON
+        saveDefaultSettingsJSON()
+    except Exception:
+        pass  # May fail during addon registration
+
+
 #? CB = CheckBox => BoolProperty
 #? LI = List     => EnumProperty
 #? NU = Number   => IntProperty, FloatProperty
@@ -44,6 +54,22 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     ST_nadeoImporter_MP_current : StringProperty("None found")
     LI_nadeoImporters_TM        : EnumProperty(items=getNadeoImportersTrackmania2020(), name="Select NadeoImporter Version")
     ST_nadeoImporter_TM_current : StringProperty("None found")
+
+    # Wine/CrossOver settings for Mac
+    CB_useWineForConversion     : BoolProperty(name="Use Wine/CrossOver", default=False, description="Enable Wine or CrossOver to run NadeoImporter on macOS/Linux", update=lambda s, c: saveWineSettings())
+    LI_wineType                 : EnumProperty(
+        name="Wine Type",
+        items=[
+            ("CROSSOVER", "CrossOver", "Use CrossOver (recommended, easier setup)"),
+            ("WINE", "Standard Wine", "Use standard Wine (requires manual setup)")
+        ],
+        default="CROSSOVER",
+        description="Choose your Wine installation type",
+        update=lambda s, c: saveWineSettings()
+    )
+    ST_wineExePath              : StringProperty(name="Wine Path", default="/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/wine", subtype="FILE_PATH", description="Path to wine executable (CrossOver or standard Wine)", update=lambda s, c: saveWineSettings())
+    ST_wineBottleName           : StringProperty(name="Bottle Name", default="Steam", description="Name of the CrossOver bottle containing NadeoImporter", update=lambda s, c: saveWineSettings())
+    ST_wineNadeoImporterPath    : StringProperty(name="NadeoImporter Path", default="C:\\Program Files (x86)\\Steam\\steamapps\\common\\Trackmania\\NadeoImporter.exe", description="Path to NadeoImporter.exe inside the Wine environment (Windows-style path)", update=lambda s, c: saveWineSettings())
     CB_NadeoLibParseFailed      : BoolProperty("NadeoMatLib.txt parse attempt", default=False)
     LI_blenderGridSize          : EnumProperty(items=getGridSizes(),         default=3, update=apply_custom_blender_grid_size)
     LI_blenderGridSizeDivision  : EnumProperty(items=getGridDivisionSizes(), default=3, update=apply_custom_blender_grid_size)

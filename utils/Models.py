@@ -14,6 +14,9 @@ class ExportedItem:
     tm_itemxml_template:    str  = ""
     scale:                  int  = 1
     force_scale:            bool = False
+    color_variant_name:     str  = ""
+    color_variant_value:    tuple = None  # (r, g, b)
+    color_variant_material: str  = ""
     physic_hack:            bool = True
     mesh_xml:               str  = "Not generated!"
     item_xml:               str  = "Not generated!"

@@ -1,7 +1,11 @@
 import bpy
 import os
+import threading
 from struct import pack, pack_into, unpack_from, calcsize
 from collections import namedtuple
+
+# Thread lock for bpy.data.images operations (not thread-safe)
+_icon_lock = threading.Lock()
 
 HeaderChunk = namedtuple("HeaderChunk", ["id", "size"])
 
@@ -17,29 +21,32 @@ class BinaryReader:
         return res
 
 def get_icon_chunk(icon_path):
-    # Load original TGA icon
-    icon = bpy.data.images.load(icon_path)
+    # Use lock to prevent race conditions when multiple threads
+    # access bpy.data.images simultaneously (not thread-safe)
+    with _icon_lock:
+        # Load original TGA icon
+        icon = bpy.data.images.load(icon_path)
 
-    # resize for TM
-    icon.scale(64,64)
-    
-    # ensure at least one pixel has a bit of transparence else
-    # it won't work if TM convert it to webp
-    if icon.pixels[3] > 0.99:
-        icon.pixels[3] = 0.99
+        # resize for TM
+        icon.scale(64,64)
 
-    # Create the chunk
-    chunk = bytearray(64*64*4)
-    for y in range(63, -1, -1):
-        for x in range(64):
-            idx = (y * 64 + x) * 4
-            chunk[idx + 0] = int(icon.pixels[idx + 2] * 255)
-            chunk[idx + 1] = int(icon.pixels[idx + 1] * 255)
-            chunk[idx + 2] = int(icon.pixels[idx + 0] * 255)
-            chunk[idx + 3] = int(icon.pixels[idx + 3] * 255)
-    
-    # Close icon file
-    bpy.data.images.remove(icon)
+        # ensure at least one pixel has a bit of transparence else
+        # it won't work if TM convert it to webp
+        if icon.pixels[3] > 0.99:
+            icon.pixels[3] = 0.99
+
+        # Create the chunk
+        chunk = bytearray(64*64*4)
+        for y in range(63, -1, -1):
+            for x in range(64):
+                idx = (y * 64 + x) * 4
+                chunk[idx + 0] = int(icon.pixels[idx + 2] * 255)
+                chunk[idx + 1] = int(icon.pixels[idx + 1] * 255)
+                chunk[idx + 2] = int(icon.pixels[idx + 0] * 255)
+                chunk[idx + 3] = int(icon.pixels[idx + 3] * 255)
+
+        # Close icon file
+        bpy.data.images.remove(icon)
 
     return pack("<HH", 64, 64) + chunk
 

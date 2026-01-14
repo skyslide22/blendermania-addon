@@ -45,8 +45,11 @@ class TM_PT_UIEditorTrails(bpy.types.Panel):
         tm_props = get_global_props()
 
         row = layout.row(align=True)
+        row.operator("view3d.tm_import_editortrails_json", text="Import JSON", icon="IMPORT")
+
+        row = layout.row(align=True)
         row.prop(tm_props, "CB_etrail_overwriteOnImport", text="Overwrite trails on each import", toggle=False)
-        
+
         row = layout.row(align=True)
         row.enabled = False
         row.prop(tm_props, "NU_etrail_animationProgress", text="Animate Car (WIP)")

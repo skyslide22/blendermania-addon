@@ -193,8 +193,10 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
             new_item.item_path = re.sub(pattern, f"_#{scale}", item.item_path)
 
             debug(f"create new file: {new_item.fbx_path}")
+            os.makedirs(os.path.dirname(new_item.fbx_path), exist_ok=True)
             copyfile(item.fbx_path, new_item.fbx_path)
             try:
+                os.makedirs(os.path.dirname(new_item.icon_path), exist_ok=True)
                 copyfile(item.icon_path, new_item.icon_path)
             except FileNotFoundError:
                 pass
@@ -209,6 +211,129 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
     return items
 
 
+def _get_color_variant_settings():
+    """Get the color variant settings from the scene, handling missing attribute gracefully."""
+    if hasattr(bpy.context.scene, 'tm_props_color_variants'):
+        return bpy.context.scene.tm_props_color_variants
+    return None
+
+
+def _duplicate_with_colors(item: ExportedItem) -> list[ExportedItem]:
+    """
+    Create color variants of an ExportedItem.
+    Returns a list of ExportedItems, one for each enabled color variant.
+    If multi-color is disabled, returns the original item in a list.
+    """
+    color_settings = _get_color_variant_settings()
+
+    if color_settings is None or not color_settings.enabled or not color_settings.target_material:
+        return [item]
+
+    enabled_variants = [v for v in color_settings.variants if v.enabled]
+    if len(enabled_variants) == 0:
+        return [item]
+
+    items = []
+
+    for variant in enabled_variants:
+        new_item = copy(item)
+        # Add color variant info to the item
+        new_item.color_variant_name = variant.name
+        new_item.color_variant_value = tuple(variant.color)
+        new_item.color_variant_material = color_settings.target_material.name
+
+        # Sanitize variant name for file paths
+        safe_variant_name = safe_name(variant.name)
+
+        # Update naming: append color variant name
+        suffix = f"_{safe_variant_name}"
+        new_item.name = item.name + suffix
+        new_item.r_path = item.r_path + suffix
+        new_item.fbx_path = item.fbx_path.replace(".fbx", f"{suffix}.fbx")
+        new_item.icon_path = item.icon_path.replace(".tga", f"{suffix}.tga")
+        new_item.item_path = item.item_path.replace(".Item.Gbx", f"{suffix}.Item.Gbx")
+
+        items.append(new_item)
+
+    return items
+
+
+def _apply_color_variant_to_material(item: ExportedItem) -> dict:
+    """
+    Temporarily apply a color variant to the target material.
+    Returns a dict containing the original values to restore later.
+    """
+    if not item.color_variant_material or not item.color_variant_value:
+        return None
+
+    mat = bpy.data.materials.get(item.color_variant_material)
+    if not mat:
+        return None
+
+    color = item.color_variant_value
+    color_4 = (*color, 1.0)  # Add alpha
+
+    # Store original values
+    original_values = {
+        'diffuse_color': tuple(mat.diffuse_color),
+    }
+
+    if hasattr(mat, 'surfaceColor'):
+        original_values['surfaceColor'] = tuple(mat.surfaceColor)
+
+    # Apply new color
+    mat.diffuse_color = color_4
+    if hasattr(mat, 'surfaceColor'):
+        mat.surfaceColor = color[:3]
+
+    # Update shader nodes if present
+    if mat.use_nodes and mat.node_tree:
+        nodes = mat.node_tree.nodes
+        # Try Principled BSDF
+        principled = nodes.get("Principled BSDF")
+        if principled and "Base Color" in principled.inputs:
+            original_values['bsdf_base_color'] = tuple(principled.inputs["Base Color"].default_value)
+            principled.inputs["Base Color"].default_value = color_4
+
+        # Try custom color node (some materials use this)
+        cus_color = nodes.get("cus_color")
+        if cus_color and cus_color.outputs:
+            original_values['cus_color'] = tuple(cus_color.outputs[0].default_value)
+            cus_color.outputs[0].default_value = color_4
+
+    return original_values
+
+
+def _restore_material_color(item: ExportedItem, original_values: dict) -> None:
+    """
+    Restore the original material color after export.
+    """
+    if not original_values or not item.color_variant_material:
+        return
+
+    mat = bpy.data.materials.get(item.color_variant_material)
+    if not mat:
+        return
+
+    # Restore original values
+    if 'diffuse_color' in original_values:
+        mat.diffuse_color = original_values['diffuse_color']
+
+    if 'surfaceColor' in original_values and hasattr(mat, 'surfaceColor'):
+        mat.surfaceColor = original_values['surfaceColor']
+
+    # Restore shader nodes
+    if mat.use_nodes and mat.node_tree:
+        nodes = mat.node_tree.nodes
+        if 'bsdf_base_color' in original_values:
+            principled = nodes.get("Principled BSDF")
+            if principled and "Base Color" in principled.inputs:
+                principled.inputs["Base Color"].default_value = original_values['bsdf_base_color']
+
+        if 'cus_color' in original_values:
+            cus_color = nodes.get("cus_color")
+            if cus_color and cus_color.outputs:
+                cus_color.outputs[0].default_value = original_values['cus_color']
 
 
 # takes the first item and return offset from it to "location"
@@ -377,7 +502,9 @@ def export_collections(colls: list[bpy.types.Collection]):
         for obj in objs:
             for slot in obj.material_slots:
                 mat = slot.material
-                if mat not in processed_materials: 
+                if mat is None:
+                    continue  # Skip empty material slots
+                if mat not in processed_materials:
                     if is_material_exportable(mat):
                         save_mat_props_json(mat)
                         processed_materials.append(mat)
@@ -434,21 +561,49 @@ def export_collections(colls: list[bpy.types.Collection]):
         # move collection to 0,0,0
         offset = _move_collection_to(coll.objects)
 
-        # export .fbx
-        _export_item_FBX(item_to_export)
-        
+        # Generate color variants (returns list with at least original item)
+        color_variants = _duplicate_with_colors(item_to_export)
+
+        for variant_item in color_variants:
+            # Apply color variant (if applicable)
+            original_colors = _apply_color_variant_to_material(variant_item)
+
+            try:
+                # Re-save material props JSON with the modified color so FBX gets the correct color
+                if variant_item.color_variant_material:
+                    mat = bpy.data.materials.get(variant_item.color_variant_material)
+                    if mat:
+                        save_mat_props_json(mat)
+
+                # export .fbx with modified material
+                _export_item_FBX(variant_item)
+
+                # Create icon directory if needed
+                icon_dir = variant_item.icon_path[:variant_item.icon_path.rfind("/")]
+                create_folder_if_necessary(icon_dir)
+
+                # generate icon with modified material
+                generate_collection_icon(coll, variant_item.icon_path)
+            finally:
+                # Always restore original colors
+                _restore_material_color(variant_item, original_colors)
+
+                # Restore the original material JSON as well
+                if variant_item.color_variant_material:
+                    mat = bpy.data.materials.get(variant_item.color_variant_material)
+                    if mat:
+                        save_mat_props_json(mat)
+
+            # Apply multi-scale duplication (this creates the combinations)
+            items_to_export += _duplicate_scaled(variant_item)
+
         # tm2020 socket fix
         if tmp_socket:
             item_to_export.objects.remove(tmp_socket)
         _remove_empty_socket_unhide_existing(coll)
 
-        # generate icon
-        generate_collection_icon(coll, item_to_export.icon_path)
-        
         # move collection back to original position
         _move_collection_by(coll.objects, offset)
-
-        items_to_export += _duplicate_scaled(item_to_export)
 
     for obj in current_selection:
         try: select_obj(obj)
@@ -517,13 +672,43 @@ def export_objects(objects: list[bpy.types.Object]) -> None:
 
         old_loc = obj.location.copy()
 
-        _export_item_FBX(item_to_export)
+        # Generate color variants (returns list with at least original item)
+        color_variants = _duplicate_with_colors(item_to_export)
 
-        generate_objects_icon([obj], obj.name, item_to_export.icon_path)
-        
+        for variant_item in color_variants:
+            # Apply color variant (if applicable)
+            original_colors = _apply_color_variant_to_material(variant_item)
+
+            try:
+                # Re-save material props JSON with the modified color so FBX gets the correct color
+                if variant_item.color_variant_material:
+                    mat = bpy.data.materials.get(variant_item.color_variant_material)
+                    if mat:
+                        save_mat_props_json(mat)
+
+                # export .fbx with modified material
+                _export_item_FBX(variant_item)
+
+                # Create icon directory if needed
+                icon_dir = variant_item.icon_path[:variant_item.icon_path.rfind("/")]
+                create_folder_if_necessary(icon_dir)
+
+                # generate icon with modified material
+                generate_objects_icon([obj], obj.name, variant_item.icon_path)
+            finally:
+                # Always restore original colors
+                _restore_material_color(variant_item, original_colors)
+
+                # Restore the original material JSON as well
+                if variant_item.color_variant_material:
+                    mat = bpy.data.materials.get(variant_item.color_variant_material)
+                    if mat:
+                        save_mat_props_json(mat)
+
+            # Apply multi-scale duplication (this creates the combinations)
+            items_to_export += _duplicate_scaled(variant_item)
+
         obj.location = old_loc
-
-        items_to_export += _duplicate_scaled(item_to_export)
 
         obj.name = prefix + obj.name
 

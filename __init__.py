@@ -48,10 +48,27 @@ from .properties.LinkedMaterialsProperties  import *
 from .properties.MapObjectProperties        import *
 from .properties.PannelsPropertyGroup       import *
 from .properties.PivotsProperties           import *
+from .properties.ColorVariantProperties     import TM_ColorVariantItem, TM_ColorVariantSettings
 
 from .operators.OT_Map_Manipulate          import *
 from .operators.OT_NinjaRipper             import *
-from .operators.OT_Settings                import *
+from .operators.OT_Settings                import (
+    TM_OT_Settings_AutoFindNadeoIni,
+    TM_OT_Settings_OpenUrl,
+    TM_OT_Settings_OpenMessageBox,
+    TM_OT_Settings_OpenFolder,
+    TM_OT_Settings_DebugAll,
+    TM_OT_Settings_OpenConvertReport,
+    TM_OT_Settings_InstallNadeoImporter,
+    TM_OT_Settings_InstallGameTextures,
+    TM_OT_Settings_InstallGameAssetsLIbrary,
+    TM_OT_Settings_InstallBlendermaniaDotnet,
+    TM_OT_Settings_UpdateAddonResetSettings,
+    TM_OT_Settings_UpdateAddon,
+    TM_OT_Settings_UpdateAddonCheckForNewRelease,
+    TM_OT_Settings_TestWineConfiguration,
+    autoFindNadeoIni,
+)
 from .operators.OT_Items_Export            import *
 from .operators.OT_Materials               import *
 from .operators.OT_Items_XML               import *
@@ -64,6 +81,13 @@ from .operators.OT_WikiLink                import *
 from .operators.OT_Textures                import * 
 from .operators.OT_Imports                 import * 
 from .operators.OT_VisibilitySelection     import *
+from .operators.OT_EditorTrails            import *
+from .operators.OT_ColorVariants           import (
+    TM_OT_ColorVariant_Add,
+    TM_OT_ColorVariant_Remove,
+    TM_OT_ColorVariant_MoveUp,
+    TM_OT_ColorVariant_MoveDown,
+)
 
 from .panels.PT_Map_Manipulate          import *
 from .panels.PT_Imports                 import *
@@ -79,7 +103,14 @@ from .panels.PT_Textures                import *
 from .panels.PT_VisibilitySelection     import *
 from .panels.PT_EditorTrails            import *
 
-from .NICE.nice import NICE_register, NICE_unregister
+# NICE module is optional (NadeoImporterCommunityEdition)
+try:
+    from .NICE.nice import NICE_register, NICE_unregister
+    NICE_AVAILABLE = True
+except ImportError:
+    NICE_AVAILABLE = False
+    def NICE_register(): pass
+    def NICE_unregister(): pass
 
 
 # owner of the object eventlistener
@@ -100,6 +131,8 @@ classes = (
     FailedConvertObject,
     FailedConvertCollection,
     FailedConverts,
+    TM_ColorVariantItem,
+    TM_ColorVariantSettings,
 
     # settings
     TM_PT_Settings,
@@ -114,6 +147,7 @@ classes = (
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonResetSettings,
     TM_OT_Settings_UpdateAddonCheckForNewRelease,
+    TM_OT_Settings_TestWineConfiguration,
     TM_OT_Settings_OpenUrl,
     TM_OT_Settings_OpenFolder,
     TM_OT_Settings_DebugAll,
@@ -159,6 +193,12 @@ classes = (
 
     # export
     TM_PT_Items_Export,
+    TM_UL_ColorVariants,
+    TM_PT_Items_Export_ColorVariants,
+    TM_OT_ColorVariant_Add,
+    TM_OT_ColorVariant_Remove,
+    TM_OT_ColorVariant_MoveUp,
+    TM_OT_ColorVariant_MoveDown,
     TM_OT_Items_Export_ExportAndOrConvert,
     TM_OT_Items_Export_CloseConvertSubPanel,
     TM_OT_Items_Export_ExportAndOrConverFailedOnes,
@@ -225,6 +265,7 @@ classes = (
     
     # editor trails
     TM_PT_UIEditorTrails,
+    TM_OT_EditorTrails_ImportJSON,
 
     # util
     OT_UIWikiLink,
@@ -253,6 +294,7 @@ def register():
     # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=ItemXMLTemplatesProperties)
     bpy.types.Scene.tm_props_itemxml_templates_ui     = EnumProperty(items=get_itemxml_template_names_enum)
     bpy.types.Scene.tm_props_itemxml_templates        = CollectionProperty(type=ItemXMLTemplate)
+    bpy.types.Scene.tm_props_color_variants           = PointerProperty(type=TM_ColorVariantSettings)
 
 
     bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)
@@ -317,6 +359,7 @@ def unregister():
     del bpy.types.Scene.tm_props_linkedMaterials
     del bpy.types.Scene.tm_props_itemxml_templates_ui
     del bpy.types.Scene.tm_props_itemxml_templates
+    del bpy.types.Scene.tm_props_color_variants
     # del bpy.types.Scene.tm_props_itemxml_templates
     del bpy.types.Object.location_before 
     

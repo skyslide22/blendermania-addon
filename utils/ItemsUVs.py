@@ -26,14 +26,32 @@ def generate_base_material_cube_projection(coll: bpy.types.Collection) -> None:
 
             obj.data.uv_layers.active_index = 0 # 0=BaseMaterial; 1=LightMap
 
-    editmode()
-    bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.cube_project(
-        cube_size=CUBE_FACTOR, 
-        correct_aspect=True,
-        scale_to_bounds=False
-    )
-    objectmode()
+    try:
+        editmode()
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.uv.cube_project(
+            cube_size=CUBE_FACTOR,
+            correct_aspect=True,
+            scale_to_bounds=False
+        )
+    except RuntimeError as e:
+        debug(f"UV cube_project failed: {e}")
+        # Try with context override for Blender 4.0+
+        try:
+            for area in bpy.context.screen.areas:
+                if area.type == 'VIEW_3D':
+                    with bpy.context.temp_override(area=area):
+                        bpy.ops.mesh.select_all(action='SELECT')
+                        bpy.ops.uv.cube_project(
+                            cube_size=CUBE_FACTOR,
+                            correct_aspect=True,
+                            scale_to_bounds=False
+                        )
+                    break
+        except Exception as e2:
+            debug(f"UV cube_project with override also failed: {e2}")
+    finally:
+        objectmode()
 
 def generate_lightmap(col, use_overlapping_check=False) -> None:
     """generate lightmap of all mesh objects from given collection"""
@@ -75,16 +93,36 @@ def generate_lightmap(col, use_overlapping_check=False) -> None:
         and has_overlaps\
         or  use_overlapping_check is False:
             #editmode with all selected objects
-            editmode()
-            bpy.ops.mesh.select_all(action='SELECT')
-            bpy.ops.uv.smart_project(
-                angle_limit     = ANGLE, 
-                island_margin   = MARGIN,
-                area_weight     = AREA,
-                correct_aspect  = ASPECT,
-                scale_to_bounds = BOUNDS
-            )
-            objectmode()
+            try:
+                editmode()
+                bpy.ops.mesh.select_all(action='SELECT')
+                bpy.ops.uv.smart_project(
+                    angle_limit     = ANGLE,
+                    island_margin   = MARGIN,
+                    area_weight     = AREA,
+                    correct_aspect  = ASPECT,
+                    scale_to_bounds = BOUNDS
+                )
+            except RuntimeError as e:
+                debug(f"UV smart_project failed: {e}")
+                # Try with context override for Blender 4.0+
+                try:
+                    for area in bpy.context.screen.areas:
+                        if area.type == 'VIEW_3D':
+                            with bpy.context.temp_override(area=area):
+                                bpy.ops.mesh.select_all(action='SELECT')
+                                bpy.ops.uv.smart_project(
+                                    angle_limit     = ANGLE,
+                                    island_margin   = MARGIN,
+                                    area_weight     = AREA,
+                                    correct_aspect  = ASPECT,
+                                    scale_to_bounds = BOUNDS
+                                )
+                            break
+                except Exception as e2:
+                    debug(f"UV smart_project with override also failed: {e2}")
+            finally:
+                objectmode()
     
     for obj in objs:
         if obj.type != "MESH":

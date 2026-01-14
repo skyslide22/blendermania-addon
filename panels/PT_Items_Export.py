@@ -1,4 +1,5 @@
 from ast import main
+import sys
 import bpy
 from bpy.types import (Panel)
 
@@ -166,6 +167,21 @@ def draw_export_panel(self:Panel) -> None:
     layout = self.layout
     tm_props = get_global_props()
 
+    # Platform info for non-Windows users
+    if sys.platform != 'win32':
+        box = layout.box()
+        col = box.column(align=True)
+        col.scale_y = 0.8
+        platform_name = "macOS" if sys.platform == 'darwin' else "Linux"
+        if tm_props.CB_useWineForConversion:
+            col.label(text=f"Platform: {platform_name} (Wine enabled)", icon="CHECKMARK")
+            col.label(text="FBX export + GBX conversion via Wine")
+        else:
+            col.label(text=f"Platform: {platform_name}", icon="INFO")
+            col.label(text="FBX/XML export only")
+            col.label(text="Enable Wine in Settings for GBX conversion")
+        layout.separator()
+
     enableExportButton      = True
     exportActionIsSelected  = tm_props.LI_exportWhichObjs == "SELECTED"
     exportFolderType        = tm_props.LI_exportFolderType
@@ -265,13 +281,22 @@ def draw_export_panel(self:Panel) -> None:
         else:
             enableExportButton = False
         
-        text = f"Export & Convert {type}"
+        # Check if conversion is available (Windows or Wine enabled)
+        can_convert = sys.platform == 'win32' or tm_props.CB_useWineForConversion
+        if can_convert:
+            text = f"Export & Convert {type}"
+        else:
+            text = f"Export FBX {type}"
 
 
     else:
         type = "Objects" if item_prefix_detected else "Collections"
         type = type if enableExportButton else ""
-        text = f"Export {type}"
+        can_convert = sys.platform == 'win32' or tm_props.CB_useWineForConversion
+        if can_convert:
+            text = f"Export {type}"
+        else:
+            text = f"Export FBX {type}"
         # enableExportButton = True
 
 
@@ -279,9 +304,11 @@ def draw_export_panel(self:Panel) -> None:
 
     row = col.row(align=True)
     row.scale_y = 1.5
-    row.enabled = enableExportButton 
+    row.enabled = enableExportButton
     row.alert   = not enableExportButton #red button, 0 selected
-    row.operator("view3d.tm_export", text=text,   icon=ICON_CONVERT)
+    can_convert = sys.platform == 'win32' or tm_props.CB_useWineForConversion
+    export_icon = ICON_CONVERT if can_convert else ICON_EXPORT
+    row.operator("view3d.tm_export", text=text, icon=export_icon)
 
 
 
@@ -429,6 +456,86 @@ def draw_convert_panel(self:Panel) -> None:
         # col.label(text=f"""{embed_size_percent}""")
 
 
+class TM_UL_ColorVariants(bpy.types.UIList):
+    """UIList for displaying color variants"""
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+            row = layout.row(align=True)
+            row.prop(item, "enabled", text="", emboss=False,
+                     icon='CHECKBOX_HLT' if item.enabled else 'CHECKBOX_DEHLT')
+            row.prop(item, "name", text="", emboss=False)
+            row.prop(item, "color", text="")
+        elif self.layout_type == 'GRID':
+            layout.alignment = 'CENTER'
+            layout.prop(item, "color", text="")
 
 
+class TM_PT_Items_Export_ColorVariants(Panel):
+    """Sub-panel for multi-color export settings"""
+    bl_label = "Multi-Color Export"
+    bl_idname = "TM_PT_Items_Export_ColorVariants"
+    bl_parent_id = "TM_PT_Items_Export"
+    bl_options = {'DEFAULT_CLOSED'}
+    locals().update(PANEL_CLASS_COMMON_DEFAULT_PROPS)
+
+    @classmethod
+    def poll(cls, context):
+        return is_selected_nadeoini_file_name_ok()
+
+    def draw_header(self, context):
+        layout = self.layout
+        color_settings = context.scene.tm_props_color_variants
+        layout.prop(color_settings, "enabled", text="")
+
+    def draw(self, context):
+        layout = self.layout
+        color_settings = context.scene.tm_props_color_variants
+        layout.enabled = color_settings.enabled
+
+        # Target material selector
+        box = layout.box()
+        row = box.row()
+        split = row.split(factor=0.35)
+        split.label(text="Material:")
+        split.prop(color_settings, "target_material", text="")
+
+        if not color_settings.target_material:
+            row = box.row()
+            row.label(text="Select a material to vary", icon="INFO")
+            return
+
+        # Color variants list
+        row = layout.row()
+        row.template_list(
+            "TM_UL_ColorVariants",
+            "",
+            color_settings,
+            "variants",
+            color_settings,
+            "active_variant_index",
+            rows=3
+        )
+
+        # Add/Remove buttons
+        col = row.column(align=True)
+        col.operator("view3d.tm_colorvariant_add", icon='ADD', text="")
+        col.operator("view3d.tm_colorvariant_remove", icon='REMOVE', text="")
+        col.separator()
+        col.operator("view3d.tm_colorvariant_moveup", icon='TRIA_UP', text="")
+        col.operator("view3d.tm_colorvariant_movedown", icon='TRIA_DOWN', text="")
+
+        # Show active variant details
+        if len(color_settings.variants) > 0:
+            idx = color_settings.active_variant_index
+            if 0 <= idx < len(color_settings.variants):
+                variant = color_settings.variants[idx]
+                box = layout.box()
+                row = box.row()
+                split = row.split(factor=0.35)
+                split.label(text="Name:")
+                split.prop(variant, "name", text="")
+                row = box.row()
+                split = row.split(factor=0.35)
+                split.label(text="Color:")
+                split.prop(variant, "color", text="")
 

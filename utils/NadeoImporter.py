@@ -1,6 +1,7 @@
 import cgi
 import html
 import re
+import sys
 import time
 import bpy
 import os.path
@@ -54,6 +55,80 @@ from ..utils.Functions import (
     is_game_maniaplanet,
 )
 from .SetIcon import set_icon
+
+
+def _build_nadeo_importer_command(command_type: str, filepath: str) -> tuple:
+    """
+    Build the NadeoImporter command, using Wine on Mac if configured.
+
+    Args:
+        command_type: Either "Mesh" or "Item"
+        filepath: The relative filepath to the fbx or xml file (e.g., "Items/test/test.fbx")
+
+    Returns:
+        Tuple of (command_list, use_shell, cwd) for subprocess.Popen
+        cwd is the working directory (only set for Wine on Mac)
+    """
+    tm_props = get_global_props()
+    nadeo_importer_path = get_nadeo_importer_path()
+
+    # Check if we should use Wine (on Mac/Linux with Wine enabled)
+    if sys.platform != 'win32' and tm_props.CB_useWineForConversion:
+        wine_path = tm_props.ST_wineExePath
+        wine_type = tm_props.LI_wineType
+        bottle_name = tm_props.ST_wineBottleName
+        nadeo_importer_wine = tm_props.ST_wineNadeoImporterPath
+
+        # Convert path separators for Wine (Windows expects backslashes)
+        filepath_wine = filepath.replace("/", "\\")
+
+        # Working directory should be the game folder inside the CrossOver bottle
+        # This is where NadeoImporter.exe and Nadeo.ini are located
+        if wine_type == "CROSSOVER":
+            # Convert Windows path to Mac bottle path
+            # e.g., "C:\Program Files (x86)\Steam\...\Trackmania\NadeoImporter.exe"
+            # becomes "~/Library/Application Support/CrossOver/Bottles/<bottle>/drive_c/Program Files (x86)/Steam/.../Trackmania"
+            import os
+            bottle_base = os.path.expanduser(f"~/Library/Application Support/CrossOver/Bottles/{bottle_name}/drive_c")
+            # Remove drive letter and convert to Mac path
+            win_path = nadeo_importer_wine
+            if len(win_path) > 2 and win_path[1] == ':':
+                win_path = win_path[2:]  # Remove "C:" or similar
+            win_path = win_path.replace("\\", "/")
+            # Get directory (remove NadeoImporter.exe filename)
+            win_dir = "/".join(win_path.split("/")[:-1])
+            work_folder = bottle_base + win_dir
+        else:
+            # For standard Wine, user needs to handle this themselves
+            work_folder = None
+
+        if wine_type == "CROSSOVER":
+            # CrossOver command: wine --bottle <bottle> NadeoImporter.exe <type> "<path>"
+            # We use just "NadeoImporter.exe" because cwd is set to the game folder
+            cmd = [
+                wine_path,
+                "--bottle", bottle_name,
+                "NadeoImporter.exe",
+                command_type,
+                filepath_wine
+            ]
+        else:
+            # Standard Wine command: wine NadeoImporter.exe <type> "<path>"
+            cmd = [
+                wine_path,
+                "NadeoImporter.exe",
+                command_type,
+                filepath_wine
+            ]
+        debug(f"Wine command: {' '.join(cmd)}")
+        debug(f"Wine cwd: {work_folder}")
+        return (cmd, False, work_folder)  # use_shell=False, with cwd
+    else:
+        # Standard Windows command
+        cmd = f'"{nadeo_importer_path}" {command_type} "{filepath}"'
+        debug(f"Standard command: {cmd}")
+        return (cmd, True, None)  # use_shell=True, no cwd needed on Windows
+
 
 class ConvertStep():
     def __init__(self, title, additional_infos: tuple=()):
@@ -213,17 +288,19 @@ class ItemConvert(threading.Thread):
     def convert_mesh_and_shape_gbx(self) -> None:
         """convert fbx to shape/mesh.gbx"""
         self.add_progress_step(f"""Convert .fbx => .Mesh.gbx and Shape.gbx""")
-        
-        cmd = f""""{get_nadeo_importer_path()}" Mesh "{self.fbx_filepath_relative}" """ # ex: NadeoImporter.exe Mesh /Items/myblock.fbx
+
+        cmd, use_shell, cwd = _build_nadeo_importer_command("Mesh", self.fbx_filepath_relative)
         self.add_progress_step(f"""Command: {cmd}""")
-        
-        convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        mesh_output      = convert_process.communicate() 
-        mesh_returncode  = convert_process.returncode
+        if cwd:
+            self.add_progress_step(f"""Working dir: {cwd}""")
+
+        convert_process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=use_shell, cwd=cwd)
+        mesh_output = convert_process.communicate()
+        mesh_returncode = convert_process.returncode
         convert_process.wait()
-        
-        self.convert_has_failed                = True if mesh_returncode > 0 else False
-        self.convert_message_mesh_shape_gbx    = str(mesh_output[0], encoding="ascii")
+
+        self.convert_has_failed = True if mesh_returncode > 0 else False
+        self.convert_message_mesh_shape_gbx = str(mesh_output[0], encoding="utf-8", errors="replace")
         self.convert_returncode_mesh_shape_gbx = int(mesh_returncode)
 
         if not self.convert_has_failed:
@@ -236,18 +313,19 @@ class ItemConvert(threading.Thread):
     def convert_item_gbx(self) -> None:
         """convert fbx to item.gbx"""
         self.add_progress_step(f"""Convert .fbx => .Item.gbx""")
-        
-        # ex: "NadeoImporter.exe" Item "/Items/myblock.Item.xml"
-        cmd = f""""{get_nadeo_importer_path()}" Item "{self.xml_item_filepath_relative}" """ 
-        self.add_progress_step(f"""Command: {cmd}""")
 
-        convert_process  = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        item_output     = convert_process.communicate() 
+        cmd, use_shell, cwd = _build_nadeo_importer_command("Item", self.xml_item_filepath_relative)
+        self.add_progress_step(f"""Command: {cmd}""")
+        if cwd:
+            self.add_progress_step(f"""Working dir: {cwd}""")
+
+        convert_process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=use_shell, cwd=cwd)
+        item_output = convert_process.communicate()
         item_returncode = convert_process.returncode
         convert_process.wait()
 
-        self.convert_has_failed          = True if item_returncode > 0 else False
-        self.convert_message_item_gbx    = str(item_output[0], encoding="ascii")
+        self.convert_has_failed = True if item_returncode > 0 else False
+        self.convert_message_item_gbx = str(item_output[0], encoding="utf-8", errors="replace")
         self.convert_returncode_item_gbx = int(item_returncode)
 
         if not self.convert_has_failed:
@@ -859,15 +937,57 @@ def convert_fbx(item: ExportedItem) -> None:
 
 def start_batch_convert(items: list[ExportedItem]) -> None:
     """convert each fbx one after one, create a new thread for it"""
+    from .Functions import show_report_popup
+
+    debug(f"start_batch_convert called with {len(items)} items")
+
+    # Always generate XML files (needed for conversion on any platform)
+    debug("Generating XML files...")
+    xml_files_created = []
+    for item in items:
+        item.game = GAMETYPE_TRACKMANIA2020 if is_game_trackmania2020() else GAMETYPE_MANIAPLANET
+        try:
+            generate_item_XML(item)
+            item_xml_path = item.fbx_path.replace(".fbx", ".Item.xml")
+            xml_files_created.append(item_xml_path)
+            debug(f"Generated Item.xml: {item_xml_path}")
+        except Exception as e:
+            debug(f"Error generating Item.xml: {e}")
+        try:
+            generate_mesh_XML(item)
+            mesh_xml_path = item.fbx_path.replace(".fbx", ".MeshParams.xml")
+            xml_files_created.append(mesh_xml_path)
+            debug(f"Generated MeshParams.xml: {mesh_xml_path}")
+        except Exception as e:
+            debug(f"Error generating MeshParams.xml: {e}")
+    debug(f"XML files generated: {len(xml_files_created)} files")
+
+    tm_props = get_global_props()
+
+    # Check if we can convert: either on Windows, or on Mac/Linux with Wine configured
+    can_convert = sys.platform == 'win32' or tm_props.CB_useWineForConversion
+
+    if not can_convert:
+        show_report_popup(
+            title="Export Complete (FBX + XML)",
+            infos=(
+                "FBX and XML files have been exported successfully.",
+                "To convert to GBX, either:",
+                "  - Transfer files to Windows, or",
+                "  - Enable Wine/CrossOver in Settings",
+            ),
+            icon="INFO"
+        )
+        return
+
     tm_props_convertingItems = get_convert_items_props()
-    tm_props        = get_global_props()
-    
+
     reset_convert_progress_values()
-    
+
     tm_props.CB_converting = True
     tm_props.CB_showConvertPanel = True
     tm_props.NU_convertStartedAt = int(time.perf_counter())
-    
+
     tm_props_convertingItems.clear()
     counter = 0
 
@@ -879,19 +999,16 @@ def start_batch_convert(items: list[ExportedItem]) -> None:
         item.name = name
         item.name_raw = item_to_convert.name_raw
         item_to_convert.assigned_index = counter
-        
+
         counter += 1
 
-        
+
     global _CONVERT_THREADS
     _CONVERT_THREADS.clear()
 
-    debug("Generating xml and starting convert threads...")
+    debug("Starting convert threads...")
 
     for item in items:
-        item.game = GAMETYPE_TRACKMANIA2020 if is_game_trackmania2020() else GAMETYPE_MANIAPLANET
-        generate_item_XML(item)
-        generate_mesh_XML(item)
         thread = threading.Thread(target=convert_fbx, args=[item])
         _CONVERT_THREADS.append(thread)
         thread.start()

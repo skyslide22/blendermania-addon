@@ -2,6 +2,7 @@ import bpy
 import math
 import json
 import subprocess
+import sys
 
 from .Constants      import *
 from .Functions      import *
@@ -285,6 +286,13 @@ def run_place_mediatracker_clips_on_map(
 
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
+    # Blendermania_Dotnet.exe is Windows-only
+    if sys.platform != 'win32':
+        return DotnetExecResult(
+            message="Blendermania_Dotnet.exe requires Windows. This feature is not available on macOS/Linux.",
+            success=False
+        )
+
     dotnet_exe = get_blendermania_dotnet_path()
 
     process = subprocess.Popen(args=[

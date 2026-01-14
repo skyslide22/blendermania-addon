@@ -1,4 +1,5 @@
 from pydoc import text
+import sys
 import bpy
 from bpy.types import Panel
 
@@ -203,6 +204,80 @@ class TM_PT_Settings_NadeoImporter(Panel):
         tm_props        = get_global_props()
         tm_props_pivots = get_pivot_props()
 
+        # Wine/CrossOver settings for non-Windows platforms
+        if sys.platform != 'win32':
+            box = layout.box()
+            col = box.column(align=True)
+
+            # Header row with toggle and help button
+            row = col.row(align=True)
+            row.prop(tm_props, "CB_useWineForConversion", text="Use Wine/CrossOver", icon="PLUGIN")
+
+            # Help button with Wine setup instructions
+            op = row.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+            op.link = ""
+            op.title = "Wine/CrossOver Setup"
+            op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+                "NadeoImporter.exe is a Windows program.",
+                "To run it on Mac/Linux, you need Wine or CrossOver.",
+                "",
+                "=== CrossOver (Recommended) ===",
+                "1. Download CrossOver from codeweavers.com",
+                "2. Create a new 'bottle' (Windows environment)",
+                "3. Install NadeoImporter.exe into the bottle",
+                "4. Set the bottle name below",
+                "",
+                "=== Standard Wine (Free) ===",
+                "1. Install Wine: brew install wine-stable",
+                "2. Set up NadeoImporter in Wine's environment",
+                "3. Ensure NadeoImporter.exe is in PATH",
+                "",
+                "Wine executable paths:",
+                "CrossOver: /Applications/CrossOver.app/.../bin/wine",
+                "Homebrew: /opt/homebrew/bin/wine",
+            )
+
+            if tm_props.CB_useWineForConversion:
+                # Wine is enabled - show configuration
+                col.separator()
+
+                # Wine type selection
+                col.prop(tm_props, "LI_wineType", text="Type")
+                col.prop(tm_props, "ST_wineExePath", text="Wine Path")
+
+                # Only show Bottle field for CrossOver (standard Wine doesn't use bottles)
+                if tm_props.LI_wineType == "CROSSOVER":
+                    col.prop(tm_props, "ST_wineBottleName", text="Bottle")
+
+                # NadeoImporter path inside Wine (Windows-style path)
+                col.separator()
+                col.label(text="NadeoImporter.exe location (Windows path):")
+                col.prop(tm_props, "ST_wineNadeoImporterPath", text="")
+
+                col.separator()
+
+                # Test button
+                row = col.row(align=True)
+                row.scale_y = 1.2
+                row.operator("view3d.tm_testwine", text="Test Configuration", icon="PLAY")
+
+                col.separator()
+                row = col.row()
+                row.scale_y = 0.8
+                row.label(text="GBX conversion enabled via Wine", icon="CHECKMARK")
+            else:
+                # Wine not enabled - show info
+                col.separator()
+                row = col.row()
+                row.scale_y = 0.8
+                row.alert = True
+                row.label(text="FBX/XML export only (no GBX conversion)", icon="INFO")
+                row = col.row()
+                row.scale_y = 0.8
+                row.label(text="Enable Wine to convert on macOS/Linux")
+
+            layout.separator()
+
         if not is_selected_nadeoini_file_name_ok():
             draw_nadeoini_required_message(self)
             return
@@ -215,44 +290,55 @@ class TM_PT_Settings_NadeoImporter(Panel):
                 row = layout.row()
                 row.alert = True
                 row.label(text="NadeoImporter.exe not installed!")
-            
+
             col = layout.column(align=True)
             row = col.row(align=True)
             row.prop(tm_props, "LI_nadeoImporters_"+("TM" if is_game_trackmania2020() else "MP"), text="")
             row = col.row(align=True)
             row.scale_y = 1.5
-            row.operator("view3d.tm_installnadeoimporter", text="Install NadeoImporter", icon=ICON_IMPORT)
+            # Disable install button on non-Windows
+            row.enabled = sys.platform == 'win32'
+            button_text = "Install NadeoImporter" if sys.platform == 'win32' else "Install NadeoImporter (Windows only)"
+            row.operator("view3d.tm_installnadeoimporter", text=button_text, icon=ICON_IMPORT)
             
-            if is_game_maniaplanet():
-                current_importer = tm_props.ST_nadeoImporter_MP_current
-                latest_importer  = NADEO_IMPORTER_LATEST_VERSION_MANIAPLANET
-            else:
-                current_importer = tm_props.ST_nadeoImporter_TM_current 
-                latest_importer  = NADEO_IMPORTER_LATEST_VERSION_TM2020
+            # Version checking only on Windows (can read exe metadata via PowerShell)
+            if sys.platform == 'win32':
+                if is_game_maniaplanet():
+                    current_importer = tm_props.ST_nadeoImporter_MP_current
+                    latest_importer  = NADEO_IMPORTER_LATEST_VERSION_MANIAPLANET
+                else:
+                    current_importer = tm_props.ST_nadeoImporter_TM_current
+                    latest_importer  = NADEO_IMPORTER_LATEST_VERSION_TM2020
 
-            row = col.row()
-            row.alignment = "CENTER"
-            row.label(text=f"""(current {current_importer})""")
+                row = col.row()
+                row.alignment = "CENTER"
+                row.label(text=f"""(current {current_importer})""")
 
-            if not current_importer:
-                row = layout.row()
-                row.alert = True
-                row.label(text="No current importer found")
-                if current_importer is None:
+                if not current_importer:
                     row = layout.row()
                     row.alert = True
-                    row.label(text="If this is your first time,")
-                    row = layout.row()
-                    row.alert = True
-                    row.label(text="please run blender as admin once!")
-            else:
-                current_importer_is_not_latest = datetime.strptime(current_importer, "%Y_%m_%d") < datetime.strptime(latest_importer, "%Y_%m_%d")
+                    row.label(text="No current importer found")
+                    if current_importer is None:
+                        row = layout.row()
+                        row.alert = True
+                        row.label(text="If this is your first time,")
+                        row = layout.row()
+                        row.alert = True
+                        row.label(text="please run blender as admin once!")
+                else:
+                    # Check if user has an outdated NadeoImporter version
+                    def is_valid_version_date(s):
+                        return s and len(s) == 10 and s[4] == '_' and s[7] == '_' and s.replace('_', '').isdigit()
 
-                if current_importer_is_not_latest:
-                    row = layout.row()
-                    row.alert = True
-                    row.alignment = "CENTER"
-                    row.label(text="Old importer in use, update!")
+                    current_importer_is_not_latest = False
+                    if is_valid_version_date(current_importer) and is_valid_version_date(latest_importer):
+                        current_importer_is_not_latest = datetime.strptime(current_importer, "%Y_%m_%d") < datetime.strptime(latest_importer, "%Y_%m_%d")
+
+                    if current_importer_is_not_latest:
+                        row = layout.row()
+                        row.alert = True
+                        row.alignment = "CENTER"
+                        row.label(text="Old importer in use, update!")
             
             nadeo_lib_parse_failed = tm_props.CB_NadeoLibParseFailed
             if nadeo_lib_parse_failed:
