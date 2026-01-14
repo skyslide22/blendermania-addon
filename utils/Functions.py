@@ -15,7 +15,9 @@ import re
 import math
 import configparser
 import pprint
-import ctypes.wintypes
+import sys
+if sys.platform == 'win32':
+    import ctypes.wintypes
 from zipfile import ZipFile
 from threading import Thread
 from inspect import currentframe, getframeinfo
@@ -70,29 +72,47 @@ def get_blendermania_dotnet_path() -> str:
     return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
 
 def is_blendermania_dotnet_installed() -> bool:
+    """Check if Blendermania_Dotnet.exe is installed - always False on non-Windows"""
+    if sys.platform != 'win32':
+        return False  # .NET executable is Windows-only
     return is_file_existing(get_blendermania_dotnet_path())
 
 def get_game() -> str:
     return get_global_props().LI_gameType
 
 def get_documents_path() -> str:
-    process = subprocess.Popen([
-        """Powershell.exe""",
-        """[environment]::getfolderpath("mydocuments")"""
-    ], stdout=subprocess.PIPE)
-    result  = process.communicate() # (b"C:\Users\User\Documents\r\n", None)
-    path = result[0].decode("ascii").replace("\r\n",  "") 
-    debug(path)
-    return fix_slash(path)
-    
-    # documentsPath = os.path.expanduser("~/Documents/")
+    """Get the user's Documents folder path - cross-platform compatible"""
+    # Windows: Use PowerShell for accurate path (handles localized folder names)
+    if sys.platform == 'win32':
+        try:
+            process = subprocess.Popen([
+                "Powershell.exe",
+                "[environment]::getfolderpath('mydocuments')"
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = process.communicate()
+            path = result[0].decode("ascii").replace("\r\n", "")
+            if path and os.path.isdir(path):
+                debug(f"Documents path (PowerShell): {path}")
+                return fix_slash(path)
+        except Exception as e:
+            debug(f"PowerShell documents path failed: {e}")
+
+    # Cross-platform fallback (macOS, Linux, or Windows fallback)
+    documents_path = os.path.expanduser("~/Documents")
+    debug(f"Documents path (fallback): {documents_path}")
+    return fix_slash(documents_path)
 
 
-# windows filepaths can not be longer than 260chars, 
+# windows filepaths can not be longer than 260chars,
 # allow 32.000+ by adding this to path, like //?/C:/Users/<500 random chars>/myfile.txt
 def long_path(path: str) -> str:
-    path = re.sub(r"/+|\\+", r"\\", path)
-    path = EXCEED_260_PATH_LIMIT + path
+    """Add Windows long path prefix if on Windows, normalize path otherwise"""
+    if sys.platform == 'win32':
+        path = re.sub(r"/+|\\+", r"\\", path)
+        path = EXCEED_260_PATH_LIMIT + path
+    else:
+        # On macOS/Linux, just normalize the path
+        path = fix_slash(path)
     return path
 
 
@@ -523,18 +543,27 @@ def unzip_nadeoimporter(zipfilepath)->None:
 
 
 def get_installed_nadeoimporter_version() -> str:
-    version  = "None"
+    """Get NadeoImporter version - Windows only, returns 'N/A' on other platforms"""
+    # NadeoImporter.exe is Windows-only
+    if sys.platform != 'win32':
+        return "N/A (Windows only)"
+
+    version = "None"
     if is_selected_nadeoini_file_name_ok():
-        imp_path =get_nadeo_importer_path()
+        imp_path = get_nadeo_importer_path()
         if is_file_existing(imp_path):
-            process  = subprocess.Popen([
-                f"""powershell.exe""",
-                f"""(Get-Item "{imp_path}").VersionInfo.FileVersion"""
-            ], stdout=subprocess.PIPE)
-            result  = process.communicate()
-            version = result[0].decode("ascii")
-            version = version.replace("\r\n",  "")
-            version = datetime.strptime(version, "%Y.%m.%d.%H%M").strftime("%Y_%m_%d")
+            try:
+                process = subprocess.Popen([
+                    "powershell.exe",
+                    f'(Get-Item "{imp_path}").VersionInfo.FileVersion'
+                ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                result = process.communicate()
+                version = result[0].decode("ascii").replace("\r\n", "")
+                if version:
+                    version = datetime.strptime(version, "%Y.%m.%d.%H%M").strftime("%Y_%m_%d")
+            except Exception as e:
+                debug(f"Failed to get NadeoImporter version: {e}")
+                version = "Unknown"
     return version
     
 
@@ -1157,10 +1186,21 @@ def get_collection_hierachy(colname: str="", hierachystart: list=[]) -> list:
     return hierachy
 
 def get_coll_relative_path(coll: bpy.types.Collection) -> str:
-    return '/'.join(map(safe_name, get_collection_hierachy(coll.name, [coll.name])))
+    # Build path like "CollectionName/CollectionName" so files end up in a subfolder
+    # e.g., Items/MyItem/MyItem.fbx instead of Items/MyItem.fbx
+    hierarchy = get_collection_hierachy(coll.name, [coll.name])
+    path_parts = list(map(safe_name, hierarchy))
+    # Append the final collection name again to create subfolder structure
+    path_parts.append(safe_name(coll.name))
+    return '/'.join(path_parts)
 
 def get_object_relative_path(obj: bpy.types.Object) -> str:
-    return '/'.join(map(safe_name, get_collection_hierachy(obj.users_collection[0].name, [obj.name, obj.users_collection[0].name])))
+    # Build path like "CollectionName/ObjectName" so files end up in a subfolder
+    hierarchy = get_collection_hierachy(obj.users_collection[0].name, [obj.users_collection[0].name])
+    path_parts = list(map(safe_name, hierarchy))
+    # Append object name to create subfolder structure
+    path_parts.append(safe_name(obj.name))
+    return '/'.join(path_parts)
 
 def create_collection_hierachy(hierachy: list) -> object:
     """create collections hierachy from list and link root to the scene master collection"""
@@ -1774,7 +1814,12 @@ def debug(*args, pp=False, raw=False, add_to_list=False, save_list_to=None, clea
         with open(fix_slash(save_list_to), "w") as f:
             f.write(debug_list)
         if open_file:
-            p = subprocess.Popen(f"notepad {save_list_to}")
+            if sys.platform == 'win32':
+                subprocess.Popen(f"notepad {save_list_to}")
+            elif sys.platform == 'darwin':
+                subprocess.Popen(["open", "-t", save_list_to])
+            else:
+                subprocess.Popen(["xdg-open", save_list_to])
 
     if clear_list:
         debug_list = ""
@@ -1945,10 +1990,15 @@ class Timer():
 
 
 
-def change_screen_brightness(value: int)->None:
-    """change screen brightness, 1 to 100"""
-    if (1 <= value <= 100) is False:
-        return # not inbetween mix max
+def change_screen_brightness(value: int) -> None:
+    """Change screen brightness, 1 to 100 - Windows only, silent no-op elsewhere"""
+    # Screen brightness control only works on Windows
+    if sys.platform != 'win32':
+        debug("Screen brightness control not available on this platform")
+        return
+
+    if not (1 <= value <= 100):
+        return  # not in between min max
 
     cmd = f"powershell (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1,{value})"
     subprocess.Popen(cmd)
@@ -1985,19 +2035,23 @@ def toggle_screen_brightness(duration: float = .5)->None:
 
 @in_new_thread
 def show_windows_toast(title: str, text: str, baloon_icon: str="Info", duration: float=5000) -> None:
-    """make windows notification popup "toast" """
-    
+    """Show Windows toast notification - silent no-op on other platforms"""
+    # Toast notifications only work on Windows
+    if sys.platform != 'win32':
+        debug(f"Toast (not shown - Windows only): {title} - {text}")
+        return
+
     if baloon_icon not in {"None", "Info", "Warning", "Error"}:
         raise ValueError
 
     icon = "MANIAPLANET.ico" if is_game_maniaplanet() else "TRACKMANIA2020.ico"
     icon = get_addon_icon_path(icon)
 
-    assetpath = fix_slash( get_addon_assets_path() + "/misc/" )
+    assetpath = fix_slash(get_addon_assets_path() + "/misc/")
     cmd = [
-        "PowerShell", 
-        "-File",        f"""{assetpath}/make_toast.ps1""", 
-        "-Title",       title, 
+        "PowerShell",
+        "-File",        f"{assetpath}/make_toast.ps1",
+        "-Title",       title,
         "-Message",     text,
         "-Icon",        icon,
         "-BaloonIcon",  baloon_icon,
@@ -2006,8 +2060,8 @@ def show_windows_toast(title: str, text: str, baloon_icon: str="Info", duration:
     try:
         subprocess.call(cmd)
     except Exception as e:
-        show_report_popup("Executing powershell scripts(ps1) is disabled on your system...")
-        pass # execute ps1 scripts can be disabled in windows
+        debug(f"Toast notification failed: {e}")
+        pass  # execute ps1 scripts can be disabled in windows
 
 
 def show_report_popup(title=str("some error occured"), infos: tuple=(), icon: str='INFO'):

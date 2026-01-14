@@ -1,4 +1,5 @@
 from email.policy import default
+import sys
 import bpy
 
 from .. operators.OT_Settings import TM_OT_Settings_OpenMessageBox
@@ -112,14 +113,24 @@ class PT_UIMapExport(bpy.types.Panel):
         has_map_coll = tm_props.PT_map_collection is not None
 
 
+        # Platform check - map export requires Windows
+        if sys.platform != 'win32':
+            box = layout.box()
+            box.alert = True
+            col = box.column(align=True)
+            col.scale_y = 0.8
+            col.label(text="Map export requires Windows", icon="ERROR")
+            col.label(text="Blendermania_Dotnet.exe is Windows-only")
+            return
+
         if not is_blendermania_dotnet_installed():
             row = layout.row()
             row.alert = True
             row.label(text="Blendermania dotnet installation required")
-            
+
             row = layout.row()
             row.scale_y = 1.5
-            text = f"Install blendermania-dotnet"
+            text = "Install blendermania-dotnet"
             row.operator("view3d.tm_install_blendermania_dotnet", text=text, icon=ICON_UGLYPACKAGE)
 
             render_donwload_progress_bar(layout)

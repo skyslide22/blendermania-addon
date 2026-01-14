@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 
 from .. import bl_info
@@ -180,12 +181,26 @@ MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"
 MSG_ERROR_NADEO_INI_NOT_FOUND           = """Autofind failed, check "Help" """
 
 
-# Path related
-PATH_DESKTOP               = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') + "/"
-PATH_HOME                  = os.path.expanduser("~").replace("\\", "/") + "/"
-PATH_PROGRAM_DATA          = os.environ.get("ALLUSERSPROFILE").replace("\\", "/")   + "/"
-PATH_PROGRAM_FILES         = os.environ.get("PROGRAMFILES").replace("\\", "/")      + "/"
-PATH_PROGRAM_FILES_X86     = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
+# Path related - cross-platform compatible
+PATH_HOME = os.path.expanduser("~").replace("\\", "/") + "/"
+
+# Desktop path - cross-platform
+if sys.platform == 'win32':
+    PATH_DESKTOP = os.path.join(os.environ.get('USERPROFILE', PATH_HOME.rstrip("/")), 'Desktop').replace("\\", "/") + "/"
+else:
+    PATH_DESKTOP = os.path.join(PATH_HOME.rstrip("/"), 'Desktop').replace("\\", "/") + "/"
+
+# Windows-only paths - safe fallbacks for non-Windows platforms
+def _safe_env_path(var_name: str) -> str:
+    """Safely get Windows environment variable path, returns empty string on non-Windows"""
+    if sys.platform != 'win32':
+        return ""
+    value = os.environ.get(var_name, "")
+    return value.replace("\\", "/") + "/" if value else ""
+
+PATH_PROGRAM_DATA      = _safe_env_path("ALLUSERSPROFILE")
+PATH_PROGRAM_FILES     = _safe_env_path("PROGRAMFILES")
+PATH_PROGRAM_FILES_X86 = _safe_env_path("PROGRAMFILES(X86)")
 PATH_CONVERT_REPORT        = PATH_HOME + "convert_report.html"
 PATH_DEFAULT_SETTINGS_JSON = PATH_HOME + "blender_addon_for_tm2020_maniaplanet_settings.json"
 
@@ -490,6 +505,12 @@ SETTINGS_JSON_KEYS = (
     SETTINGS_BLENDER_GRID_DIVISION    := "blender_grid_division",
     SETTINGS_ITEM_XML_TEMPLATES       := "itemxml_templates",
     SETTINGS_NEW_BLEND_PREFERRED_GAME := "new_blend_game",
+    # Wine/CrossOver settings for macOS
+    SETTINGS_USE_WINE                 := "use_wine",
+    SETTINGS_WINE_TYPE                := "wine_type",
+    SETTINGS_WINE_EXE_PATH            := "wine_exe_path",
+    SETTINGS_WINE_BOTTLE_NAME         := "wine_bottle_name",
+    SETTINGS_WINE_NADEOIMPORTER_PATH  := "wine_nadeoimporter_path",
 )
 
 ENVIRONMENT_NAMES = (

@@ -105,6 +105,13 @@ def updateINI(prop) -> None:
     except AttributeError:
         pass # debug("Error trying to change settings related to game type")
 
+    # Save settings immediately so INI path persists across projects
+    try:
+        from ..operators.OT_Settings import saveDefaultSettingsJSON
+        saveDefaultSettingsJSON()
+    except Exception:
+        pass  # May fail during addon registration
+
 
 
 def defaultINI(prop) -> str:

@@ -1,6 +1,9 @@
 import bpy
+import os
 import os.path
 import string
+import sys
+import subprocess
 import webbrowser
 import addon_utils
 from bpy.types import Operator
@@ -195,7 +198,7 @@ class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
     bl_description = "check if new addon release is available"
     bl_label = "check for new release"
     bl_options = {"REGISTER"}
-        
+
     def execute(self, context):
         AddonUpdate.check_for_new_release()
         if not AddonUpdate.new_addon_available:
@@ -204,14 +207,107 @@ class TM_OT_Settings_UpdateAddonCheckForNewRelease(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Settings_TestWineConfiguration(Operator):
+    """Test Wine/CrossOver configuration to verify it can run NadeoImporter"""
+    bl_idname = "view3d.tm_testwine"
+    bl_description = "Test Wine/CrossOver configuration"
+    bl_label = "Test Wine Configuration"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        tm_props = get_global_props()
+        wine_path = tm_props.ST_wineExePath
+        wine_type = tm_props.LI_wineType
+        bottle_name = tm_props.ST_wineBottleName
+
+        errors = []
+
+        # Check if Wine executable exists
+        if not os.path.isfile(wine_path):
+            errors.append(f"Wine executable not found at: {wine_path}")
+            errors.append("")
+            errors.append("Please check the Wine Path setting.")
+            if wine_type == "CROSSOVER":
+                errors.append("For CrossOver, the path is typically:")
+                errors.append("/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/wine")
+            else:
+                errors.append("For standard Wine, try:")
+                errors.append("/opt/homebrew/bin/wine or /usr/local/bin/wine")
+            show_report_popup("Wine Test Failed", errors, icon="ERROR")
+            return {"FINISHED"}
+
+        # Test Wine can execute
+        try:
+            if wine_type == "CROSSOVER":
+                # Test CrossOver bottle access
+                result = subprocess.run(
+                    [wine_path, "--bottle", bottle_name, "cmd", "/c", "echo", "test"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if result.returncode != 0:
+                    errors.append(f"CrossOver bottle '{bottle_name}' test failed.")
+                    errors.append("")
+                    errors.append("Check that:")
+                    errors.append(f"1. Bottle '{bottle_name}' exists in CrossOver")
+                    errors.append("2. The bottle name is spelled correctly")
+                    errors.append("")
+                    if result.stderr:
+                        errors.append(f"Error: {result.stderr[:200]}")
+                    show_report_popup("Wine Test Failed", errors, icon="ERROR")
+                    return {"FINISHED"}
+            else:
+                # Test standard Wine
+                result = subprocess.run(
+                    [wine_path, "--version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if result.returncode != 0:
+                    errors.append("Wine version check failed.")
+                    errors.append("")
+                    if result.stderr:
+                        errors.append(f"Error: {result.stderr[:200]}")
+                    show_report_popup("Wine Test Failed", errors, icon="ERROR")
+                    return {"FINISHED"}
+        except subprocess.TimeoutExpired:
+            errors.append("Wine command timed out.")
+            errors.append("Wine may be stuck or not responding.")
+            show_report_popup("Wine Test Failed", errors, icon="ERROR")
+            return {"FINISHED"}
+        except Exception as e:
+            errors.append(f"Error running Wine: {str(e)}")
+            show_report_popup("Wine Test Failed", errors, icon="ERROR")
+            return {"FINISHED"}
+
+        # Success!
+        success_msg = []
+        if wine_type == "CROSSOVER":
+            success_msg.append(f"CrossOver bottle '{bottle_name}' is accessible!")
+        else:
+            success_msg.append("Standard Wine is working!")
+        success_msg.append("")
+        success_msg.append("Wine configuration looks good.")
+        success_msg.append("You should be able to convert items now.")
+        show_report_popup("Wine Test Passed", success_msg, icon="CHECKMARK")
+        return {"FINISHED"}
 
 
 def find_nadeo_ini_trackmania2020():
-    tm_props          = get_global_props()
-    program_data_paths= [ fix_slash(PATH_PROGRAM_FILES_X86), fix_slash(PATH_PROGRAM_FILES) ]
-    steamapps         = "Steam/steamapps/common"
-    mp_envis          = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
-    alphabet          = list(string.ascii_lowercase) #[a-z]
+    tm_props = get_global_props()
+
+    # Auto-discovery only works on Windows (Windows-specific paths)
+    if sys.platform != 'win32':
+        if not is_file_existing(tm_props.ST_nadeoIniFile_TM):
+            debug("Nadeo.ini auto-discovery skipped - not on Windows. Manual path entry required.")
+        return
+
+    program_data_paths = [fix_slash(PATH_PROGRAM_FILES_X86), fix_slash(PATH_PROGRAM_FILES)]
+    steamapps = "Steam/steamapps/common"
+    mp_envis = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
+    alphabet = list(string.ascii_lowercase)  # [a-z]
     paths = []
 
     if is_file_existing(tm_props.ST_nadeoIniFile_TM):
@@ -254,11 +350,18 @@ def find_nadeo_ini_trackmania2020():
 
 
 def find_nadeo_ini_maniaplanet():
-    tm_props          = get_global_props()
-    program_data_paths= [ fix_slash(PATH_PROGRAM_FILES_X86), fix_slash(PATH_PROGRAM_FILES) ]
-    steamapps         = "Steam/steamapps/common"
-    mp_envis          = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
-    alphabet          = list(string.ascii_lowercase) #[a-z]
+    tm_props = get_global_props()
+
+    # Auto-discovery only works on Windows (Windows-specific paths)
+    if sys.platform != 'win32':
+        if not is_file_existing(tm_props.ST_nadeoIniFile_MP):
+            debug("Nadeo.ini auto-discovery skipped - not on Windows. Manual path entry required.")
+        return
+
+    program_data_paths = [fix_slash(PATH_PROGRAM_FILES_X86), fix_slash(PATH_PROGRAM_FILES)]
+    steamapps = "Steam/steamapps/common"
+    mp_envis = ["TMStadium", "TMCanyon", "SMStorm", "TMValley", "TMLagoon"]
+    alphabet = list(string.ascii_lowercase)  # [a-z]
     paths = []
 
     if is_file_existing(tm_props.ST_nadeoIniFile_MP):
@@ -352,10 +455,28 @@ def loadDefaultSettingsJSON() -> None:
     fromjson_grid_division      = data.get(SETTINGS_BLENDER_GRID_DIVISION)
     fromjson_itemxml_templates  = data.get(SETTINGS_ITEM_XML_TEMPLATES, [])
     fromjson_new_blend_pref_game= data.get(SETTINGS_NEW_BLEND_PREFERRED_GAME)
+    # Wine/CrossOver settings
+    fromjson_use_wine           = data.get(SETTINGS_USE_WINE)
+    fromjson_wine_type          = data.get(SETTINGS_WINE_TYPE)
+    fromjson_wine_exe_path      = data.get(SETTINGS_WINE_EXE_PATH)
+    fromjson_wine_bottle_name   = data.get(SETTINGS_WINE_BOTTLE_NAME)
+    fromjson_wine_nadeo_path    = data.get(SETTINGS_WINE_NADEOIMPORTER_PATH)
 
     tm_props.ST_author                  = fromjson_author_name   or tm_props.ST_author
-    tm_props.LI_blenderGridSize         = fromjson_grid_size     or tm_props.LI_blenderGridSize 
-    tm_props.LI_blenderGridSizeDivision = fromjson_grid_division or tm_props.LI_blenderGridSizeDivision 
+    tm_props.LI_blenderGridSize         = fromjson_grid_size     or tm_props.LI_blenderGridSize
+    tm_props.LI_blenderGridSizeDivision = fromjson_grid_division or tm_props.LI_blenderGridSizeDivision
+
+    # Load Wine settings if they exist
+    if fromjson_use_wine is not None:
+        tm_props.CB_useWineForConversion = fromjson_use_wine
+    if fromjson_wine_type:
+        tm_props.LI_wineType = fromjson_wine_type
+    if fromjson_wine_exe_path:
+        tm_props.ST_wineExePath = fromjson_wine_exe_path
+    if fromjson_wine_bottle_name:
+        tm_props.ST_wineBottleName = fromjson_wine_bottle_name
+    if fromjson_wine_nadeo_path:
+        tm_props.ST_wineNadeoImporterPath = fromjson_wine_nadeo_path
 
     is_new_blendfile = bpy.data.filepath == ""
     if is_new_blendfile:
@@ -399,16 +520,22 @@ def saveDefaultSettingsJSON() -> None:
     old_data = getDefaultSettingsJSON()
     with open(PATH_DEFAULT_SETTINGS_JSON, "w+") as settingsfile:
         new_data = {
-            SETTINGS_AUTHOR_NAME                : tm_props.ST_author or old_data[SETTINGS_AUTHOR_NAME],
-            SETTINGS_NADEO_INI_MANIAPLANET      : tm_props.ST_nadeoIniFile_MP or old_data[SETTINGS_NADEO_INI_MANIAPLANET],
-            SETTINGS_NADEO_INI_TRACKMANIA2020   : tm_props.ST_nadeoIniFile_TM or old_data[SETTINGS_NADEO_INI_TRACKMANIA2020],
-            SETTINGS_BLENDER_GRID_SIZE          : tm_props.LI_blenderGridSize or old_data[SETTINGS_BLENDER_GRID_SIZE],
-            SETTINGS_BLENDER_GRID_DIVISION      : tm_props.LI_blenderGridSizeDivision or old_data[SETTINGS_BLENDER_GRID_DIVISION],
+            SETTINGS_AUTHOR_NAME                : tm_props.ST_author or old_data.get(SETTINGS_AUTHOR_NAME, ""),
+            SETTINGS_NADEO_INI_MANIAPLANET      : tm_props.ST_nadeoIniFile_MP or old_data.get(SETTINGS_NADEO_INI_MANIAPLANET, ""),
+            SETTINGS_NADEO_INI_TRACKMANIA2020   : tm_props.ST_nadeoIniFile_TM or old_data.get(SETTINGS_NADEO_INI_TRACKMANIA2020, ""),
+            SETTINGS_BLENDER_GRID_SIZE          : tm_props.LI_blenderGridSize or old_data.get(SETTINGS_BLENDER_GRID_SIZE, ""),
+            SETTINGS_BLENDER_GRID_DIVISION      : tm_props.LI_blenderGridSizeDivision or old_data.get(SETTINGS_BLENDER_GRID_DIVISION, ""),
             SETTINGS_ITEM_XML_TEMPLATES         : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates],
-            SETTINGS_NEW_BLEND_PREFERRED_GAME   : get_game()
+            SETTINGS_NEW_BLEND_PREFERRED_GAME   : get_game(),
+            # Wine/CrossOver settings
+            SETTINGS_USE_WINE                   : tm_props.CB_useWineForConversion,
+            SETTINGS_WINE_TYPE                  : tm_props.LI_wineType,
+            SETTINGS_WINE_EXE_PATH              : tm_props.ST_wineExePath,
+            SETTINGS_WINE_BOTTLE_NAME           : tm_props.ST_wineBottleName,
+            SETTINGS_WINE_NADEOIMPORTER_PATH    : tm_props.ST_wineNadeoImporterPath,
         }
-        
-            
+
+
         debug("new settings.json data:")
         debug(new_data, pp=True, raw=True)
         settingsfile.write(json.dumps(new_data, indent=4, sort_keys=True))
@@ -450,10 +577,15 @@ def installUvPackerAddon() -> None:
 
 
 def open_folder(folder_abs: str) -> None:
-    cmd = f"""explorer "{folder_abs}" """
-    cmd = cmd.replace("/", "\\")
-    cmd = cmd.replace("\\\\", "\\")
-    subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    """Open folder in system file browser - cross-platform compatible"""
+    if sys.platform == 'win32':
+        cmd = f'explorer "{folder_abs}"'
+        cmd = cmd.replace("/", "\\").replace("\\\\", "\\")
+        subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    elif sys.platform == 'darwin':  # macOS
+        subprocess.Popen(["open", folder_abs])
+    else:  # Linux and others
+        subprocess.Popen(["xdg-open", folder_abs])
 
 
 def open_url(url: str) -> None:
