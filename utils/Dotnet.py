@@ -204,6 +204,94 @@ class ComplexEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 
+# Wine/CrossOver support for macOS
+def _mac_path_to_wine_path(mac_path: str) -> str:
+    """
+    Convert a Mac filesystem path to a Wine-accessible Z: drive path.
+
+    Mac path: /Users/kelvin/Documents/file.txt
+    Wine path: Z:\\Users\\kelvin\\Documents\\file.txt
+
+    Paths that are already Windows-style (C:, Z:) are returned unchanged.
+    """
+    if not mac_path:
+        return mac_path
+    # Already Windows-style path
+    if len(mac_path) >= 2 and mac_path[1] == ':':
+        return mac_path
+    # Convert Mac path to Wine Z: drive path
+    return 'Z:' + mac_path.replace('/', '\\')
+
+
+def _convert_json_paths_for_wine(config_path: str) -> str:
+    """
+    Read a JSON config file and convert all Mac paths to Wine-accessible paths.
+    Modifies the file in place and returns the Wine-accessible config path.
+
+    Handles these path fields: MapPath, ItemPath, OutputDir
+    """
+    with open(config_path, 'r', encoding='utf-8') as f:
+        config = json.load(f)
+
+    # Convert known path fields
+    path_fields = ['MapPath', 'ItemPath', 'OutputDir']
+    for field in path_fields:
+        if field in config and config[field]:
+            config[field] = _mac_path_to_wine_path(config[field])
+
+    # Convert item paths in Items list (for place-objects-on-map)
+    if 'Items' in config and isinstance(config['Items'], list):
+        for item in config['Items']:
+            if isinstance(item, dict) and 'Path' in item and item['Path']:
+                item['Path'] = _mac_path_to_wine_path(item['Path'])
+
+    # Write back the modified config
+    with open(config_path, 'w', encoding='utf-8') as f:
+        json.dump(config, f, ensure_ascii=False, indent=4)
+
+    return _mac_path_to_wine_path(config_path)
+
+
+def _build_wine_dotnet_command(command: str, payload_wine_path: str) -> list:
+    """
+    Build the Wine command for running blendermania-dotnet.exe on Mac.
+
+    Args:
+        command: The dotnet command (e.g., "place-objects-on-map")
+        payload_wine_path: The Wine-accessible path to the JSON config file
+
+    Returns:
+        Command list for subprocess.Popen
+    """
+    tm_props = get_global_props()
+    wine_path = tm_props.ST_wineExePath
+    bottle_name = tm_props.ST_wineBottleName
+
+    # Get exe path and convert to Wine path
+    exe_mac_path = get_blendermania_dotnet_path()
+    exe_wine_path = _mac_path_to_wine_path(exe_mac_path)
+
+    if tm_props.LI_wineType == "CROSSOVER":
+        cmd = [
+            wine_path,
+            "--bottle", bottle_name,
+            exe_wine_path,
+            command,
+            payload_wine_path
+        ]
+    else:
+        # Standard Wine
+        cmd = [
+            wine_path,
+            exe_wine_path,
+            command,
+            payload_wine_path
+        ]
+
+    debug(f"Wine dotnet command: {' '.join(cmd)}")
+    return cmd
+
+
 # Dotnet commands
 def run_place_objects_on_map(
     map_path: str,
@@ -286,23 +374,44 @@ def run_place_mediatracker_clips_on_map(
 
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
-    # Blendermania_Dotnet.exe is Windows-only
+    tm_props = get_global_props()
+
+    # Check if we can run dotnet - either Windows or Mac with Wine
     if sys.platform != 'win32':
-        return DotnetExecResult(
-            message="Blendermania_Dotnet.exe requires Windows. This feature is not available on macOS/Linux.",
-            success=False
-        )
+        if not tm_props.CB_useWineForConversion:
+            return DotnetExecResult(
+                message="Blendermania_Dotnet.exe requires Windows or Wine/CrossOver. Enable Wine in Settings > NadeoImporter to use this feature on macOS.",
+                success=False
+            )
 
-    dotnet_exe = get_blendermania_dotnet_path()
+        # Use Wine to run dotnet on Mac
+        try:
+            # Convert paths in the JSON config for Wine
+            wine_payload = _convert_json_paths_for_wine(payload)
+            cmd = _build_wine_dotnet_command(command, wine_payload)
 
-    process = subprocess.Popen(args=[
-        dotnet_exe,
-        command,
-        payload.strip('"'),
-    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=False
+            )
+        except Exception as e:
+            return DotnetExecResult(
+                message=f"Wine execution failed: {str(e)}",
+                success=False
+            )
+    else:
+        # Windows - run directly
+        dotnet_exe = get_blendermania_dotnet_path()
+        process = subprocess.Popen(args=[
+            dotnet_exe,
+            command,
+            payload.strip('"'),
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     out, err = process.communicate()
-    
+
     out_msg = out.decode("utf-8").strip()
     err_msg = err.decode("utf-8").strip()
 
@@ -310,7 +419,7 @@ def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
 
     if process.returncode == DOTNET_RETURN_CODE_SUCCESS:
         return DotnetExecResult(message=messages, success=True)
-    
+
     messages = DOTNET_RETURN_CODES.get(process.returncode, "Unknown Error") + "\n" + messages
 
     return DotnetExecResult(message=messages, success=False)

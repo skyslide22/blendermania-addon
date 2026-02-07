@@ -19,6 +19,18 @@
 
 This addon will make your blender experience way better and help you with the following things:
 
+## Development
+
+If you're working on the addon locally, you can install it as a symlink instead of rebuilding the zip:
+
+1. Run `./dev_install.sh`
+2. In Blender, open Preferences → Add-ons, search for "Blendermania", then enable it.
+3. After code edits, use `F3` → "Reload Scripts" or toggle the addon off/on to pick up changes.
+
+Notes:
+- If you change registration code, properties, or persistent handlers, a full Blender restart may still be required.
+- Use `./dev_uninstall.sh` to remove the symlink.
+
 ### Creations:
 - **Icons** for your objects
 - Mandatory **materials** to convert your item to the game (container for texture & physicid/gameplayid)

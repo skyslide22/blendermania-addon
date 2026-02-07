@@ -72,10 +72,78 @@ def get_blendermania_dotnet_path() -> str:
     return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
 
 def is_blendermania_dotnet_installed() -> bool:
-    """Check if Blendermania_Dotnet.exe is installed - always False on non-Windows"""
-    if sys.platform != 'win32':
-        return False  # .NET executable is Windows-only
-    return is_file_existing(get_blendermania_dotnet_path())
+    """Check if Blendermania_Dotnet.exe can be run - either native Windows or via Wine on Mac"""
+    exe_exists = is_file_existing(get_blendermania_dotnet_path())
+    if sys.platform == 'win32':
+        return exe_exists
+    else:
+        # On Mac/Linux, need exe AND Wine configured
+        tm_props = get_global_props()
+        return exe_exists and tm_props.CB_useWineForConversion
+
+
+def is_dotnet_runtime_installed_in_wine() -> bool:
+    """Check if .NET 7+ runtime is available in the Wine bottle"""
+    tm_props = get_global_props()
+    if sys.platform == 'win32' or not tm_props.CB_useWineForConversion:
+        return True  # Not relevant on Windows
+
+    wine_path = tm_props.ST_wineExePath
+    bottle_name = tm_props.ST_wineBottleName
+
+    try:
+        if tm_props.LI_wineType == "CROSSOVER":
+            cmd = [wine_path, "--bottle", bottle_name, "dotnet", "--list-runtimes"]
+        else:
+            cmd = [wine_path, "dotnet", "--list-runtimes"]
+
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        # Check if .NET 7 or higher is in output
+        output = result.stdout + result.stderr
+        return "Microsoft.NETCore.App 7." in output or "Microsoft.NETCore.App 8." in output
+    except Exception as e:
+        debug(f"Failed to check .NET runtime in Wine: {e}")
+        return False
+
+
+def install_dotnet_runtime_in_wine() -> tuple[bool, str]:
+    """
+    Install .NET 7 runtime in Wine bottle using winetricks.
+    Returns (success, message) tuple.
+    """
+    tm_props = get_global_props()
+    wine_path = tm_props.ST_wineExePath
+    bottle_name = tm_props.ST_wineBottleName
+
+    # For CrossOver, use the bottle path as WINEPREFIX
+    if tm_props.LI_wineType == "CROSSOVER":
+        bottle_path = os.path.expanduser(
+            f"~/Library/Application Support/CrossOver/Bottles/{bottle_name}"
+        )
+        env = os.environ.copy()
+        env["WINEPREFIX"] = bottle_path
+    else:
+        env = os.environ.copy()
+
+    try:
+        # Try winetricks to install .NET 7
+        result = subprocess.run(
+            ["winetricks", "dotnet7"],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 min timeout for download/install
+        )
+        if result.returncode == 0:
+            return (True, ".NET 7 installed successfully in Wine bottle")
+        else:
+            return (False, f"winetricks failed: {result.stderr}")
+    except FileNotFoundError:
+        return (False, "winetricks not found. Please install winetricks and run: winetricks dotnet7")
+    except subprocess.TimeoutExpired:
+        return (False, "Installation timed out after 5 minutes")
+    except Exception as e:
+        return (False, f"Installation failed: {str(e)}")
 
 def get_game() -> str:
     return get_global_props().LI_gameType
@@ -732,12 +800,17 @@ def install_blendermania_dotnet()->None:
         delete_files_by_wildcard(f"{extract_to}/Blendermania_Dotnet*.exe")
 
         tm_props.CB_DL_ProgressRunning = False
-        unzip_file_into(file_path, extract_to)
-        def run(): 
-            tm_props.CB_DL_ProgressShow = False
-        timer(run, 5)
-        debug(f"downloading & installing blendermania-dotnet {get_global_props().LI_gameType} successful")
-        os.remove(file_path)
+        try:
+            unzip_file_into(file_path, extract_to)
+            def run(): 
+                tm_props.CB_DL_ProgressShow = False
+            timer(run, 5)
+            debug(f"downloading & installing blendermania-dotnet {get_global_props().LI_gameType} successful")
+            os.remove(file_path)
+        except Exception as error:
+            tm_props.ST_DL_ProgressErrors = str(error) or "unknown error"
+            debug(f"unzip blendermania-dotnet failed, error: {error}")
+            show_report_popup("Blendermania-dotnet install failed", [str(error)], "ERROR")
 
     def on_error(msg):
         tm_props.ST_DL_ProgressErrors = msg or "unknown error"
@@ -813,34 +886,37 @@ class DownloadTMFile(Thread):
 
         if not isinstance(self.response, dict) and self.response.code == 200:
             with open(self.saveFilePath, "wb+") as f:
-                fileSize   = int(self.response.length)
+                fileSizeHeader = self.response.length
+                fileSize = int(fileSizeHeader) if fileSizeHeader is not None else None
                 downloaded = 0
 
                 while True:
-                    downloaded = os.stat(self.saveFilePath).st_size #get filesize on disk
                     dataParts  = self.response.read(self.CHUNK) #get part of downloaded data, empty after each read() call
 
                     
 
                     def updateProgressbar():
                         try: #x[ y ]=z does not trigger panel text refresh, so do x.y = z
-                            percentage = downloaded/fileSize * 100
-                            exec_str = f"get_global_props().{self.progressbar_prop} = percentage" 
-                            exec_str = exec_str 
-                            exec(exec_str)
+                            if fileSize:
+                                percentage = min(100.0, (downloaded / fileSize) * 100)
+                                exec_str = f"get_global_props().{self.progressbar_prop} = percentage"
+                                exec(exec_str)
                         except Exception as e:
                             debug(f"update progressbar failed: {e=}")
 
-
-                    updateProgressbar()
-                        
 
                     if not dataParts: #if downloaded data is 0, download is complete
                         break 
 
                     f.write(dataParts) #write part to disk
+                    downloaded += len(dataParts)
+                    updateProgressbar()
 
-                success = True
+                if fileSize and downloaded < fileSize:
+                    self.error_msg = f"download incomplete ({downloaded}/{fileSize} bytes)"
+                    success = False
+                else:
+                    success = True
 
 
         callback_list = [
@@ -1110,6 +1186,8 @@ def unhide_selected_object(objs: list) -> None:
 
 def set_active_object(obj) -> None:
     """set active object"""
+    if obj is None:
+        return
     if obj.name in bpy.context.view_layer.objects:
         bpy.context.view_layer.objects.active = obj
         select_obj(obj)

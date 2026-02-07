@@ -18,6 +18,7 @@ from ..utils.Functions import (
     draw_nadeoini_required_message,
     get_global_props,
     is_blendermania_dotnet_installed,
+    is_dotnet_runtime_installed_in_wine,
     is_game_maniaplanet,
     is_selected_nadeoini_file_name_ok,
 )
@@ -112,16 +113,29 @@ class PT_UIMapExport(bpy.types.Panel):
         has_map_file = len(tm_props.ST_map_filepath) != 0
         has_map_coll = tm_props.PT_map_collection is not None
 
-
-        # Platform check - map export requires Windows
-        if sys.platform != 'win32':
+        # Platform check - map export requires Windows OR Wine on Mac
+        if sys.platform != 'win32' and not tm_props.CB_useWineForConversion:
             box = layout.box()
             box.alert = True
             col = box.column(align=True)
             col.scale_y = 0.8
-            col.label(text="Map export requires Windows", icon="ERROR")
-            col.label(text="Blendermania_Dotnet.exe is Windows-only")
+            col.label(text="Map export requires Wine/CrossOver", icon="ERROR")
+            col.label(text="Enable Wine in Settings > NadeoImporter")
             return
+
+        # Check for .NET runtime on Mac with Wine
+        if sys.platform != 'win32' and tm_props.CB_useWineForConversion:
+            if not is_dotnet_runtime_installed_in_wine():
+                box = layout.box()
+                box.alert = True
+                col = box.column(align=True)
+                col.scale_y = 0.8
+                col.label(text=".NET 7 runtime required", icon="ERROR")
+                col.label(text="Not found in Wine bottle")
+                row = col.row()
+                row.scale_y = 1.5
+                row.operator("view3d.tm_install_dotnet_wine", text="Install .NET 7", icon=ICON_UGLYPACKAGE)
+                return
 
         if not is_blendermania_dotnet_installed():
             row = layout.row()

@@ -63,10 +63,12 @@ from .operators.OT_Settings                import (
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_InstallGameAssetsLIbrary,
     TM_OT_Settings_InstallBlendermaniaDotnet,
+    TM_OT_Settings_InstallDotnetInWine,
     TM_OT_Settings_UpdateAddonResetSettings,
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonCheckForNewRelease,
     TM_OT_Settings_TestWineConfiguration,
+    TM_OT_Settings_ReloadAddon,
     autoFindNadeoIni,
 )
 from .operators.OT_Items_Export            import *
@@ -144,6 +146,7 @@ classes = (
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_InstallGameAssetsLIbrary,
     TM_OT_Settings_InstallBlendermaniaDotnet,
+    TM_OT_Settings_InstallDotnetInWine,
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonResetSettings,
     TM_OT_Settings_UpdateAddonCheckForNewRelease,
@@ -152,6 +155,7 @@ classes = (
     TM_OT_Settings_OpenFolder,
     TM_OT_Settings_DebugAll,
     TM_OT_Settings_OpenConvertReport,
+    TM_OT_Settings_ReloadAddon,
     TM_PT_Settings_Experimentals,
     
     # object manipulation

@@ -95,6 +95,24 @@ class TM_OT_Settings_OpenConvertReport(Operator):
         return {"FINISHED"}
 
 
+class TM_OT_Settings_ReloadAddon(Operator):
+    bl_idname = "view3d.tm_reloadaddon"
+    bl_description = "Reload the addon (dev)"
+    bl_label = "Reload Addon"
+
+    def execute(self, context):
+        addon_module = __package__.split(".")[0]
+        def _reload():
+            try:
+                bpy.ops.preferences.addon_disable(module=addon_module)
+                bpy.ops.preferences.addon_enable(module=addon_module)
+            except Exception as error:
+                show_report_popup("Reload failed", [str(error)], "ERROR")
+            return None
+
+        bpy.app.timers.register(_reload, first_interval=0.1)
+        return {"FINISHED"}
+
 
 
 class TM_OT_Settings_InstallNadeoImporter(Operator):
@@ -150,11 +168,32 @@ class TM_OT_Settings_InstallBlendermaniaDotnet(Operator):
     bl_idname = "view3d.tm_install_blendermania_dotnet"
     bl_description = "Download blendermania-dotnet for activate map manipulation pannels"
     bl_label = "Download nlendermania-dotnet"
-        
+
     def execute(self, context):
         install_blendermania_dotnet()
         return {"FINISHED"}
 
+
+class TM_OT_Settings_InstallDotnetInWine(Operator):
+    """Install .NET 7 runtime in Wine bottle for map export functionality"""
+    bl_idname = "view3d.tm_install_dotnet_wine"
+    bl_description = "Install .NET 7 runtime in Wine bottle using winetricks"
+    bl_label = "Install .NET 7 in Wine"
+
+    def execute(self, context):
+        from ..utils.Functions import install_dotnet_runtime_in_wine
+        success, message = install_dotnet_runtime_in_wine()
+        if success:
+            show_report_popup("Success", [message], "INFO")
+        else:
+            show_report_popup("Installation Failed", [
+                message,
+                "",
+                "Manual installation options:",
+                "- Install winetricks and run: winetricks dotnet7",
+                "- CrossOver: Use Install Software to add .NET 7"
+            ], "ERROR")
+        return {"FINISHED"}
 
 
 class TM_OT_Settings_UpdateAddonResetSettings(Operator):

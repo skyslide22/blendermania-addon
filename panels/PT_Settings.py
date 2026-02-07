@@ -64,6 +64,8 @@ class TM_PT_Settings(Panel):
         row.label(text=f"""Addon: {addon_version}""", icon_value=get_addon_icon("BLENDERMANIA"))
         row.operator("view3d.tm_checkfornewaddonrelease",   text="", icon=ICON_UPDATE)
         row.operator("view3d.tm_debug_all",                 text="", icon=ICON_DEBUG)
+        row = box.row(align=True)
+        row.operator("view3d.tm_reloadaddon", text="Reload Addon", icon=ICON_UPDATE)
         
 
         if AddonUpdate.new_addon_available:
