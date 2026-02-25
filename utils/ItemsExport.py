@@ -641,7 +641,9 @@ def export_objects(objects: list[bpy.types.Object]) -> None:
 
         for slot in obj.material_slots:
             mat = slot.material
-            if mat not in processed_materials: 
+            if mat is None:
+                continue
+            if mat not in processed_materials:
                 if is_material_exportable(mat):
                     save_mat_props_json(mat)
                     processed_materials.append(mat)

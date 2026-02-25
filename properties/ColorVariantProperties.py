@@ -50,5 +50,6 @@ class TM_ColorVariantSettings(bpy.types.PropertyGroup):
     )
     active_variant_index: IntProperty(
         name="Active Variant Index",
-        default=0
+        default=0,
+        min=0
     )

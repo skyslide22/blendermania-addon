@@ -92,15 +92,24 @@ def is_dotnet_runtime_installed_in_wine() -> bool:
     bottle_name = tm_props.ST_wineBottleName
 
     try:
+        if not os.path.isfile(wine_path):
+            debug(f"Wine executable not found at {wine_path}")
+            return False
+
         if tm_props.LI_wineType == "CROSSOVER":
             cmd = [wine_path, "--bottle", bottle_name, "dotnet", "--list-runtimes"]
         else:
             cmd = [wine_path, "dotnet", "--list-runtimes"]
 
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-        # Check if .NET 7 or higher is in output
         output = result.stdout + result.stderr
         return "Microsoft.NETCore.App 7." in output or "Microsoft.NETCore.App 8." in output
+    except subprocess.TimeoutExpired:
+        debug("Wine timed out checking .NET runtime")
+        return False
+    except FileNotFoundError:
+        debug(f"Wine executable not found at {wine_path}")
+        return False
     except Exception as e:
         debug(f"Failed to check .NET runtime in Wine: {e}")
         return False
@@ -112,7 +121,6 @@ def install_dotnet_runtime_in_wine() -> tuple[bool, str]:
     Returns (success, message) tuple.
     """
     tm_props = get_global_props()
-    wine_path = tm_props.ST_wineExePath
     bottle_name = tm_props.ST_wineBottleName
 
     # For CrossOver, use the bottle path as WINEPREFIX
@@ -1264,13 +1272,7 @@ def get_collection_hierachy(colname: str="", hierachystart: list=[]) -> list:
     return hierachy
 
 def get_coll_relative_path(coll: bpy.types.Collection) -> str:
-    # Build path like "CollectionName/CollectionName" so files end up in a subfolder
-    # e.g., Items/MyItem/MyItem.fbx instead of Items/MyItem.fbx
-    hierarchy = get_collection_hierachy(coll.name, [coll.name])
-    path_parts = list(map(safe_name, hierarchy))
-    # Append the final collection name again to create subfolder structure
-    path_parts.append(safe_name(coll.name))
-    return '/'.join(path_parts)
+    return '/'.join(map(safe_name, get_collection_hierachy(coll.name, [coll.name])))
 
 def get_object_relative_path(obj: bpy.types.Object) -> str:
     # Build path like "CollectionName/ObjectName" so files end up in a subfolder

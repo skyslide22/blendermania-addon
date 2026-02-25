@@ -204,12 +204,12 @@ class ComplexEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 
-# Wine/CrossOver support for macOS
-def _mac_path_to_wine_path(mac_path: str) -> str:
+# Wine/CrossOver support for macOS/Linux
+def _unix_path_to_wine_path(mac_path: str) -> str:
     """
-    Convert a Mac filesystem path to a Wine-accessible Z: drive path.
+    Convert a Unix filesystem path to a Wine-accessible Z: drive path.
 
-    Mac path: /Users/kelvin/Documents/file.txt
+    Unix path: /Users/kelvin/Documents/file.txt
     Wine path: Z:\\Users\\kelvin\\Documents\\file.txt
 
     Paths that are already Windows-style (C:, Z:) are returned unchanged.
@@ -219,37 +219,45 @@ def _mac_path_to_wine_path(mac_path: str) -> str:
     # Already Windows-style path
     if len(mac_path) >= 2 and mac_path[1] == ':':
         return mac_path
-    # Convert Mac path to Wine Z: drive path
+    if not mac_path.startswith('/'):
+        debug(f"WARNING: _unix_path_to_wine_path received non-absolute path: {mac_path}")
+    # Convert Unix path to Wine Z: drive path
     return 'Z:' + mac_path.replace('/', '\\')
 
 
 def _convert_json_paths_for_wine(config_path: str) -> str:
     """
-    Read a JSON config file and convert all Mac paths to Wine-accessible paths.
+    Read a JSON config file and convert all Mac/Linux paths to Wine-accessible paths.
     Modifies the file in place and returns the Wine-accessible config path.
 
-    Handles these path fields: MapPath, ItemPath, OutputDir
+    Handles these path fields: MapPath, ItemPath, OutputDir, Items[].Path
     """
-    with open(config_path, 'r', encoding='utf-8') as f:
-        config = json.load(f)
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        raise RuntimeError(f"Failed to read config for Wine path conversion ({config_path}): {e}")
 
     # Convert known path fields
     path_fields = ['MapPath', 'ItemPath', 'OutputDir']
     for field in path_fields:
         if field in config and config[field]:
-            config[field] = _mac_path_to_wine_path(config[field])
+            config[field] = _unix_path_to_wine_path(config[field])
 
     # Convert item paths in Items list (for place-objects-on-map)
     if 'Items' in config and isinstance(config['Items'], list):
         for item in config['Items']:
             if isinstance(item, dict) and 'Path' in item and item['Path']:
-                item['Path'] = _mac_path_to_wine_path(item['Path'])
+                item['Path'] = _unix_path_to_wine_path(item['Path'])
 
     # Write back the modified config
-    with open(config_path, 'w', encoding='utf-8') as f:
-        json.dump(config, f, ensure_ascii=False, indent=4)
+    try:
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, ensure_ascii=False, indent=4)
+    except OSError as e:
+        raise RuntimeError(f"Failed to write config for Wine path conversion ({config_path}): {e}")
 
-    return _mac_path_to_wine_path(config_path)
+    return _unix_path_to_wine_path(config_path)
 
 
 def _build_wine_dotnet_command(command: str, payload_wine_path: str) -> list:
@@ -269,7 +277,7 @@ def _build_wine_dotnet_command(command: str, payload_wine_path: str) -> list:
 
     # Get exe path and convert to Wine path
     exe_mac_path = get_blendermania_dotnet_path()
-    exe_wine_path = _mac_path_to_wine_path(exe_mac_path)
+    exe_wine_path = _unix_path_to_wine_path(exe_mac_path)
 
     if tm_props.LI_wineType == "CROSSOVER":
         cmd = [

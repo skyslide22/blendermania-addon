@@ -167,7 +167,7 @@ class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
 class TM_OT_Settings_InstallBlendermaniaDotnet(Operator):
     bl_idname = "view3d.tm_install_blendermania_dotnet"
     bl_description = "Download blendermania-dotnet for activate map manipulation pannels"
-    bl_label = "Download nlendermania-dotnet"
+    bl_label = "Download blendermania-dotnet"
 
     def execute(self, context):
         install_blendermania_dotnet()
@@ -617,14 +617,17 @@ def installUvPackerAddon() -> None:
 
 def open_folder(folder_abs: str) -> None:
     """Open folder in system file browser - cross-platform compatible"""
-    if sys.platform == 'win32':
-        cmd = f'explorer "{folder_abs}"'
-        cmd = cmd.replace("/", "\\").replace("\\\\", "\\")
-        subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    elif sys.platform == 'darwin':  # macOS
-        subprocess.Popen(["open", folder_abs])
-    else:  # Linux and others
-        subprocess.Popen(["xdg-open", folder_abs])
+    try:
+        if sys.platform == 'win32':
+            cmd = f'explorer "{folder_abs}"'
+            cmd = cmd.replace("/", "\\").replace("\\\\", "\\")
+            subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        elif sys.platform == 'darwin':  # macOS
+            subprocess.Popen(["open", folder_abs])
+        else:  # Linux and others
+            subprocess.Popen(["xdg-open", folder_abs])
+    except Exception as e:
+        debug(f"Failed to open folder '{folder_abs}': {e}")
 
 
 def open_url(url: str) -> None:

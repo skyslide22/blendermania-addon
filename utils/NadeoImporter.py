@@ -66,8 +66,9 @@ def _build_nadeo_importer_command(command_type: str, filepath: str) -> tuple:
         filepath: The relative filepath to the fbx or xml file (e.g., "Items/test/test.fbx")
 
     Returns:
-        Tuple of (command_list, use_shell, cwd) for subprocess.Popen
-        cwd is the working directory (only set for Wine on Mac)
+        Tuple of (command_or_list, use_shell, cwd) for subprocess.Popen.
+        On Windows: command is a string, use_shell=True, cwd=None.
+        On Mac/Linux with Wine: command is a list, use_shell=False, cwd=game folder path.
     """
     tm_props = get_global_props()
     nadeo_importer_path = get_nadeo_importer_path()
@@ -88,7 +89,6 @@ def _build_nadeo_importer_command(command_type: str, filepath: str) -> tuple:
             # Convert Windows path to Mac bottle path
             # e.g., "C:\Program Files (x86)\Steam\...\Trackmania\NadeoImporter.exe"
             # becomes "~/Library/Application Support/CrossOver/Bottles/<bottle>/drive_c/Program Files (x86)/Steam/.../Trackmania"
-            import os
             bottle_base = os.path.expanduser(f"~/Library/Application Support/CrossOver/Bottles/{bottle_name}/drive_c")
             # Remove drive letter and convert to Mac path
             win_path = nadeo_importer_wine
@@ -99,8 +99,17 @@ def _build_nadeo_importer_command(command_type: str, filepath: str) -> tuple:
             win_dir = "/".join(win_path.split("/")[:-1])
             work_folder = bottle_base + win_dir
         else:
-            # For standard Wine, user needs to handle this themselves
-            work_folder = None
+            # Standard Wine: derive work folder from WINEPREFIX
+            wine_prefix = os.environ.get("WINEPREFIX", os.path.expanduser("~/.wine"))
+            win_path = nadeo_importer_wine
+            if len(win_path) > 2 and win_path[1] == ':':
+                win_path = win_path[2:]
+            win_path = win_path.replace("\\", "/")
+            win_dir = "/".join(win_path.split("/")[:-1])
+            work_folder = f"{wine_prefix}/drive_c{win_dir}"
+            if not os.path.isdir(work_folder):
+                debug(f"WARNING: Standard Wine work folder not found: {work_folder}")
+                work_folder = None
 
         if wine_type == "CROSSOVER":
             # CrossOver command: wine --bottle <bottle> NadeoImporter.exe <type> "<path>"
@@ -294,12 +303,18 @@ class ItemConvert(threading.Thread):
         if cwd:
             self.add_progress_step(f"""Working dir: {cwd}""")
 
-        convert_process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=use_shell, cwd=cwd)
+        try:
+            convert_process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=use_shell, cwd=cwd)
+        except (FileNotFoundError, OSError) as e:
+            self.convert_has_failed = True
+            self.convert_message_mesh_shape_gbx = f"Failed to start conversion: {e}. Check Wine path in Settings."
+            self.convert_returncode_mesh_shape_gbx = -1
+            return
         mesh_output = convert_process.communicate()
         mesh_returncode = convert_process.returncode
         convert_process.wait()
 
-        self.convert_has_failed = True if mesh_returncode > 0 else False
+        self.convert_has_failed = mesh_returncode > 0
         self.convert_message_mesh_shape_gbx = str(mesh_output[0], encoding="utf-8", errors="replace")
         self.convert_returncode_mesh_shape_gbx = int(mesh_returncode)
 
@@ -319,12 +334,18 @@ class ItemConvert(threading.Thread):
         if cwd:
             self.add_progress_step(f"""Working dir: {cwd}""")
 
-        convert_process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=use_shell, cwd=cwd)
+        try:
+            convert_process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=use_shell, cwd=cwd)
+        except (FileNotFoundError, OSError) as e:
+            self.convert_has_failed = True
+            self.convert_message_item_gbx = f"Failed to start conversion: {e}. Check Wine path in Settings."
+            self.convert_returncode_item_gbx = -1
+            return
         item_output = convert_process.communicate()
         item_returncode = convert_process.returncode
         convert_process.wait()
 
-        self.convert_has_failed = True if item_returncode > 0 else False
+        self.convert_has_failed = item_returncode > 0
         self.convert_message_item_gbx = str(item_output[0], encoding="utf-8", errors="replace")
         self.convert_returncode_item_gbx = int(item_returncode)
 
@@ -936,7 +957,7 @@ def convert_fbx(item: ExportedItem) -> None:
 
 
 def start_batch_convert(items: list[ExportedItem]) -> None:
-    """convert each fbx one after one, create a new thread for it"""
+    """convert each fbx in parallel using threads"""
     from .Functions import show_report_popup
 
     debug(f"start_batch_convert called with {len(items)} items")

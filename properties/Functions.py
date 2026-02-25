@@ -109,8 +109,10 @@ def updateINI(prop) -> None:
     try:
         from ..operators.OT_Settings import saveDefaultSettingsJSON
         saveDefaultSettingsJSON()
-    except Exception:
-        pass  # May fail during addon registration
+    except AttributeError:
+        pass  # Expected during addon registration
+    except Exception as e:
+        print(f"[Blendermania] Failed to save settings: {e}")
 
 
 

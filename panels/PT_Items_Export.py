@@ -188,6 +188,7 @@ def draw_export_panel(self:Panel) -> None:
     exportCustomFolder      = True if str(exportFolderType).lower() == "custom" else False
     exportCustomFolderProp  = "ST_exportFolder_MP" if is_game_maniaplanet() else "ST_exportFolder_TM"
     exportType              = tm_props.LI_exportType
+    can_convert             = sys.platform == 'win32' or tm_props.CB_useWineForConversion
 
 
     main_row = layout.row(align=True)
@@ -281,8 +282,6 @@ def draw_export_panel(self:Panel) -> None:
         else:
             enableExportButton = False
         
-        # Check if conversion is available (Windows or Wine enabled)
-        can_convert = sys.platform == 'win32' or tm_props.CB_useWineForConversion
         if can_convert:
             text = f"Export & Convert {type}"
         else:
@@ -292,7 +291,6 @@ def draw_export_panel(self:Panel) -> None:
     else:
         type = "Objects" if item_prefix_detected else "Collections"
         type = type if enableExportButton else ""
-        can_convert = sys.platform == 'win32' or tm_props.CB_useWineForConversion
         if can_convert:
             text = f"Export {type}"
         else:
@@ -306,7 +304,6 @@ def draw_export_panel(self:Panel) -> None:
     row.scale_y = 1.5
     row.enabled = enableExportButton
     row.alert   = not enableExportButton #red button, 0 selected
-    can_convert = sys.platform == 'win32' or tm_props.CB_useWineForConversion
     export_icon = ICON_CONVERT if can_convert else ICON_EXPORT
     row.operator("view3d.tm_export", text=text, icon=export_icon)
 
