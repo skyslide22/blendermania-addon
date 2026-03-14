@@ -278,6 +278,11 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
         row.enabled = not is_block and not is_multi
         row.prop(tm_props.PT_map_object, "object_item", text="")
 
+        col_left.label(text="Source Coll.")
+        row = col_right.row(align=True)
+        row.enabled = not is_block and not is_multi
+        row.prop(tm_props.PT_map_object, "object_source_collection", text="")
+
         path_title = "Name" if is_block else "Item.Gbx"
         
         col_left.label(text=path_title)
@@ -287,17 +292,17 @@ class PT_UIMapObjectsManipulation(bpy.types.Panel):
 
         item_gbx_name = (tm_props.PT_map_object.object_path).split("/")[-1].split(".")[0]
         item_btn_icon = ICON_UPDATE if is_update else ICON_ADD
-        
+        has_source_coll = tm_props.PT_map_object.object_source_collection is not None
 
-        text = (f"{item_action} Item {item_gbx_name}" 
-                if len(bpy.context.selected_objects) == 1 
-                else "Select an Item!" if len(bpy.context.selected_objects) == 0 
+        text = (f"{item_action} Item {item_gbx_name}"
+                if len(bpy.context.selected_objects) == 1 or has_source_coll
+                else "Select an Item!" if len(bpy.context.selected_objects) == 0
                 else f"{item_action} all({len(select_objects)}) from {item_gbx_name}")
         button = layout.row()
         button.scale_y = 1.5
-        button.enabled = not is_block and len(item_gbx_name) > 0 and len(select_objects) > 0
+        button.enabled = not is_block and len(item_gbx_name) > 0 and (len(select_objects) > 0 or has_source_coll)
         button.operator(
-            OT_UICreateUpdateMapItemBlock.bl_idname, 
+            OT_UICreateUpdateMapItemBlock.bl_idname,
             text=text,
             icon=item_btn_icon)
             
