@@ -631,13 +631,22 @@ def open_folder(folder_abs: str) -> None:
 
 
 def open_url(url: str) -> None:
-    webbrowser.open(url)
+    try:
+        if sys.platform == 'darwin':
+            subprocess.Popen(["open", url])
+        elif sys.platform == 'win32':
+            os.startfile(url)
+        else:
+            subprocess.Popen(["xdg-open", url])
+    except Exception as e:
+        debug(f"Failed to open URL '{url}': {e}")
 
 def open_convert_report() -> None:
-    open_url(fix_slash(PATH_CONVERT_REPORT))
-
-# def open_convert_report() -> None:
-#     subprocess.Popen(['start', fix_slash(PATH_CONVERT_REPORT)], shell=True)
+    report_path = fix_slash(PATH_CONVERT_REPORT)
+    if not os.path.isfile(report_path):
+        debug(f"Convert report not found: {report_path}")
+        return
+    open_url(report_path)
 
 
 
