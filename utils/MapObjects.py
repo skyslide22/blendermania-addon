@@ -94,6 +94,7 @@ def create_update_map_object():
     if not map_coll:
         return "No map collection selected"
 
+    source_coll:bpy.types.Collection = tm_props.PT_map_object.object_source_collection
     obj_to_update:bpy.types.Object = None
 
     if doc_path.lower() in object_path.lower():
@@ -102,7 +103,7 @@ def create_update_map_object():
 
     if len(object_path) == 0:
         return f"Name/Path can not be empty"
-    
+
     debug("update map object", object_path, object_type, object_item_animphaseoffset, object_item_difficultycolor)
 
 
@@ -132,13 +133,20 @@ def create_update_map_object():
         if object_item and object_item.tm_map_object_kind:
             obj_to_update = object_item
         else:
-            if not object_item:
+            if source_coll:
+                # create a collection instance (Empty) that visually shows the source collection
+                empty = bpy.data.objects.new(name="", object_data=None)
+                empty.instance_type = 'COLLECTION'
+                empty.instance_collection = source_coll
+                move_obj_to_coll(empty, map_coll)
+                obj_to_update = empty
+            elif not object_item:
                 bpy.ops.mesh.primitive_cube_add(size=32, enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
                 obj_to_update = bpy.context.active_object
                 move_obj_to_coll(obj_to_update, map_coll)
             else:
                 obj_to_update = duplicate_object_to(object_item, map_coll, True)
-        
+
         obj_to_update.name = _make_object_name(object_path, object_type)
         obj_to_update.tm_map_object_kind = object_type
         obj_to_update.tm_map_object_path = object_path
@@ -152,12 +160,36 @@ def validate_map_collection() -> str:
     tm_props                         = get_global_props()
     map_coll:bpy.types.Collection    = tm_props.PT_map_collection
     doc_path                         = get_game_doc_path()
-    
+
     if not map_coll:
         return "No map collection!"
 
     for obj in map_coll.all_objects:
         obj:bpy.types.Object = obj
+
+        # Collection instance Empties: validate they have required properties
+        if obj.type == 'EMPTY' and obj.instance_type == 'COLLECTION' and obj.instance_collection:
+            if not obj.tm_map_object_kind or not obj.tm_map_object_path:
+                return f"Collection instance '{obj.name}' is missing Item path. Set the item path before exporting."
+            # Warn about non-unit scale (scale is not exported)
+            scale = obj.scale
+            if abs(scale[0] - 1.0) > 0.001 or abs(scale[1] - 1.0) > 0.001 or abs(scale[2] - 1.0) > 0.001:
+                return f"Collection instance '{obj.name}' has non-unit scale which will be ignored on export. Apply or reset scale."
+            if obj.tm_map_object_kind == MAP_OBJECT_ITEM:
+                if doc_path in obj.tm_map_object_path and not is_file_existing(obj.tm_map_object_path):
+                    return f"Item with path: {obj.tm_map_object_path} does not exist. Object name: {obj.name}"
+            continue
+
+        # Objects with Geometry Nodes: validate they are items (not blocks)
+        if _has_geonodes_modifier(obj):
+            if obj.tm_map_object_kind == MAP_OBJECT_BLOCK:
+                return f"Blocks are not supported via Geometry Nodes. Object: {obj.name}"
+            if obj.tm_map_object_kind == MAP_OBJECT_ITEM:
+                if not obj.tm_map_object_path:
+                    return f"Geometry Nodes object '{obj.name}' is missing Item path."
+                if doc_path in obj.tm_map_object_path and not is_file_existing(obj.tm_map_object_path):
+                    return f"Item with path: {obj.tm_map_object_path} does not exist. Object name: {obj.name}"
+                continue
 
         if not obj.tm_map_object_kind or not obj.tm_map_object_path:
             return f"Map collection contains invalid object: {obj.name}"
@@ -168,13 +200,63 @@ def validate_map_collection() -> str:
 
             if obj.rotation_euler[0] != 0 or obj.rotation_euler[1] != 0:
                 return f"Only rotation on Z axis supported! Object: {obj.name}"
-            
+
             if (round(math.degrees(obj.rotation_euler[2]))) % 90 != 0:
                 return f"Rotation on Z must be multiple of 90deg! Object: {obj.name}"
-        
+
         if obj.tm_map_object_kind == MAP_OBJECT_ITEM:
             if doc_path in obj.tm_map_object_path and not is_file_existing(obj.tm_map_object_path):
                 return f"Item with path: {obj.tm_map_object_path} does not exist. Object name: {obj.name}"
+
+def _create_dotnet_item_from_obj(obj: bpy.types.Object, doc_path: str, loc=None, rot=None) -> DotnetItem:
+    """Create a DotnetItem from a map object's properties and transform.
+
+    loc/rot can be overridden (used for geometry nodes instances).
+    """
+    if loc is None:
+        loc = obj.location
+    if rot is None:
+        rot = obj.rotation_euler
+
+    name = obj.tm_map_object_path
+    is_custom_item = fix_slash(doc_path.lower()) in fix_slash(name.lower())
+
+    if is_custom_item:
+        name = ireplace(doc_path+"/Items/", "", name)
+    elif is_game_trackmania2020():
+        name = ireplace(".Gbx", "", ireplace(".Item", "", name))
+
+    return DotnetItem(
+        Name=name,
+        Path=obj.tm_map_object_path if is_custom_item else "",
+        Position=DotnetVector3(loc[1], loc[2]+8, loc[0]),
+        Rotation=DotnetVector3(rot[2] - math.radians(90), rot[0], math.radians((math.degrees(rot[1]))*-1)),
+        Pivot=DotnetVector3(0),
+        AnimPhaseOffset=get_animphaseoffset_of_obj(obj),
+        DifficultyColor=get_difficultycolor_of_obj(obj),
+        LightmapQuality=get_lightmapquality_of_obj(obj),
+    )
+
+
+def _collect_geonodes_instances(obj: bpy.types.Object, depsgraph) -> list:
+    """Collect instances produced by Geometry Nodes modifiers on an object.
+
+    Returns a list of (position, rotation) tuples for each instance.
+    """
+    instances = []
+    for instance in depsgraph.object_instances:
+        if instance.is_instance and instance.parent and instance.parent.original == obj:
+            matrix = instance.matrix_world
+            pos = matrix.to_translation()
+            rot = matrix.to_euler()
+            instances.append((pos, rot))
+    return instances
+
+
+def _has_geonodes_modifier(obj: bpy.types.Object) -> bool:
+    """Check if an object has any Geometry Nodes modifiers."""
+    return any(m.type == 'NODES' for m in obj.modifiers)
+
 
 def export_map_collection() -> DotnetExecResult:
     err = validate_map_collection()
@@ -195,34 +277,27 @@ def export_map_collection() -> DotnetExecResult:
     if len(map_suffix.strip()) == 0:
         map_suffix = "_modified"
 
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+
     for obj in map_coll.all_objects:
         obj:bpy.types.Object = obj
 
+        # Handle collection instance Empties
+        if obj.type == 'EMPTY' and obj.instance_type == 'COLLECTION' and obj.instance_collection:
+            if obj.tm_map_object_kind == MAP_OBJECT_ITEM:
+                dotnet_items.append(_create_dotnet_item_from_obj(obj, doc_path))
+            continue
+
+        # Handle Geometry Nodes instances
+        if _has_geonodes_modifier(obj) and obj.tm_map_object_kind == MAP_OBJECT_ITEM:
+            instances = _collect_geonodes_instances(obj, depsgraph)
+            if instances:
+                for pos, rot in instances:
+                    dotnet_items.append(_create_dotnet_item_from_obj(obj, doc_path, loc=pos, rot=rot))
+                continue  # skip parent object, only export instances
+
         if obj.tm_map_object_kind == MAP_OBJECT_ITEM:
-            name = obj.tm_map_object_path
-
-            # TODO why this ??
-            is_custom_item = fix_slash(doc_path.lower()) in fix_slash(name.lower())
-
-            if is_custom_item:
-                name = ireplace(doc_path+"/Items/", "", name)
-            elif is_game_trackmania2020(): # replace .Item.Gbx for 2020 vanilla items
-                name = ireplace(".Gbx", "", ireplace(".Item", "", name))
-
-            # TODO apply rotation on original before make item ()
-            # like bpy.ops.object.transform_apply( rotation = True )
-            # obj which is used to create item(map) needs to have rotation(0,0,0) else invalid data
-            dotnet_items.append(DotnetItem(
-                Name=name,
-                Path=obj.tm_map_object_path if is_custom_item else "",
-                Position=DotnetVector3(obj.location[1], obj.location[2]+8, obj.location[0]),
-                # Rotation=DotnetVector3(obj.rotation_euler[2] - math.radians(90), obj.rotation_euler[1], obj.rotation_euler[0]),
-                Rotation=DotnetVector3(obj.rotation_euler[2] - math.radians(90), obj.rotation_euler[0], math.radians((math.degrees(obj.rotation_euler[1]))*-1)),
-                Pivot=DotnetVector3(0),
-                AnimPhaseOffset=get_animphaseoffset_of_obj(obj),
-                DifficultyColor=get_difficultycolor_of_obj(obj),
-                LightmapQuality=get_lightmapquality_of_obj(obj),
-            ))
+            dotnet_items.append(_create_dotnet_item_from_obj(obj, doc_path))
         elif obj.tm_map_object_kind == MAP_OBJECT_BLOCK:
             dotnet_blocks.append(DotnetBlock(
                 Name=obj.tm_map_object_path,

@@ -2,7 +2,7 @@ import bpy
 
 from ..properties.Functions import *
 from ..utils.Constants import MAP_OBJECT_ITEM, MAP_OBJECT_BLOCK
-from ..utils.Functions import get_global_props, get_obj_potential_item_path
+from ..utils.Functions import get_global_props, get_obj_potential_item_path, get_coll_relative_path, get_game_doc_path_items
 
 def on_update_map_obj_props(self, context):
     tm_props = get_global_props()
@@ -26,6 +26,14 @@ def on_update_map_obj_kind(self, context):
     tm_props = get_global_props()
     tm_props.PT_map_object.object_path = ""
 
+def on_update_source_collection(self, context):
+    tm_props = get_global_props()
+    coll = tm_props.PT_map_object.object_source_collection
+    if coll:
+        tm_props.PT_map_object.object_path = f"{get_game_doc_path_items()}{get_coll_relative_path(coll)}.Item.Gbx"
+        if tm_props.PT_map_object.object_type != MAP_OBJECT_ITEM:
+            tm_props.PT_map_object.object_type = MAP_OBJECT_ITEM
+
 class MapObjectProperties(bpy.types.PropertyGroup):
     object_item: bpy.props.PointerProperty(type=bpy.types.Object, update=on_update_map_obj_props)
     object_type: bpy.props.EnumProperty(
@@ -41,3 +49,9 @@ class MapObjectProperties(bpy.types.PropertyGroup):
     object_item_animphaseoffset: bpy.props.EnumProperty(items=get_animphaseoffset_values(), name="AnimPhaseOffset")
     object_item_difficultycolor: bpy.props.EnumProperty(items=get_difficultycolor_values(), name="DifficultyColor")
     object_item_lightmapquality: bpy.props.EnumProperty(items=get_lightmapquality_values(), name="LightmapQuality")
+    object_source_collection: bpy.props.PointerProperty(
+        type=bpy.types.Collection,
+        name="Source Collection",
+        description="Link to an item collection. Creates a collection instance that visually shows the item in the map",
+        update=on_update_source_collection
+    )
