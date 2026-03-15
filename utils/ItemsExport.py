@@ -23,6 +23,7 @@ from .Constants import (
     UV_LAYER_NAME_LIGHTMAP,
     WAYPOINT_VALID_NAMES
 )
+from .BlenderObjects import apply_modifiers
 from .Functions import (
     create_folder_if_necessary,
     debug,
@@ -86,6 +87,103 @@ def _is_object_exportable(obj: bpy.types.Object)-> bool:
 
 
 
+
+
+def _has_geonodes_modifier(obj: bpy.types.Object) -> bool:
+    """Check if an object has any Geometry Nodes modifiers."""
+    return obj.type == "MESH" and any(m.type == 'NODES' for m in obj.modifiers)
+
+
+def _apply_geonodes_for_export(coll: bpy.types.Collection) -> list:
+    """Apply Geometry Nodes modifiers on duplicates so UV fixing and FBX export work correctly.
+
+    For each object in the collection with Geometry Nodes modifiers:
+    1. Duplicate the object (unlinked copy)
+    2. Apply all modifiers on the duplicate
+    3. Hide the original and link the duplicate into the collection
+
+    Returns a list of (original, duplicate) pairs for cleanup.
+    """
+    pairs = []
+    objs_to_process = [obj for obj in coll.objects if _has_geonodes_modifier(obj)]
+
+    for obj in objs_to_process:
+        deselect_all_objects()
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.duplicate(linked=False)
+        dup = bpy.context.active_object
+
+        # apply all modifiers on the duplicate
+        apply_modifiers(dup)
+
+        # transfer materials from original if the duplicate lost them
+        # (geometry nodes can strip material slots)
+        if len(dup.data.materials) == 0 and len(obj.data.materials) > 0:
+            for mat in obj.data.materials:
+                dup.data.materials.append(mat)
+
+        # hide original, keep duplicate in collection
+        obj.hide_set(True)
+        dup.name = obj.name + "_geonodes_applied"
+
+        # ensure duplicate is in the same collection
+        for c in dup.users_collection:
+            if c != coll:
+                c.objects.unlink(dup)
+        if dup.name not in coll.objects:
+            coll.objects.link(dup)
+
+        pairs.append((obj, dup))
+
+    deselect_all_objects()
+    return pairs
+
+
+def _cleanup_geonodes_for_export(coll: bpy.types.Collection, pairs: list) -> None:
+    """Restore originals and remove applied duplicates after export."""
+    for original, duplicate in pairs:
+        original.hide_set(False)
+        # unlink and remove the duplicate
+        if duplicate.name in coll.objects:
+            coll.objects.unlink(duplicate)
+        bpy.data.objects.remove(duplicate, do_unlink=True)
+
+
+def _apply_geonodes_for_object_export(obj: bpy.types.Object) -> tuple:
+    """Apply Geometry Nodes on a single object for export.
+
+    Returns (applied_obj, original_or_None). If no geonodes, returns (obj, None).
+    """
+    if not _has_geonodes_modifier(obj):
+        return (obj, None)
+
+    deselect_all_objects()
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.duplicate(linked=False)
+    dup = bpy.context.active_object
+
+    apply_modifiers(dup)
+
+    # transfer materials if needed
+    if len(dup.data.materials) == 0 and len(obj.data.materials) > 0:
+        for mat in obj.data.materials:
+            dup.data.materials.append(mat)
+
+    obj.hide_set(True)
+    dup.name = obj.name + "_geonodes_applied"
+
+    deselect_all_objects()
+    return (dup, obj)
+
+
+def _cleanup_geonodes_for_object_export(dup: bpy.types.Object, original: bpy.types.Object) -> None:
+    """Restore original and remove duplicate after single object export."""
+    if original is None:
+        return
+    original.hide_set(False)
+    bpy.data.objects.remove(dup, do_unlink=True)
 
 
 def _fix_uv_layers_name(objects: list[bpy.types.Object]) -> None:
@@ -531,6 +629,13 @@ def export_collections(colls: list[bpy.types.Collection]):
         item_to_export.item_path = f"{get_game_doc_path_items()}{item_to_export.r_path}.Item.Gbx"
         item_to_export.physic_hack = _is_physic_hack_required(coll.objects)
 
+        # apply geometry nodes modifiers before UV fixing so the generated mesh gets proper UVs
+        geonodes_pairs = _apply_geonodes_for_export(coll)
+        if geonodes_pairs:
+            # re-fetch exportable objects since collection now contains applied duplicates
+            objs = get_exportable_collection_objects(coll.objects)
+            item_to_export.objects = objs
+
         # fix UVs and check lods
         _fix_uv_layers_name(coll.objects)
 
@@ -605,6 +710,10 @@ def export_collections(colls: list[bpy.types.Collection]):
         # move collection back to original position
         _move_collection_by(coll.objects, offset)
 
+        # restore original objects after geometry nodes export
+        if geonodes_pairs:
+            _cleanup_geonodes_for_export(coll, geonodes_pairs)
+
     for obj in current_selection:
         try: select_obj(obj)
         except: pass
@@ -669,10 +778,15 @@ def export_objects(objects: list[bpy.types.Object]) -> None:
         item_to_export.item_path = f"{get_game_doc_path_items()}{item_to_export.r_path}.Item.Gbx"
         item_to_export.physic_hack = _is_physic_hack_required([obj])
 
-        # fix UVs and check lods
-        _fix_uv_layers_name([obj])
+        # apply geometry nodes modifiers on a duplicate before UV fixing
+        export_obj, geonodes_original = _apply_geonodes_for_object_export(obj)
+        if geonodes_original is not None:
+            item_to_export.objects = [export_obj]
 
-        old_loc = obj.location.copy()
+        # fix UVs and check lods
+        _fix_uv_layers_name([export_obj])
+
+        old_loc = export_obj.location.copy()
 
         # Generate color variants (returns list with at least original item)
         color_variants = _duplicate_with_colors(item_to_export)
@@ -710,7 +824,10 @@ def export_objects(objects: list[bpy.types.Object]) -> None:
             # Apply multi-scale duplication (this creates the combinations)
             items_to_export += _duplicate_scaled(variant_item)
 
-        obj.location = old_loc
+        export_obj.location = old_loc
+
+        # restore original object after geometry nodes export
+        _cleanup_geonodes_for_object_export(export_obj, geonodes_original)
 
         obj.name = prefix + obj.name
 
