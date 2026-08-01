@@ -103,6 +103,9 @@ def draw_invalid_materials_panel(self:Panel) -> None:
     for prop in mats:
         mat = prop.material
 
+        if mat is None:
+            continue
+
         box = layout.box()
 
         row = box.row()

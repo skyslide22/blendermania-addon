@@ -193,7 +193,8 @@ def _create_default_material_nodes(mat: bpy.types.Material)->None:
     NODE_tex_H = _create_material_tex_node(mat, (1, 5), "Texture Height _H.dds", "tex_H")
 
     # rgb split
-    NODE_rgbsplit = nodes.new(type="ShaderNodeSeparateRGB")
+    NODE_rgbsplit = nodes.new(type="ShaderNodeSeparateColor")
+    NODE_rgbsplit.mode = "RGB"
     NODE_rgbsplit.location = x(2), y(2)
 
     # normal map
@@ -278,7 +279,7 @@ def _create_default_material_nodes(mat: bpy.types.Material)->None:
         links.new(NODE_tex_D.outputs["Alpha"], NODE_bsdf.inputs["Alpha"]) if DTextureSuccess else None
     
     if RTextureSuccess:
-        links.new(NODE_tex_R.outputs["Color"],  NODE_rgbsplit.inputs["Image"]) #RGB split
+        links.new(NODE_tex_R.outputs["Color"],  NODE_rgbsplit.inputs["Color"]) #RGB split
         links.new(NODE_rgbsplit.outputs["R"],  NODE_bsdf.inputs["Roughness"]) #roughness
         links.new(NODE_rgbsplit.outputs["G"],  NODE_bsdf.inputs["Metallic"]) #metallic
 
@@ -301,6 +302,9 @@ def _create_default_material_nodes(mat: bpy.types.Material)->None:
 
 def is_material_exportable(mat) -> bool:
     valid = True
+
+    if mat is None:
+        return False
 
     # link or baseTexture needs to have a value
     # if not, material has not been modified with the addon

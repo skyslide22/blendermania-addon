@@ -39,7 +39,7 @@ def is_file_existing(filepath: str) -> bool:
     try:
         return os.path.isfile(filepath)
     except:
-        return false
+        return False
 
 def is_folder_existing(folderpath: str) -> bool:
     return os.path.isdir(folderpath)
