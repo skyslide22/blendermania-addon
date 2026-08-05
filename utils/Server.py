@@ -17,6 +17,8 @@ from ..operators.OT_Items_Export import close_convert_panel
 from .Functions import in_new_thread
 
 
+_httpd = None
+
 
 class MyHandler(SimpleHTTPRequestHandler):
 
@@ -76,6 +78,8 @@ class MyHandler(SimpleHTTPRequestHandler):
 
 @in_new_thread
 def run_server() -> None:
+    global _httpd
+    
     HandlerClass = MyHandler
     Protocol     = "HTTP/1.1"
     port         = 42069
@@ -85,13 +89,19 @@ def run_server() -> None:
     HandlerClass.protocol_version = Protocol
 
     try:
-        httpd = socketserver.TCPServer(server_address, HandlerClass)
+        _httpd = socketserver.TCPServer(server_address, HandlerClass)
         print(f"Server Started: {port}")
-        httpd.serve_forever()
+        _httpd.serve_forever()
+        print("Server stopped")
 
     except OSError as err:
         print("server already runs on" + str(port))
 
-    except KeyboardInterrupt:
-        print('Shutting down server')
-        httpd.socket.close()
+
+def stop_server() -> None:
+    global _httpd
+    
+    if _httpd:
+        _httpd.shutdown()
+        _httpd.server_close()
+        _httpd = None

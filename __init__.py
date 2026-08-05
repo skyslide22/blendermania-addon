@@ -38,7 +38,7 @@ from .utils.NadeoImporter  import *
 from .utils.NadeoXML       import *
 from .utils.BlenderObjects import *
 
-from .utils.Server import run_server
+from .utils.Server import run_server, stop_server
 
 from .properties.Functions                  import *
 from .properties.ConvertingItemsProperties  import *
@@ -300,8 +300,13 @@ def register():
     
     bpy.app.handlers.depsgraph_update_post.append(listen_object_move)
     bpy.types.Object.location_before = FloatVectorProperty(name="old pos", subtype="TRANSLATION")
-
+    
     NICE_register()
+    
+    run_server()
+    
+    bpy.app.handlers.load_post.append(on_startup)
+    bpy.app.handlers.save_post.append(on_save)
     
 
 
@@ -339,12 +344,17 @@ def unregister():
 
     NICE_unregister()
 
+    stop_server()
+
+    bpy.app.handlers.load_post.remove(on_startup)
+    bpy.app.handlers.save_post.remove(on_save)
+
 @persistent
 def on_save(what, idontknow) -> None: # on quit?
     """run on blender save"""
     saveDefaultSettingsJSON()
 
-# TODO runs 10 times on new blend file ??
+
 @persistent
 def on_startup(dummy) -> None:
     """run on blender startup, load blend file & reload current file"""
@@ -408,13 +418,4 @@ def on_startup(dummy) -> None:
     except RuntimeError:
         pass # first try always fails
         # RuntimeError: subscribe_rna, missing bl_rna attribute from 'Scene' instance (may not be registered)
-
-    try:
-        run_server()
-    except:
-        print("server died hm..")
-
-
-bpy.app.handlers.load_post.append(on_startup)
-bpy.app.handlers.save_post.append(on_save)
 
