@@ -232,6 +232,7 @@ def find_nadeo_ini_trackmania2020():
         paths.append(fr"{char}:\Ubisoft Game Launcher\games\Trackmania\Nadeo.ini")
         paths.append(fr"{char}:\Epic Games\TrackmaniaNext\Nadeo.ini")
         paths.append(fr"{char}:\games\uplay\Trackmania\Nadeo.ini")
+        paths.append(fr"{char}:\SteamLibrary\steamapps\common\Trackmania\Nadeo.ini")
 
     debug("Try to find Nadeo.ini for trackmania2020 in most used installation paths:")
 

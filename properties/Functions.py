@@ -9,6 +9,8 @@ from ..utils.ItemsIcon import generate_world_node
 from ..utils.Functions import *
 from ..utils.Constants import *
 
+from ..operators.OT_Settings import autoFindNadeoIni
+
 class EnumProps():
     """this needs to be returned by bpy.props.EnumProperty"""
     def __init__(self):
@@ -144,6 +146,12 @@ def gameTypeGotUpdated(self=None,context=None)->None:
 
     tm_props     = get_global_props()
     colIsStadium = tm_props.LI_materialCollection.lower() == "stadium"
+
+    if is_game_maniaplanet() and tm_props.ST_nadeoIniFile_MP == "":
+        autoFindNadeoIni()
+
+    if is_game_trackmania2020() and tm_props.ST_nadeoIniFile_TM == "":
+        autoFindNadeoIni()
 
     if is_game_trackmania2020() and not colIsStadium:
         tm_props.LI_materialCollection = "Stadium"
