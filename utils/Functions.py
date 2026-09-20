@@ -2221,3 +2221,50 @@ def load_image_into_blender(texpath: str) -> tuple:
 def add_indents(text: str, tab_count: int = 1) -> str:
     prefix = ("    "*tab_count)
     return prefix + text.replace("\n", "\n"+prefix)
+
+
+
+
+
+
+def is_collection_root(collection: bpy.types.Collection, scene: bpy.types.Scene | None = None) -> bool:
+    """True if collection has no custom parent (directly under Scene Collection)."""
+    if collection is None:
+        return False
+
+    scene = scene or bpy.context.scene
+
+    # Optional: treat Scene Collection itself as root
+    if collection == scene.collection:
+        return True
+
+    return False
+
+    # return collection.name in scene.collection.children
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

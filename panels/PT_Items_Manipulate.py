@@ -418,6 +418,7 @@ class TM_PT_Items_CollectionManipulation(Panel):
 
         row = col_box.row(align=True)
         row.prop(tm_props, "LI_xml_waypointtype", text="Type")
+        row.prop(current_collection, "tm_waypoint_no_respawn", text="No Respawn", )
 
         
         # helpers if waypoint invalid

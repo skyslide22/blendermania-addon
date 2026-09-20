@@ -48,6 +48,7 @@ from .properties.LinkedMaterialsProperties  import *
 from .properties.MapObjectProperties        import *
 from .properties.PannelsPropertyGroup       import *
 from .properties.PivotsProperties           import *
+from .properties.CollectionProperties       import *
 
 from .operators.OT_Map_Manipulate          import *
 from .operators.OT_NinjaRipper             import *
@@ -65,6 +66,8 @@ from .operators.OT_Textures                import *
 from .operators.OT_Imports                 import * 
 from .operators.OT_VisibilitySelection     import *
 
+from .operators.OT_Items_ExportV2 import *
+
 from .panels.PT_Map_Manipulate          import *
 from .panels.PT_Imports                 import *
 from .panels.PT_Settings                import *
@@ -79,6 +82,8 @@ from .panels.PT_Textures                import *
 from .panels.PT_VisibilitySelection     import *
 from .panels.PT_EditorTrails            import *
 
+from .panels.PT_Items_ExportV2 import *
+
 from .NICE.nice import NICE_register, NICE_unregister
 
 
@@ -88,7 +93,6 @@ object_eventlistner_owner = object()
 
 # register order matters for UI panel ordering
 classes = (
-    # props (not panel)
     MapObjectProperties,
     PannelsPropertyGroup,
     GeneratedProperties,
@@ -162,6 +166,9 @@ classes = (
     TM_OT_Items_Export_ExportAndOrConvert,
     TM_OT_Items_Export_CloseConvertSubPanel,
     TM_OT_Items_Export_ExportAndOrConverFailedOnes,
+
+    TM_PT_Items_ExportV2,
+    TM_OT_Items_ExportV2,
 
     # xml,
     TM_PT_Items_MeshXML,
@@ -275,7 +282,7 @@ def register():
     bpy.types.Object.tm_forced_grid_helper_step_z = FloatProperty(default=0.0)
 
     # collections
-    bpy.types.Collection.tm_itemxml_template = StringProperty(name="Item XML Template", default="")
+    register_collection_properties()
 
     # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
@@ -319,6 +326,8 @@ def unregister():
     del bpy.types.Scene.tm_props_itemxml_templates
     # del bpy.types.Scene.tm_props_itemxml_templates
     del bpy.types.Object.location_before 
+
+    unregister_collection_properties()
     
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
