@@ -39,6 +39,8 @@ class ItemConversionOptions(IntFlag):
     None_ = 0
     MeshConfigFromObjectNames = 1 << 0
     IgnoreMeshesWithInvalidMaterials = 1 << 1
+    SkipStaticItemGrouping = 1 << 2, # todo later
+
 
 
 class MeshFlags(IntFlag):

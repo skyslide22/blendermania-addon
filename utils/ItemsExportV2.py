@@ -1,13 +1,11 @@
 import bpy
 from pprint import pprint
 from ..utils.ItemsExportV2Models import *
-
 from ..utils.Functions import get_global_props, show_report_popup, is_collection_root
-
 from ..utils import Constants
 
-
 import json
+import math
 
 
 
@@ -86,28 +84,44 @@ def _get_waypoint_from_collection(collection: bpy.types.Collection) -> Waypoint 
 
 def get_waypointtype_of_collection(col: bpy.types.Collection) -> str:
     col_color = col.color_tag
-    waypoint = WAYPOINTS.get(col_color, None)
+    waypoint = Constants.WAYPOINTS.get(col_color, None)
     return waypoint
 
 
 def _get_light_configs_from_collection(collection: bpy.types.Collection) -> list[LightConfig]:
     light_configs = []
     objs: list[bpy.types.Object] = collection.objects
+    
     for obj in objs:
-        if obj.type == 'LIGHT':
-            light_cfg = LightConfig()
-            light_cfg.Name = obj.name
-            light_cfg.Type = obj.data.type
-            light_cfg.Color = "2222ff" #todo
-            light_cfg.Intensity = 2
-            light_cfg.NightOnly = False #todo
-            light_cfg.Distance = 100 #todo
-            light_cfg.PointEmissionLength = 1.0 #todo
-            light_cfg.PointEmissionRadius = 1.0 #todo
-            light_cfg.SpotEmissionSizeX = 1.0 #todo
-            light_cfg.SpotEmissionSizeY = 1.0 #todo
-            light_cfg.SpotInnerAngle = 30.0 #todo
-            light_cfg.SpotOuterAngle = 45.0 #todo
-            light_configs.append(light_cfg)
+        if obj.type != 'LIGHT':
+            continue
+        
+        light: bpy.types.Light = obj.data
+        light_is_spot = light.type == 'SPOT'
+        light_is_point = light.type == 'POINT'
+
+        if not (light_is_spot or light_is_point):
+            continue
+
+        light_cfg = LightConfig()
+
+        light_cfg.Name  = light.name
+        light_cfg.Type  = light.type
+        
+        light_cfg.Color     = f"{int(light.color[0]*255):02x}{int(light.color[1]*255):02x}{int(light.color[2]*255):02x}"
+        light_cfg.Intensity = light.energy
+        light_cfg.NightOnly = light.night_only # custom prop
+        light_cfg.Distance  = light.shadow_soft_size
+        
+        light_cfg.PointEmissionLength = 1.0 #todo
+        light_cfg.PointEmissionRadius = 1.0 #todo
+
+        # convert euler to degree
+        spot_size_degree = light.spot_size * (180.0 / math.pi) if light_is_spot else 0.0
+        light_cfg.SpotEmissionSizeX = spot_size_degree
+        light_cfg.SpotEmissionSizeY = spot_size_degree
+        light_cfg.SpotInnerAngle = spot_size_degree
+        light_cfg.SpotOuterAngle = spot_size_degree
+        light_configs.append(light_cfg)
 
     return light_configs
