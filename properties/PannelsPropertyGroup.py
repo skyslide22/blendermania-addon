@@ -3,6 +3,8 @@ import bpy
 import bpy.utils.previews
 from bpy.props import *
 
+from .PlacementProperties   import *
+from .PlacementPatchProperties   import *
 from ..utils.Descriptions   import *
 from .Functions             import *
 from .MapObjectProperties   import *
@@ -23,6 +25,16 @@ def _set_ST_materialAddName_when_select_link(self, context):
     tm_props = get_global_props()
     if tm_props.LI_materialAction == "CREATE":
         self.ST_materialAddName = tm_props.ST_selectedLinkedMat
+
+def _set_CB_cfg_alignToWorldDir_when_set_interior(self, context):
+    tm_props = get_global_props()
+    if tm_props.CB_cfg_alignToInterior is True:
+        tm_props.CB_cfg_alignToWorldDir = False
+
+def _set_CB_cfg_alignToInterior_when_set_world(self, context):
+    tm_props = get_global_props()
+    if tm_props.CB_cfg_alignToWorldDir is True:
+        tm_props.CB_cfg_alignToInterior = False
 
 #? CB = CheckBox => BoolProperty
 #? LI = List     => EnumProperty
@@ -210,7 +222,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_xml_pivots               : BoolProperty(name="Pivots (ingame Q Key)",default=True)
     CB_xml_pivotSwitch          : BoolProperty(name="Pivot switch",     default=False)
     NU_xml_pivotSnapDis         : FloatProperty(name="Pivot snap distance", default=0.0,  min=0, soft_max=256, step=100)
-    
+
     CB_xml_format_itemxml   : BoolProperty(name="Pretty Print File",     default=False)
     CB_xml_format_meshxml   : BoolProperty(name="Pretty Print File",     default=False)
 
@@ -218,6 +230,27 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     LI_xml_item_template_to_add     : EnumProperty(name="Template", items=get_itemxml_template_names_enum) 
     ST_xml_item_template_add_name   : StringProperty(default="default_template_name")
     CB_xml_ignore_assigned_templates: BoolProperty(name="Ignore the template that has been assigned to the collection(s)", default=False)
+
+    #cfg
+    CB_cfg_placementCube        : BoolProperty(name="Placement Cube", default=False, description="Prevent item placement within the cube.")
+    NU_cfg_cubeSize             : FloatProperty(name="Cube Size", default=0.0,  min=0, soft_max=256, step=100)
+    PT_cfg_cubeCenter           : PointerProperty(type=CubeCenterProperties)
+
+    CB_cfg_attachmentConfiguration     : BoolProperty(name="Attachment Configuration", default=False, description="Enable attachment pattern for item placement onto blocks.")
+    ST_cfg_sizeGroup            : StringProperty(name="Size Group",    default="0x0")
+    CB_cfg_alwaysUp             : BoolProperty(name="Always Up",    default=False, description="Ensure items are always oriented upright during patch placement.")
+    CB_cfg_alignToInterior      : BoolProperty(name="Align to Interior", default=False, description="Align items to the interior during patch placement.", update=_set_CB_cfg_alignToWorldDir_when_set_interior)
+    CB_cfg_alignToWorldDir      : BoolProperty(name="Align to World Dir", default=False, description="Align items to the given world direction during patch placement.", update=_set_CB_cfg_alignToInterior_when_set_world)
+    PT_cfg_worldDir             : PointerProperty(type=WorldDirProperties)
+    LI_cfg_compatibleGroups     : CollectionProperty(name="Compatible Groups", type=CompatiblePatchGroupProperty, description="Select compatible groups for item patch attachments.",)
+    CB_cfg_showCompatibleGroups     : BoolProperty(name="Show Compatible Groups", description="Show or hide the compatible groups section", default=True,)
+    LI_cfg_patchLayouts         : CollectionProperty(name="Patch Layouts", type=PlacementPatchProperties, description="Define layouts for item patches.",)
+    CB_cfg_showPatchLayouts     : BoolProperty(name="Show Patch Layouts", description="Show or hide the patch layout definitions", default=True,)
+
+    ST_cfg_item_template_add_name   : StringProperty(default="default_template_name")
+    LI_cfg_item_template_globally   : EnumProperty(name="Template", items=get_item_config_template_names_enum)
+    CB_cfg_ignore_assigned_templates: BoolProperty(name="Ignore the template that has been assigned to the collection(s)", default=False)
+
 
     #materials          
     ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)

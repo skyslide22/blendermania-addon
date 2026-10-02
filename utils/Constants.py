@@ -138,6 +138,7 @@ ICON_OVERWRITE          = "CURRENT_FILE"
 ICON_FILE               = "FILE_BLANK"
 ICON_FILE_NEW           = "FILE_NEW"
 ICON_IMAGE_DATA         = "IMAGE_DATA"
+ICON_ARRAY_ENTRY        = "MOD_ARRAY"
 
 
 ICON_COLOR_RED          = "COLLECTION_COLOR_01"
@@ -174,6 +175,9 @@ CHAR_HORIZONTAL = "↔"
 CHAR_BOTTOM_RIGHT = "↘"
 CHAR_BOTTOM_LEFT  = "↙"
 CHAR_TOP          = "↑"
+
+CHAR_RIGHT = "→"
+CHAR_LEFT  = "←"
 
 MSG_ERROR_ABSOLUTE_PATH_ONLY            = "Absolute path only!"
 MSG_ERROR_NADEO_INI_FILE_NOT_SELECTED   = "Select the Nadeo.ini file first!"

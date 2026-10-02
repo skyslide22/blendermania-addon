@@ -37,6 +37,7 @@ from .utils.Models         import *
 from .utils.NadeoImporter  import *
 from .utils.NadeoXML       import *
 from .utils.BlenderObjects import *
+from .utils.ItemsExportV2Models       import *
 
 from .utils.Server import run_server
 
@@ -47,8 +48,9 @@ from .properties.ItemXMLTemplatesProperties import *
 from .properties.LinkedMaterialsProperties  import *
 from .properties.MapObjectProperties        import *
 from .properties.PannelsPropertyGroup       import *
-from .properties.PivotsProperties           import *
+from .properties.PlacementProperties        import *
 from .properties.CollectionProperties       import *
+from .properties.PlacementPatchProperties   import *
 
 from .operators.OT_Map_Manipulate          import *
 from .operators.OT_NinjaRipper             import *
@@ -65,7 +67,7 @@ from .operators.OT_WikiLink                import *
 from .operators.OT_Textures                import * 
 from .operators.OT_Imports                 import * 
 from .operators.OT_VisibilitySelection     import *
-
+from .operators.OT_Items_Placement import *
 from .operators.OT_Items_ExportV2 import *
 
 from .panels.PT_Map_Manipulate          import *
@@ -81,6 +83,7 @@ from .panels.PT_UV_Manipulate           import *
 from .panels.PT_Textures                import *
 from .panels.PT_VisibilitySelection     import *
 from .panels.PT_EditorTrails            import *
+from .panels.PT_Items_Placement         import *
 
 from .panels.PT_Items_ExportV2 import *
 
@@ -94,12 +97,18 @@ object_eventlistner_owner = object()
 # register order matters for UI panel ordering
 classes = (
     MapObjectProperties,
+    CubeCenterProperties,
+    CompatiblePatchGroupProperty,
+    PatchGroupRef,
+    PlacementPatchProperties,
+    WorldDirProperties,
     PannelsPropertyGroup,
     GeneratedProperties,
     PivotsProperties,
     ConvertingItemsProperties,
     LinkedMaterialsProperties,
     ItemXMLTemplate,
+    ItemPlacementConfigTemplate,
     InvalidMaterial,
     FailedConvertObject,
     FailedConvertCollection,
@@ -177,6 +186,19 @@ classes = (
     TM_OT_Items_ItemXML_RemovePivot,
     TM_OT_Items_ItemXML_SaveItemPlacementTemplate,
     TM_OT_Items_ItemXML_RemoveItemPlacementTemplate,
+
+    # cfg
+    TM_OT_Items_Config_AddCompatiblePatchGroup,
+    TM_OT_Items_Config_RemoveCompatiblePatchGroup,
+    TM_OT_Items_Config_AddPatchLayoutGroup,
+    TM_OT_Items_Config_RemovePatchLayoutGroup,
+    TM_OT_Items_Config_AddPatchLayout,
+    TM_OT_Items_Config_RemovePatchLayout,
+    TM_OT_Items_ItemConfig_SaveItemPlacementTemplate,
+    TM_OT_Items_ItemConfig_RemoveItemPlacementTemplate,
+
+    # Export Options V2
+    TM_PT_Items_ItemPlacement,
 
     # icons,
     TM_PT_Items_Icon,
@@ -260,6 +282,7 @@ def register():
     # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=ItemXMLTemplatesProperties)
     bpy.types.Scene.tm_props_itemxml_templates_ui     = EnumProperty(items=get_itemxml_template_names_enum)
     bpy.types.Scene.tm_props_itemxml_templates        = CollectionProperty(type=ItemXMLTemplate)
+    bpy.types.Scene.tm_props_itemconfig_templates     = CollectionProperty(type=ItemPlacementConfigTemplate)
 
 
     bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)

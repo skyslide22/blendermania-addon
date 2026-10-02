@@ -1,11 +1,13 @@
 import bpy
-from pprint import pprint
+import pprint
 from ..utils.ItemsExportV2Models import *
 from ..utils.Functions import get_global_props, show_report_popup, is_collection_root
 from ..utils import Constants
+from ..utils.Functions import *
 
 import json
 import math
+
 
 
 
@@ -20,7 +22,7 @@ def export_collection_to_dotnet(collection) -> bool:
     cfg = _generate_item_config_from_collection(collection)
     cfg_dict = item_config_to_dict(cfg)
 
-    pprint(cfg_dict)
+    pprint.pprint(cfg_dict)
 
     # write file to desktop
     with open(f"{Constants.PATH_DESKTOP}/item.info.json", "w") as f:
@@ -37,14 +39,14 @@ def _generate_item_config_from_collection(collection) -> ItemConfig:
     tm_props = get_global_props()
 
     cfg.AuthorName = tm_props.ST_author or "blendermania"
-    cfg.Collection = cfg.Collection #todo
+    cfg.Collection = tm_props.LI_materialCollection if getattr(tm_props, "LI_materialCollection", None) else cfg.Collection
     cfg.Name = collection.name
     cfg.Description = collection.get("description", "N/A")
     cfg.Lights = _get_light_configs_from_collection(collection)
     cfg.LodParameters = _get_lod_parameters_from_collection(collection)
     cfg.Scale = 1.0 #todo
     cfg.Waypoint = _get_waypoint_from_collection(collection)
-
+    cfg.PlacementParams = generate_placement_config()
 
     return cfg
 
@@ -125,3 +127,4 @@ def _get_light_configs_from_collection(collection: bpy.types.Collection) -> list
         light_configs.append(light_cfg)
 
     return light_configs
+

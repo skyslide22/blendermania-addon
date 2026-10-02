@@ -7,7 +7,7 @@ import json
 
 import xml.etree.ElementTree as ET
 
-from ..properties.PivotsProperties import PivotsProperties
+from ..properties.PlacementProperties import PivotsProperties
 
 from .Models import ExportedItem
 from .Constants import (

@@ -8,6 +8,7 @@ from ..utils.Dotnet import *
 from ..utils.ItemsIcon import generate_world_node
 from ..utils.Functions import *
 from ..utils.Constants import *
+from .PlacementPatchProperties import KNOWN_PATCH_GROUPS
 
 class EnumProps():
     """this needs to be returned by bpy.props.EnumProperty"""
@@ -1180,6 +1181,15 @@ def get_itemxml_template_names_enum(self, context) -> list:
     return templates.to_list() or ERROR_ENUM_PROPS
 
 
+def get_item_config_template_names_enum(self, context) -> list:
+    templates = EnumProps()
+    for template in context.scene.tm_props_itemconfig_templates:
+        templates.add(
+            id=template.name,
+            name=template.name,
+        )
+    return templates.to_list() or ERROR_ENUM_PROPS
+
 class MediaTrackerClips:
     current_names:list[str] = []
 
@@ -1215,3 +1225,9 @@ def get_dangerous_manual_manipulation_types():
     for prop in DANGEROUS_MANUAL_MANIPULATION_TYPES:
         props.add(prop, prop.title())
     return props.to_list()
+
+def getCompatiblePatchGroups() -> list:
+    return [
+        (group, group, "")
+        for group in KNOWN_PATCH_GROUPS
+    ]

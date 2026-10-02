@@ -1,9 +1,8 @@
 import bpy
 from bpy.types import (Operator)
 
-from ..utils.ItemsExport import export_collections, export_objects
 from ..utils.Functions import *
-from ..utils.ItemsExportV2 import export_collection_to_dotnet
+from ..utils.ItemsExportV2 import *
 
 class TM_OT_Items_ExportV2(Operator):
     """export and or convert an item"""
@@ -22,14 +21,13 @@ class TM_OT_Items_ExportV2(Operator):
             # show_report_popup("Author name is empty!", ["Please fill in your name in the author input field", "You can find it in the settings panel of blendermania."], "ERROR")
         else:
             # export_and_convert()
-
+            
             coll = bpy.context.active_object.users_collection[0] if bpy.context.active_object else None
             if coll is None:
                 show_report_popup("Error", ("No active collection found!",))
                 return {"CANCELLED"}
             
             export_collection_to_dotnet(coll)
-
         return {"FINISHED"}
     
 
@@ -60,8 +58,8 @@ def export_and_convert(only_failed_ones: bool=False):
     objs = [obj.object for obj in failed.objects] if only_failed_ones else objs
 
     # atleast one object whose name startswith _item_ is selected
-    if single_objs := get_exportable_objects(objs):
-        return export_objects(single_objs)
+    # if single_objs := get_exportable_objects(objs):
+    #     return export_objects(single_objs)
     
     # export normal way
     if colls := get_exportable_collections(objs):
