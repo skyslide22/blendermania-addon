@@ -115,7 +115,7 @@ class TM_PT_Items_ObjectManipulation(Panel):
         layout = self.layout
         tm_props        = get_global_props()
 
-        current_collection      = get_active_collection_of_selected_object()
+        current_collection      = get_active_item_collection_of_selected_object()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
 
         if current_collection is None:
@@ -382,7 +382,7 @@ class TM_PT_Items_CollectionManipulation(Panel):
         layout = self.layout
         layout.enabled = len(bpy.context.selected_objects) > 0
         
-        current_collection      = get_active_collection_of_selected_object()
+        current_collection      = get_active_item_collection_of_selected_object()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
 
         row = layout.row()
@@ -397,7 +397,7 @@ class TM_PT_Items_CollectionManipulation(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
     
-        current_collection      = get_active_collection_of_selected_object()
+        current_collection      = get_active_item_collection_of_selected_object()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
 
         row.operator("wm.tm_renameobject", text="", icon=ICON_EDIT).col_name = current_collection_name        
@@ -408,7 +408,7 @@ class TM_PT_Items_CollectionManipulation(Panel):
         layout.enabled = len(bpy.context.selected_objects) > 0
         tm_props = get_global_props()
         
-        current_collection      = get_active_collection_of_selected_object()
+        current_collection      = get_active_item_collection_of_selected_object()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
 
         if current_collection is None:

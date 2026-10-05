@@ -22,12 +22,7 @@ class TM_OT_Items_ExportV2(Operator):
         else:
             # export_and_convert()
             
-            coll = bpy.context.active_object.users_collection[0] if bpy.context.active_object else None
-            if coll is None:
-                show_report_popup("Error", ("No active collection found!",))
-                return {"CANCELLED"}
-            
-            export_collection_to_dotnet(coll)
+            export_and_convert()
         return {"FINISHED"}
     
 

@@ -251,6 +251,10 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     LI_cfg_item_template_globally   : EnumProperty(name="Template", items=get_item_config_template_names_enum)
     CB_cfg_ignore_assigned_templates: BoolProperty(name="Ignore the template that has been assigned to the collection(s)", default=False)
 
+    #
+    CB_cfg_show_anim_texture_anims      : BoolProperty(name="Show Anim Texture Anims", default=True, description="Show or hide the animation texture animations section")
+    CB_cfg_show_trans_anims      : BoolProperty(name="Show Translation Anims", default=True, description="Show or hide the translation animations section")
+    CB_cfg_show_rot_anims      : BoolProperty(name="Show Rotation Anims", default=True, description="Show or hide the rotation animations section")
 
     #materials          
     ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)

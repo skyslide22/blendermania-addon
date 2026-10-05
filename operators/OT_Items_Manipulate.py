@@ -161,7 +161,7 @@ class TM_OT_Items_CollectionManipulationToggleIgnore(Operator):
    
     def execute(self, context):
         if len(bpy.context.selected_objects) == 1:
-            toggleNameSpecialPrefix(get_active_collection_of_selected_object(), SPECIAL_NAME_PREFIX_IGNORE)
+            toggleNameSpecialPrefix(get_active_item_collection_of_selected_object(), SPECIAL_NAME_PREFIX_IGNORE)
         return {"FINISHED"}
 
 
@@ -173,7 +173,7 @@ class TM_OT_Items_CollectionManipulationToggleNICE(Operator):
    
     def execute(self, context):
         if len(bpy.context.selected_objects) == 1:
-            toggleNameSpecialPrefix(get_active_collection_of_selected_object(), SPECIAL_NAME_PREFIX_NICE)
+            toggleNameSpecialPrefix(get_active_item_collection_of_selected_object(), SPECIAL_NAME_PREFIX_NICE)
         return {"FINISHED"}
 
 
@@ -219,7 +219,7 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
     remove_scale: bpy.props.BoolProperty(False)
 
     def execute(self, context):
-        col      = get_active_collection_of_selected_object()
+        col      = get_active_item_collection_of_selected_object()
         tm_props = get_global_props()
 
         scale_from     = tm_props.NU_objMplScaleFrom
@@ -290,7 +290,7 @@ class TM_OT_Items_ObjectManipulationChangeCollectionScale(Operator):
 
         layout.separator(factor=UI_SPACER_FACTOR)
 
-        collection      = get_active_collection_of_selected_object()
+        collection      = get_active_item_collection_of_selected_object()
         generated_files = []
         scale_from      = tm_props.NU_objMplScaleFrom
         scale_to        = tm_props.NU_objMplScaleTo
@@ -378,7 +378,7 @@ class TM_OT_Items_EditUVMap(Operator):
 
     def execute(self, context):
         objectmode()
-        col = get_active_collection_of_selected_object()
+        col = get_active_item_collection_of_selected_object()
         editUVMap(col, self.uv_name)
         return {"FINISHED"}
 
@@ -392,7 +392,7 @@ class TM_OT_Items_ShowUVMap(Operator):
     uv_name: bpy.props.StringProperty()
 
     def execute(self, context):
-        col = get_active_collection_of_selected_object()
+        col = get_active_item_collection_of_selected_object()
         showUVMap(col, self.uv_name)
         return {"FINISHED"}
 
@@ -406,7 +406,7 @@ class TM_OT_Items_SetItemXMLTemplateOfCollection(Operator):
     remove_template: bpy.props.BoolProperty(False)
 
     def execute(self, context):
-        col = get_active_collection_of_selected_object()
+        col = get_active_item_collection_of_selected_object()
         template = get_global_props().LI_xml_item_template_to_add
         template = template if not self.remove_template else ""
         set_itemxml_template_of_collection(col, template)
@@ -532,7 +532,7 @@ def toggleNameSpecialSuffix(obj:object, suffix:str) -> None:
 
 
 def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
-    collection   = get_active_collection_of_selected_object()
+    collection   = get_active_item_collection_of_selected_object()
     fbx_filepath = ""
     pre_selected_objects = bpy.context.selected_objects.copy()
 
@@ -551,7 +551,7 @@ def importWaypointHelperAndAddToActiveCollection(obj_type: str) -> None:
 
     fbx_filepath = fix_slash(fbx_filepath)
     import_at    = bpy.context.selected_objects[0].location
-    collection   = get_active_collection_of_selected_object()
+    collection   = get_active_item_collection_of_selected_object()
 
     deselect_all_objects()
 

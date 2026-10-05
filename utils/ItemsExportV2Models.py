@@ -15,9 +15,70 @@ import types
 # Keep as str for now to avoid locking wrong value sets.
 MaterialId = str
 GameplayId = str
-LegacyGameplayId = str
 PlacementPatchGroup = str
-AnimEase = str
+
+class LegacyGameplayId(str, Enum):
+    None_ = "None"
+    Turbo = "Turbo"
+    Turbo2 = "Turbo2"
+    TurboRoulette = "TurboRoulette"
+    FreeWheeling = "FreeWheeling"
+    NoGrip = "NoGrip"
+    NoSteering = "NoSteering"
+    ForceAcceleration = "ForceAcceleration"
+    Reset = "Reset"
+    SlowMotion = "SlowMotion"
+    Bumper = "Bumper"
+    Bumper2 = "Bumper2"
+    Boost1LegacyUp = "Boost1LegacyUp"
+    Fragile = "Fragile"
+    Boost2LegacyUp = "Boost2LegacyUp"
+    NoBrakes = "NoBrakes"
+    Cruise = "Cruise"
+    ReactorBoost_Oriented = "ReactorBoost_Oriented"
+    ReactorBoost2_Oriented = "ReactorBoost2_Oriented"
+    VehicleTransform_Reset = "VehicleTransform_Reset"
+    VehicleTransform_CarSnow = "VehicleTransform_CarSnow"
+    VehicleTransform_CarRally = "VehicleTransform_CarRally"
+    VehicleTransform_CarDesert = "VehicleTransform_CarDesert"
+
+class AnimEase(str, Enum):
+    Constant = "Constant"
+    Linear = "Linear"
+    QuadIn = "QuadIn"
+    QuadOut = "QuadOut"
+    QuadInOut = "QuadInOut"
+    CubicIn = "CubicIn"
+    CubicOut = "CubicOut"
+    CubicInOut = "CubicInOut"
+    QuartIn = "QuartIn"
+    QuartOut = "QuartOut"
+    QuartInOut = "QuartInOut"
+    QuintIn = "QuintIn"
+    QuintOut = "QuintOut"
+    QuintInOut = "QuintInOut"
+    SineIn = "SineIn"
+    SineOut = "SineOut"
+    SineInOut = "SineInOut"
+    ExpIn = "ExpIn"
+    ExpOut = "ExpOut"
+    ExpInOut = "ExpInOut"
+    CircIn = "CircIn"
+    CircOut = "CircOut"
+    CircInOut = "CircInOut"
+    BackIn = "BackIn"
+    BackOut = "BackOut"
+    BackInOut = "BackInOut"
+    ElasticIn = "ElasticIn"
+    ElasticOut = "ElasticOut"
+    ElasticInOut = "ElasticInOut"
+    ElasticIn2 = "ElasticIn2"
+    ElasticOut2 = "ElasticOut2"
+    ElasticInOut2 = "ElasticInOut2"
+    BounceIn = "BounceIn"
+    BounceOut = "BounceOut"
+    BounceInOut = "BounceInOut"
+
 
 
 class EWaypointType(str, Enum):
@@ -276,6 +337,19 @@ class ItemPlacementConfigTemplate(bpy.types.PropertyGroup):
     name: str = "default_template_name"
     config: bpy.props.StringProperty()
     #config: bpy.props.PointerProperty(type=PlacementConfig)
+
+class ExportedItem:
+    name:           str = ""
+    name_raw:       str = ""
+    r_path:         str = ""   # relative path, no extension
+    item_path:      str = ""
+    icon_path:      str = ""
+    fbx_path:       str = ""
+    objects:        list[bpy.types.Object] = field(default_factory=list)
+    config:         "ItemConfig | None" = None
+    game:           str = ""
+    is_single_item: bool = False
+    assigned_index: int = -1
 
 # -----------------------------
 # JSON-ready conversion helpers

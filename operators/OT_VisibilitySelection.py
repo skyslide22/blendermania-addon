@@ -30,7 +30,7 @@ class TM_OT_VisibilitySelection_Toggle(Operator):
         return {"FINISHED"}
         
 def toggle_name_visibility_selection(subname:str,use_collection:bool) -> None:
-    coll = get_active_collection_of_selected_object()
+    coll = get_active_item_collection_of_selected_object()
     objects = coll.objects if use_collection else bpy.context.view_layer.objects
     objects = coll.objects if use_collection else bpy.context.view_layer.objects
     tm_props = get_global_props()

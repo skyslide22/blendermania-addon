@@ -50,6 +50,7 @@ from .properties.MapObjectProperties        import *
 from .properties.PannelsPropertyGroup       import *
 from .properties.PlacementProperties        import *
 from .properties.CollectionProperties       import *
+from .properties.ObjectProperties           import *
 from .properties.PlacementPatchProperties   import *
 
 from .operators.OT_Map_Manipulate          import *
@@ -60,6 +61,7 @@ from .operators.OT_Materials               import *
 from .operators.OT_Items_XML               import *
 from .operators.OT_Items_Icon              import *
 from .operators.OT_Items_Manipulate        import *
+from .operators.OT_Items_ManipulateV2      import *
 from .operators.OT_UV_Manipulate           import *
 from .operators.OT_Assets_Library          import *
 from .operators.OT_Items_Templates         import * 
@@ -79,6 +81,7 @@ from .panels.PT_Items_XML               import *
 from .panels.PT_Items_UVMaps            import *
 from .panels.PT_Items_Icon              import *
 from .panels.PT_Items_Manipulate        import *
+from .panels.PT_Items_ManipulateV2      import *
 from .panels.PT_UV_Manipulate           import *
 from .panels.PT_Textures                import *
 from .panels.PT_VisibilitySelection     import *
@@ -105,6 +108,10 @@ classes = (
     PannelsPropertyGroup,
     GeneratedProperties,
     PivotsProperties,
+    TM_LodDistanceProperties,
+    TM_TextureAnimProperties,
+    TM_SubAnimProperties,
+    TM_LodIndex,
     ConvertingItemsProperties,
     LinkedMaterialsProperties,
     ItemXMLTemplate,
@@ -137,6 +144,10 @@ classes = (
     TM_PT_ObjectManipulations,
     TM_PT_Items_CollectionManipulation,
     TM_PT_Items_ObjectManipulation,
+    TM_PT_ObjectManipulationsV2,
+    TM_PT_Items_CollectionManipulationV2,
+    #TM_PT_Items_MovingGroupCollectionManipulationV2,
+    TM_PT_Items_ObjectManipulationV2,
     TM_OT_Items_ObjectManipulationAddSocketItem,
     TM_OT_Items_ObjectManipulationAddTriggerItem,
     TM_OT_Items_ObjectManipulationToggleIgnore,
@@ -200,6 +211,19 @@ classes = (
     # Export Options V2
     TM_PT_Items_ItemPlacement,
 
+    # manipulation v2
+    TM_OT_Lod_Add,
+    TM_OT_Lod_Remove,
+    TM_OT_Toggle_Lod,
+    TM_OT_Create_Anchor,
+
+    TM_OT_Texture_Anim_Add,
+    TM_OT_Texture_Anim_Remove,
+    TM_OT_Trans_Anim_Add,
+    TM_OT_Trans_Anim_Remove,
+    TM_OT_Rot_Anim_Add,
+    TM_OT_Rot_Anim_Remove,
+
     # icons,
     TM_PT_Items_Icon,
     TM_OT_Items_Icon_Test,
@@ -261,6 +285,10 @@ classes = (
 
     # experimental/dangerous
     TM_PT_DangerousManualManipulations,
+
+    # items manipulate v2
+    TM_UL_lods,
+    
 )
 
 
@@ -306,6 +334,7 @@ def register():
 
     # collections
     register_collection_properties()
+    register_object_properties()
 
     # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
@@ -351,7 +380,8 @@ def unregister():
     del bpy.types.Object.location_before 
 
     unregister_collection_properties()
-    
+    unregister_object_properties()
+
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsEnviTemplates.add_menu_item)

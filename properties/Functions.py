@@ -7,6 +7,7 @@ from ..utils.Dotnet import *
 
 from ..utils.ItemsIcon import generate_world_node
 from ..utils.Functions import *
+from ..utils.FunctionsV2 import *
 from ..utils.Constants import *
 from .PlacementPatchProperties import KNOWN_PATCH_GROUPS
 
@@ -370,7 +371,7 @@ def getWayPointVariations() -> list:
 
 def onWaypointUpdate(self,context) -> None:
     redraw_panels(self,context)
-    set_waypointtype_of_selected_collection()
+    set_waypointtype_of_active_collection()
 
 
 def getItemXMLCollections() -> list:
@@ -1231,3 +1232,54 @@ def getCompatiblePatchGroups() -> list:
         (group, group, "")
         for group in KNOWN_PATCH_GROUPS
     ]
+
+
+def toggleNameSpecialPrefix(obj:object, prefix:str) -> None:
+    """switch prefix if bpy.types (collection, object, etc) .name"""
+    name = obj.name
+    had_prefix = False
+
+    for special_prefix in SPECIAL_NAME_PREFIXES:
+        if name.startswith(prefix):
+            had_prefix = True
+        name = name.replace(special_prefix, "")
+    
+    new_name = name
+    if not had_prefix:
+        new_name = prefix+name
+
+    obj.name = new_name
+
+def toggleNameSpecialSuffix(obj:object, suffix:str) -> None:
+    """switch prefix if bpy.types (collection, object, etc) .name"""
+    name = obj.name
+    had_suffix = False
+
+    for special_suffix in SPECIAL_NAME_SUFFIXES:
+        if name.endswith(suffix):
+            had_suffix = True
+        name = name.replace(special_suffix, "")
+    
+    new_name = name
+    if not had_suffix:
+        new_name = name+suffix
+
+    obj.name = new_name
+
+def toggle_infix(obj: object, infix: str) -> None:
+    if infix in obj.name:
+        obj.name = obj.name.replace(infix, "")
+    else:
+        prefix = "".join(re.findall(r"^_\w+_", obj.name, re.IGNORECASE ))
+
+        if prefix:
+            obj.name = obj.name.replace(prefix, prefix + infix)
+        else:
+            obj.name = infix + obj.name
+
+
+def set_collection_moving_group(collection: bpy.types.Collection, v: bool) -> None:
+    if v:
+        collection.color_tag = COLLECTION_GROUPS[COLLECTION_GROUP_MOVING]
+    else:
+        collection.color_tag = WAYPOINTS[getattr(collection, "tm_waypoint_type", "None")]

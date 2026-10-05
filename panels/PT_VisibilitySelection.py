@@ -35,7 +35,7 @@ class TM_PT_VisibilitySelection(Panel):
         is_visibility = tm_props.CB_visSel_use_visibility
         
         current_viewlayer_name  = context.view_layer.name
-        current_collection      = get_active_collection_of_selected_object()
+        current_collection      = get_active_item_collection_of_selected_object()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
         
         layout_row = layout.row(align=True)

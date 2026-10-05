@@ -965,7 +965,7 @@ def is_collection_excluded_or_hidden(col) -> bool:
 
 def is_name_visible(subname: str,use_collection: bool) -> bool:
     is_visible = False
-    coll = get_active_collection_of_selected_object()
+    coll = get_active_item_collection_of_selected_object()
     objects = coll.objects if use_collection else bpy.context.view_layer.objects
     for_all = subname == ALL_OBJECTS
     for obj in objects:
@@ -976,7 +976,7 @@ def is_name_visible(subname: str,use_collection: bool) -> bool:
     
 def is_name_all_selected(subname: str,use_collection: bool) -> bool:
     is_selected = True
-    coll = get_active_collection_of_selected_object()
+    coll = get_active_item_collection_of_selected_object()
     objects = coll.objects if use_collection else bpy.context.view_layer.objects
     for_all = subname == ALL_OBJECTS
     for obj in objects:
@@ -1102,7 +1102,7 @@ def get_active_collection() -> object:
     return bpy.context.view_layer.active_layer_collection.collection
 
 
-def get_active_collection_of_selected_object() -> bpy.types.Collection:
+def get_active_item_collection_of_selected_object() -> bpy.types.Collection:
     objs = bpy.context.selected_objects
     col  = None
     if objs:
@@ -1217,6 +1217,7 @@ def get_exportable_collections(objs: List[bpy.types.Object])->set:
             collections.add(col)
     
     return collections
+
 
 
 def get_prefix(name: str) -> str:
@@ -1613,8 +1614,8 @@ def set_active_waypoint() -> None:
     waypoint = get_waypointtype_of_collection(col)
     tm_props = get_global_props()
 
-    if waypoint is not None:
-        tm_props.LI_xml_waypointtype = waypoint
+    #if waypoint is not None:
+     #   tm_props.LI_xml_waypointtype = waypoint
 
 def set_active_map_item_obj() -> None:
     obj = bpy.context.selected_objects[0] if len(bpy.context.selected_objects) > 0 else None
@@ -1624,7 +1625,7 @@ def set_active_map_item_obj() -> None:
 
 
 def set_waypointtype_of_selected_collection() -> None:
-    col      = get_active_collection_of_selected_object()
+    col      = get_active_item_collection_of_selected_object()
     waypoint = get_global_props().LI_xml_waypointtype
     
     col.color_tag = WAYPOINTS[waypoint]
@@ -1660,7 +1661,7 @@ def get_obj_potential_item_path(obj: bpy.types.Object) -> str:
 
 def get_waypointtype_of_collection(col: bpy.types.Collection) -> str:
     col_color = col.color_tag
-    waypoint = WAYPOINTS.get(col_color, None)
+    waypoint = WAYPOINTS.get(col_color, None) or "None"
     return waypoint
 
 
