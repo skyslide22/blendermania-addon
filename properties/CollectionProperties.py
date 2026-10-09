@@ -1,8 +1,12 @@
 import bpy
 from bpy.props import *
-from ..utils.ItemsExportV2Models import *
+
+from .Functions import set_collection_moving_group, toggle_infix, toggleNameSpecialPrefix
+from .PropertyFunctions import enum_items, subscribe_to_msgbus
+from .PropertyIdentifiers import CollectionProp
 from ..utils.Constants import *
-from ..properties.Functions import *
+from ..utils.FunctionsV2 import get_active_item_collection
+from ..utils.ItemsExportV2Models import EAxis, AnimEase
 
 _sorting = False
 
@@ -19,8 +23,6 @@ def _sort_lods(self, context):
     finally:
         _sorting = False
 
-def _enum_items(enum_cls):
-    return [(e.value, e.value, "") for e in enum_cls]
         
 class TM_LodDistanceProperties(bpy.types.PropertyGroup):
     distance: FloatProperty(name="Distance", default=64.0, min=0.0, step=100, update=_sort_lods)
@@ -35,50 +37,10 @@ class TM_SubAnimProperties(bpy.types.PropertyGroup):
     ease: EnumProperty(
         name="Ease",
         description="Easing function for the animation",
-        items=_enum_items(AnimEase),
+        items=enum_items(AnimEase),
         default=AnimEase.Constant.value)
 
 
-MAX_TEXTURE_ANIMS = 12
-MAX_ANIMS = 4
-
-class CollectionProp:
-    MOVING_GROUP = "tm_moving_group"
-    LODS = "tm_lods"
-    WAYPOINT_TYPE = "tm_waypoint_type"
-    NO_RESPAWN = "tm_waypoint_no_respawn"
-    IGNORE = "tm_collection_ignore"
-
-    DEFAULT_GRAVITY_SPAWN = "tm_default_gravity_spawn"
-    TORQUE_X = "tm_torque_x"
-    TORQUE_DURATION = "tm_torque_duration"
-
-    MOVING_ANCHOR = "tm_moving_anchor"
-    RELATIVE_MOVING_GROUP = "tm_relative_moving_group"
-
-    KINEMATIC_CAST_SHADOW = "tm_kinematic_cast_shadow"
-    KINEMATIC_IS_KINEMATIC = "tm_kinematic_is_kinematic"
-    KINEMATIC_PERIODIC_SC = "tm_kinematic_periodic_sc"
-    KINEMATIC_PERIODIC_SC_MAX = "tm_kinematic_periodic_sc_max"
-    KINEMATIC_PHASE_01 = "tm_kinematic_phase_01"
-    KINEMATIC_PHASE_01_MAX = "tm_kinematic_phase_01_max"
-    KINEMATIC_TEXTURE_ID = "tm_kinematic_texture_id"
-
-    KINEMATIC_TRANS_AXIS = "tm_kinematic_trans_axis"
-    KINEMATIC_TRANS_MIN = "tm_kinematic_trans_min"
-    KINEMATIC_TRANS_MAX = "tm_kinematic_trans_max"
-    KINEMATIC_ROT_AXIS = "tm_kinematic_rot_axis"
-    KINEMATIC_ROT_MIN = "tm_kinematic_angle_min"
-    KINEMATIC_ROT_MAX = "tm_kinematic_angle_max"
-    KINEMATIC_TRANS_ANIMS = "tm_kinematic_trans_anims"
-    KINEMATIC_ROT_ANIMS = "tm_kinematic_rot_anims"
-
-    KINEMATIC_HAS_MOVING_TEXTURE = "tm_kinematic_has_moving_texture"
-    KINEMATIC_MOVING_TEXTURE_NUM = "tm_kinematic_moving_texture_num"
-    KINEMATIC_MOVING_TEXTURE_PER_LINE = "tm_kinematic_moving_texture_per_line"
-    KINEMATIC_MOVING_TEXTURE_PER_COLUMN = "tm_kinematic_moving_texture_per_column"
-    KINEMATIC_MOVING_TEXTURE_TOP_TO_BOTTOM = "tm_kinematic_moving_texture_top_to_bottom"
-    KINEMATIC_MOVING_TEXTURE_ANIMS = "tm_kinematic_moving_texture_anims"
 
 
 def _icon_for_tag(tag):
@@ -288,52 +250,21 @@ def register_collection_properties():
         type=TM_TextureAnimProperties
     ))
 
-    _subscribe()
-    bpy.app.handlers.load_post.append(_on_load_post)
+    subscribe_to_msgbus(_msgbus_owner, bpy.types.Collection, "name", _on_collection_renamed)
+    if _on_load_post not in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.append(_on_load_post)
 
 
 def unregister_collection_properties():
-    bpy.msgbus.clear_by_owner(_msgbus_owner)
     if _on_load_post in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.remove(_on_load_post)
+    bpy.msgbus.clear_by_owner(_msgbus_owner)
 
     del bpy.types.Collection.tm_itemxml_template
-    delattr(bpy.types.Collection, CollectionProp.MOVING_GROUP)
-    delattr(bpy.types.Collection, CollectionProp.LODS)
-    delattr(bpy.types.Collection, CollectionProp.NO_RESPAWN)
-    delattr(bpy.types.Collection, CollectionProp.WAYPOINT_TYPE)
-    delattr(bpy.types.Collection, CollectionProp.IGNORE)
 
-    delattr(bpy.types.Collection, CollectionProp.TORQUE_X)
-    delattr(bpy.types.Collection, CollectionProp.TORQUE_DURATION)
-    delattr(bpy.types.Collection, CollectionProp.DEFAULT_GRAVITY_SPAWN)
-
-    delattr(bpy.types.Collection, CollectionProp.MOVING_ANCHOR)
-    delattr(bpy.types.Collection, CollectionProp.RELATIVE_MOVING_GROUP)
-
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_CAST_SHADOW)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_IS_KINEMATIC)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_PERIODIC_SC)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_PERIODIC_SC_MAX)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_PHASE_01)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_PHASE_01_MAX)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_TEXTURE_ID)
-
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_TRANS_AXIS)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_TRANS_MIN)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_TRANS_MAX)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_ROT_AXIS)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_ROT_MIN)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_ROT_MAX)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_TRANS_ANIMS)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_ROT_ANIMS)
-
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_HAS_MOVING_TEXTURE)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_NUM)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_LINE)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_COLUMN)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_TOP_TO_BOTTOM)
-    delattr(bpy.types.Collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_ANIMS)
+    for prop in CollectionProp:
+        if hasattr(bpy.types.Collection, prop):
+            delattr(bpy.types.Collection, prop)
 
 
 
@@ -391,15 +322,7 @@ def _on_collection_renamed():
     finally:
         _syncing = False
 
-def _subscribe():
-    bpy.msgbus.clear_by_owner(_msgbus_owner)
-    bpy.msgbus.subscribe_rna(
-        key=(bpy.types.Collection, "name"),
-        owner=_msgbus_owner,
-        args=(),
-        notify=_on_collection_renamed,
-    )
 
 @persistent
 def _on_load_post(_):
-    _subscribe()  
+    subscribe_to_msgbus(_msgbus_owner, bpy.types.Collection, "name", _on_collection_renamed)

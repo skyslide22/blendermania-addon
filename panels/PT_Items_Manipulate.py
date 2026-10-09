@@ -74,9 +74,6 @@ class TM_PT_ObjectManipulations(Panel):
 
 
 
-            
-
-
 class TM_PT_Items_ObjectManipulation(Panel):
     # region bl_
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )

@@ -1,31 +1,10 @@
-import re
-
 import bpy
 from bpy.props import *
-from ..utils.Constants import * 
-from ..utils.ItemsExportV2Models import *
-from ..properties.Functions import *
-
-class ObjectProp:
-    #Flags
-    NON_COLLIDABLE   = "tm_non_collidable"
-    INVISIBLE        = "tm_invisible"
-    TRIGGER_WAYPOINT = "tm_trigger_waypoint"
-    TRIGGER_EFFECT   = "tm_trigger_effect"
-    SOCKET           = "tm_socket"
-    IGNORE           = "tm_ignore"
-    PIVOT            = "tm_pivot"
-    ORIGIN           = "tm_origin"
-
-    #other
-    TRIGGER_EFFECT_TYPE = "tm_trigger_effect_type"
-    GAMEPLAY_MAIN_DIR   = "tm_gameplay_main_dir"
-    ENABLE_LODS          = "tm_enable_lods"
-    LOD_INDEXES          = "tm_lod_indexes"
-
-    OVERRIDE_LIGHTMAP_SIZE          = "tm_override_lightmap_size"
-    LIGHTMAP_SIZE          = "tm_lightmap_size"
-
+from .Functions import toggle_infix, toggleNameSpecialPrefix
+from .PropertyFunctions import enum_items, subscribe_to_msgbus
+from .PropertyIdentifiers import ObjectProp
+from ..utils.Constants import *
+from ..utils.ItemsExportV2Models import LegacyGameplayId
 
 # when prop A is turned ON, these props are turned OFF
 EXCLUSIVE_PROPERTIES = {
@@ -64,7 +43,7 @@ def register_object_properties():
     setattr(bpy.types.Object, ObjectProp.PIVOT, _bool("Pivot", "Object is a pivot point", ObjectProp.PIVOT, _update_tm_pivot))
     setattr(bpy.types.Object, ObjectProp.ORIGIN, _bool("Origin", "Object is an origin point", ObjectProp.ORIGIN, _update_tm_origin))
 
-    setattr(bpy.types.Object, ObjectProp.TRIGGER_EFFECT_TYPE, EnumProperty(name="Trigger Effect Type", description="Type of trigger effect", items=_enum_items(LegacyGameplayId), default=LegacyGameplayId.None_.value,))
+    setattr(bpy.types.Object, ObjectProp.TRIGGER_EFFECT_TYPE, EnumProperty(name="Trigger Effect Type", description="Type of trigger effect", items=enum_items(LegacyGameplayId), default=LegacyGameplayId.None_.value,))
     setattr(bpy.types.Object, ObjectProp.GAMEPLAY_MAIN_DIR, FloatVectorProperty(name="Gameplay Main Dir", description="Main directory for gameplay", default=(0.0, 0.0, 0.0)))
 
     setattr(bpy.types.Object, ObjectProp.ENABLE_LODS, BoolProperty(name="LODs", description="Enable Level of Detail for this object", default=False))
@@ -73,30 +52,20 @@ def register_object_properties():
     setattr(bpy.types.Object, ObjectProp.OVERRIDE_LIGHTMAP_SIZE, _bool("Override Lightmap Size", "Override lightmap size", ObjectProp.OVERRIDE_LIGHTMAP_SIZE))
     setattr(bpy.types.Object, ObjectProp.LIGHTMAP_SIZE, FloatProperty(name="Lightmap Size", description="Lightmap size", default=100.0))
 
-    _subscribe()
-    bpy.app.handlers.load_post.append(_on_load_post)
-
-
-
+    setattr(bpy.types.Object, ObjectProp.ICON_ONLY, _bool("Icon Only", "Object is only for icon generation", ObjectProp.ICON_ONLY, update=_update_tm_icon_only))
+    
+    subscribe_to_msgbus(_msgbus_owner, bpy.types.Object, "name", _on_object_renamed)
+    if _on_load_post not in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.append(_on_load_post)
 
 def unregister_object_properties():
-    bpy.msgbus.clear_by_owner(_msgbus_owner)
     if _on_load_post in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.remove(_on_load_post)
+    bpy.msgbus.clear_by_owner(_msgbus_owner)
 
-    delattr(bpy.types.Object, ObjectProp.NON_COLLIDABLE)
-    delattr(bpy.types.Object, ObjectProp.INVISIBLE)
-    delattr(bpy.types.Object, ObjectProp.TRIGGER_WAYPOINT)
-    delattr(bpy.types.Object, ObjectProp.TRIGGER_EFFECT)
-    delattr(bpy.types.Object, ObjectProp.SOCKET)
-    delattr(bpy.types.Object, ObjectProp.IGNORE)
-    delattr(bpy.types.Object, ObjectProp.PIVOT)
-    delattr(bpy.types.Object, ObjectProp.ORIGIN)
-
-    delattr(bpy.types.Object, ObjectProp.TRIGGER_EFFECT_TYPE)
-    delattr(bpy.types.Object, ObjectProp.GAMEPLAY_MAIN_DIR)
-    delattr(bpy.types.Object, ObjectProp.ENABLE_LODS)
-    delattr(bpy.types.Object, ObjectProp.LOD_INDEXES)
+    for prop in ObjectProp:
+        if hasattr(bpy.types.Object, prop):
+            delattr(bpy.types.Object, prop)
 
 
 # automatic renames on property change
@@ -132,6 +101,9 @@ def _update_tm_non_collidable(self, context):
     if _syncing: return
     toggle_infix(self, SPECIAL_NAME_INFIX_NOTCOLLIDABLE)
 
+def _update_tm_icon_only(self, context):
+    if _syncing: return
+    toggleNameSpecialPrefix(self, SPECIAL_NAME_PREFIX_ICON_ONLY)
 
 
 
@@ -155,6 +127,8 @@ def _on_object_renamed():
                 setattr(obj, ObjectProp.IGNORE, obj.name.startswith(SPECIAL_NAME_PREFIX_IGNORE))
             if getattr(obj, ObjectProp.SOCKET) != obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET):
                 setattr(obj, ObjectProp.SOCKET, obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET))
+            if getattr(obj, ObjectProp.ICON_ONLY) != obj.name.startswith(SPECIAL_NAME_PREFIX_ICON_ONLY):
+                setattr(obj, ObjectProp.ICON_ONLY, obj.name.startswith(SPECIAL_NAME_PREFIX_ICON_ONLY))
 
 
             # infixes
@@ -173,31 +147,10 @@ def _on_object_renamed():
     finally:
         _syncing = False
 
-def _subscribe():
-    bpy.msgbus.clear_by_owner(_msgbus_owner)
-    bpy.msgbus.subscribe_rna(
-        key=(bpy.types.Object, "name"),
-        owner=_msgbus_owner,
-        args=(),
-        notify=_on_object_renamed,
-    )
-
 @persistent
 def _on_load_post(_):
-    _subscribe()  
+    subscribe_to_msgbus(_msgbus_owner, bpy.types.Object, "name", _on_object_renamed)
 
+def sync_object_properties_with_names():
+    _on_object_renamed()
 
-# enum
-def _enum_items(enum_cls):
-    return [(e.value, e.value, "") for e in enum_cls]
-
-
-#lod
-def get_lod_indexes(obj) -> list[int]:
-    return sorted(e.value for e in getattr(obj, ObjectProp.LOD_INDEXES))
-
-def set_lod_indexes(obj, indexes) -> None:
-    coll = getattr(obj, ObjectProp.LOD_INDEXES)
-    coll.clear()
-    for i in sorted(set(indexes)):
-        coll.add().value = i

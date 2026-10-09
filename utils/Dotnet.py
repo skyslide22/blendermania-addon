@@ -1,3 +1,5 @@
+from enum import IntFlag
+
 import bpy
 import math
 import json
@@ -203,6 +205,44 @@ class ComplexEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 
+class ItemModel(str, Enum):
+    Prefab = CUSTOM_IMPORTER_ITEM_TYPE_PREFAB
+    MeshModeler = CUSTOM_IMPORTER_ITEM_TYPE_MESH_MODELER
+    
+class OptimizationOptions(IntFlag):
+    None_ = 0
+    PreferNadeoImporterStructure = 1 << 0
+    AllowMerging = 1 << 1
+    ProhibitInstanceSharing = 1 << 2
+
+class ConvertFbxToGbxPayload:
+    _TARGET_TO_INT = {
+        ItemModel.Prefab: 0,
+        ItemModel.MeshModeler: 1,
+    }
+    
+    def __init__(
+        self,
+        FbxPath: str,
+        MaterialLibraryPath: str,
+        ItemOutputPath: str,
+        IconPath: str,
+        Target: ItemModel, 
+        Optimization: OptimizationOptions
+    ):
+        self.FbxPath = FbxPath
+        self.MaterialLibraryPath = MaterialLibraryPath
+        self.ItemOutputPath = ItemOutputPath
+        self.IconPath = IconPath
+        self.Target = Target
+        self.Optimization = Optimization
+
+    def jsonable(self):
+        d = dict(self.__dict__)
+        d["Target"] = self._TARGET_TO_INT[ItemModel(d["Target"])]
+        d["Optimization"] = int(d["Optimization"])  # works if it's an IntEnum or plain int
+        return d
+
 # Dotnet commands
 def run_place_objects_on_map(
     map_path: str,
@@ -283,6 +323,26 @@ def run_place_mediatracker_clips_on_map(
                 pass
         return res
 
+def run_convert_fbx_to_gbx(
+    fbx_path: str,
+    material_library_path: str,
+    item_output_path: str,
+    icon_path: str,
+    target: ItemModel,
+    optimization: OptimizationOptions,
+)-> DotnetExecResult:
+    payload = ConvertFbxToGbxPayload(
+        fbx_path,
+        material_library_path,
+        item_output_path,
+        icon_path,
+        target,
+        optimization
+    )
+    res = _run_dotnet(CONVERT_FBX_TO_GBX, json.dumps(payload, cls=ComplexEncoder, ensure_ascii=False))
+    print(res)
+    return res
+
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     dotnet_exe = get_blendermania_dotnet_path()
@@ -294,7 +354,7 @@ def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     out, err = process.communicate()
-    
+    print(repr(payload))
     out_msg = out.decode("utf-8").strip()
     err_msg = err.decode("utf-8").strip()
 

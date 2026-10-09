@@ -10,6 +10,7 @@ DOTNET_COMMANDS = (
     CONVERT_ITEM_TO_OBJ              := "convert-item-to-obj",
     GET_MEDIATRACKER_CLIPS           := "get-mediatracker-clips",
     PLACE_MEDIATRACKER_CLIPS_ON_MAP  := "place-mediatracker-clips-on-map",
+    CONVERT_FBX_TO_GBX               := "convert-fbx-to-gbx",
 )
 
 
@@ -32,6 +33,7 @@ MAT_PROPS_AS_JSON = "MAT_PROPS_AS_JSON"
 
 
 # Panel related
+UI_FOLDOUT_INDENT = 1.0
 UI_SPACER_FACTOR = 1.0
 ICON_CHECKED            = "CHECKMARK"
 ICON_UNCHECKED          = "CHECKBOX_DEHLT"
@@ -464,6 +466,15 @@ MAP_OBJECT_TYPES_PROP = (
     (MAP_OBJECT_ITEM, "Item", ""),
 )
 
+EXPORTABLE_OBJECT_TYPES = {
+    EXPORTABLE_OBJECT_MESH := "MESH",
+    EXPORTABLE_OBJECT_LIGHT := "LIGHT"
+}
+
+LIGHT_TYPES = {
+    LIGHT_TYPE_POINT := "POINT",
+    LIGHT_TYPE_SPOT  := "SPOT",
+}
 
 # Custom properties of the materials for iterating & checking
 MATERIAL_CUSTOM_PROPERTIES = [
@@ -532,6 +543,7 @@ from .Functions import (
     get_addon_assets_path,
     get_addon_path,
     is_file_existing,
+    get_default_material_lib_path
 
 )
 
@@ -544,6 +556,7 @@ ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON     = get_addon_assets_path() + "/ite
 ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_CanyonCar_Lowpoly.fbx"
 ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_ValleyCar_Lowpoly.fbx"
 
+DEFAULT_MATERIAL_LIB_FILEPATH_TM2020 = get_default_material_lib_path()
 
 # check if blender is opened by a dev (from vscode..?)
 BLENDER_INSTANCE_IS_DEV = os.path.exists(get_addon_path() + ".git")
@@ -585,3 +598,45 @@ DANGEROUS_MANUAL_MANIPULATION_TYPES = (
 
 
 
+CUSTOM_IMPORTER_ITEM_TYPES = (
+    CUSTOM_IMPORTER_ITEM_TYPE_PREFAB := "Prefab",
+    CUSTOM_IMPORTER_ITEM_TYPE_MESH_MODELER := "MeshModeler",
+)
+
+
+PLACEMENT_KNOWN_PATCH_GROUPS = [
+    "Border",
+    "BorderDecoWall",
+    "BorderInGround",
+    "BorderMultiSize",
+    "BorderOpen",
+    "BorderOpenCurve1",
+    "BorderPlatform",
+    "BorderPlatformWater",
+    "BorderRallyRoadDirt",
+    "BorderTrackWall",
+    "BorderWaterSmall",
+    "Road",
+    "RoadBump",
+    "RoadDirt",
+    "RoadDirtTilt",
+    "RoadDirtWarp",
+    "RoadIce",
+    "RoadIceTilt",
+    "RoadIceWarp",
+    "RoadNarrowCenter",
+    "RoadNarrowLeft",
+    "RoadNarrowRight",
+    "RoadOpen",
+    "RoadOpenTilt",
+    "RoadOpenWarp",
+    "RoadSlopeHard",
+    "RoadSlopeSoft",
+    "RoadTilt",
+    "RoadWarp",
+    "RoadWater",
+    "StructureSupport",
+]
+
+MAX_TEXTURE_ANIMS = 12
+MAX_ANIMS = 4

@@ -89,6 +89,7 @@ from .panels.PT_EditorTrails            import *
 from .panels.PT_Items_Placement         import *
 
 from .panels.PT_Items_ExportV2 import *
+from .panels.UI_widgets import *
 
 from .NICE.nice import NICE_register, NICE_unregister
 
@@ -189,6 +190,7 @@ classes = (
 
     TM_PT_Items_ExportV2,
     TM_OT_Items_ExportV2,
+    TM_OT_Items_Export_ExportAndOrConverFailedOnesV2,
 
     # xml,
     TM_PT_Items_MeshXML,
@@ -288,6 +290,11 @@ classes = (
 
     # items manipulate v2
     TM_UL_lods,
+
+    # widgets
+    TM_OT_List_Add,
+    TM_OT_List_Remove,
+    TM_UL_Generic,
     
 )
 
@@ -299,9 +306,14 @@ classes = (
 def register():
 
     for cls in classes:
+        print(f"Registering: {cls!r}, type: {type(cls)}")
         bpy.utils.register_class(cls)
+
+    
     bpy.types.Scene.tm_props                  = PointerProperty(   type=PannelsPropertyGroup)
     bpy.types.Scene.tm_props_pivots           = CollectionProperty(type=PivotsProperties)
+    bpy.types.Scene.tm_props_pivots_index           = IntProperty(default=-1)
+
     bpy.types.Scene.tm_props_generated        = CollectionProperty(type=GeneratedProperties)
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=ConvertingItemsProperties)
     bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=LinkedMaterialsProperties)
@@ -360,6 +372,9 @@ def register():
     bpy.app.handlers.depsgraph_update_post.append(listen_object_move)
     bpy.types.Object.location_before = FloatVectorProperty(name="old pos", subtype="TRANSLATION")
 
+    TM_PT_Items_ItemPlacement.register_callbacks()
+    TM_PT_Items_CollectionManipulationV2.register_callbacks()
+    
     NICE_register()
     
 
@@ -398,6 +413,9 @@ def unregister():
         bpy.app.handlers.depsgraph_update_post.remove(listen_object_move)
     except:
         pass
+
+    TM_PT_Items_ItemPlacement.unregister_callbacks()
+    TM_PT_Items_CollectionManipulationV2.unregister_callbacks()
 
     NICE_unregister()
 

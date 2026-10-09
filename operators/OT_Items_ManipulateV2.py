@@ -1,13 +1,15 @@
 import bpy
 from bpy.types import Panel
 from bpy.types import Operator
+from bpy.props import *
 
 from mathutils import Vector
 
+from ..properties.PropertyFunctions import get_lod_indexes, set_lod_indexes
+
 from ..utils.Functions import *
 from ..utils.Constants import * 
-from ..properties.ObjectProperties import *
-from ..properties.CollectionProperties import *
+from ..properties.PropertyIdentifiers import CollectionProp, ObjectProp
 
 class TM_OT_Lod_Add(bpy.types.Operator):
     bl_idname = "tm.lod_add"

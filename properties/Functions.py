@@ -1,4 +1,3 @@
-from typing import Iterable
 import bpy
 import bpy.utils.previews
 from bpy.props import *
@@ -9,7 +8,7 @@ from ..utils.ItemsIcon import generate_world_node
 from ..utils.Functions import *
 from ..utils.FunctionsV2 import *
 from ..utils.Constants import *
-from .PlacementPatchProperties import KNOWN_PATCH_GROUPS
+
 
 class EnumProps():
     """this needs to be returned by bpy.props.EnumProperty"""
@@ -1230,7 +1229,7 @@ def get_dangerous_manual_manipulation_types():
 def getCompatiblePatchGroups() -> list:
     return [
         (group, group, "")
-        for group in KNOWN_PATCH_GROUPS
+        for group in PLACEMENT_KNOWN_PATCH_GROUPS
     ]
 
 
@@ -1278,8 +1277,9 @@ def toggle_infix(obj: object, infix: str) -> None:
             obj.name = infix + obj.name
 
 
+#collection
 def set_collection_moving_group(collection: bpy.types.Collection, v: bool) -> None:
     if v:
         collection.color_tag = COLLECTION_GROUPS[COLLECTION_GROUP_MOVING]
     else:
-        collection.color_tag = WAYPOINTS[getattr(collection, "tm_waypoint_type", "None")]
+        collection.color_tag = WAYPOINTS[getattr(collection, CollectionProp.WAYPOINT_TYPE, "None")]

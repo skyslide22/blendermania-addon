@@ -234,7 +234,7 @@ class TM_PT_Settings_NadeoImporter(Panel):
             row.alignment = "CENTER"
             row.label(text=f"""(current {current_importer})""")
 
-            if not current_importer:
+            if not current_importer or current_importer == "None":
                 row = layout.row()
                 row.alert = True
                 row.label(text="No current importer found")

@@ -1,7 +1,8 @@
 from typing import List
 import bpy
 from .Functions import *
-
+from ..properties.PropertyIdentifiers import CollectionProp, ObjectProp
+from ..properties.PropertyFunctions import get_lod_indexes
 
 
 def get_parent_collection(col, scene):
@@ -23,7 +24,7 @@ def get_item_root(col, scene):
 # collection regardless of type
 
 def get_active_collection() -> bpy.types.Collection:
-    col = get_selected_collection() or get_active_collection_of_selected_object()
+    col = get_active_collection_of_selected_object() or get_selected_collection()
     return col
 
 def get_active_collection_of_selected_object() -> bpy.types.Collection:
@@ -33,6 +34,9 @@ def get_active_collection_of_selected_object() -> bpy.types.Collection:
         obj = objs[0]
         col = obj.users_collection[0]
     return col
+    
+
+
 
 def get_selected_collection() -> bpy.types.Collection:
     col = bpy.context.collection
@@ -78,6 +82,15 @@ def set_waypointtype_of_active_collection() -> None:
     
     col.color_tag = WAYPOINTS[waypoint]
 
+def get_active_item_collection_of_selected_object() -> bpy.types.Collection:
+    objs = bpy.context.selected_objects
+    col  = None
+    if objs:
+        obj = objs[0]
+        col = obj.users_collection[0]
+    if col:
+        col = get_item_root(col, bpy.context.scene)
+    return col
 
 # group collection (moving)
 
@@ -98,4 +111,95 @@ def can_convert_to_group_collection(col: bpy.types.Collection) -> bool:
 
 # waypoint
 def is_waypoint_collection(col: bpy.types.Collection) -> bool:
-    return getattr(col, "tm_collection_ignore", WAYPOINT_NAME_NONE) != WAYPOINT_NAME_NONE
+    return getattr(col, CollectionProp.IGNORE, WAYPOINT_NAME_NONE) != WAYPOINT_NAME_NONE
+
+# export
+
+def is_collection_exportable(coll: bpy.types.Collection)->bool:
+    if len(coll.objects) == 0\
+    or coll.name.lower() in NOT_ALLOWED_COLLECTION_NAMES:
+        return False
+
+    if getattr(coll, CollectionProp.IGNORE, False):
+        return False
+    if getattr(coll, CollectionProp.MOVING_GROUP, False):
+        return False
+
+    is_exportable = False
+    for obj in coll.objects:
+        is_exportable = is_object_exportable(obj)
+        if is_exportable: break
+    
+    return is_exportable
+
+
+def is_object_exportable(obj: bpy.types.Object)-> bool:
+    if (obj.type != EXPORTABLE_OBJECT_MESH and obj.type != EXPORTABLE_OBJECT_LIGHT) \
+    or obj.visible_get() is False:
+        return False
+
+    if getattr(obj, ObjectProp.IGNORE, False):
+        return False
+    if getattr(obj.users_collection[0], CollectionProp.IGNORE, False):
+        return False
+    return True
+
+def get_exportable_collections(objs: List[bpy.types.Object])->set:
+    collections = set()
+
+    for obj in objs:
+
+        if obj.type != EXPORTABLE_OBJECT_MESH:
+            continue
+
+        if obj.visible_get() is False: 
+            continue
+
+        #TODO: actual filter necessary
+        if not is_object_exportable(obj):
+            continue
+
+        for col in obj.users_collection:
+            root = get_item_root(col, bpy.context.scene)
+            if root.name.lower() in NOT_ALLOWED_COLLECTION_NAMES: continue
+            if getattr(root, CollectionProp.IGNORE, False): continue
+            if root in collections: continue
+            if is_collection_excluded_or_hidden(root): continue
+
+            collections.add(root)
+    
+    return collections
+
+def get_exportable_collection_objects(objs: List[bpy.types.Object])->set:
+    objects = set()
+    for obj in objs:
+        if not is_object_exportable(obj):
+            continue
+        if not has_valid_LODs(obj):
+            show_report_popup("Invalid object", (f"<{obj.name}> has LODs enabled, but no declared LOD levels... skipping!",))
+            continue
+        objects.add(obj)
+    return objects
+
+def has_valid_LODs(obj: bpy.types.Object) -> bool:
+    if not getattr(obj, ObjectProp.ENABLE_LODS, False):
+        return True
+    lods = get_lod_indexes(obj)
+    if len(lods) == 0: return False
+    return True
+
+def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
+    location: list[float] = [0,0,0]
+    offset: list[float] = []
+    
+    # take first valid object and main one
+    for obj in objects:
+        if is_object_exportable(obj)\
+        and (len(offset) == 0 or getattr(obj, ObjectProp.ORIGIN, False)):
+            offset = [
+                obj.location[0] - location[0],
+                obj.location[1] - location[1],
+                obj.location[2] - location[2],
+            ]
+            
+    return offset

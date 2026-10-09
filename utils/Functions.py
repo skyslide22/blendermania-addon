@@ -67,10 +67,16 @@ def get_blendermania_dotnet_path() -> str:
     #if BLENDER_INSTANCE_IS_DEV:
     #    return fr"D:\Art\Blender\blendermania-dotnet\blendermania-dotnet\bin\Release\net7.0\win-x64\publish\blendermania-dotnet.exe"
     #else:
+
+    #TODO: tmp
+    return "F:\\Development\\Projects\\Visual Studio\\Blendermania\\blendermania-dotnet\\publish\\blendermania-dotnet.exe"
     return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
 
 def is_blendermania_dotnet_installed() -> bool:
     return is_file_existing(get_blendermania_dotnet_path())
+
+def get_default_material_lib_path() -> str:
+    return get_addon_assets_path() + "materials/MaterialLib.txt"
 
 def get_game() -> str:
     return get_global_props().LI_gameType
@@ -1110,7 +1116,6 @@ def get_active_item_collection_of_selected_object() -> bpy.types.Collection:
         col = obj.users_collection[0]
     return col
         
-
 
 def select_all_objects_in_collection(coll, only_direct_children=False, exclude_infixes=None) -> None:
     """select all objects in a collection, you may use deselectAll() before"""

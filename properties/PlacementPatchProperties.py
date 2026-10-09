@@ -1,46 +1,19 @@
 import bpy
 from bpy.props import *
+from ..utils.Functions import get_global_props
 from ..utils.Constants import * 
 
 
-KNOWN_PATCH_GROUPS = [
-    "Border",
-    "BorderDecoWall",
-    "BorderInGround",
-    "BorderMultiSize",
-    "BorderOpen",
-    "BorderOpenCurve1",
-    "BorderPlatform",
-    "BorderPlatformWater",
-    "BorderRallyRoadDirt",
-    "BorderTrackWall",
-    "BorderWaterSmall",
-    "Road",
-    "RoadBump",
-    "RoadDirt",
-    "RoadDirtTilt",
-    "RoadDirtWarp",
-    "RoadIce",
-    "RoadIceTilt",
-    "RoadIceWarp",
-    "RoadNarrowCenter",
-    "RoadNarrowLeft",
-    "RoadNarrowRight",
-    "RoadOpen",
-    "RoadOpenTilt",
-    "RoadOpenWarp",
-    "RoadSlopeHard",
-    "RoadSlopeSoft",
-    "RoadTilt",
-    "RoadWarp",
-    "RoadWater",
-    "StructureSupport",
-]
-
 def compatible_group_search(self, context, edit_text):
     # must return an iterable of plain strings
-    return [ident for ident in KNOWN_PATCH_GROUPS
+    return [ident for ident in PLACEMENT_KNOWN_PATCH_GROUPS
             if edit_text.lower() in ident.lower()]
+
+def valid_for_group_search(self, context, edit_text):
+    # get selected group
+    tm_props = get_global_props()
+    compatible_groups = [ident.name for ident in tm_props.LI_cfg_compatibleGroups]
+    return [ident for ident in compatible_groups]
 
 class CompatiblePatchGroupProperty(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(
@@ -51,7 +24,12 @@ class CompatiblePatchGroupProperty(bpy.types.PropertyGroup):
     )
 
 class PatchGroupRef(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(name="Group")   # no search callback; prop_search handles it
+    name: bpy.props.StringProperty(
+        name="Group",
+        description="Valid for patch group",
+        search=valid_for_group_search,
+        search_options={'SUGGESTION'},  # SUGGESTION = custom text allowed
+    )
     
 class PlacementPatchProperties(bpy.types.PropertyGroup):
     autoItemCount: bpy.props.BoolProperty(
@@ -106,4 +84,6 @@ class PlacementPatchProperties(bpy.types.PropertyGroup):
         name="Patch Layouts", 
         type=PatchGroupRef,
         description="For which groups this layout is valid.")
+
+    validForGroups_index: bpy.props.IntProperty(name="Patch Layouts", default=-1)
 

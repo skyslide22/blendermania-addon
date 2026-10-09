@@ -7,13 +7,14 @@ from bpy.types import Panel
 from bpy.types import Operator
 
 
+
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
 from ..properties.Functions import ERROR_ENUM_ID
 from ..utils.FunctionsV2 import *
 from ..utils.Constants import * 
-from ..properties.ObjectProperties import *
-from ..properties.CollectionProperties import *
+from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp
+from .UI_widgets import *
 
 
 
@@ -26,7 +27,6 @@ class TM_PT_ObjectManipulationsV2(Panel):
     @classmethod
     def poll(self, context):
         return is_selected_nadeoini_file_name_ok()
-
 
     def draw_header(self, context):
         layout = self.layout
@@ -78,11 +78,6 @@ class TM_PT_ObjectManipulationsV2(Panel):
     def draw(self, context):
         pass
 
-
-
-            
-
-
 class TM_PT_Items_ObjectManipulationV2(Panel):
     # region bl_
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
@@ -121,10 +116,10 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
         layout = self.layout
         tm_props        = get_global_props()
 
-        current_collection      = get_active_item_collection_of_selected_object()
-        current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
+        current_item_collection      = get_active_item_collection_of_selected_object()
+        current_collection_name = current_item_collection.name if current_item_collection is not None else "Select any object !"
 
-        if current_collection is None:
+        if current_item_collection is None:
             return
 
         obj          = None
@@ -176,7 +171,7 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
             row = col.row(align=True)
             row.prop(obj, ObjectProp.ENABLE_LODS, text="LODs", toggle=True)
             if getattr(obj, ObjectProp.ENABLE_LODS):
-                item_lods = getattr(current_collection, "tm_lods", [])
+                item_lods = getattr(current_item_collection, "tm_lods", [])
                 lod_count = len(item_lods)
                 selected_lods = get_lod_indexes(obj)
                 lod_col = col.column(align=True)
@@ -312,7 +307,6 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
         layout.separator(factor=1)
 
 
-
 class TM_PT_Items_CollectionManipulationV2(Panel):
     # region bl_
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
@@ -321,6 +315,13 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
     bl_parent_id = "TM_PT_ObjectManipulationsV2"
     # endregion
 
+    @classmethod
+    def register_callbacks(self):
+        register_list_hooks(bpy.types.Collection, CollectionProp.LODS, after_add=self.on_lod_add)
+
+    @classmethod
+    def unregister_callbacks(self):
+        unregister_list_hooks(bpy.types.Collection, CollectionProp.LODS)
 
     def draw_header(self, context):
         layout = self.layout
@@ -351,7 +352,7 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
 
         row.operator("wm.tm_renameobject", text="", icon=ICON_EDIT).col_name = current_collection_name        
-
+        
 
     def draw(self, context):
         layout = self.layout
@@ -365,6 +366,7 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
         if current_collection is None:
             return
 
+        
         row = layout.row(align=True)
         row.prop(current_collection, CollectionProp.IGNORE, icon_value=get_addon_icon("CANCEL"))
 
@@ -405,134 +407,107 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
                 row.prop(current_collection, CollectionProp.KINEMATIC_TEXTURE_ID, text="TextureID", toggle=True)
 
             # translation
-            trans_anim_col = layout.column(align=True)
             trans_anims = getattr(current_collection, CollectionProp.KINEMATIC_TRANS_ANIMS)
             trans_anim_count = len(trans_anims)
-            expanded = getattr(tm_props, "CB_cfg_show_trans_anims")
-            trans_anim_header_row = trans_anim_col.row(align=True)
-            trans_anim_header_row.prop(
-                tm_props, "CB_cfg_show_trans_anims",
-                text=f"Translation Animations ({trans_anim_count}/{MAX_ANIMS})",
-                icon='TRIA_DOWN' if expanded else 'TRIA_RIGHT',
-                emboss=False)
-
-            sub = trans_anim_header_row.row(align=True)
-            sub.enabled = trans_anim_count < MAX_ANIMS
-            op = sub.operator("tm.trans_anim_add", text="", icon='ADD')
-            op.collection_name = current_collection.name
-            if expanded:
-                row = trans_anim_col.row(align=True)
-                row.prop(current_collection, CollectionProp.KINEMATIC_TRANS_AXIS)
-                row = trans_anim_col.row(align=True)
+            trans_body, trans_header = foldout_toggle(col,
+                                                      tm_props,
+                                                      "CB_cfg_show_trans_anims", 
+                                                      label=f"Translation Animations ({trans_anim_count}/{MAX_ANIMS})",
+                                                      indent = UI_FOLDOUT_INDENT)
+            if trans_body:
+                row = trans_body.row(align=True)
+                row.prop(current_collection, CollectionProp.KINEMATIC_TRANS_AXIS, text="Translation Axis")
+                row = trans_body.row(align=True)
                 row.prop(current_collection, CollectionProp.KINEMATIC_TRANS_MIN)
                 row.prop(current_collection, CollectionProp.KINEMATIC_TRANS_MAX)
                 if trans_anim_count == 0:
-                    trans_anim_col.label(text="No translation animations", icon='INFO')
-                else:
-                    
-                    for i, anim in enumerate(trans_anims):
-                        item = trans_anim_col.box()
-                        row = item.row(align=True)
-                        num = row.row(align=True)
-                        num.scale_x = 0.3
-                        num.label(text=f"{i + 1}")
-                        col = row.column(align=True)
-                        col.prop(anim, "reverse", text="Reverse", toggle=True)
-                        col.prop(anim, "duration", text="Duration Millis")
-                        col.prop(anim, "ease", text="Ease")
-
-
-                        op = row.operator("tm.trans_anim_remove", text="", icon='X')
-                        op.collection_name = current_collection.name
-                        op.index = i
+                    trans_body.label(text="No translation animations", icon='INFO')
+                box = trans_body.box()
+                item_list(box,
+                          current_collection,
+                          CollectionProp.KINEMATIC_TRANS_ANIMS,
+                          draw_item=self.draw_anim_row,
+                          add_text="Add Translation Animation",
+                          numbered=True)
+                row = box.row(align=True)
+                row.enabled = trans_anim_count < MAX_ANIMS
+                list_add_button(row,
+                                current_collection,
+                                CollectionProp.KINEMATIC_TRANS_ANIMS,
+                                text="Add Translation Animation",
+                                icon=ICON_ADD)
 
             # rotation
-            rot_anim_col = layout.column(align=True)
             rot_anims = getattr(current_collection, CollectionProp.KINEMATIC_ROT_ANIMS)
             rot_anim_count = len(rot_anims)
-            expanded = getattr(tm_props, "CB_cfg_show_rot_anims")
-            rot_anim_header_row = rot_anim_col.row(align=True)
-            rot_anim_header_row.prop(
-                tm_props, "CB_cfg_show_rot_anims",
-                text=f"Rotation Animations ({rot_anim_count}/{MAX_ANIMS})",
-                icon='TRIA_DOWN' if expanded else 'TRIA_RIGHT',
-                emboss=False)
-
-            sub = rot_anim_header_row.row(align=True)
-            sub.enabled = rot_anim_count < MAX_ANIMS
-            op = sub.operator("tm.rot_anim_add", text="", icon='ADD')
-            op.collection_name = current_collection.name
-            if expanded:
-                row = rot_anim_col.row(align=True)
-                row.prop(current_collection, CollectionProp.KINEMATIC_ROT_AXIS)
-                row = rot_anim_col.row(align=True)
+            rot_body, rot_header = foldout_toggle(col,
+                                                  tm_props,
+                                                  "CB_cfg_show_rot_anims", 
+                                                  label=f"Rotation Animations ({rot_anim_count}/{MAX_ANIMS})",
+                                                  indent = UI_FOLDOUT_INDENT)
+            if rot_body:
+                row = rot_body.row(align=True)
+                row.prop(current_collection, CollectionProp.KINEMATIC_ROT_AXIS, text="Rotation Axis")
+                row = rot_body.row(align=True)
                 row.prop(current_collection, CollectionProp.KINEMATIC_ROT_MIN)
                 row.prop(current_collection, CollectionProp.KINEMATIC_ROT_MAX)
                 if rot_anim_count == 0:
-                    rot_anim_col.label(text="No animations", icon='INFO')
-                else:
-                    for i, anim in enumerate(rot_anims):
-                        item = rot_anim_col.box()
-                        row = item.row(align=True)
-                        num = row.row(align=True)
-                        num.scale_x = 0.3
-                        num.label(text=f"{i + 1}")
-                        col = row.column(align=True)
-                        col.prop(anim, "reverse", text="Reverse", toggle=True)
-                        col.prop(anim, "duration", text="Duration Millis")
-                        col.prop(anim, "ease", text="Ease")
+                    rot_body.label(text="No rotation animations", icon='INFO')
+                box = rot_body.box()
+                item_list(box,
+                          current_collection,
+                          CollectionProp.KINEMATIC_ROT_ANIMS,
+                          draw_item=self.draw_anim_row,
+                          add_text="Add Rotation Animation",
+                          numbered=True)
+                row = box.row(align=True)
+                row.enabled = rot_anim_count < MAX_ANIMS
+                list_add_button(row,
+                                current_collection,
+                                CollectionProp.KINEMATIC_ROT_ANIMS,
+                                text="Add Rotation Animation",
+                                icon=ICON_ADD)
 
-
-                        op = row.operator("tm.rot_anim_remove", text="", icon='X')
-                        op.collection_name = current_collection.name
-                        op.index = i     
 
             # tex anims
-            has_moving_texture = getattr(current_collection, CollectionProp.KINEMATIC_HAS_MOVING_TEXTURE)
-            mov_text_col = layout.column(align=True)
-            row = mov_text_col.row(align=True)
-            row.prop(current_collection, CollectionProp.KINEMATIC_HAS_MOVING_TEXTURE, text="Moving Texture", toggle=True)
-            if has_moving_texture:
-                row = mov_text_col.row(align=True)
+            tex_body, tex_header = foldout_toggle(col,
+                                                  tm_props,
+                                                  "CB_objMpl_show_moving_tex_anims",
+                                                  enable_prop=CollectionProp.KINEMATIC_HAS_MOVING_TEXTURE,
+                                                  enable_owner=current_collection,
+                                                  label=f"Moving Texture",
+                                                  indent = UI_FOLDOUT_INDENT)
+            if tex_body:
+                row = tex_body.row(align=True)
                 row.prop(current_collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_NUM, text="Num Textures")
                 row.prop(current_collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_TOP_TO_BOTTOM, text="Top to Bottom", toggle=True)
-                row = mov_text_col.row(align=True)
+                row = tex_body.row(align=True)
                 row.prop(current_collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_LINE, text="Textures Per Line")
                 row.prop(current_collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_COLUMN, text="Textures Per Column")
 
-
                 tex_anims = getattr(current_collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_ANIMS)
                 anim_count = len(tex_anims)
-                expanded = getattr(tm_props, "CB_cfg_show_anim_texture_anims")
-
-                anim_tex_header_row = mov_text_col.row(align=True)
-                anim_tex_header_row.prop(
-                    tm_props, "CB_cfg_show_anim_texture_anims",
-                    text=f"Moving Texture Animations ({anim_count}/{MAX_TEXTURE_ANIMS})",
-                    icon='TRIA_DOWN' if expanded else 'TRIA_RIGHT',
-                    emboss=False)
+                tex_anim_body, tex_anim_header = foldout_toggle(tex_body,
+                                                      tm_props,
+                                                      "CB_objMpl_show_moving_tex",
+                                                      label=f"Moving Texture Animations ({anim_count}/{MAX_TEXTURE_ANIMS})",
+                                                      indent = UI_FOLDOUT_INDENT)
+                if tex_anim_body:
+                    
+                    item_list(tex_anim_body,
+                            current_collection,
+                            CollectionProp.KINEMATIC_MOVING_TEXTURE_ANIMS,
+                            draw_item=self.draw_tex_anim_row,
+                            add_text="Add Moving Texture Animation",
+                            numbered=True)
+                    row = tex_anim_body.row(align=True)
+                    row.enabled = anim_count < MAX_TEXTURE_ANIMS
+                    list_add_button(row,
+                                    current_collection,
+                                    CollectionProp.KINEMATIC_MOVING_TEXTURE_ANIMS,
+                                    text="Add Moving Texture Animation",
+                                    icon=ICON_ADD)
                 
-                sub = anim_tex_header_row.row(align=True)
-                sub.enabled = anim_count < MAX_TEXTURE_ANIMS
-                op = sub.operator("tm.texture_anim_add", text="", icon='ADD')
-                op.collection_name = current_collection.name
-
-                if expanded:
-                    if anim_count == 0:
-                        mov_text_col.label(text="No animations", icon='INFO')
-                        return
-                    for i, anim in enumerate(tex_anims):
-                        item = mov_text_col.box()
-                        row = item.row(align=True)
-                        num = row.row(align=True)
-                        num.scale_x = 0.3
-                        num.label(text=f"{i + 1}")
-                        row.prop(anim, "duration", text="Duration Millis")
-                        row.prop(anim, "textureIndex", text="Texture Id")
-
-                        op = row.operator("tm.texture_anim_remove", text="", icon='X')
-                        op.collection_name = current_collection.name
-                        op.index = i
     
                 
 
@@ -553,27 +528,16 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
                 row = col.row(align=True)
                 row.prop(current_collection, CollectionProp.TORQUE_DURATION)
 
-            
-            row = col.row(align=True)
             box = col.box()
             lods = box.column(align=True)
+            item_list(lods,
+                      owner=current_collection,
+                      collection=CollectionProp.LODS,
+                      draw_item=self.draw_lod_row,
+                      add=WIDGET_ADD_BUTTON_BOTTOM,
+                      add_text="Add LOD",
+                      draw_footer=self.draw_lod_footer)
     
-            for i, lod in enumerate(current_collection.tm_lods):
-                row = lods.split(factor=0.25, align=True)
-                row.label(text=f"LOD {i}")
-                right = row.row(align=True)
-                right.prop(lod, "distance", text="")
-                op = right.operator("tm.lod_remove", icon="X", text="")
-                op.index = i
-    
-            # implicit last level, same layout, not editable
-            last_start = current_collection.tm_lods[-1].distance if len(current_collection.tm_lods) else 0.0
-            row = lods.split(factor=0.25, align=True)
-            row.enabled = False
-            row.label(text=f"LOD {len(current_collection.tm_lods)}")
-            row.label(text=f"{last_start:g} → ∞")
-    
-            box.operator("tm.lod_add", icon="ADD", text="Add LOD")
 
             active_uvlayer_is_basematerial = True
             objs_with_uvmaps    = get_meshes_which_require_uvmaps(current_collection)
@@ -778,6 +742,40 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
 
 
         layout.separator(factor=2)
+
+
+    def draw_lod_row(self, layout, item, index):
+        row = layout.split(factor=0.25, align=True)
+        row.label(text=f"LOD {index}")          # clicking here selects the row
+        row.prop(item, "distance", text="")     # clicking here edits the value
+
+    @staticmethod
+    def on_lod_add(owner, item, index):
+        last_distance = getattr(owner, CollectionProp.LODS)[index - 1].distance if index > 0 else 0.0
+        item.distance = last_distance + 64.0
+
+    def draw_lod_footer(self, layout, last_item, last_index):
+        row = layout.split(factor=0.25, align=True)
+        row.enabled = False
+        row.label(text=f"LOD {last_index + 1}")          # clicking here selects the row
+        last_distance = last_item.distance if last_item is not None else 0.0
+        row.label(text=f"{last_distance:g} → ∞")     # clicking here edits the value
+    
+
+    def draw_anim_row(self, layout, item, index):
+        box = layout.box()
+        col = box.column(align=True)
+        col.prop(item, "reverse", text="Reverse", toggle=True)
+        col.prop(item, "duration", text="Duration Millis")
+        col.prop(item, "ease", text="Ease")
+
+    def draw_tex_anim_row(self, layout, item, index):
+        row = layout.row(align=True)
+        row.prop(item, "duration", text="Duration Millis")
+        row.prop(item, "textureIndex", text="Texture Id")
+        
+
+
 
 class TM_PT_Items_MovingGroupCollectionManipulationV2(Panel):
     # region bl_

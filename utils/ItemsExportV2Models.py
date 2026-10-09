@@ -131,7 +131,15 @@ class Vec3:
         return Vec3(float(x), float(y), float(z))
 
     def to_string(self) -> str:
-        return f"{self.X} {self.Y} {self.Z}"
+        return f"{self.X:.9g} {self.Y:.9g} {self.Z:.9g}"
+
+    @staticmethod
+    def from_seq(seq) -> "Vec3":
+        x, y, z = seq
+        return Vec3(float(x), float(y), float(z))
+    
+    def to_tuple(self) -> tuple:
+        return (self.X, self.Y, self.Z)
 
 
 @dataclass
@@ -224,6 +232,8 @@ class MaterialConfig:
     Color: Color | None = None
     PhysicsId: MaterialId | None = None
     GameplayId: GameplayId | None = None
+    BaseTexture: str | None = None
+    Model: str | None = None
 
 
 @dataclass
@@ -239,7 +249,6 @@ class MeshConfig:
     WaypointType: EWaypointType | None = None
     GameplayMainDir: Vec3 | None = None
     MovingGroup: str | None = None
-    AnchorNodeName: str | None = None
     LightmapSize: float | None = None
     Lods: list[int] = field(default_factory=list)
 
@@ -262,7 +271,7 @@ class LightConfig:
 
 @dataclass
 class SubAnimFunc:
-    Ease: AnimEase = "Linear"
+    Ease: AnimEase = AnimEase.Constant
     Reverse: bool = False
     Duration: int = 0  # milliseconds, uint in C#
 
@@ -332,7 +341,6 @@ class ItemConfig:
     LodParameters: LodParameters | None = None
     ConversionOptions: ItemConversionOptions = ItemConversionOptions.None_
 
-#TODO: doesnt work yet, because the placement config is not a property group, but a dataclass. Need to convert it to a property group first.
 class ItemPlacementConfigTemplate(bpy.types.PropertyGroup):
     name: str = "default_template_name"
     config: bpy.props.StringProperty()
@@ -345,18 +353,24 @@ class ExportedItem:
     item_path:      str = ""
     icon_path:      str = ""
     fbx_path:       str = ""
+    material_lib_path: str = ""
     objects:        list[bpy.types.Object] = field(default_factory=list)
+    collection:     bpy.types.Collection | None = None
     config:         "ItemConfig | None" = None
     game:           str = ""
     is_single_item: bool = False
     assigned_index: int = -1
+    scale:          int  = 1
 
 # -----------------------------
 # JSON-ready conversion helpers
 # -----------------------------
 def _encode(value: Any) -> Any:
-    if is_dataclass(value):
-        return {k: _encode(v) for k, v in asdict(value).items()}
+    if isinstance(value, Vec3):
+        return value.to_string()
+    if is_dataclass(value) and not isinstance(value, type):
+        # shallow field walk, so nested Vec3/enums reach _encode themselves
+        return {f.name: _encode(getattr(value, f.name)) for f in fields(value)}
     if isinstance(value, IntFlag):
         if type(value) is MeshFlags:
             if value == MeshFlags.None_:
@@ -366,8 +380,10 @@ def _encode(value: Any) -> Any:
         return int(value)
     if isinstance(value, Enum):
         return value.value
-    if isinstance(value, list):
+    if isinstance(value, (list, tuple)):
         return [_encode(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _encode(v) for k, v in value.items()}
     return value
 
 
@@ -443,6 +459,16 @@ def _decode(tp: Any, value: Any, exact_nones: bool = False) -> Any:
         }
 
     if isinstance(tp, type):
+        if tp is Vec3:  # before generic dataclass
+            if isinstance(value, str):
+                return Vec3.from_string(value)
+            if isinstance(value, dict):  # tolerate {"X":..,"Y":..,"Z":..}
+                return Vec3(float(value.get("X", 0.0)),
+                            float(value.get("Y", 0.0)),
+                            float(value.get("Z", 0.0)))
+            if isinstance(value, (list, tuple)):
+                return Vec3.from_seq(value)
+            raise ValueError(f"Cannot decode {value!r} as Vec3")
         if is_dataclass(tp):
             hints = get_type_hints(tp)
             kwargs = {}

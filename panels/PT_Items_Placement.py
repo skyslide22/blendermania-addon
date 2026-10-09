@@ -8,12 +8,15 @@ from bpy.types import (
     Operator,
 )
 
+from ..properties.PlacementPatchProperties import CompatiblePatchGroupProperty, PatchGroupRef, PlacementPatchProperties
+from ..properties.PlacementProperties import PivotsProperties
+
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
 from ..properties.Functions import ERROR_ENUM_ID, is_convert_panel_active
 from ..utils.Functions import *
 from ..utils.Constants import * 
-
+from .UI_widgets import *
 
 
 class TM_PT_Items_ItemPlacement(Panel):
@@ -27,6 +30,22 @@ class TM_PT_Items_ItemPlacement(Panel):
     @classmethod
     def poll(cls, context):
         return not is_convert_panel_active()
+
+    @classmethod
+    def register_callbacks(cls):
+        register_row_drawer(CompatiblePatchGroupProperty, cls.draw_compatible_group_row)
+        register_row_drawer(PatchGroupRef, cls.draw_valid_for_group_row)
+        from ..properties.PannelsPropertyGroup import PannelsPropertyGroup
+        register_list_hooks(PannelsPropertyGroup, "LI_cfg_patchLayouts", after_add=cls.patch_layout_added)
+        # register_list_hooks(bpy.types.Scene, "tm_props_pivots",
+        #                     after_add=cls.pivot_added)
+        
+    @classmethod
+    def unregister_callbacks(cls):
+        unregister_row_drawer(CompatiblePatchGroupProperty)
+        unregister_row_drawer(PatchGroupRef)
+        from ..properties.PannelsPropertyGroup import PannelsPropertyGroup
+        unregister_list_hooks(PannelsPropertyGroup, "LI_cfg_patchLayouts")
 
     def draw_header(self, context):
         layout = self.layout
@@ -186,137 +205,138 @@ class TM_PT_Items_ItemPlacement(Panel):
             boxRow.prop(tm_props, "CB_xml_oneAxisRot",  icon=ICON_ONE_AXIS_ROTATION)
             boxRow.prop(tm_props, "CB_xml_notOnItem",   icon=ICON_NOT_ON_ITEM)
             
-            pivot_col = layout.column(align=True)
-            pivot_row=pivot_col.row(align=True)
-            pivot_row.prop(tm_props, "CB_xml_pivots", text="Pivots (Placement Variants)", icon=ICON_PIVOTS)
-            
-            if tm_props.CB_xml_pivots is True:
-                row = pivot_col.row(align=True)
-                row.operator("view3d.tm_addpivot", text="Add", icon=ICON_ADD)
+            pivot_count = len(tm_props_pivots)
+            pivot_body, pivot_header = foldout_toggle(layout, tm_props, 
+                                        "CB_xml_pivots", 
+                                        label=f"Pivots (Placement Variants) ({pivot_count})",
+                                        indent = UI_FOLDOUT_INDENT)
+            if pivot_body:
+                row = pivot_body.row(align=True)
+                list_add_button(row, bpy.context.scene, "tm_props_pivots", text="Add", icon=ICON_ADD)
                 row.prop(tm_props, "CB_xml_pivotSwitch",    text="Switch", expand=True, icon=ICON_SWITCH)
                 row.prop(tm_props, "NU_xml_pivotSnapDis",   text="Snap Distance")
                 
+                item_list(pivot_body,
+                          bpy.context.scene, 
+                          "tm_props_pivots", 
+                          draw_item=self.draw_pivot,
+                          add_text="Add Pivot")   # add button lives in the foldout header
                 
-                if len(tm_props_pivots):
-                    pivot_box = layout.box()
-                    for i, pivot in enumerate(tm_props_pivots):
-                        pivot_row = pivot_box.row(align=True)
 
-                        # Left: Pos + Rot
-                        values = pivot_row.column(align=True)
+            # placement_cube_col = layout.column(align=True)
+            # placement_cube_row=placement_cube_col.row(align=True)
+            # placement_cube_row.prop(tm_props, "CB_cfg_placementCube", text="Placement Cube", icon=ICON_CUBE)
 
-                        pos_row = values.row(align=True)
-                        pos_row.label(text="Pos", translate=False)
-                        pos_row.prop(pivot, "NU_pivotX", text=CHAR_BOTTOM_LEFT)
-                        pos_row.prop(pivot, "NU_pivotY", text=CHAR_BOTTOM_RIGHT)
-                        pos_row.prop(pivot, "NU_pivotZ", text=CHAR_TOP)
-
-                        rot_row = values.row(align=True)
-                        rot_row.label(text="Rot", translate=False)
-                        rot_row.prop(pivot, "NU_pivotRotX", text="x")
-                        rot_row.prop(pivot, "NU_pivotRotY", text="y")
-                        rot_row.prop(pivot, "NU_pivotRotZ", text="z")
-
-                        # Right: one button spanning both rows
-                        remove_col = pivot_row.column(align=True)
-                        remove_col.operator(
-                            "view3d.tm_removepivot",
-                            text="",
-                            icon=ICON_REMOVE
-                        ).pivot_index = i
-
-            placement_cube_col = layout.column(align=True)
-            placement_cube_row=placement_cube_col.row(align=True)
-            placement_cube_row.prop(tm_props, "CB_cfg_placementCube", text="Placement Cube", icon=ICON_CUBE)
-            if tm_props.CB_cfg_placementCube is True:
-                row = placement_cube_col.row(align=True)
+            placement_cube_body, placement_cube_header = foldout_toggle(layout, tm_props, 
+                                                    "CB_cfg_placementCube", 
+                                                    label="Placement Cube",
+                                                    indent = UI_FOLDOUT_INDENT)
+            if placement_cube_body:
+                row = placement_cube_body.row(align=True)
                 row.prop(tm_props, "NU_cfg_cubeSize", text="Cube Size")
-                row = placement_cube_col.row(align=True)
+                row = placement_cube_body.row(align=True)
                 row.prop(tm_props.PT_cfg_cubeCenter, "NU_centerX", text=CHAR_BOTTOM_LEFT)
                 row.prop(tm_props.PT_cfg_cubeCenter, "NU_centerY", text=CHAR_BOTTOM_RIGHT)
                 row.prop(tm_props.PT_cfg_cubeCenter, "NU_centerZ", text=CHAR_TOP)
 
-            attachment_pattern_col = layout.column(align=True)
-            attachment_pattern_row=attachment_pattern_col.row(align=True)
-            attachment_pattern_row.prop(tm_props, "CB_cfg_attachmentConfiguration", text="Attachment Configuration", icon=ICON_LINKED, toggle=True)
-            if tm_props.CB_cfg_attachmentConfiguration is True:
-                row = attachment_pattern_col.row(align=True)
+
+            attachment_body, attachment_header = foldout_toggle(layout, tm_props, 
+                                                                "CB_cfg_show_attachmentConfiguration", 
+                                                                label="Attachment Configuration",
+                                                                indent = UI_FOLDOUT_INDENT,
+                                                                enable_prop="CB_cfg_attachmentConfiguration")
+            if attachment_body:
+                row = attachment_body.row(align=True)
                 size_group_row = row.row(align=True)
                 size_group_row.enabled = False
                 size_group_row.prop(tm_props, "ST_cfg_sizeGroup", text="Size Group")
                 row.prop(tm_props, "CB_cfg_alwaysUp", text="Always Up", toggle=True, icon=ICON_AXIS_Z)
-                row = attachment_pattern_col.row(align=True)
+                row = attachment_body.row(align=True)
                 row.prop(tm_props, "CB_cfg_alignToInterior", text="Align to Interior", icon="NONE", toggle=True)
                 row.prop(tm_props, "CB_cfg_alignToWorldDir", text="Align to World Dir", icon="NONE", toggle=True)
-                row = attachment_pattern_col.row(align=True)
+                row = attachment_body.row(align=True)
                 if tm_props.CB_cfg_alignToWorldDir:
                     row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirX", text=CHAR_BOTTOM_LEFT)
                     row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirY", text=CHAR_BOTTOM_RIGHT)
                     row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirZ", text=CHAR_TOP)
 
                  # ---- Compatible groups  ----
-                row = layout.row(align=True)
-                row.prop(tm_props, "CB_cfg_showCompatibleGroups", text=f"Compatible Patch Groups ({len(tm_props.LI_cfg_compatibleGroups)})", emboss=False, icon='TRIA_DOWN' if tm_props.CB_cfg_showCompatibleGroups else 'TRIA_RIGHT')
-                if tm_props.CB_cfg_showCompatibleGroups:
-                    group_box = layout.box()
-                    for i, group in enumerate(tm_props.LI_cfg_compatibleGroups):
-                        row = group_box.row(align=True)
-                        row.prop(group, "name", text="")
-                        op = row.operator("view3d.tm_remove_compatible_patch_group", text="", icon='X')
-                        op.index = i
+                #row = layout.row(align=True)
+                #row.prop(tm_props, "CB_cfg_showCompatibleGroups", text=f"Compatible Patch Groups ({len(tm_props.LI_cfg_compatibleGroups)})", emboss=False, icon='TRIA_DOWN' if tm_props.CB_cfg_showCompatibleGroups else 'TRIA_RIGHT')
+                compat_grp_body, compat_grp_header = foldout_toggle(attachment_body, tm_props, 
+                                                                                "CB_cfg_showCompatibleGroups", 
+                                                                                label=f"Compatible Patch Groups ({len(tm_props.LI_cfg_compatibleGroups)})",
+                                                                                indent = UI_FOLDOUT_INDENT,
+                                                                                style=FOLDOUT_STYLE_FLAT)
+                if compat_grp_body:
+                    list_inspector(
+                        compat_grp_body, 
+                        tm_props, 
+                        "LI_cfg_compatibleGroups", 
+                        "NU_cfg_compatibleGroups_index", 
+                        rows=3)
 
-                    group_box.operator("view3d.tm_add_compatible_patch_group", text="Add", icon=ICON_ADD)
                 # ---- Patch layouts ----
-                row = layout.row(align=True)
-                row.prop(tm_props, "CB_cfg_showPatchLayouts", text=f"Patch Layouts ({len(tm_props.LI_cfg_patchLayouts)})", emboss=False, icon='TRIA_DOWN' if tm_props.CB_cfg_showPatchLayouts else 'TRIA_RIGHT')
+                patch_layout_body, patch_layout_header = foldout_toggle(attachment_body, tm_props, 
+                                                                                "CB_cfg_showPatchLayouts", 
+                                                                                label=f"Patch Layouts ({len(tm_props.LI_cfg_patchLayouts)})",
+                                                                                indent = UI_FOLDOUT_INDENT,
+                                                                                style=FOLDOUT_STYLE_FLAT)
+                if patch_layout_body:
+                    list_inspector(patch_layout_body,
+                              tm_props,
+                              "LI_cfg_patchLayouts",
+                              "NU_cfg_patchLayouts_index",
+                              draw_detail=self.draw_patch_layout,
+                              rows = 1)
 
-                if tm_props.CB_cfg_showPatchLayouts:
-                    row.operator("view3d.tm_add_patch_layout", text="", icon='ADD')
-                    for p_idx, patch in enumerate(tm_props.LI_cfg_patchLayouts):
-                                # gap between layouts
 
-                        patch_box = layout.box()
+                    # row.operator("view3d.tm_add_patch_layout", text="", icon='ADD')
+                    # for p_idx, patch in enumerate(tm_props.LI_cfg_patchLayouts):
+                    #             # gap between layouts
 
-                        # Header in its own sub-box so it looks like a title bar
-                        header_box = patch_box.box()
-                        header = header_box.row(align=True)
-                        header.label(text=f"#{p_idx + 1}", icon='MOD_ARRAY')
-                        header.prop(patch, "name", text="")
-                        op = header.operator("view3d.tm_remove_patch_layout", text="", icon='X')
-                        op.index = p_idx
+                    #     patch_box = patch_layout_body.box()
 
-                        # Indented body
-                        split = patch_box.split(factor=0.01)
-                        split.label(text="")                         # empty left margin
-                        body = split.column(align=True)
+                    #     # Header in its own sub-box so it looks like a title bar
+                    #     header_box = patch_box.box()
+                    #     header = header_box.row(align=True)
+                    #     header.label(text=f"#{p_idx + 1}", icon='MOD_ARRAY')
+                    #     header.prop(patch, "name", text="")
+                    #     op = header.operator("view3d.tm_remove_patch_layout", text="", icon='X')
+                    #     op.index = p_idx
 
-                        row = body.row(align=True)
-                        row.prop(patch, "autoItemCount", text="", icon='AUTO', toggle=True)   # tooltip still shows the full name
-                        count = row.row(align=True)
-                        count.enabled = not patch.autoItemCount
-                        count.prop(patch, "itemCount", text="Count")
-                        row.prop(patch, "itemSpacing", text=CHAR_HORIZONTAL +" Spacing")
+                    #     # Indented body
+                    #     split = patch_box.split(factor=0.01)
+                    #     split.label(text="")                         # empty left margin
+                    #     body = split.column(align=True)
 
-                        row = body.row(align=True)
-                        row.prop(patch, "fillAlignment", text="Fill Align", toggle=True)
-                        align_row = row.row(align=True)
-                        align_row.enabled = patch.fillAlignment
-                        align_row.prop(patch, "fillDirection", text="Fill Direction", expand=True)
+                    #     row = body.row(align=True)
+                    #     row.prop(patch, "autoItemCount", text="", icon='AUTO', toggle=True)   # tooltip still shows the full name
+                    #     count = row.row(align=True)
+                    #     count.enabled = not patch.autoItemCount
+                    #     count.prop(patch, "itemCount", text="Count")
+                    #     row.prop(patch, "itemSpacing", text=CHAR_HORIZONTAL +" Spacing")
 
-                        row = body.row(align=True)
-                        row.prop(patch, "normedPos", text=CHAR_HORIZONTAL +" Norm")
-                        row.prop(patch, "altitude", text=CHAR_VERTICAL +" Offset")
+                    #     row = body.row(align=True)
+                    #     row.prop(patch, "fillAlignment", text="Fill Align", toggle=True)
+                    #     align_row = row.row(align=True)
+                    #     align_row.enabled = patch.fillAlignment
+                    #     align_row.prop(patch, "fillDirection", text="Fill Direction", expand=True)
 
-                        body.separator()
-                        body.label(text="Valid for groups:")
-                        for g_idx, ref in enumerate(patch.validForGroups):
-                            row = body.row(align=True)
-                            row.prop_search(ref, "name", tm_props, "LI_cfg_compatibleGroups", text="")
-                            op = row.operator("view3d.tm_remove_patch_group_ref", text="", icon='X')
-                            op.patch_index = p_idx
-                            op.group_index = g_idx
-                        op = body.operator("view3d.tm_add_patch_group_ref", text="Add Group", icon='ADD')
-                        op.patch_index = p_idx
+                    #     row = body.row(align=True)
+                    #     row.prop(patch, "normedPos", text=CHAR_HORIZONTAL +" Norm")
+                    #     row.prop(patch, "altitude", text=CHAR_VERTICAL +" Offset")
+
+                    #     body.separator()
+                    #     body.label(text="Valid for groups:")
+                    #     for g_idx, ref in enumerate(patch.validForGroups):
+                    #         row = body.row(align=True)
+                    #         row.prop_search(ref, "name", tm_props, "LI_cfg_compatibleGroups", text="")
+                    #         op = row.operator("view3d.tm_remove_patch_group_ref", text="", icon='X')
+                    #         op.patch_index = p_idx
+                    #         op.group_index = g_idx
+                    #     op = body.operator("view3d.tm_add_patch_group_ref", text="Add Group", icon='ADD')
+                    #     op.patch_index = p_idx
                 
             
 
@@ -340,8 +360,78 @@ class TM_PT_Items_ItemPlacement(Panel):
             #     row = layout.row()
             
 
-            
         layout.separator(factor=UI_SPACER_FACTOR)
 
 
-    
+    @staticmethod
+    def draw_compatible_group_row(layout, item, index):
+        layout.label(text="", icon='DOT')            # click here to select the row
+        layout.prop(item, "name", text="")
+
+    @staticmethod
+    def draw_valid_for_group_row(layout, item, index):
+        layout.label(text="", icon='DOT')            # click here to select the row
+        layout.prop(item, "name", text="")
+
+    def draw_pivot(self, layout, item, index):
+        box = layout.box()
+        col = box.column()
+        pos_row = col.row()
+        split = pos_row.split(factor=0.15, align=True)
+
+        split.label(text="Pos", translate=False)
+
+        values = split.row(align=True)
+        values.prop(item, "NU_pivotX", text=CHAR_BOTTOM_LEFT)
+        values.prop(item, "NU_pivotY", text=CHAR_BOTTOM_RIGHT)
+        values.prop(item, "NU_pivotZ", text=CHAR_TOP)
+
+        rot_row = col.row()
+        split = rot_row.split(factor=0.15, align=True)
+
+        split.label(text="Rot", translate=False)
+
+        values = split.row(align=True)
+        values.prop(item, "NU_pivotRotX", text="x")
+        values.prop(item, "NU_pivotRotY", text="y")
+        values.prop(item, "NU_pivotRotZ", text="z")
+
+    def draw_patch_layout(self, layout, item, index):
+
+        row = layout.row(align=True)
+        row.prop(item, "autoItemCount", text="", icon='AUTO', toggle=True)   # tooltip still shows the full name
+        count = row.row(align=True)
+        count.enabled = not item.autoItemCount
+        count.prop(item, "itemCount", text="Count")
+        row.prop(item, "itemSpacing", text=CHAR_HORIZONTAL +" Spacing")
+
+        row = layout.row(align=True)
+        row.prop(item, "fillAlignment", text="Fill Align", toggle=True)
+        align_row = row.row(align=True)
+        align_row.enabled = item.fillAlignment
+        align_row.prop(item, "fillDirection", text="Fill Direction", expand=True)
+        
+        row = layout.row(align=True)
+        row.prop(item, "normedPos", text=CHAR_HORIZONTAL +" Norm")
+        row.prop(item, "altitude", text=CHAR_VERTICAL +" Offset")
+
+        tm_props = get_global_props()
+
+        valid_group_body, valid_group_header = foldout_toggle(layout, tm_props, 
+                                                              "CB_cfg_showValidForGroups", 
+                                                              label=f"Valid for Groups ({len(item.validForGroups)})",
+                                                              indent = UI_FOLDOUT_INDENT,
+                                                              style=FOLDOUT_STYLE_FLAT)
+        if valid_group_body:
+            list_inspector(valid_group_body,
+                           item,
+                           "validForGroups",
+                           "validForGroups_index",
+                           rows=1)
+
+        
+      
+    @staticmethod
+    def patch_layout_added(owner, item, index):
+        if not item.name:
+            item.name = f"Patch Layout {index + 1}"

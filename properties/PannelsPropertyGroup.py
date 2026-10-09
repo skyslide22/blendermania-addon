@@ -117,6 +117,12 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_etrail_overwriteOnImport         : BoolProperty(default=True)
     NU_etrail_animationProgress         : FloatProperty(min=0, max=100, default=0, subtype="PERCENTAGE")
 
+
+    # manipulations
+    NU_objMpl_lods_index:       IntProperty()
+    CB_objMpl_show_moving_tex        : BoolProperty(default=False)
+    CB_objMpl_show_moving_tex_anims        : BoolProperty(default=False)
+
     #export
     LI_exportType               : EnumProperty(items=getExportTypes(),        name="Action", default=1)
     LI_exportFolderType         : EnumProperty(items=getExportFolderTypes,    name="Folder", default=0)
@@ -128,6 +134,9 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_multiScaleExportFactor   : FloatProperty(name="Steps", min=0, soft_max=8, default=0.25)
     CB_useMultiScaleExport      : BoolProperty(default=True, name="Scale exports", description=DESC_MULTI_SCALE_EXPORT)
     CB_overwriteMultiScaleFactor: BoolProperty(default=False, name="Step factor" , description=DESC_MULTI_SCALE_EXPORT)
+
+    ST_materialLibPath          : StringProperty(name="MaterialLib Path", default=DEFAULT_MATERIAL_LIB_FILEPATH_TM2020,   subtype="FILE_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
+
     
     #convert
     NU_convertCount              : IntProperty(min=0,               default=0, update=redraw_panels)
@@ -237,15 +246,23 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     PT_cfg_cubeCenter           : PointerProperty(type=CubeCenterProperties)
 
     CB_cfg_attachmentConfiguration     : BoolProperty(name="Attachment Configuration", default=False, description="Enable attachment pattern for item placement onto blocks.")
+    CB_cfg_show_attachmentConfiguration     : BoolProperty(name="Show Attachment Configuration", default=False)
+
     ST_cfg_sizeGroup            : StringProperty(name="Size Group",    default="0x0")
     CB_cfg_alwaysUp             : BoolProperty(name="Always Up",    default=False, description="Ensure items are always oriented upright during patch placement.")
     CB_cfg_alignToInterior      : BoolProperty(name="Align to Interior", default=False, description="Align items to the interior during patch placement.", update=_set_CB_cfg_alignToWorldDir_when_set_interior)
     CB_cfg_alignToWorldDir      : BoolProperty(name="Align to World Dir", default=False, description="Align items to the given world direction during patch placement.", update=_set_CB_cfg_alignToInterior_when_set_world)
     PT_cfg_worldDir             : PointerProperty(type=WorldDirProperties)
     LI_cfg_compatibleGroups     : CollectionProperty(name="Compatible Groups", type=CompatiblePatchGroupProperty, description="Select compatible groups for item patch attachments.",)
+    NU_cfg_compatibleGroups_index : IntProperty(name="Compatible Groups Index", default=-1)
+
     CB_cfg_showCompatibleGroups     : BoolProperty(name="Show Compatible Groups", description="Show or hide the compatible groups section", default=True,)
     LI_cfg_patchLayouts         : CollectionProperty(name="Patch Layouts", type=PlacementPatchProperties, description="Define layouts for item patches.",)
+    NU_cfg_patchLayouts_index   : IntProperty(name="Patch Layouts Index", default=-1)
+
     CB_cfg_showPatchLayouts     : BoolProperty(name="Show Patch Layouts", description="Show or hide the patch layout definitions", default=True,)
+
+    CB_cfg_showValidForGroups     : BoolProperty(name="Show Valid For Groups", description="Show or hide the valid for groups section", default=True,)
 
     ST_cfg_item_template_add_name   : StringProperty(default="default_template_name")
     LI_cfg_item_template_globally   : EnumProperty(name="Template", items=get_item_config_template_names_enum)
