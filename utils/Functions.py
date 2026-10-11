@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from shutil import copyfile
 import shutil
 import glob
@@ -23,6 +24,7 @@ import bpy.utils.previews
 from time import sleep
 import time
 import json
+import os
 
 
 from .Constants import *
@@ -67,6 +69,24 @@ def get_blendermania_dotnet_path() -> str:
     #if BLENDER_INSTANCE_IS_DEV:
     #    return fr"D:\Art\Blender\blendermania-dotnet\blendermania-dotnet\bin\Release\net7.0\win-x64\publish\blendermania-dotnet.exe"
     #else:
+
+
+    # 1. explicit override for testing
+    override = os.environ.get("BLENDERMANIA_DOTNET_OVERRIDE_PATH")
+    if override and Path(override).is_file():
+        return Path(override)
+    
+    addon_path = get_addon_path()
+    dotnet_dir = addon_path + "/dotnet"
+    # 2. choose build order; set BLENDERMANIA_DOTNET_DEBUG=1 to prefer debug
+    order = ["debug", "release"] if os.environ.get("BLENDERMANIA_DOTNET_DEBUG") else ["release", "debug"]
+    for config in order:
+        candidate = dotnet_dir + "/" + config + "/blendermania-dotnet.exe"
+        if os.path.isfile(candidate):
+            return candidate
+
+    
+   
 
     #TODO: tmp
     return "F:\\Development\\Projects\\Visual Studio\\Blendermania\\blendermania-dotnet\\publish\\blendermania-dotnet.exe"

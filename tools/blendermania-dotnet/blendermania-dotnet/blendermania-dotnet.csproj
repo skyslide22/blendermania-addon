@@ -6,24 +6,30 @@
 		<RootNamespace>blendermania_dotnet</RootNamespace>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Platforms>AnyCPU;x64</Platforms>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<SelfContained>false</SelfContained>
+		<AssetsDir>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', '..', 'assets', 'dotnet'))</AssetsDir>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(_IsPublishing)' == 'true'">
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	<!-- Release: dotnet publish -> assets/dotnet/release/ -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<SelfContained>true</SelfContained>
 		<PublishSingleFile>true</PublishSingleFile>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
 		<DebugType>none</DebugType>
+		<PublishDir>$(AssetsDir)release\</PublishDir>
 	</PropertyGroup>
-	
-	<ItemGroup>
-	  <None Include="$(NuGetPackageRoot)ultz.native.assimp/6.0.2/runtimes/win-x64/native/Assimp64.dll"
-			Link="Assimp64.dll"
-			CopyToOutputDirectory="PreserveNewest"
-			CopyToPublishDirectory="PreserveNewest" />
-	</ItemGroup>
+
+	<!-- Debug: every build is copied to assets/dotnet/debug/ -->
+	<Target Name="CopyDebugToAssets" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+		<ItemGroup>
+			<_DebugFiles Include="$(OutDir)**\*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(_DebugFiles)"
+		      DestinationFiles="@(_DebugFiles->'$(AssetsDir)debug\%(RecursiveDir)%(Filename)%(Extension)')"
+		      SkipUnchangedFiles="true" />
+	</Target>
 	
   <ItemGroup>
     <PackageReference Include="GBX.NET" Version="2.4.5" />
