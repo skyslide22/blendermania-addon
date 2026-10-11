@@ -182,7 +182,8 @@ class TM_PT_Settings_NadeoImporter(Panel):
     
     @classmethod
     def poll(self, context):
-        return is_selected_nadeoini_file_name_ok()
+        tm_props = get_global_props()
+        return is_selected_nadeoini_file_name_ok() and not tm_props.CB_blendermaniaV2
     
     def draw_header_preset(self, context):
         layout = self.layout
@@ -277,9 +278,10 @@ class TM_PT_Settings_Experimentals(Panel):
     bl_idname = "TM_PT_Settings_Experimentals"
     bl_parent_id = "TM_PT_Settings"
     
-    # @classmethod
-    # def poll(self, context):
-    #     return is_selected_nadeoini_file_name_ok()
+    @classmethod
+    def poll(self, context):
+        tm_props = get_global_props()
+        return is_selected_nadeoini_file_name_ok() and not tm_props.CB_blendermaniaV2
 
     def draw(self, context):
         layout = self.layout
