@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<RootNamespace>blendermania_dotnet</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Platforms>AnyCPU;x64</Platforms>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(_IsPublishing)' == 'true'">
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<SelfContained>true</SelfContained>
+		<PublishSingleFile>true</PublishSingleFile>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+	
+	<ItemGroup>
+	  <None Include="$(NuGetPackageRoot)ultz.native.assimp/6.0.2/runtimes/win-x64/native/Assimp64.dll"
+			Link="Assimp64.dll"
+			CopyToOutputDirectory="PreserveNewest"
+			CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+	
+  <ItemGroup>
+    <PackageReference Include="GBX.NET" Version="2.4.5" />
+    <PackageReference Include="GBX.NET.Imaging" Version="2.0.3" />
+    <PackageReference Include="GBX.NET.Json" Version="0.1.7" />
+    <PackageReference Include="GBX.NET.LZO" Version="2.1.6" />
+    <PackageReference Include="TM_CSharpMapping" Version="0.4.1-alpha.10" />
+    
+    <!-- TGA & DDS Library -->
+    <!-- <PackageReference Include="Pfim" Version="0.11.3" />  -->
+    <!-- TGA & DDS Library -->
+  
+  </ItemGroup>
+
+</Project>

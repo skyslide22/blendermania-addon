@@ -61,7 +61,9 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     LI_blenderGridSizeDivision  : EnumProperty(items=getGridDivisionSizes(), default=3, update=apply_custom_blender_grid_size)
     LI_blenderClipStart         : EnumProperty(items=getClipStartSizes(),    default=1, update=apply_custom_blender_clip_start_end)
     LI_blenderClipEnd           : EnumProperty(items=getClipEndSizes(),      default=1, update=apply_custom_blender_clip_start_end)
-    
+
+    CB_blendermaniaV2           : BoolProperty(  name="Blendermania V2", default=True, description="Enable the new Blendermania V2 features and UI")
+
 
     # textures
     CB_modwork_tm_stadium_enabled     : BoolProperty(default=False)

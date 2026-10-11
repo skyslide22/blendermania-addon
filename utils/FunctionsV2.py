@@ -144,31 +144,46 @@ def is_object_exportable(obj: bpy.types.Object)-> bool:
         return False
     return True
 
-def get_exportable_collections(objs: List[bpy.types.Object])->set:
-    collections = set()
+def get_exportable_collections(objs, stop_after: int | None = None) -> set:
+    scene     = bpy.context.scene
+    accepted  = set()
+    rejected  = set()   # roots rejected for collection-level reasons
+    root_of   = {}      # col -> root, so get_item_root runs once per collection
 
     for obj in objs:
-
         if obj.type != EXPORTABLE_OBJECT_MESH:
             continue
 
-        if obj.visible_get() is False: 
-            continue
-
-        #TODO: actual filter necessary
-        if not is_object_exportable(obj):
-            continue
-
+        # collection-level checks first, cached
+        candidates = []
         for col in obj.users_collection:
-            root = get_item_root(col, bpy.context.scene)
-            if root.name.lower() in NOT_ALLOWED_COLLECTION_NAMES: continue
-            if getattr(root, CollectionProp.IGNORE, False): continue
-            if root in collections: continue
-            if is_collection_excluded_or_hidden(root): continue
+            root = root_of.get(col)
+            if root is None:
+                root = root_of[col] = get_item_root(col, scene)
 
-            collections.add(root)
-    
-    return collections
+            if root in accepted or root in rejected:
+                continue
+
+            if (root.name.lower() in NOT_ALLOWED_COLLECTION_NAMES
+                    or getattr(root, CollectionProp.IGNORE, False)
+                    or is_collection_excluded_or_hidden(root)):
+                rejected.add(root)
+                continue
+
+            candidates.append(root)
+
+        # object-level checks only if they could change the result
+        if not candidates:
+            continue
+        if not obj.visible_get() or not is_object_exportable(obj):
+            continue
+
+        accepted.update(candidates)
+
+        if stop_after and len(accepted) >= stop_after:
+            break
+
+    return accepted
 
 def get_exportable_collection_objects(objs: List[bpy.types.Object])->set:
     objects = set()

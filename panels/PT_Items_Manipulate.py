@@ -19,6 +19,9 @@ class TM_PT_ObjectManipulations(Panel):
     
     @classmethod
     def poll(self, context):
+        tm_props = get_global_props()
+        if tm_props.CB_blendermaniaV2:
+            return False
         return is_selected_nadeoini_file_name_ok()
 
 

@@ -123,6 +123,10 @@ class TM_PT_Settings(Panel):
         row.prop(tm_props, ini, text="Ini file")
         row.operator("view3d.tm_autofindnadeoini", text="", icon=ICON_SEARCH)
 
+        row = layout.row(align=True)
+        row.enabled = True if not tm_props.CB_converting else False
+        row.prop(tm_props, "CB_blendermaniaV2", text="Blendermania V2")
+
         nadeoini_invalid = draw_nadeoini_required_message(self)
         if nadeoini_invalid:
             return

@@ -1,0 +1,7 @@
+{
+    "profiles": {
+        "blendermania-dotnet": {
+            "commandName": "Project"
+        }
+    }
+}

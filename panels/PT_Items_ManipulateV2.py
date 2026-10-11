@@ -26,7 +26,8 @@ class TM_PT_ObjectManipulationsV2(Panel):
     
     @classmethod
     def poll(self, context):
-        return is_selected_nadeoini_file_name_ok()
+        tm_props = get_global_props()
+        return tm_props.CB_blendermaniaV2 and is_selected_nadeoini_file_name_ok()
 
     def draw_header(self, context):
         layout = self.layout

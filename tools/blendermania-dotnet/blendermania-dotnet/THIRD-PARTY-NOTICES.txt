@@ -1,0 +1,12 @@
+THIRD-PARTY NOTICES
+
+This project uses the following third-party package:
+
+- GBX.NET — MIT License
+  https://github.com/BigBang1112/gbx-net
+
+- GBX.NET.LZO — GNU General Public License v3.0
+  https://github.com/BigBang1112/gbx-net
+
+- TM_CSharpMapping — GNU General Public License v3.0
+  https://github.com/AchimBunke/TM_CSharpMapping

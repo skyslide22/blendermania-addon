@@ -1,6 +1,7 @@
 from ast import main
 import bpy
 from bpy.types import (Panel)
+from ..utils.diagnostics import timed, performance
 
 from ..operators.OT_Items_ExportV2 import TM_OT_Items_ExportV2
 
@@ -14,9 +15,10 @@ class TM_PT_Items_ExportV2(Panel):
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
-    # @classmethod
-    # def poll(self, context):
-    #     return is_selected_nadeoini_file_name_ok()
+    @classmethod
+    def poll(self, context):
+        tm_props = get_global_props()
+        return tm_props.CB_blendermaniaV2 and is_selected_nadeoini_file_name_ok()
 
 
     def draw_header(self, context):
@@ -51,6 +53,7 @@ class TM_PT_Items_ExportV2(Panel):
             f"-> {MAX_EMBED_SIZE_MANIAPLANET} kilobytes for maniaplanet",
         )
 
+
     def draw(self, context):
         tm_props = get_global_props()
         show_convert_panel = tm_props.CB_showConvertPanel
@@ -66,10 +69,10 @@ class TM_PT_Items_ExportV2(Panel):
         
         
 
-
-
 def draw_export_panel(self:Panel) -> None:
     layout = self.layout
+
+    
     tm_props = get_global_props()
 
     exportFolderType        = tm_props.LI_exportFolderType
@@ -128,8 +131,8 @@ def draw_export_panel(self:Panel) -> None:
 
     objs = selected_objects if exportActionIsSelected else visible_objects
 
-    exportable_cols  = get_exportable_collections(objs=objs)
-    collection_count = len(exportable_cols)
+    #exportable_cols  = get_exportable_collections(objs=objs)# kills performance
+    collection_count = len(objs)
     enableExportButton = collection_count > 0
 
     text = f"Export & Convert Collection{'s' if collection_count > 1 else ''}" if enableExportButton else "No exportable collections found"

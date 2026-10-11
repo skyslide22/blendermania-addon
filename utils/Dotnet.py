@@ -340,7 +340,6 @@ def run_convert_fbx_to_gbx(
         optimization
     )
     res = _run_dotnet(CONVERT_FBX_TO_GBX, json.dumps(payload, cls=ComplexEncoder, ensure_ascii=False))
-    print(res)
     return res
 
 
@@ -354,7 +353,7 @@ def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     out, err = process.communicate()
-    print(repr(payload))
+
     out_msg = out.decode("utf-8").strip()
     err_msg = err.decode("utf-8").strip()
 

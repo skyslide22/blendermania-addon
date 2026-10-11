@@ -6,6 +6,8 @@ import queue
 import threading
 import time
 
+import html, json
+
 from ..utils.NadeoImporter import BinaryReader, HeaderChunk
 
 from ..utils import Constants
@@ -29,8 +31,6 @@ class ConvertResult():
         self.item_error_message = None
         self.convert_has_failed = None
         self.convert_steps = ()
-        self.mesh_xml = ""
-        self.item_xml = ""
         self.config = None
         self.embed_size = 0.0
 
@@ -131,7 +131,7 @@ class ItemConvert(threading.Thread):
             mesh_returncode = self.convert_returncode_mesh_shape_gbx
             mesh_error_msg  = bytes(self.convert_message_mesh_shape_gbx or "", "utf-8").decode("unicode_escape")
             item_returncode = self.convert_returncode_item_gbx
-            item_error_msg  = bytes(self.convert_message_item_gbx or "", "utf-8").decode("unicode_escape") 
+            item_error_msg  = self.convert_message_item_gbx #bytes(self.convert_message_item_gbx or "", "utf-8").decode("unicode_escape") 
 
             errors = []
 
@@ -433,9 +433,6 @@ def start_batch_convert(items: list[ExportedItem]):
         cfg_save_path = item.fbx_path.replace(".fbx", ".json")
         _save_item_config(item.config, cfg_save_path)
 
-        cfg_dict = item_config_to_dict(item.config)
-        pprint.pprint(cfg_dict)
-
         thread = threading.Thread(target=convert_fbx, args=[item])
         _CONVERT_THREADS.append(thread)
         thread.start()
@@ -541,8 +538,186 @@ def _process_convert_queue():
     _CONVERT_THREADS.clear()
     return None
     
-def _write_convert_report(results: list[None]) -> None:
-    return
+import html
+import json
+
+REPORT_EXTRA_CSS = """
+.result-wrapper {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    gap: 16px 24px;
+    align-items: start;
+}
+.result-wrapper .full-row { grid-column: 1 / -1; }
+.config-box {
+    font-family: Consolas, Menlo, monospace;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    padding: 12px 16px;
+    background: rgba(0,0,0,.35);
+    border-radius: 6px;
+    max-height: 600px;
+    overflow: auto;
+    box-sizing: border-box;
+}
+.config-box div { white-space: pre-wrap; overflow-wrap: anywhere; }
+pre.item-error-message {
+    white-space: pre-wrap !important;
+    word-break: break-word;
+    padding: 10px 12px;
+    border-left: 3px solid #e55;
+    background: rgba(255,80,80,.08);
+}
+@media (max-width: 1000px) {
+    .result-wrapper { grid-template-columns: minmax(0, 1fr); }
+}
+"""
+
+
+def _esc(value) -> str:
+    return html.escape(str(value if value is not None else ""))
+
+
+def _html_steps(steps) -> str:
+    out = ""
+    for step in steps:
+        subs = "".join(
+            f"<li>{_esc(s).replace(chr(10), '<br />')}</li>"
+            for s in step.additional_infos
+        )
+        sub_ul = f"<ul>{subs}</ul>" if subs else ""
+        out += f"<li>{_esc(step.title)}{sub_ul}</li>"
+    return out
+
+
+def _html_error(r: "ConvertResult") -> str:
+    msg = (r.item_error_message or "").strip()
+    if not msg:
+        return "<h3>Error</h3><p>Convert failed, no error message returned.</p>"
+    return f"""
+        <h3>Error</h3>
+        <pre class="item-error-message">{_esc(msg)}</pre>"""
+
+
+def _config_to_text(config) -> str:
+    cfg = item_config_to_dict(config)
+
+    # in case the converter already returned a JSON string
+    if isinstance(cfg, str):
+        try:
+            cfg = json.loads(cfg)
+        except ValueError:
+            return cfg
+
+    return json.dumps(cfg, indent=2, default=str, ensure_ascii=False)
+
+
+def _html_config(config) -> str:
+    if config is None:
+        return ""
+    try:
+        text = _config_to_text(config)
+    except Exception as e:
+        text = f"<config could not be serialized: {e}>"
+
+    lines = []
+    for line in text.split("\n"):
+        indent  = len(line) - len(line.lstrip(" "))
+        content = html.escape(line.strip()) or "&nbsp;"
+        lines.append(f'<div style="padding-left:{indent}ch">{content}</div>')
+
+    return f"""
+        <h3>Config</h3>
+        <div class="config-box">{"".join(lines)}</div>"""
+
+
+def _html_result(r: "ConvertResult") -> str:
+    path  = _esc(r.relative_fbx_filepath).replace("/", "<span class='slash'>/</span>")
+    steps = _html_steps(r.convert_steps)
+
+    steps_block = f"""
+        <div class="result-text full-row">
+            <h3>Conversion Log:</h3>
+            <ul class="progress-steps">{steps}</ul>
+        </div>""" if steps else ""
+
+    return f"""
+    <div class="result-wrapper">
+        <div class="result-text full-row">
+            <h2 class="item-name">{_esc(r.name_raw)}</h2>
+            <p class="item-path">{path}</p>
+            <hr>
+        </div>
+
+        <div class="result-text">
+            {_html_error(r)}
+        </div>
+
+        <div class="result-text">
+            {_html_config(r.config)}
+        </div>
+
+        {steps_block}
+    </div>"""
+
+def _write_convert_report(results: list["ConvertResult"]) -> None:
+    """generate status html file of converted fbx files"""
+    failed      = [r for r in results if r.convert_has_failed]
+    errors      = len(failed)
+    converted   = len(results)
+    result_list = "".join(_html_result(r) for r in failed)
+    addon       = get_addon_path()
+
+    full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert Report</title>
+    <link rel="stylesheet" href="file://{addon}assets/convert_report/google-code-prettify/prettify.css">
+    <script src="file://{addon}assets/convert_report/google-code-prettify/run_prettify.js?autoload=true&amp;skin=sunburst&amp;lang=css"></script>
+    <link rel="stylesheet" href="file://{addon}assets/convert_report/google-code-prettify/sunburst.css">
+    <link rel="stylesheet" href="file://{addon}assets/convert_report/report.css">
+    <style>{REPORT_EXTRA_CSS}</style>
+</head>
+<body>
+    <main>
+        <header><h1>Failed converts: {errors} of {converted}</h1></header>
+        {result_list}
+    </main>
+
+    <div id="this-is-fine"></div>
+
+    <div id="help-buttons">
+        <a href="https://discord.com/channels/891279104794574948/921509901077975060" class="btn" target="_blank" id="ask-for-help">Help on Discord</a>
+        <a href="https://github.com/skyslide22/blendermania-addon/wiki/06.-Converting-Troubleshooting" target="_blank" class="btn" id="documentation">Open Documentation</a>
+        <a href="#" onclick="focusBlenderAndCloseErrorReport(); return false;" class="btn" id="close-page">Back to Blender</a>
+    </div>
+
+    <script>
+    window.focusBlenderAndCloseErrorReport = async function() {{
+        try {{
+            await fetch("http://localhost:42069/focus_blender");
+            window.close();
+        }} catch {{
+            alert("error: blender server is not running");
+        }}
+    }};
+    </script>
+</body>
+</html>"""
+
+    try:
+        with open(fix_slash(PATH_CONVERT_REPORT), "w", encoding="utf-8") as f:
+            f.write(full_html)
+    except FileNotFoundError:
+        show_report_popup(
+            "Writing file failed",
+            [
+                "Can not write report file in user dir",
+                "Try to run Blender once as administrator",
+            ],
+        )
 
 def convert_fbx(item: ExportedItem) -> None:
 
@@ -697,7 +872,7 @@ def _get_light_configs_from_collection(objs: list[bpy.types.Object], collection:
 
         light_cfg = LightConfig()
 
-        light_cfg.Name  = light.name
+        light_cfg.Name  = obj.name
         light_cfg.Type  = light.type
         
         light_cfg.Color     = f"{int(light.color[0]*255):02x}{int(light.color[1]*255):02x}{int(light.color[2]*255):02x}"
@@ -717,6 +892,7 @@ def _get_light_configs_from_collection(objs: list[bpy.types.Object], collection:
         light_configs.append(light_cfg)
 
     return light_configs
+
 
 def _get_material_configs_from_collection(objs: list[bpy.types.Object], collection: bpy.types.Collection) -> list[MaterialConfig]:
     material_configs = []
