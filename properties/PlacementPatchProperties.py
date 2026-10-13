@@ -69,10 +69,10 @@ class PlacementPatchProperties(bpy.types.PropertyGroup):
     normedPos: bpy.props.FloatProperty(
         name="Horizontal Position",
         description="Horizontal position of the item in this patch",
+        subtype='FACTOR',
         default=0.5,
         min=0,
-        max=1,
-        step=0.1)
+        max=1)
 
     altitude: bpy.props.FloatProperty(
         name="OffsetV",

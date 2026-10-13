@@ -5,8 +5,10 @@ import bpy
 import queue
 import threading
 import time
-
+from mathutils import Vector
 import html, json
+
+from ..properties.PropertyIdentifiers import LightProp
 
 from ..utils.NadeoImporter import BinaryReader, HeaderChunk
 
@@ -801,11 +803,11 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.Description = collection.get("description", "N/A")
     cfg.LodParameters = _get_lod_parameters_from_collection(collection)
     cfg.Waypoint = _get_waypoint_from_collection(collection)
-    cfg.PlacementParams = generate_placement_config()
+    cfg.Placement = generate_placement_config()
     cfg.Scale = item.scale
-    cfg.MaterialConfiguration = _get_material_configs_from_collection(item.objects, collection)
+    cfg.Materials = _get_material_configs_from_collection(item.objects, collection)
     cfg.Lights = _get_light_configs_from_collection(item.objects, collection)
-    cfg.MeshConfiguration = _get_mesh_configs_from_collection(item.objects, collection)
+    cfg.Meshes = _get_mesh_configs_from_collection(item.objects, collection)
     cfg.MovingGroups = _get_moving_group_configs_from_collection(collection)
     #TODO: conversion options
 
@@ -877,17 +879,20 @@ def _get_light_configs_from_collection(objs: list[bpy.types.Object], collection:
         
         light_cfg.Color     = f"{int(light.color[0]*255):02x}{int(light.color[1]*255):02x}{int(light.color[2]*255):02x}"
         light_cfg.Intensity = light.energy
-        light_cfg.NightOnly = light.night_only # custom prop
+        light_cfg.NightOnly = getattr(light, LightProp.LIGHT_NIGHT_ONLY, False) # custom prop
         light_cfg.Distance  = light.shadow_soft_size
-        
-        light_cfg.PointEmissionLength = 1.0 #todo
-        light_cfg.PointEmissionRadius = 1.0 #todo
+
+        #TODO: Check wether this makes sense
+        light_cfg.PointEmissionRadius = 0 # getattr(light, LightProp.LIGHT_EMITTING_RADIUS, 0)
+        light_cfg.PointEmissionLength = 0 # getattr(light, LightProp.LIGHT_EMITTING_LENGTH, 0)
+
+        light_cfg.SpotEmissionRadius = 0 # getattr(light, LightProp.LIGHT_EMITTING_RADIUS, 0)
+        light_cfg.SpotEmissionLength = 0 # getattr(light, LightProp.LIGHT_EMITTING_LENGTH, 0)
 
         # convert euler to degree
         spot_size_degree = light.spot_size * (180.0 / math.pi) if light_is_spot else 0.0
-        light_cfg.SpotEmissionSizeX = spot_size_degree
-        light_cfg.SpotEmissionSizeY = spot_size_degree
-        light_cfg.SpotInnerAngle = spot_size_degree
+
+        light_cfg.SpotInnerAngle = spot_size_degree * getattr(light, "spot_blend", 0)
         light_cfg.SpotOuterAngle = spot_size_degree
         light_configs.append(light_cfg)
 
@@ -983,6 +988,8 @@ def _get_mesh_configs_from_collection(objs: list[bpy.types.Object], collection: 
             mesh_flags |= MeshFlags.TriggerEffect
         if getattr(obj, ObjectProp.SOCKET, False):
             mesh_flags |= MeshFlags.Socket
+        if getattr(obj, ObjectProp.NO_MERGE, False):
+            mesh_flags |= MeshFlags.SingleMesh
 
        
 
@@ -990,7 +997,10 @@ def _get_mesh_configs_from_collection(objs: list[bpy.types.Object], collection: 
             mesh_cfg.WaypointType = _get_waypoint_type_from_collection(collection)
         if mesh_flags & MeshFlags.TriggerEffect:
             mesh_cfg.TriggerEffect = getattr(obj, ObjectProp.TRIGGER_EFFECT_TYPE, None)
-            mesh_cfg.GameplayMainDir = Vec3.from_seq(getattr(obj, ObjectProp.GAMEPLAY_MAIN_DIR, None))
+            gameplay_dir = Vector(getattr(obj, ObjectProp.GAMEPLAY_MAIN_DIR, None))
+            gameplay_dir.normalize()
+            gameplay_strength = getattr(obj, ObjectProp.GAMEPLAY_STRENGTH, 1.0)
+            mesh_cfg.GameplayMainDir = Vec3.from_seq(gameplay_dir * gameplay_strength)
 
         if getattr(obj, ObjectProp.ENABLE_LODS, False):
             mesh_cfg.Lods = [int(lod.value) for lod in getattr(obj, ObjectProp.LOD_INDEXES, [])]
@@ -1011,7 +1021,7 @@ def _get_mesh_configs_from_collection(objs: list[bpy.types.Object], collection: 
 
     return mesh_configs
 
-def _get_moving_group_configs_from_collection(collection: bpy.types.Collection) -> list[MeshConfig]:
+def _get_moving_group_configs_from_collection(collection: bpy.types.Collection) -> list[MovingGroupConfig]:
     moving_groups_configs = []
 
     col_children = collection.children
@@ -1025,7 +1035,7 @@ def _get_moving_group_configs_from_collection(collection: bpy.types.Collection) 
                 moving_group_cfg.ParentMovingGroupId = relative_moving_group.name
             anchor = getattr(child_col, CollectionProp.MOVING_ANCHOR, None)
             if anchor:
-                moving_group_cfg.AnchorPosition = Vec3.from_seq(anchor.location)
+                moving_group_cfg.RotationAnchorNode = anchor.name
 
             kinematic_model_config = KinematicModelConfig()
             kinematic_model_config.CastStaticShadow = getattr(child_col, CollectionProp.KINEMATIC_CAST_SHADOW)
@@ -1036,15 +1046,15 @@ def _get_moving_group_configs_from_collection(collection: bpy.types.Collection) 
             kinematic_model_config.Phase01Max = getattr(child_col, CollectionProp.KINEMATIC_PHASE_01_MAX)
             kinematic_model_config.TextureId = getattr(child_col, CollectionProp.KINEMATIC_TEXTURE_ID)
 
-            moving_group_cfg.KinematicModelConfig = kinematic_model_config
+            moving_group_cfg.KinematicModel = kinematic_model_config
 
             kinematic_movement = KinematicMovement()
             kinematic_movement.TransAxis = getattr(child_col, CollectionProp.KINEMATIC_TRANS_AXIS)
             kinematic_movement.TransMin = getattr(child_col, CollectionProp.KINEMATIC_TRANS_MIN)
             kinematic_movement.TransMax = getattr(child_col, CollectionProp.KINEMATIC_TRANS_MAX)
             kinematic_movement.RotAxis = getattr(child_col, CollectionProp.KINEMATIC_ROT_AXIS)
-            kinematic_movement.AngleMinDeg = getattr(child_col, CollectionProp.KINEMATIC_ROT_MIN)
-            kinematic_movement.AngleMaxDeg = getattr(child_col, CollectionProp.KINEMATIC_ROT_MAX)
+            kinematic_movement.AngleMinDeg = math.degrees(getattr(child_col, CollectionProp.KINEMATIC_ROT_MIN))
+            kinematic_movement.AngleMaxDeg = math.degrees(getattr(child_col, CollectionProp.KINEMATIC_ROT_MAX))
             kinematic_movement.TranslationAnims = [
                 SubAnimFunc(
                     Ease=AnimEase(p.ease),
@@ -1064,9 +1074,9 @@ def _get_moving_group_configs_from_collection(collection: bpy.types.Collection) 
 
             if getattr(child_col, CollectionProp.KINEMATIC_HAS_MOVING_TEXTURE):
                 moving_texture = MovingTextureConfig()
-                moving_texture.NbSubTexture = getattr(child_col, CollectionProp.KINEMATIC_MOVING_TEXTURE_NUM)
-                moving_texture.NbSubTexturePerLine = getattr(child_col, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_LINE)
-                moving_texture.NbSubTexturePerColumn = getattr(child_col, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_COLUMN)
+                moving_texture.SubTextures = getattr(child_col, CollectionProp.KINEMATIC_MOVING_TEXTURE_NUM)
+                moving_texture.SubTexturesPerLine = getattr(child_col, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_LINE)
+                moving_texture.SubTexturePerColumn = getattr(child_col, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_COLUMN)
                 moving_texture.TopToBottom = getattr(child_col, CollectionProp.KINEMATIC_MOVING_TEXTURE_TOP_TO_BOTTOM)
                 moving_texture.TextureAnims = [
                     TextureAnim(

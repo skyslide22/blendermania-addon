@@ -42,15 +42,18 @@ def register_object_properties():
     setattr(bpy.types.Object, ObjectProp.IGNORE, _bool("Ignore", "Object should be ignored", ObjectProp.IGNORE, _update_tm_ignore))
     setattr(bpy.types.Object, ObjectProp.PIVOT, _bool("Pivot", "Object is a pivot point", ObjectProp.PIVOT, _update_tm_pivot))
     setattr(bpy.types.Object, ObjectProp.ORIGIN, _bool("Origin", "Object is an origin point", ObjectProp.ORIGIN, _update_tm_origin))
+    setattr(bpy.types.Object, ObjectProp.NO_MERGE, _bool("No Merge", "Object should not be merged with others into the same structure", ObjectProp.NO_MERGE, _update_tm_no_merge))
 
     setattr(bpy.types.Object, ObjectProp.TRIGGER_EFFECT_TYPE, EnumProperty(name="Trigger Effect Type", description="Type of trigger effect", items=enum_items(LegacyGameplayId), default=LegacyGameplayId.None_.value,))
-    setattr(bpy.types.Object, ObjectProp.GAMEPLAY_MAIN_DIR, FloatVectorProperty(name="Gameplay Main Dir", description="Main directory for gameplay", default=(0.0, 0.0, 0.0)))
+    setattr(bpy.types.Object, ObjectProp.GAMEPLAY_MAIN_DIR, FloatVectorProperty(name="Gameplay Main Dir", description="Main direction for gameplay", subtype='XYZ', size=3, default=(0.0, -1.0, 0.0)))
+    setattr(bpy.types.Object, ObjectProp.GAMEPLAY_STRENGTH, FloatProperty(name="Gameplay Strength", description="Strength for gameplay effect", default=1.0, min=0.0,  step=100))
+
 
     setattr(bpy.types.Object, ObjectProp.ENABLE_LODS, BoolProperty(name="LODs", description="Enable Level of Detail for this object", default=False))
     setattr(bpy.types.Object, ObjectProp.LOD_INDEXES, CollectionProperty(type=TM_LodIndex)) 
     
     setattr(bpy.types.Object, ObjectProp.OVERRIDE_LIGHTMAP_SIZE, _bool("Override Lightmap Size", "Override lightmap size", ObjectProp.OVERRIDE_LIGHTMAP_SIZE))
-    setattr(bpy.types.Object, ObjectProp.LIGHTMAP_SIZE, FloatProperty(name="Lightmap Size", description="Lightmap size", default=100.0))
+    setattr(bpy.types.Object, ObjectProp.LIGHTMAP_SIZE, FloatProperty(name="Lightmap Size", description="Lightmap size", default=100.0, soft_min=0.0))
 
     setattr(bpy.types.Object, ObjectProp.ICON_ONLY, _bool("Icon Only", "Object is only for icon generation", ObjectProp.ICON_ONLY, update=_update_tm_icon_only))
     
@@ -80,6 +83,10 @@ def _update_tm_socket(self, context):
 def _update_tm_origin(self, context):
     if _syncing: return
     toggle_infix(self, SPECIAL_NAME_INFIX_ORIGIN)
+
+def _update_tm_no_merge(self, context):
+    if _syncing: return
+    toggle_infix(self, SPECIAL_NAME_INFIX_NOMERGE)
 
 def _update_tm_pivot(self, context):
     if _syncing: return
@@ -144,6 +151,8 @@ def _on_object_renamed():
                 setattr(obj, ObjectProp.NON_COLLIDABLE, (SPECIAL_NAME_INFIX_NOTCOLLIDABLE in obj.name))
             if getattr(obj, ObjectProp.INVISIBLE) != (SPECIAL_NAME_INFIX_NOTVISIBLE in obj.name):
                 setattr(obj, ObjectProp.INVISIBLE, (SPECIAL_NAME_INFIX_NOTVISIBLE in obj.name))
+            if getattr(obj, ObjectProp.NO_MERGE) != (SPECIAL_NAME_INFIX_NOMERGE in obj.name):
+                setattr(obj, ObjectProp.NO_MERGE, (SPECIAL_NAME_INFIX_NOMERGE in obj.name))
     finally:
         _syncing = False
 

@@ -8,8 +8,7 @@ from bpy.types import (
     Operator,
 )
 
-from ..properties.PlacementPatchProperties import CompatiblePatchGroupProperty, PatchGroupRef, PlacementPatchProperties
-from ..properties.PlacementProperties import PivotsProperties
+from ..properties.PlacementPatchProperties import CompatiblePatchGroupProperty, PatchGroupRef
 
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
@@ -18,6 +17,15 @@ from ..utils.Functions import *
 from ..utils.Constants import * 
 from .UI_widgets import *
 
+# register method for ui
+
+
+# draw methods for placement
+
+def draw_item_placement(layout, scene, placement_prop_ref, section):
+    row = layout.row(align=True)
+    row.prop(placement_prop_ref.mode, expland=True)
+    mode = placement_prop_ref.mode
 
 class TM_PT_Items_ItemPlacement(Panel):
     # region bl_
@@ -235,9 +243,11 @@ class TM_PT_Items_ItemPlacement(Panel):
                 row = placement_cube_body.row(align=True)
                 row.prop(tm_props, "NU_cfg_cubeSize", text="Cube Size")
                 row = placement_cube_body.row(align=True)
-                row.prop(tm_props.PT_cfg_cubeCenter, "NU_centerX", text=CHAR_BOTTOM_LEFT)
-                row.prop(tm_props.PT_cfg_cubeCenter, "NU_centerY", text=CHAR_BOTTOM_RIGHT)
-                row.prop(tm_props.PT_cfg_cubeCenter, "NU_centerZ", text=CHAR_TOP)
+                row.prop(tm_props, "PT_cfg_cubeCenter")
+                #row.label(text="Cube Center:")
+                # row.prop(tm_props, "PT_cfg_cubeCenter", index=0, text=CHAR_BOTTOM_LEFT)
+                # row.prop(tm_props, "PT_cfg_cubeCenter", index=1, text=CHAR_BOTTOM_RIGHT)
+                # row.prop(tm_props, "PT_cfg_cubeCenter", index=2, text=CHAR_TOP)
 
 
             attachment_body, attachment_header = foldout_toggle(layout, tm_props, 
@@ -256,9 +266,10 @@ class TM_PT_Items_ItemPlacement(Panel):
                 row.prop(tm_props, "CB_cfg_alignToWorldDir", text="Align to World Dir", icon="NONE", toggle=True)
                 row = attachment_body.row(align=True)
                 if tm_props.CB_cfg_alignToWorldDir:
-                    row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirX", text=CHAR_BOTTOM_LEFT)
-                    row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirY", text=CHAR_BOTTOM_RIGHT)
-                    row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirZ", text=CHAR_TOP)
+                    row.prop(tm_props, "PT_cfg_worldDir")
+                    # row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirX", text=CHAR_BOTTOM_LEFT)
+                    # row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirY", text=CHAR_BOTTOM_RIGHT)
+                    # row.prop(tm_props.PT_cfg_worldDir, "NU_worldDirZ", text=CHAR_TOP)
 
                  # ---- Compatible groups  ----
                 #row = layout.row(align=True)
@@ -377,24 +388,19 @@ class TM_PT_Items_ItemPlacement(Panel):
         box = layout.box()
         col = box.column()
         pos_row = col.row()
-        split = pos_row.split(factor=0.15, align=True)
+        pos_row.prop(item, "FV_position",text="Pos")
 
-        split.label(text="Pos", translate=False)
+        # split.label(text="Pos", translate=False)
 
-        values = split.row(align=True)
-        values.prop(item, "NU_pivotX", text=CHAR_BOTTOM_LEFT)
-        values.prop(item, "NU_pivotY", text=CHAR_BOTTOM_RIGHT)
-        values.prop(item, "NU_pivotZ", text=CHAR_TOP)
+        # values.prop(item, "NU_pivotX", text=CHAR_BOTTOM_LEFT)
+        # values.prop(item, "NU_pivotY", text=CHAR_BOTTOM_RIGHT)
+        # values.prop(item, "NU_pivotZ", text=CHAR_TOP)
 
         rot_row = col.row()
-        split = rot_row.split(factor=0.15, align=True)
-
-        split.label(text="Rot", translate=False)
-
-        values = split.row(align=True)
-        values.prop(item, "NU_pivotRotX", text="x")
-        values.prop(item, "NU_pivotRotY", text="y")
-        values.prop(item, "NU_pivotRotZ", text="z")
+        rot_row.prop(item, "FV_rotation", text="Rot")
+        # values.prop(item, "NU_pivotRotX", text="x")
+        # values.prop(item, "NU_pivotRotY", text="y")
+        # values.prop(item, "NU_pivotRotZ", text="z")
 
     def draw_patch_layout(self, layout, item, index):
 
@@ -412,7 +418,7 @@ class TM_PT_Items_ItemPlacement(Panel):
         align_row.prop(item, "fillDirection", text="Fill Direction", expand=True)
         
         row = layout.row(align=True)
-        row.prop(item, "normedPos", text=CHAR_HORIZONTAL +" Norm")
+        row.prop(item, "normedPos", text=CHAR_HORIZONTAL +" Pos (norm)")
         row.prop(item, "altitude", text=CHAR_VERTICAL +" Offset")
 
         tm_props = get_global_props()

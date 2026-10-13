@@ -76,12 +76,12 @@ def get_blendermania_dotnet_path() -> str:
     if override and Path(override).is_file():
         return Path(override)
     
-    addon_path = get_addon_path()
+    addon_path = get_addon_assets_path()
     dotnet_dir = addon_path + "/dotnet"
     # 2. choose build order; set BLENDERMANIA_DOTNET_DEBUG=1 to prefer debug
     order = ["debug", "release"] if os.environ.get("BLENDERMANIA_DOTNET_DEBUG") else ["release", "debug"]
     for config in order:
-        candidate = dotnet_dir + "/" + config + "/blendermania-dotnet.exe"
+        candidate = fix_slash(dotnet_dir + "/" + config + "/blendermania-dotnet.exe")
         if os.path.isfile(candidate):
             return candidate
 
@@ -89,8 +89,8 @@ def get_blendermania_dotnet_path() -> str:
    
 
     #TODO: tmp
-    return "F:\\Development\\Projects\\Visual Studio\\Blendermania\\blendermania-dotnet\\publish\\blendermania-dotnet.exe"
-    return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
+    # return "F:\\Development\\Projects\\Visual Studio\\Blendermania\\blendermania-dotnet\\publish\\blendermania-dotnet.exe"
+    # return get_addon_path() + f"assets/{BLENDERMANIA_DOTNET}.exe"
 
 def is_blendermania_dotnet_installed() -> bool:
     return is_file_existing(get_blendermania_dotnet_path())

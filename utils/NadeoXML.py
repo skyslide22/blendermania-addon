@@ -86,11 +86,11 @@ class ItemXMLTemplate(bpy.types.PropertyGroup):
         self.not_on_item = not_on_item
         self.pivot_switch = pivot_switch
         self.pivot_snap_distance = pivot_snap_distance
-        for pivot in pivots:
-            new_pivot = self.pivots.add()
-            new_pivot.NU_pivotX = pivot[0]
-            new_pivot.NU_pivotY = pivot[1]
-            new_pivot.NU_pivotZ = pivot[2]
+        for pivot in (pivots if pivots is not None else [[0, 0, 0]]):
+            self.pivots.add().FV_position = pivot
+            # new_pivot.NU_pivotX = pivot[0]
+            # new_pivot.NU_pivotY = pivot[1]
+            # new_pivot.NU_pivotZ = pivot[2]
 
     def to_json(self):
         debug(self.__dict__)
@@ -112,7 +112,7 @@ class ItemXMLTemplate(bpy.types.PropertyGroup):
             "one_axis_rot": self.one_axis_rot,
             "ghost_mode": self.ghost_mode,
             "not_on_item": self.not_on_item,
-            "pivots": [(p.NU_pivotX, p.NU_pivotY, p.NU_pivotZ) for p in self.pivots],
+            "pivots": [[v for v in p.FV_position] for p in self.pivots],
             "pivot_switch": self.pivot_switch,
             "pivot_snap_distance": self.pivot_snap_distance,
         }
@@ -173,9 +173,7 @@ def add_itemxml_template(existing_template: dict = None) -> None:
 
         for pivot in pivot_props:
             new_pivot = template.pivots.add()
-            new_pivot.NU_pivotX = pivot.NU_pivotX
-            new_pivot.NU_pivotY = pivot.NU_pivotY
-            new_pivot.NU_pivotZ = pivot.NU_pivotZ
+            new_pivot.FV_position = pivot.FV_position
 
         
     else:
@@ -285,7 +283,7 @@ def generate_item_XML(item: ExportedItem) -> str:
             pivots = tm_props_pivots
 
         for pivot in pivots:
-            xml_pivots += gen_pivot_xml(pivot.NU_pivotX, pivot.NU_pivotY, pivot.NU_pivotZ)
+            xml_pivots += gen_pivot_xml(pivot.FV_position[0], pivot.FV_position[1], pivot.FV_position[2])
         
         offset = get_offset_from_item_origin(item.objects)
         

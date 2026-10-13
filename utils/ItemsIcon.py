@@ -115,7 +115,7 @@ def _add_camera(empty: bpy.types.Object) -> bpy.types.Camera:
 
 
 def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None):
-    generate_objects_icon(coll.objects, coll.name, export_path)
+    generate_objects_icon(coll.all_objects, coll.name, export_path)
 
 
 

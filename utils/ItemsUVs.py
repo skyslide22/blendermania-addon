@@ -4,7 +4,7 @@ from ..utils.Functions      import *
 def generate_base_material_cube_projection(coll: bpy.types.Collection) -> None:
     """generate basematerial uvlayer with cube project method, only useful for repeating textures"""
     tm_props    = get_global_props()
-    objs        = [obj for obj in coll.objects if select_obj(obj)]
+    objs        = [obj for obj in coll.all_objects if select_obj(obj)]
     bm_objs     = []
 
     debug(f"overwrite basematerial with cubeproject for <{coll.name}>")

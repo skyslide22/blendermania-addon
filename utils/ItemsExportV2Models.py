@@ -1,4 +1,6 @@
 from __future__ import annotations
+import math
+from mathutils import Euler
 
 from dataclasses import dataclass, field, asdict, is_dataclass, fields
 from enum import Enum, IntFlag
@@ -144,23 +146,13 @@ class Vec3:
 
 @dataclass
 class Quat:
-    @staticmethod
-    def from_euler(x: float, y: float, z: float) -> "Quat":
-        # Convert Euler angles (in degrees) to a quaternion.
-        # This is a simplified version assuming XYZ order and degrees input.
-        import math
-        cx = math.cos(math.radians(x) / 2)
-        sx = math.sin(math.radians(x) / 2)
-        cy = math.cos(math.radians(y) / 2)
-        sy = math.sin(math.radians(y) / 2)
-        cz = math.cos(math.radians(z) / 2)
-        sz = math.sin(math.radians(z) / 2)
 
-        w = cx * cy * cz + sx * sy * sz
-        x = sx * cy * cz - cx * sy * sz
-        y = cx * sy * cz + sx * cy * sz
-        z = cx * cy * sz - sx * sy * cz
-        return Quat(x, y, z, w)
+    @staticmethod
+    def from_euler(vec, degrees=True, order="XYZ") -> Quat:
+        angles = [math.radians(a) for a in vec] if degrees else list(vec)
+        q = Euler(angles, order).to_quaternion()      # mathutils order is (w, x, y, z)
+        return Quat(q.x, q.y, q.z, q.w)
+    
     X: float = 0.0
     Y: float = 0.0
     Z: float = 0.0
@@ -265,8 +257,8 @@ class LightConfig:
     PointEmissionLength: float = 0.0
     SpotInnerAngle: float = 40.0
     SpotOuterAngle: float = 60.0
-    SpotEmissionSizeX: float = 0.0
-    SpotEmissionSizeY: float = 0.0
+    SpotEmissionRadius: float = 0.0
+    SpotEmissionLength: float = 0.0
 
 
 @dataclass
@@ -284,9 +276,9 @@ class TextureAnim:
 
 @dataclass
 class MovingTextureConfig:
-    NbSubTexture: int = 0
-    NbSubTexturePerLine: int = 0
-    NbSubTexturePerColumn: int = 0
+    SubTextures: int = 0
+    SubTexturesPerLine: int = 0
+    SubTexturePerColumn: int = 0
     TopToBottom: bool = False
     TextureAnims: list[TextureAnim] = field(default_factory=list)
 
@@ -319,23 +311,24 @@ class KinematicModelConfig:
 class MovingGroupConfig:
     MovingGroupId: str = ""
     ParentMovingGroupId: str | None = None
-    AnchorPosition: Vec3 | None = None
+    RotationAnchorNode: str | None = None
     KinematicMovement: KinematicMovement = field(default_factory=KinematicMovement)
-    KinematicModelConfig: KinematicModelConfig = field(default_factory=KinematicModelConfig)
+    KinematicModel: KinematicModelConfig = field(default_factory=KinematicModelConfig)
 
 
 @dataclass
 class ItemConfig:
+    Version: int = 1
     Type: str = "StaticObject"
     Collection: str = "Stadium"
     AuthorName: str = ""
     Name: str | None = None
     Description: str | None = None
     Waypoint: Waypoint | None = None
-    PlacementParams: PlacementConfig | None = None
+    Placement: PlacementConfig | None = None
     Scale: float = 1.0
-    MaterialConfiguration: list[MaterialConfig] = field(default_factory=list)
-    MeshConfiguration: list[MeshConfig] = field(default_factory=list)
+    Materials: list[MaterialConfig] = field(default_factory=list)
+    Meshes: list[MeshConfig] = field(default_factory=list)
     Lights: list[LightConfig] = field(default_factory=list)
     MovingGroups: list[MovingGroupConfig] = field(default_factory=list)
     LodParameters: LodParameters | None = None
@@ -376,7 +369,7 @@ def _encode(value: Any) -> Any:
             if value == MeshFlags.None_:
                 return "None"
             names = [flag.name for flag in MeshFlags if flag != MeshFlags.None_ and (value & flag)]
-            return "|".join(names)
+            return ", ".join(names)
         return int(value)
     if isinstance(value, Enum):
         return value.value
@@ -401,8 +394,8 @@ def item_config_to_dict(item: ItemConfig, drop_none: bool = True) -> dict[str, A
     # Match docs: omit these sections when not configured.
     if item.Waypoint is None:
         data.pop("Waypoint", None)
-    if item.PlacementParams is None:
-        data.pop("PlacementParams", None)
+    if item.Placement is None:
+        data.pop("Placement", None)
     if item.LodParameters is None:
         data.pop("LodParameters", None)
 
@@ -422,7 +415,7 @@ def _decode_mesh_flags(value: Any) -> MeshFlags:
     if value in ("None", ""):
         return MeshFlags.None_
     result = MeshFlags.None_
-    for name in value.split("|"):
+    for name in value.split(", "):
         result |= MeshFlags[name.strip()]
     return result
 
@@ -535,14 +528,14 @@ def get_placement_config_from_scene() -> PlacementConfig:
     placement.FlyVOffset = float(tm_props.NU_xml_leviXoffset)
     placement.PivotSnapDistance = float(tm_props.NU_xml_pivotSnapDis)
     placement.CubeSize = float(tm_props.NU_cfg_cubeSize)
-    placement.CubeCenter = Vec3(float(tm_props.PT_cfg_cubeCenter.NU_centerX), float(tm_props.PT_cfg_cubeCenter.NU_centerY), float(tm_props.PT_cfg_cubeCenter.NU_centerZ))
+    placement.CubeCenter = Vec3.from_seq(tm_props.PT_cfg_cubeCenter)
 
     placement.PivotPositions = [
-        Vec3(float(p.NU_pivotX), float(p.NU_pivotY), float(p.NU_pivotZ))
+        Vec3.from_seq(p.FV_position)
         for p in pivots
     ]
     placement.PivotRotations = [
-        Quat.from_euler(float(p.NU_pivotRotX), float(p.NU_pivotRotY), float(p.NU_pivotRotZ))
+        Quat.from_euler(p.FV_rotation, degrees=False, order="XYZ")
         for p in pivots
     ]
 
@@ -553,7 +546,7 @@ def get_placement_config_from_scene() -> PlacementConfig:
         placement.PlacementClass.AlignToInterior = bool(tm_props.CB_cfg_alignToInterior)
         placement.PlacementClass.AlignToWorldDir = bool(tm_props.CB_cfg_alignToWorldDir)
         world_dir = tm_props.PT_cfg_worldDir
-        placement.PlacementClass.WorldDir = Vec3(float(world_dir.NU_worldDirX), float(world_dir.NU_worldDirY), float(world_dir.NU_worldDirZ))
+        placement.PlacementClass.WorldDir = Vec3.from_seq(world_dir)
         placement.PlacementClass.CompatibleGroupsIds = [
                 str(g.name) 
                 for g in tm_props.LI_cfg_compatibleGroups

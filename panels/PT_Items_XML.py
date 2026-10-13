@@ -199,9 +199,10 @@ class TM_PT_Items_ItemXML(Panel):
                     pivot_box = layout.box()
                     for i, pivot in enumerate(tm_props_pivots):
                         row = pivot_box.row(align=True)
-                        row.prop(tm_props_pivots[i], "NU_pivotX", text=CHAR_BOTTOM_LEFT )
-                        row.prop(tm_props_pivots[i], "NU_pivotY", text=CHAR_BOTTOM_RIGHT )
-                        row.prop(tm_props_pivots[i], "NU_pivotZ", text=CHAR_TOP )
+                        row.prop(pivot, "FV_position", text="Pos")
+                        # row.prop(tm_props_pivots[i], "NU_pivotX", text=CHAR_BOTTOM_LEFT )
+                        # row.prop(tm_props_pivots[i], "NU_pivotY", text=CHAR_BOTTOM_RIGHT )
+                        # row.prop(tm_props_pivots[i], "NU_pivotZ", text=CHAR_TOP )
                         row.operator("view3d.tm_removepivot", text="", icon=ICON_REMOVE).pivot_index = i
 
             row = layout.row()

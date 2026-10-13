@@ -13,8 +13,9 @@ from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 from ..properties.Functions import ERROR_ENUM_ID
 from ..utils.FunctionsV2 import *
 from ..utils.Constants import * 
-from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp
+from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp, LightProp
 from .UI_widgets import *
+from ..panels.PT_Items_Placement import draw_item_placement
 
 
 
@@ -165,8 +166,12 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
                 #row = row.row(align=True)
                 row = col.row(align=True)
                 row.prop(obj, ObjectProp.GAMEPLAY_MAIN_DIR, text="Gameplay Dir")
+                row = col.row(align=True)
+                row.label(text="Effect Strength", icon=ICON_FORCE)
+                row.prop(obj, ObjectProp.GAMEPLAY_STRENGTH, text="")
 
             row = col.row(align=True)
+            row.prop(obj, ObjectProp.NO_MERGE, text="No Merge", toggle=True)
             row.prop(obj, ObjectProp.SOCKET, text="Spawn", toggle=True)
 
             row = col.row(align=True)
@@ -244,7 +249,7 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
             col = light_box.column(align=True)
             is_spotlight  = obj.data.type == "SPOT"
             is_pointlight = obj.data.type == "POINT"
-
+            light = obj.data
             if len(bpy.context.selected_objects) > 1:
                 is_spotlight  = all([obj.data.type == "SPOT"  for obj in bpy.context.selected_objects]) or None
                 is_pointlight = all([obj.data.type == "POINT" for obj in bpy.context.selected_objects]) or None
@@ -274,28 +279,34 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
             if len(bpy.context.selected_objects) == 1 or True:
                 row = col.row(align=True)
                 row.label(text="Color", icon=ICON_LIGHT_COLOR)
-                row.prop(bpy.context.object.data, "color",  text="") 
+                row.prop(light, "color",  text="") 
                 
                 row = col.row(align=True)
                 row.label(text="Power", icon=ICON_LIGHT_POWER)
-                row.prop(bpy.context.object.data, "energy", text="") 
+                row.prop(light, "energy", text="") 
                 
                 row = col.row(align=True)
                 row.label(text="Radius", icon=ICON_LIGHT_RADIUS)
-                row.row().prop(bpy.context.object.data, "shadow_soft_size", text="") 
+                row.row().prop(light, "shadow_soft_size", text="") 
 
 
                 if is_spotlight is True:
                     row = col.row(align=True)
                     row.label(text="Outer angle", icon=ICON_LIGHT_RADIUS_OUT)
-                    row.row().prop(bpy.context.object.data, "spot_size", text="") 
+                    row.row().prop(light, "spot_size", text="") 
 
                     row = col.row(align=True)
                     row.label(text="Inner angle", icon=ICON_LIGHT_RADIUS_IN)
-                    row.row().prop(bpy.context.object.data, "spot_blend", text="", slider=True) 
+                    row.row().prop(light, "spot_blend", text="", slider=True) 
 
-                    col.row().prop(bpy.context.object.data, "show_cone", toggle=True)             
 
+                row = col.row(align=True)
+                row.label(text="Emitting Radius")
+                row.row().prop(light, LightProp.LIGHT_EMITTING_RADIUS, text="")        
+
+                row = col.row(align=True)
+                row.label(text="Emitting Length")
+                row.row().prop(light, LightProp.LIGHT_EMITTING_LENGTH, text="")
   
 
 
@@ -559,6 +570,10 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
             uv_row = row.column(align=True).row(align=True)
             uv_row.operator("view3d.tm_showuvmap", text="LightMap",     icon=ICON_VISIBLE, depress=depress_lightmap).uv_name = UV_LAYER_NAME_LIGHTMAP
             uv_row.operator("view3d.tm_edituvmap", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_LIGHTMAP
+
+            row = col.row(align=True)
+            draw_item_placement(col, context.scene, current_collection, section=None)
+        
         return
         row = layout.row(align=True)
 

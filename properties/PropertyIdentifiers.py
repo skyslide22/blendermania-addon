@@ -11,10 +11,12 @@ class ObjectProp(StrEnum):
     IGNORE           = "tm_ignore"
     PIVOT            = "tm_pivot"
     ORIGIN           = "tm_origin"
+    NO_MERGE         = "tm_no_merge"
 
     #other
     TRIGGER_EFFECT_TYPE = "tm_trigger_effect_type"
     GAMEPLAY_MAIN_DIR   = "tm_gameplay_main_dir"
+    GAMEPLAY_STRENGTH   = "tm_gameplay_strength"
     ENABLE_LODS          = "tm_enable_lods"
     LOD_INDEXES          = "tm_lod_indexes"
 
@@ -25,6 +27,8 @@ class ObjectProp(StrEnum):
 
 @unique
 class CollectionProp(StrEnum):
+    CONFIG = "tm_item_config"
+
     MOVING_GROUP = "tm_moving_group"
     LODS = "tm_lods"
     SELECTED_LODS = "tm_selected_lods"
@@ -63,3 +67,8 @@ class CollectionProp(StrEnum):
     KINEMATIC_MOVING_TEXTURE_TOP_TO_BOTTOM = "tm_kinematic_moving_texture_top_to_bottom"
     KINEMATIC_MOVING_TEXTURE_ANIMS = "tm_kinematic_moving_texture_anims"
 
+@unique
+class LightProp(StrEnum):
+    LIGHT_NIGHT_ONLY = "night_only" # backwards compatibility
+    LIGHT_EMITTING_RADIUS = "tm_light_emitting_radius"
+    LIGHT_EMITTING_LENGTH = "tm_light_emitting_length"

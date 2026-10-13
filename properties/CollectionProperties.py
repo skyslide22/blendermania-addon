@@ -1,12 +1,13 @@
 import bpy
 from bpy.props import *
 
+from ..properties.ItemConfigProperties import ItemConfigProperties
 from .Functions import set_collection_moving_group, toggle_infix, toggleNameSpecialPrefix
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
 from .PropertyIdentifiers import CollectionProp
 from ..utils.Constants import *
 from ..utils.FunctionsV2 import get_active_item_collection
-from ..utils.ItemsExportV2Models import EAxis, AnimEase
+from ..utils.ItemsExportV2Models import EAxis, AnimEase, ItemConfig
 
 _sorting = False
 
@@ -28,12 +29,12 @@ class TM_LodDistanceProperties(bpy.types.PropertyGroup):
     distance: FloatProperty(name="Distance", default=64.0, min=0.0, step=100, update=_sort_lods)
 
 class TM_TextureAnimProperties(bpy.types.PropertyGroup):
-    duration: IntProperty(name="Duration", default=1000, min=0, step=100)
-    textureIndex: IntProperty(name="Texture ID", default=0, min=0)
+    duration: IntProperty(name="Duration", subtype='UNSIGNED', default=1000, min=0, step=100)
+    textureIndex: IntProperty(name="Texture ID",subtype='UNSIGNED', default=0, min=0)
 
 class TM_SubAnimProperties(bpy.types.PropertyGroup):
     reverse: BoolProperty(name="Reverse", default=False)
-    duration: IntProperty(name="Duration", default=1000, min=0, step=100)
+    duration: IntProperty(name="Duration", subtype='UNSIGNED', default=1000, min=0, step=100)
     ease: EnumProperty(
         name="Ease",
         description="Easing function for the animation",
@@ -61,6 +62,12 @@ def register_collection_properties():
         name="Item XML Template", 
         default=""
     )
+
+    setattr(bpy.types.Collection, CollectionProp.CONFIG, PointerProperty(
+        name="Item Config",
+        description="Item configuration for the collection",
+        type=ItemConfigProperties
+    ))
 
     setattr(bpy.types.Collection, CollectionProp.NO_RESPAWN, BoolProperty(
         name="No Respawn",
@@ -101,7 +108,7 @@ def register_collection_properties():
         default=0.0,
     ))
     setattr(bpy.types.Collection, CollectionProp.TORQUE_DURATION, IntProperty(
-        name="Torque Duration Millis",
+        name="Torque Duration (ms)",
         description="Duration of the torque effect",
         default=0,
         min=0,
@@ -109,7 +116,8 @@ def register_collection_properties():
     setattr(bpy.types.Collection, CollectionProp.DEFAULT_GRAVITY_SPAWN, FloatVectorProperty(
         name="Default Gravity Spawn", 
         description="Default gravity spawn",
-        default=(0.0, 0.0, 1.0)
+        size=3,
+        default=(0.0, 1.0, 0.0)
     ))
 
     # moving group
@@ -161,6 +169,7 @@ def register_collection_properties():
     setattr(bpy.types.Collection, CollectionProp.KINEMATIC_TEXTURE_ID, IntProperty(
         name="Texture ID",
         description="Texture ID for the kinematic object",
+        subtype='UNSIGNED',
         default=0,
         min=0
     ))
@@ -193,14 +202,16 @@ def register_collection_properties():
     setattr(bpy.types.Collection, CollectionProp.KINEMATIC_ROT_MIN, FloatProperty(
         name="Angle Min",
         description="Start rotation angle for the kinematic object",
+        subtype='ANGLE',
         default=0.0,
-        step=1000,
+        step=100,
     ))
     setattr(bpy.types.Collection, CollectionProp.KINEMATIC_ROT_MAX, FloatProperty(
         name="Angle Max",
         description="End rotation angle for the kinematic object",
+        subtype='ANGLE',
         default=0.0,
-        step=1000,
+        step=100,
     ))
 
     setattr(bpy.types.Collection, CollectionProp.KINEMATIC_TRANS_ANIMS, CollectionProperty(
@@ -224,18 +235,21 @@ def register_collection_properties():
     setattr(bpy.types.Collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_NUM, IntProperty(
         name="Num Textures",
         description="Number of moving textures for the kinematic object",
+        subtype='UNSIGNED',
         default=8,
         min=0
     ))
     setattr(bpy.types.Collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_LINE, IntProperty(
         name="Textures Per Line",
         description="Number of moving textures per line for the kinematic object",
+        subtype='UNSIGNED',
         default=1,
         min=0
     ))
     setattr(bpy.types.Collection, CollectionProp.KINEMATIC_MOVING_TEXTURE_PER_COLUMN, IntProperty(
         name="Textures Per Column",
         description="Number of moving textures per column for the kinematic object",
+        subtype='UNSIGNED',
         default=8,
         min=0
     ))

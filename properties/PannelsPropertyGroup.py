@@ -245,7 +245,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     #cfg
     CB_cfg_placementCube        : BoolProperty(name="Placement Cube", default=False, description="Prevent item placement within the cube.")
     NU_cfg_cubeSize             : FloatProperty(name="Cube Size", default=0.0,  min=0, soft_max=256, step=100)
-    PT_cfg_cubeCenter           : PointerProperty(type=CubeCenterProperties)
+    PT_cfg_cubeCenter           : FloatVectorProperty(name="Cube Center", size=3, subtype='XYZ', default=(0.0, 0.0, 0.0), step=100)
 
     CB_cfg_attachmentConfiguration     : BoolProperty(name="Attachment Configuration", default=False, description="Enable attachment pattern for item placement onto blocks.")
     CB_cfg_show_attachmentConfiguration     : BoolProperty(name="Show Attachment Configuration", default=False)
@@ -254,7 +254,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_cfg_alwaysUp             : BoolProperty(name="Always Up",    default=False, description="Ensure items are always oriented upright during patch placement.")
     CB_cfg_alignToInterior      : BoolProperty(name="Align to Interior", default=False, description="Align items to the interior during patch placement.", update=_set_CB_cfg_alignToWorldDir_when_set_interior)
     CB_cfg_alignToWorldDir      : BoolProperty(name="Align to World Dir", default=False, description="Align items to the given world direction during patch placement.", update=_set_CB_cfg_alignToInterior_when_set_world)
-    PT_cfg_worldDir             : PointerProperty(type=WorldDirProperties)
+    PT_cfg_worldDir             : FloatVectorProperty(name="World Dir", size=3, subtype='XYZ', default=(0.0, -1.0, 0.0), step=100)
     LI_cfg_compatibleGroups     : CollectionProperty(name="Compatible Groups", type=CompatiblePatchGroupProperty, description="Select compatible groups for item patch attachments.",)
     NU_cfg_compatibleGroups_index : IntProperty(name="Compatible Groups Index", default=-1)
 

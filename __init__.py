@@ -9,6 +9,8 @@ import os
 
 
 
+
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
@@ -52,6 +54,8 @@ from .properties.PlacementProperties        import *
 from .properties.CollectionProperties       import *
 from .properties.ObjectProperties           import *
 from .properties.PlacementPatchProperties   import *
+from .properties.LightProperties            import *
+from .properties.ItemConfigProperties       import *
 
 from .operators.OT_Map_Manipulate          import *
 from .operators.OT_NinjaRipper             import *
@@ -101,14 +105,19 @@ object_eventlistner_owner = object()
 # register order matters for UI panel ordering
 classes = (
     MapObjectProperties,
-    CubeCenterProperties,
+    #CubeCenterProperties,
+
     CompatiblePatchGroupProperty,
     PatchGroupRef,
     PlacementPatchProperties,
-    WorldDirProperties,
+    #WorldDirProperties,
+    PivotsProperties,
+    PlacementProperties,
+    PlacementPropertiesRef,
+    ItemConfigProperties,
     PannelsPropertyGroup,
     GeneratedProperties,
-    PivotsProperties,
+
     TM_LodDistanceProperties,
     TM_TextureAnimProperties,
     TM_SubAnimProperties,
@@ -326,7 +335,6 @@ def register():
 
 
     bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)
-    bpy.types.Light.night_only          = BoolProperty(default=False)
 
     bpy.types.VIEW3D_MT_add.prepend(OT_MediaTrackerClipTriggerTemplates.add_menu_item)
     bpy.types.VIEW3D_MT_add.prepend(OT_ItemsCarsTemplates.add_menu_item)
@@ -347,6 +355,7 @@ def register():
     # collections
     register_collection_properties()
     register_object_properties()
+    register_light_properties()
 
     # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())

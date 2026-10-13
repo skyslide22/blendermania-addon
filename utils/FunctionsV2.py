@@ -151,8 +151,6 @@ def get_exportable_collections(objs, stop_after: int | None = None) -> set:
     root_of   = {}      # col -> root, so get_item_root runs once per collection
 
     for obj in objs:
-        if obj.type != EXPORTABLE_OBJECT_MESH:
-            continue
 
         # collection-level checks first, cached
         candidates = []
@@ -218,3 +216,29 @@ def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
             ]
             
     return offset
+
+
+def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
+    location: list[float] = [0,0,0]
+    offset: list[float] = []
+    
+    # take first valid object and main one
+    for obj in objects:
+        if obj.type == "MESH" and is_real_object_by_name(obj.name)\
+        and (len(offset) == 0 or SPECIAL_NAME_INFIX_ORIGIN in obj.name):
+            offset = [
+                obj.location[0] - location[0],
+                obj.location[1] - location[1],
+                obj.location[2] - location[2],
+            ]
+            
+    return offset
+
+def is_real_object_by_name(name: str) -> bool:
+    """check if the object name is not a interpreted as special"""
+    name = name.lower()
+    return not name.startswith((
+                SPECIAL_NAME_PREFIX_NOTVISIBLE,
+                SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
+            ))\
+            or SPECIAL_NAME_INFIX_ORIGIN in name

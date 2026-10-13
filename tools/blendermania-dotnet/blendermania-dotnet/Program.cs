@@ -37,7 +37,6 @@ Gbx.LZO = new Lzo();
 
 try
 {
-
     var command = args.ElementAtOrDefault(0);
     if (string.IsNullOrEmpty(command))
     {

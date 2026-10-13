@@ -144,6 +144,7 @@ ICON_ARRAY_ENTRY        = "MOD_ARRAY"
 ICON_CONSTRAINT         = "CONSTRAINT"
 ICON_ORIENTATION_LOCAL  = "ORIENTATION_LOCAL"
 ICON_CON_CHILDOF        = "CON_CHILDOF"
+ICON_FORCE              = "FORCE_FORCE"
 
 
 ICON_COLOR_RED          = "COLLECTION_COLOR_01"
@@ -292,6 +293,8 @@ SPECIAL_NAME_INFIXES = (
     SPECIAL_NAME_INFIX_ORIGIN           := "_origin_",
     SPECIAL_NAME_INFIX_PIVOT            := "_pivot_",
     
+    SPECIAL_NAME_INFIX_NOMERGE           := "_noMerge_",
+
     SPECIAL_NAME_INFIX_TRIGGERWAYPOINT  := "_triggerWaypoint_",
     SPECIAL_NAME_INFIX_TRIGGEREFFECT   := "_triggerEffect_",
     SPECIAL_NAME_INFIX_NOTVISIBLE       := "_notvisible_",

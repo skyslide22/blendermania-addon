@@ -6,7 +6,7 @@ from ..properties.ObjectProperties import sync_object_properties_with_names
 from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp
 from ..utils.ItemsExportV2Models import *
 from ..utils import Constants
-from ..utils.FunctionsV2 import get_exportable_collections
+from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin
 from .Materials import is_material_exportable, save_mat_props_json
 from .ItemsIcon import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
@@ -135,7 +135,7 @@ def export_collections(colls: list[bpy.types.Collection]):
         #item_to_export.physic_hack = _is_physic_hack_required(coll.objects)
 
         # fix UVs and check lods
-        _fix_uv_layers_name(coll.objects)
+        _fix_uv_layers_name(objs)
 
 
         if overwrite_lightmaps: 
@@ -149,7 +149,7 @@ def export_collections(colls: list[bpy.types.Collection]):
         #     item_to_export.objects.add(tmp_socket)
 
         # move collection to 0,0,0
-        offset = _move_collection_to(coll.objects)
+        offset = _move_collection_to(objs)
 
         # export .fbx
         _export_item_FBX(item_to_export)
@@ -163,7 +163,7 @@ def export_collections(colls: list[bpy.types.Collection]):
         generate_collection_icon(coll, item_to_export.icon_path)
         
         # move collection back to original position
-        _move_collection_by(coll.objects, offset)
+        _move_collection_by(objs, offset)
 
         items_to_export += _duplicate_scaled(item_to_export)
 
