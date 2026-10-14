@@ -5,12 +5,14 @@ import webbrowser
 import addon_utils
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty
+from ..utils.ItemsExportV2Models import add_or_update_itemconfig_placement_template_from_dict
 
 from ..utils.Constants      import *
 from ..utils.Functions      import *
 from ..utils.NadeoXML       import (
     add_itemxml_template
 )
+from ..utils.FunctionsV2      import props_to_dict, props_from_dict
 
 # from ..properties.ItemXMLTemplatesProperties import (
 #     ItemXMLTemplate
@@ -351,6 +353,7 @@ def loadDefaultSettingsJSON() -> None:
     fromjson_grid_size          = data.get(SETTINGS_BLENDER_GRID_SIZE)
     fromjson_grid_division      = data.get(SETTINGS_BLENDER_GRID_DIVISION)
     fromjson_itemxml_templates  = data.get(SETTINGS_ITEM_XML_TEMPLATES, [])
+    fromjson_itemplacement_templates  = data.get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, [])
     fromjson_new_blend_pref_game= data.get(SETTINGS_NEW_BLEND_PREFERRED_GAME)
 
     tm_props.ST_author                  = fromjson_author_name   or tm_props.ST_author
@@ -390,6 +393,8 @@ def loadDefaultSettingsJSON() -> None:
 
     for template_dict in fromjson_itemxml_templates:
         add_itemxml_template(template_dict)
+    for placement_dict in fromjson_itemplacement_templates:
+        add_or_update_itemconfig_placement_template_from_dict(placement_dict)
 
 
 
@@ -405,6 +410,8 @@ def saveDefaultSettingsJSON() -> None:
             SETTINGS_BLENDER_GRID_SIZE          : tm_props.LI_blenderGridSize or old_data[SETTINGS_BLENDER_GRID_SIZE],
             SETTINGS_BLENDER_GRID_DIVISION      : tm_props.LI_blenderGridSizeDivision or old_data[SETTINGS_BLENDER_GRID_DIVISION],
             SETTINGS_ITEM_XML_TEMPLATES         : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates],
+            SETTINGS_ITEM_PLACEMENT_TEMPLATES   : [props_to_dict(temp) for temp in bpy.context.scene.tm_props_cfg_placement_templates],
+
             SETTINGS_NEW_BLEND_PREFERRED_GAME   : get_game()
         }
         

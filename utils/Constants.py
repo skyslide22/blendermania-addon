@@ -527,6 +527,8 @@ SETTINGS_JSON_KEYS = (
     SETTINGS_BLENDER_GRID_SIZE        := "blender_grid_size",
     SETTINGS_BLENDER_GRID_DIVISION    := "blender_grid_division",
     SETTINGS_ITEM_XML_TEMPLATES       := "itemxml_templates",
+    SETTINGS_ITEM_PLACEMENT_TEMPLATES       := "itemplacement_templates",
+
     SETTINGS_NEW_BLEND_PREFERRED_GAME := "new_blend_game",
 )
 

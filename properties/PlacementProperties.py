@@ -4,21 +4,6 @@ from bpy.props import *
 from ..properties.PlacementPatchProperties import CompatiblePatchGroupProperty, PlacementPatchProperties
 from ..properties.Functions import getSimpleGridParams
 
-# class CubeCenterProperties(bpy.types.PropertyGroup):
-#     """trackmania properties generated for CubeCenter"""
-#     FV_center   : FloatVectorProperty(name="Cube Center", size=3, subtype='XYZ', default=(0.0, 0.0, 0.0), step=100)
-
-    # NU_centerX   : FloatProperty(name="X", default=0.0, min=-1024, max=1024, soft_min=-256, soft_max=256, step=100)
-    # NU_centerY   : FloatProperty(name="Y", default=0.0, min=-1024, max=1024, soft_min=-256, soft_max=256, step=100)
-    # NU_centerZ   : FloatProperty(name="Z", default=0.0, min=-1024, max=1024, soft_min=-256, soft_max=256, step=100)
-
-# class WorldDirProperties(bpy.types.PropertyGroup):
-#     """trackmania properties generated for WorldDir"""
-#     FV_worldDir   : FloatVectorProperty(name="World Dir", size=3, subtype='XYZ', default=(0.0, 0.0, 0.0), step=100)
-    # NU_worldDirX   : FloatProperty(name="X", default=0.0, min=-1024, max=1024, soft_min=-256, soft_max=256, step=100)
-    # NU_worldDirY   : FloatProperty(name="Y", default=0.0, min=-1024, max=1024, soft_min=-256, soft_max=256, step=100)
-    # NU_worldDirZ   : FloatProperty(name="Z", default=1.0, min=-1024, max=1024, soft_min=-256, soft_max=256, step=100)
-
 
 class PivotsProperties(bpy.types.PropertyGroup):
     """trackmania properties generated for pivots (item xml)"""
@@ -57,8 +42,13 @@ def _updateGridAndLevi(self, context) -> None:
     self.NU_leviXoffset = offset_xy
     self.NU_leviYoffset = offset_z
 
-    
+SIMPLE_OR_ADVANCED_ITEMS = [
+    ('SIMPLE',  "Simple",  "Minimal settings"),
+    ('ADVANCED', "Advanced", "Advanced settings"),
+]
+
 class PlacementProperties(bpy.types.PropertyGroup):
+    LI_simpleOrAdvanced     : EnumProperty(items=SIMPLE_OR_ADVANCED_ITEMS)
     LI_simpleGridXY         : EnumProperty(items=getSimpleGridParams())
     LI_simpleGridZ          : EnumProperty(items=getSimpleGridParams())
     CB_syncGridLevi         : BoolProperty(name="Sync Grid & Levi steps",   default=True)

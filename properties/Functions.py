@@ -1183,7 +1183,7 @@ def get_itemxml_template_names_enum(self, context) -> list:
 
 def get_item_config_template_names_enum(self, context) -> list:
     templates = EnumProps()
-    for template in context.scene.tm_props_itemconfig_templates:
+    for template in context.scene.tm_props_cfg_placement_templates:
         templates.add(
             id=template.name,
             name=template.name,

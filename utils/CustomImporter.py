@@ -803,7 +803,7 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.Description = collection.get("description", "N/A")
     cfg.LodParameters = _get_lod_parameters_from_collection(collection)
     cfg.Waypoint = _get_waypoint_from_collection(collection)
-    cfg.Placement = generate_placement_config()
+    cfg.Placement = generate_placement_config(collection)
     cfg.Scale = item.scale
     cfg.Materials = _get_material_configs_from_collection(item.objects, collection)
     cfg.Lights = _get_light_configs_from_collection(item.objects, collection)

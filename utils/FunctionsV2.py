@@ -1,6 +1,7 @@
 from typing import List
 import bpy
 from .Functions import *
+import json
 from ..properties.PropertyIdentifiers import CollectionProp, ObjectProp
 from ..properties.PropertyFunctions import get_lod_indexes
 
@@ -242,3 +243,61 @@ def is_real_object_by_name(name: str) -> bool:
                 SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
             ))\
             or SPECIAL_NAME_INFIX_ORIGIN in name
+
+
+
+# other
+def copy_props(src, dst):
+    for p in src.bl_rna.properties:
+        name = p.identifier
+        if name in {"rna_type", "name"}:
+            continue
+        value = getattr(src, name)
+        if p.type == 'POINTER' and isinstance(value, bpy.types.PropertyGroup):
+            copy_props(value, getattr(dst, name))
+        elif p.type == 'COLLECTION':
+            dst_coll = getattr(dst, name)
+            dst_coll.clear()
+            for item in value:
+                copy_props(item, dst_coll.add())
+        elif not p.is_readonly:
+            setattr(dst, name, value)
+
+def props_to_dict(group):
+    out = {}
+    for prop in group.bl_rna.properties:
+        pid = prop.identifier
+        if pid == "rna_type":
+            continue
+        val = getattr(group, pid)
+        if prop.type == 'POINTER':
+            val = props_to_dict(val) if val is not None else None
+        elif prop.type == 'COLLECTION':
+            val = [props_to_dict(item) for item in val]
+        elif prop.type == 'ENUM' and prop.is_enum_flag:
+            val = list(val)
+        elif getattr(prop, "array_length", 0):
+            val = list(val)
+        out[pid] = val
+    return out
+
+def props_from_dict(group, d):
+    for pid, val in d.items():
+        prop = group.bl_rna.properties.get(pid)
+        if prop is None or prop.is_readonly and prop.type not in {'POINTER', 'COLLECTION'}:
+            continue
+        try:
+            if prop.type == 'POINTER':
+                if val is not None:
+                    props_from_dict(getattr(group, pid), val)
+            elif prop.type == 'COLLECTION':
+                coll = getattr(group, pid)
+                coll.clear()
+                for item_d in val:
+                    props_from_dict(coll.add(), item_d)
+            elif prop.type == 'ENUM' and prop.is_enum_flag:
+                setattr(group, pid, set(val))
+            else:
+                setattr(group, pid, val)
+        except (TypeError, ValueError) as e:
+            print(f"Could not set {pid}: {e}")

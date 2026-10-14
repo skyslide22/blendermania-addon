@@ -14,8 +14,9 @@ from ..properties.Functions import ERROR_ENUM_ID
 from ..utils.FunctionsV2 import *
 from ..utils.Constants import * 
 from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp, LightProp
-from .UI_widgets import *
-from ..panels.PT_Items_Placement import draw_item_placement
+from ..ui.widgets.lists import *
+from ..ui.widgets.foldouts import *
+from ..ui.drawers.placement import draw_item_placement_editor, draw_item_placement_template_selection
 
 
 
@@ -572,7 +573,6 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
             uv_row.operator("view3d.tm_edituvmap", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_LIGHTMAP
 
             row = col.row(align=True)
-            draw_item_placement(col, context.scene, current_collection, section=None)
         
         return
         row = layout.row(align=True)
@@ -790,7 +790,39 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
         row.prop(item, "duration", text="Duration Millis")
         row.prop(item, "textureIndex", text="Texture Id")
         
+class TM_PT_ItemCollection_Placement(Panel):
+    # region bl_
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Placement Configuration"
+    bl_idname = "TM_PT_Items_CollectionManipulation_Placement"
+    bl_parent_id = "TM_PT_Items_CollectionManipulationV2"
+    # endregion
 
+    @classmethod
+    def poll(cls, context):
+        current_collection      = get_active_collection()
+        return not getattr(current_collection, CollectionProp.MOVING_GROUP, False)
+
+    def draw(self, context):
+        layout = self.layout
+        current_collection      = get_active_collection()
+        layout.enabled = current_collection is not None
+
+        if current_collection is None:
+            return
+        item_config = getattr(current_collection, CollectionProp.CONFIG)
+        placement_ref = getattr(item_config, "placement")
+        row = layout.row(align=True)
+        row.prop(placement_ref, "mode", expand=True)
+        mode = placement_ref.mode
+        if mode == 'INHERIT':
+            row = layout.row(align=True)
+            row.enabled = False
+            row.label(text="Inherit from export settings")
+        if mode == 'CUSTOM':
+            draw_item_placement_editor(layout, context, placement_ref.placement, section="Placement")
+        if mode == 'TEMPLATE':
+            draw_item_placement_template_selection(layout, context, placement_ref, section="Placement Template")
 
 
 class TM_PT_Items_MovingGroupCollectionManipulationV2(Panel):

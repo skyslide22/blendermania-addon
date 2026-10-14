@@ -5,7 +5,14 @@ from mathutils import Euler
 from dataclasses import dataclass, field, asdict, is_dataclass, fields
 from enum import Enum, IntFlag
 from typing import Any, Union, get_args, get_origin, get_type_hints
+
+from ..properties.PropertyIdentifiers import CollectionProp
+
+
+    
+from ..properties.PlacementProperties import PlacementProperties
 from ..utils.Functions import *
+from ..utils.FunctionsV2 import copy_props, props_from_dict
 import types
 
 
@@ -334,10 +341,7 @@ class ItemConfig:
     LodParameters: LodParameters | None = None
     ConversionOptions: ItemConversionOptions = ItemConversionOptions.None_
 
-class ItemPlacementConfigTemplate(bpy.types.PropertyGroup):
-    name: str = "default_template_name"
-    config: bpy.props.StringProperty()
-    #config: bpy.props.PointerProperty(type=PlacementConfig)
+
 
 class ExportedItem:
     name:           str = ""
@@ -486,49 +490,58 @@ def _decode(tp: Any, value: Any, exact_nones: bool = False) -> Any:
 def item_config_from_dict(data: dict[str, Any], exact_nones: bool = False) -> ItemConfig:
     return _decode(ItemConfig, data, exact_nones)
 
-def add_itemconfig_template(existing_template: dict = None) -> None:
-    tm_props  = get_global_props()
-    if existing_template is None:
-        template = bpy.context.scene.tm_props_itemconfig_templates.add()
-        template.name = tm_props.ST_cfg_item_template_add_name
-        plc_cfg = get_placement_config_from_scene()
-        template.config = json.dumps(_encode(plc_cfg))
-    else:
-        template = bpy.context.scene.tm_props_itemconfig_templates.add()
-        template.new(**existing_template)
+def add_or_update_itemconfig_placement_template(name: str, placement: PlacementProperties) -> None:
+    templates = bpy.context.scene.tm_props_cfg_placement_templates
+    template = templates.get(name) or templates.add()
+    template.name = name
+    copy_props(placement, template.config)
 
-def remove_itemconfig_template(template_name: str) -> None:
-    templates = bpy.context.scene.tm_props_itemconfig_templates
+def add_or_update_itemconfig_placement_template_from_dict(d: dict) -> None:
+    templates = bpy.context.scene.tm_props_cfg_placement_templates
+    template = templates.get(d.get("name")) or templates.add()
+    props_from_dict(template, d)   # sets name and fills template.config
+
+def remove_itemconfig_placement_template(template_name: str) -> None:
+    templates = bpy.context.scene.tm_props_cfg_placement_templates
 
     for i, template in enumerate(templates):
         if template.name == template_name:
             templates.remove(i)
             break
 
-def get_placement_config_from_scene() -> PlacementConfig:
-    tm_props = get_global_props()
-    pivots = get_pivot_props() if hasattr(bpy.context.scene, "tm_props_pivots") else []
+def load_itemconfig_placement_template(placement: PlacementProperties, template_name: str) -> None:
+    if placement is None:
+        return
+    cfg = get_item_placement_template(template_name)
+    if cfg is None:
+        return
+    copy_props(cfg, placement)
+  
 
-    use_simple_ui       = tm_props.LI_xml_simpleOrAdvanced.upper() == "SIMPLE"
+def get_placement_config_from_properties(placement_props: PlacementProperties) -> PlacementConfig:
+    
+    pivots = placement_props.LI_pivots
+
+    use_simple_ui       = placement_props.LI_simpleOrAdvanced.upper() == "SIMPLE"
     
     placement = PlacementConfig()
-    placement.GridSnapHStep = float(tm_props.NU_xml_gridX if not use_simple_ui else tm_props.LI_xml_simpleGridXY)
-    placement.GridSnapVStep = float(tm_props.NU_xml_gridY if not use_simple_ui else tm_props.LI_xml_simpleGridZ)
-    placement.FlyVStep = float(tm_props.NU_xml_leviY if not use_simple_ui else tm_props.LI_xml_simpleGridZ)
-    placement.AutoRotation = bool(tm_props.CB_xml_autoRot)
-    placement.NotOnObject = bool(tm_props.CB_xml_notOnItem)
+    placement.GridSnapHStep = float(placement_props.NU_gridX if not use_simple_ui else placement_props.LI_simpleGridXY)
+    placement.GridSnapVStep = float(placement_props.NU_gridY if not use_simple_ui else placement_props.LI_simpleGridZ)
+    placement.FlyVStep = float(placement_props.NU_leviY if not use_simple_ui else placement_props.LI_simpleGridZ)
+    placement.AutoRotation = bool(placement_props.CB_autoRot)
+    placement.NotOnObject = bool(placement_props.CB_notOnItem)
 
     if(use_simple_ui):
         return placement # early out, other properties cannot be configured in simple mode
     
-    placement.YawOnly = bool(tm_props.CB_xml_oneAxisRot)
-    placement.SwitchPivotManually = bool(tm_props.CB_xml_pivotSwitch)
-    placement.GridSnapHOffset = float(tm_props.NU_xml_gridXoffset)
-    placement.GridSnapVOffset = float(tm_props.NU_xml_gridYoffset)
-    placement.FlyVOffset = float(tm_props.NU_xml_leviXoffset)
-    placement.PivotSnapDistance = float(tm_props.NU_xml_pivotSnapDis)
-    placement.CubeSize = float(tm_props.NU_cfg_cubeSize)
-    placement.CubeCenter = Vec3.from_seq(tm_props.PT_cfg_cubeCenter)
+    placement.YawOnly = bool(placement_props.CB_oneAxisRot)
+    placement.SwitchPivotManually = bool(placement_props.CB_pivotSwitch)
+    placement.GridSnapHOffset = float(placement_props.NU_gridXoffset)
+    placement.GridSnapVOffset = float(placement_props.NU_gridYoffset)
+    placement.FlyVOffset = float(placement_props.NU_leviXoffset)
+    placement.PivotSnapDistance = float(placement_props.NU_pivotSnapDis)
+    placement.CubeSize = float(placement_props.NU_cubeSize)
+    placement.CubeCenter = Vec3.from_seq(placement_props.PT_cubeCenter)
 
     placement.PivotPositions = [
         Vec3.from_seq(p.FV_position)
@@ -539,20 +552,20 @@ def get_placement_config_from_scene() -> PlacementConfig:
         for p in pivots
     ]
 
-    if bool(tm_props.CB_cfg_attachmentConfiguration):
+    if bool(placement_props.CB_attachmentConfiguration):
         placement.PlacementClass = PlacementClass()
-        placement.PlacementClass.SizeGroup = str(tm_props.ST_cfg_sizeGroup)
-        placement.PlacementClass.AlwaysUp = bool(tm_props.CB_cfg_alwaysUp)
-        placement.PlacementClass.AlignToInterior = bool(tm_props.CB_cfg_alignToInterior)
-        placement.PlacementClass.AlignToWorldDir = bool(tm_props.CB_cfg_alignToWorldDir)
-        world_dir = tm_props.PT_cfg_worldDir
+        placement.PlacementClass.SizeGroup = str(placement_props.ST_sizeGroup)
+        placement.PlacementClass.AlwaysUp = bool(placement_props.CB_alwaysUp)
+        placement.PlacementClass.AlignToInterior = bool(placement_props.CB_alignToInterior)
+        placement.PlacementClass.AlignToWorldDir = bool(placement_props.CB_alignToWorldDir)
+        world_dir = placement_props.PT_worldDir
         placement.PlacementClass.WorldDir = Vec3.from_seq(world_dir)
         placement.PlacementClass.CompatibleGroupsIds = [
                 str(g.name) 
-                for g in tm_props.LI_cfg_compatibleGroups
+                for g in placement_props.LI_compatibleGroups
             ]
         placement.PlacementClass.PatchLayouts = []
-        for plp in tm_props.LI_cfg_patchLayouts:
+        for plp in placement_props.LI_patchLayouts:
             patchLayout = PlacementPatchLayout()
             patchLayout.ItemCount = int(plp.itemCount) if not plp.autoItemCount else 0
             patchLayout.ItemSpacing = float(plp.itemSpacing)
@@ -564,32 +577,32 @@ def get_placement_config_from_scene() -> PlacementConfig:
 
             placement.PlacementClass.PatchLayouts.append(patchLayout)
 
-
-
-
-
     return placement
 
-def generate_placement_config() -> PlacementConfig:
+def generate_placement_config(collection: bpy.types.Collection) -> PlacementConfig:
     tm_props        = get_global_props()
 
-    use_template_ui     = tm_props.LI_xml_simpleOrAdvanced.upper() == "TEMPLATE"
-    overwrite_template  = tm_props.CB_cfg_ignore_assigned_templates
+    force_export_override = tm_props.CB_cfg_ignore_assigned_templates
 
+    collection_cfg = getattr(collection,CollectionProp.CONFIG)
+    placement_ref = collection_cfg.placement
 
+    if force_export_override or placement_ref.mode == "INHERIT":
+        export_cfg = tm_props.PT_cfg_export_config
+        placement_ref = export_cfg.placement
 
-    if use_template_ui:
-        selected_template = bpy.context.scene.tm_props.LI_cfg_item_template_globally
-        selected_template = get_item_placement_template(selected_template)
-        if (selected_template is not None and overwrite_template) or (selected_template is not None):
-            return selected_template
-    return get_placement_config_from_scene()
+    placement = placement_ref.placement
+    if placement_ref.mode == "TEMPLATE":
+        selected_template = placement_ref.template
+        template_placement = get_item_placement_template(selected_template)
+        placement = template_placement if template_placement is not None else placement
 
-def get_item_placement_template(name: str) -> PlacementConfig | None:
-    templates = bpy.context.scene.tm_props_itemconfig_templates
+    return get_placement_config_from_properties(placement)
+
+def get_item_placement_template(name: str) -> PlacementProperties | None:
+    templates = bpy.context.scene.tm_props_cfg_placement_templates
     for template in templates:
         if template.name == name:
-            cfg = _decode(PlacementConfig, json.loads(template.config))
-            return cfg
+            return template.config
     else:
         return None

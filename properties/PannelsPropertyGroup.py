@@ -3,6 +3,8 @@ import bpy
 import bpy.utils.previews
 from bpy.props import *
 
+from ..properties.ItemConfigProperties import ItemConfigProperties
+
 from .PlacementProperties   import *
 from .PlacementPatchProperties   import *
 from ..utils.Descriptions   import *
@@ -243,31 +245,17 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_xml_ignore_assigned_templates: BoolProperty(name="Ignore the template that has been assigned to the collection(s)", default=False)
 
     #cfg
-    CB_cfg_placementCube        : BoolProperty(name="Placement Cube", default=False, description="Prevent item placement within the cube.")
-    NU_cfg_cubeSize             : FloatProperty(name="Cube Size", default=0.0,  min=0, soft_max=256, step=100)
-    PT_cfg_cubeCenter           : FloatVectorProperty(name="Cube Center", size=3, subtype='XYZ', default=(0.0, 0.0, 0.0), step=100)
+    PT_cfg_export_config      : PointerProperty(type=ItemConfigProperties)
 
-    CB_cfg_attachmentConfiguration     : BoolProperty(name="Attachment Configuration", default=False, description="Enable attachment pattern for item placement onto blocks.")
+
     CB_cfg_show_attachmentConfiguration     : BoolProperty(name="Show Attachment Configuration", default=False)
 
-    ST_cfg_sizeGroup            : StringProperty(name="Size Group",    default="0x0")
-    CB_cfg_alwaysUp             : BoolProperty(name="Always Up",    default=False, description="Ensure items are always oriented upright during patch placement.")
-    CB_cfg_alignToInterior      : BoolProperty(name="Align to Interior", default=False, description="Align items to the interior during patch placement.", update=_set_CB_cfg_alignToWorldDir_when_set_interior)
-    CB_cfg_alignToWorldDir      : BoolProperty(name="Align to World Dir", default=False, description="Align items to the given world direction during patch placement.", update=_set_CB_cfg_alignToInterior_when_set_world)
-    PT_cfg_worldDir             : FloatVectorProperty(name="World Dir", size=3, subtype='XYZ', default=(0.0, -1.0, 0.0), step=100)
-    LI_cfg_compatibleGroups     : CollectionProperty(name="Compatible Groups", type=CompatiblePatchGroupProperty, description="Select compatible groups for item patch attachments.",)
-    NU_cfg_compatibleGroups_index : IntProperty(name="Compatible Groups Index", default=-1)
-
     CB_cfg_showCompatibleGroups     : BoolProperty(name="Show Compatible Groups", description="Show or hide the compatible groups section", default=True,)
-    LI_cfg_patchLayouts         : CollectionProperty(name="Patch Layouts", type=PlacementPatchProperties, description="Define layouts for item patches.",)
-    NU_cfg_patchLayouts_index   : IntProperty(name="Patch Layouts Index", default=-1)
-
+   
     CB_cfg_showPatchLayouts     : BoolProperty(name="Show Patch Layouts", description="Show or hide the patch layout definitions", default=True,)
 
     CB_cfg_showValidForGroups     : BoolProperty(name="Show Valid For Groups", description="Show or hide the valid for groups section", default=True,)
 
-    ST_cfg_item_template_add_name   : StringProperty(default="default_template_name")
-    LI_cfg_item_template_globally   : EnumProperty(name="Template", items=get_item_config_template_names_enum)
     CB_cfg_ignore_assigned_templates: BoolProperty(name="Ignore the template that has been assigned to the collection(s)", default=False)
 
     #

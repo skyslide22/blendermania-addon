@@ -11,6 +11,7 @@ import os
 
 
 
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
@@ -93,7 +94,9 @@ from .panels.PT_EditorTrails            import *
 from .panels.PT_Items_Placement         import *
 
 from .panels.PT_Items_ExportV2 import *
-from .panels.UI_widgets import *
+from .ui.widgets.lists import *
+from .ui.widgets.foldouts import *
+from .ui.drawers.placement import register_placement_callbacks, unregister_placement_callbacks
 
 from .NICE.nice import NICE_register, NICE_unregister
 
@@ -125,7 +128,7 @@ classes = (
     ConvertingItemsProperties,
     LinkedMaterialsProperties,
     ItemXMLTemplate,
-    ItemPlacementConfigTemplate,
+    ItemPlacementTemplate,
     InvalidMaterial,
     FailedConvertObject,
     FailedConvertCollection,
@@ -156,6 +159,7 @@ classes = (
     TM_PT_Items_ObjectManipulation,
     TM_PT_ObjectManipulationsV2,
     TM_PT_Items_CollectionManipulationV2,
+    TM_PT_ItemCollection_Placement,
     #TM_PT_Items_MovingGroupCollectionManipulationV2,
     TM_PT_Items_ObjectManipulationV2,
     TM_OT_Items_ObjectManipulationAddSocketItem,
@@ -198,6 +202,7 @@ classes = (
     TM_OT_Items_Export_ExportAndOrConverFailedOnes,
 
     TM_PT_Items_ExportV2,
+    TM_PT_ExportV2_Placement,
     TM_OT_Items_ExportV2,
     TM_OT_Items_Export_ExportAndOrConverFailedOnesV2,
 
@@ -218,9 +223,10 @@ classes = (
     TM_OT_Items_Config_RemovePatchLayout,
     TM_OT_Items_ItemConfig_SaveItemPlacementTemplate,
     TM_OT_Items_ItemConfig_RemoveItemPlacementTemplate,
+    TM_OT_Items_ItemConfig_LoadPlacementTemplate,
 
     # Export Options V2
-    TM_PT_Items_ItemPlacement,
+    # TM_PT_Items_ItemPlacement,
 
     # manipulation v2
     TM_OT_Lod_Add,
@@ -309,7 +315,7 @@ classes = (
 
 
 
-
+from collections import Counter
 
 # register classes 
 def register():
@@ -331,8 +337,8 @@ def register():
     # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=ItemXMLTemplatesProperties)
     bpy.types.Scene.tm_props_itemxml_templates_ui     = EnumProperty(items=get_itemxml_template_names_enum)
     bpy.types.Scene.tm_props_itemxml_templates        = CollectionProperty(type=ItemXMLTemplate)
-    bpy.types.Scene.tm_props_itemconfig_templates     = CollectionProperty(type=ItemPlacementConfigTemplate)
-
+    bpy.types.Scene.tm_props_cfg_placement_templates     = CollectionProperty(type=ItemPlacementTemplate)
+    bpy.types.Scene.tm_props_cfg_placement_template_ui  = EnumProperty(items=get_item_config_template_names_enum)
 
     bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)
 
@@ -352,10 +358,12 @@ def register():
     bpy.types.Object.tm_forced_grid_helper_step_y = FloatProperty(default=0.0)
     bpy.types.Object.tm_forced_grid_helper_step_z = FloatProperty(default=0.0)
 
-    # collections
+    # collections callbacks
     register_collection_properties()
     register_object_properties()
     register_light_properties()
+    register_placement_callbacks()
+
 
     # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
@@ -381,7 +389,7 @@ def register():
     bpy.app.handlers.depsgraph_update_post.append(listen_object_move)
     bpy.types.Object.location_before = FloatVectorProperty(name="old pos", subtype="TRANSLATION")
 
-    TM_PT_Items_ItemPlacement.register_callbacks()
+
     TM_PT_Items_CollectionManipulationV2.register_callbacks()
     
     NICE_register()
@@ -400,11 +408,16 @@ def unregister():
     del bpy.types.Scene.tm_props_linkedMaterials
     del bpy.types.Scene.tm_props_itemxml_templates_ui
     del bpy.types.Scene.tm_props_itemxml_templates
+
+    del bpy.types.Scene.tm_props_cfg_placement_templates
+    del bpy.types.Scene.tm_props_cfg_placement_template_ui
     # del bpy.types.Scene.tm_props_itemxml_templates
     del bpy.types.Object.location_before 
 
     unregister_collection_properties()
     unregister_object_properties()
+
+    unregister_placement_callbacks()
 
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
@@ -423,7 +436,7 @@ def unregister():
     except:
         pass
 
-    TM_PT_Items_ItemPlacement.unregister_callbacks()
+
     TM_PT_Items_CollectionManipulationV2.unregister_callbacks()
 
     NICE_unregister()

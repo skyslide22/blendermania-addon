@@ -1,6 +1,8 @@
 from ast import main
 import bpy
 from bpy.types import (Panel)
+
+from ..ui.drawers.placement import draw_item_placement_editor, draw_item_placement_template_selection
 from ..utils.diagnostics import timed, performance
 
 from ..operators.OT_Items_ExportV2 import TM_OT_Items_ExportV2
@@ -383,3 +385,87 @@ def draw_convert_panel(self:Panel) -> None:
         # col.label(text=f"""{embed_size_percent}""")
 
 
+
+class TM_PT_ExportV2_Placement(Panel):
+    # region bl_
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Placement Configuration"
+    bl_idname = "TM_PT_ExportV2_Placement"
+    bl_parent_id = "TM_PT_Items_ExportV2"
+    # endregion
+
+    # @classmethod
+    # def poll(cls, context):
+    #     current_collection      = get_active_collection()
+    #     return not getattr(current_collection, CollectionProp.MOVING_GROUP, False)
+
+    # def draw_header(self, context):
+    #     layout = self.layout
+    #     tm_props = get_global_props()
+
+
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+
+        col = row.column(align=True)
+        col.prop(tm_props, "CB_cfg_ignore_assigned_templates",         text="Force", icon=ICON_UPDATE,)
+
+        col = row.column(align=True)
+        op = col.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
+        op.link = ""
+        op.title = "Placement Configuration Infos"
+        op.infos = TM_OT_Settings_OpenMessageBox.get_text(
+            "Here you can configure the global exported item placement",
+            "-> This will only be used if 'Force' is enabled, or the collection has 'Auto' enabled.",
+            "",
+            "Simple config",
+            "-> Choose a placement value for X and Y axis in meters",
+            "-> Choose a placement value for the Z axis in meters (one block in-game is 32x32x8 meters)",
+            "-> 'Ghostmode' will allow you to place it inside/ontop other objects",
+            "-> 'Auto Rotation' will auto rotate your object based on the location (grid X, Y & Z needs to be 0/manget)",
+            "",
+            "Advanced config",
+            "-> You can sync the placement settings for X, Y & Z ",
+            "-> Set the placement params for X, Y & Z ",
+            "-> Set the placement offset (0 is recommended from docs) ",
+            "-> 'Ghostmode' will allow you to place it inside/ontop other objects",
+            "-> 'Auto Rotation' will auto rotate your object based on the location (grid X, Y & Z needs to be 0/manget)",
+            "-> 'Not on Item' the item cannot be placed on another item",
+            "-> 'One Axis Rotation' the item can only be roated in the Z axis (! might be wrong)",
+            "-> 'Pivots' are placement variants, aka offsets from the original origin (choose custom positions)",
+            "----> If the switch is activated, you need to manually pivot with the Q/A key",
+            "----> Snap distance will snap other items to this pivot", 
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "-> ",
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+            # "----> ", 
+
+        )        
+    
+    def draw(self, context):
+        layout = self.layout
+        tm_props        = get_global_props()
+
+        if tm_props.CB_showConvertPanel:
+            return
+        
+        item_config = tm_props.PT_cfg_export_config
+
+        placement_ref = getattr(item_config, "placement")
+
+        row = layout.row(align=True)
+        row.prop_enum(placement_ref, "mode", 'TEMPLATE')
+        row.prop_enum(placement_ref, "mode", 'CUSTOM')
+        mode = placement_ref.mode
+        if mode == 'AUTO':
+            placement_ref.mode = 'CUSTOM'
+        if mode == 'CUSTOM':
+            draw_item_placement_editor(layout, context, placement_ref.placement, section="Placement")
+        if mode == 'TEMPLATE':
+            draw_item_placement_template_selection(layout, context, placement_ref, section="Placement Template")
