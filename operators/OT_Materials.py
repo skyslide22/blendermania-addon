@@ -6,6 +6,7 @@ from bpy.types import (Operator)
 
 from ..utils.Materials import create_material_shader
 from ..utils.Functions  import *
+from ..utils.materialLib import material_supports_color
 from ..properties.Functions import revertMaterialCustomColorLiveChanges, applyMaterialLiveChanges
 from ..utils.Constants  import * 
 
@@ -59,19 +60,22 @@ def _create_or_update_material(action)->None:
     matName          = tm_props.ST_selectedExistingMaterial
     matNameNew       = safe_name( tm_props.ST_materialAddName )
     matGameType      = tm_props.LI_gameType
-    matCollection    = tm_props.LI_materialCollection
+
+    use_v2_library_flow = bool(tm_props.CB_blendermaniaV2 and is_game_trackmania2020())
+    matCollection    = tm_props.LI_materialCollectionLibrary if use_v2_library_flow else tm_props.LI_materialCollection
     matPhysicsId     = tm_props.LI_materialPhysicsId
     matUsePhysicsId  = tm_props.CB_materialUsePhysicsId
     matGameplayId    = tm_props.LI_materialGameplayId
     matUseGameplayId = tm_props.CB_materialUseGameplayId
     matModel         = tm_props.LI_materialModel
-    matLink          = tm_props.ST_selectedLinkedMat
+    matLink          = tm_props.LI_materialLinkLibrary if use_v2_library_flow else tm_props.ST_selectedLinkedMat
     matBaseTexture   = tm_props.ST_materialBaseTexture
     matColor         = tm_props.NU_materialCustomColor
+    matUseColor      = bool(use_v2_library_flow and tm_props.CB_materialUseCustomColor and material_supports_color(matLink, matCollection))
     MAT              = None
 
-    selected_mat = tm_props.ST_selectedLinkedMat
-    can_use_gameplay = selected_mat in LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID
+    selected_mat = matLink
+    can_use_gameplay = True if use_v2_library_flow else selected_mat in LINKED_MATERIALS_COMPATIBLE_WITH_GAMEPLAY_ID
 
     matTexSourceIsCustom = tm_props.LI_materialChooseSource == "CUSTOM"
 
@@ -98,11 +102,20 @@ def _create_or_update_material(action)->None:
         MAT = bpy.data.materials[matName]
 
     MAT.gameType      = matGameType
-    MAT.environment   = matCollection
+    if use_v2_library_flow:
+        # V2: library collections are free text, the static legacy enum only gets a value if it knows the collection
+        MAT.libraryEnvironment = matCollection
+        try:    MAT.environment = matCollection
+        except  TypeError: pass
+    else:
+        MAT.libraryEnvironment = ""
+        MAT.environment = matCollection
     MAT.usePhysicsId  = matUsePhysicsId
     MAT.physicsId     = matPhysicsId
     MAT.useGameplayId = matUseGameplayId if can_use_gameplay else False
     MAT.gameplayId    = matGameplayId
+    MAT.isLibraryMaterial = use_v2_library_flow
+    MAT.useColor      = matUseColor
     MAT.model         = matModel
     MAT.link          = matLink
     MAT.baseTexture   = matBaseTexture if matTexSourceIsCustom          else ""

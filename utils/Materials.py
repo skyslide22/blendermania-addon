@@ -1,3 +1,4 @@
+import os
 import re
 import bpy
 import json
@@ -31,6 +32,72 @@ def _assign_texture_to_node(texname, node) -> bool:
     else:
         node.mute = True
         return False
+
+def _is_library_material(mat) -> bool:
+    """True for materials created with the new (V2) materiallib material panel"""
+    return bool(getattr(mat, "isLibraryMaterial", False))
+
+def _get_environment(mat) -> str:
+    """V2 materials keep their materiallib collection in libraryEnvironment (not limited to the static legacy enum)"""
+    if _is_library_material(mat) and getattr(mat, "libraryEnvironment", ""):
+        return mat.libraryEnvironment
+    return mat.environment
+
+def _is_data_texture(texKey: str) -> bool:
+    """data maps (roughness/metallic, normal, masks) must not be color managed"""
+    return texKey.endswith(("_R", "_N", "_M", "HueMask"))
+
+def _get_private_non_color_image(texname: str) -> str:
+    """
+    V2 only: returns name of a private Non-Color copy of the given image.
+    A copy is used so the (shared) image of the legacy material system never gets changed.
+    """
+    imgs = bpy.data.images
+    privateName = "V2_" + texname
+
+    if privateName not in imgs:
+        if texname not in imgs:
+            return texname
+        # load from file like any other texture instead of image.copy(), so the DDS gets the same loader path
+        sourcePath = bpy.path.abspath(imgs[texname].filepath)
+        if is_file_existing(sourcePath):
+            privateImg = imgs.load(sourcePath)
+        else:
+            privateImg = imgs[texname].copy()
+        privateImg.name = privateName
+
+    imgs[privateName].colorspace_settings.name = "Non-Color"
+    return privateName
+
+def _find_v2_texture_folder(environment: str, filenames: list, custom_source: str) -> str:
+    """
+    V2 only: returns the folder (with trailing slash) containing one of the given files.
+    Order: Textures/<environment>/, other subfolders of Textures/, custom texture source.
+    """
+    root = get_game_doc_path_items_assets_textures()
+    debug(f"V2 texture lookup, environment: '{environment}', root: {root}")
+
+    folders = []
+    if environment:
+        folders.append(root + environment + "/")
+
+    try:
+        for entry in sorted(os.listdir(root)):
+            folder = root + entry + "/"
+            if os.path.isdir(folder) and folder not in folders:
+                folders.append(folder)
+    except OSError:
+        pass
+
+    if custom_source != "":
+        folders.append(custom_source.rstrip("/\\") + "/")
+
+    for folder in folders:
+        if any(is_file_existing(folder + name) for name in filenames):
+            debug(f"V2 texture folder found: {folder}")
+            return folder
+
+    return (root + environment + "/") if environment else root
 
 def _get_mat_dds(tex: str, ddsType: str) -> str:
     Texture = ""
@@ -89,6 +156,41 @@ def create_material_shader(mat: bpy.types.Material) -> None:
 
     _create_default_material_nodes(mat)
 
+def _neutralize_missing_data_textures(mat) -> None:
+    """
+    V2 only: a roughness/metallic (_R) or normal (_N) node without image outputs magenta (1,0,1) or,
+    when muted, passes the UV through. Both end up as strong specular, metallic or wrong normals.
+    Disconnect those outputs from the shader so the Principled BSDF defaults are used instead.
+    """
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    bsdf  = nodes.get("Principled BSDF")
+
+    def _unlink_outputs_of(node_name: str) -> None:
+        node = nodes.get(node_name)
+        if node is None:
+            return
+        for link in [l for l in links if l.from_node == node]:
+            links.remove(link)
+
+    tex_R = nodes.get("tex_R")
+    if tex_R is not None and tex_R.image is None:
+        debug(f"V2: no _R texture for {mat.name}, using neutral roughness/metallic/specular")
+        _unlink_outputs_of("tex_R")
+        _unlink_outputs_of("sep_r")
+        if bsdf is not None:
+            bsdf.inputs["Metallic"].default_value = 0.0
+            for specName in ("Specular IOR Level", "Specular"):
+                if specName in bsdf.inputs:
+                    bsdf.inputs[specName].default_value = 0.0
+                    break
+
+    tex_N = nodes.get("tex_N")
+    if tex_N is not None and tex_N.image is None:
+        debug(f"V2: no _N texture for {mat.name}, normal map disconnected")
+        _unlink_outputs_of("tex_N")
+        _unlink_outputs_of("nor_map")
+
 def _create_material_shader_specific(mat: bpy.types.Material) -> bool:
     matData = MATERIALS_MAP_TM2020[mat.link]
     if matData and matData["Textures"] and len(matData["Textures"].keys()) > 0:
@@ -106,15 +208,24 @@ def _create_material_shader_specific(mat: bpy.types.Material) -> bool:
                 mat.node_tree.nodes["Principled BSDF"].inputs["Emission Color"].default_value = (0,0,0, 1)
 
             textures = matData["Textures"][shaderName]
+            is_v2 = _is_library_material(mat)
+            custom_tex_source_folder = get_global_props().ST_TextureSource
+            v2_folder = _find_v2_texture_folder(_get_environment(mat), list(textures.values()), custom_tex_source_folder) if is_v2 else ""
             for texKey, texDDS in textures.items():
                 texPath = get_game_doc_path_items_assets_textures() + mat.environment + "/" + texDDS
-                custom_tex_source_folder = get_global_props().ST_TextureSource
-                if custom_tex_source_folder != "":
+                if is_v2:
+                    # V2: game textures (environment folder first), custom source only as fallback
+                    texPath = v2_folder + texDDS
+                elif custom_tex_source_folder != "":
                     texPath = custom_tex_source_folder + "/" + texDDS
 
                 texData = load_image_into_blender(texPath)
                 if texData[0] and f"tex{texKey}" in mat.node_tree.nodes:
-                    if _assign_texture_to_node(texData[1], mat.node_tree.nodes[f"tex{texKey}"]):
+                    texImgName = texData[1]
+                    if is_v2 and _is_data_texture(texKey):
+                        texImgName = _get_private_non_color_image(texImgName)
+
+                    if _assign_texture_to_node(texImgName, mat.node_tree.nodes[f"tex{texKey}"]):
                         if texKey == "_N":
                             mat.node_tree.nodes[f"tex{texKey}"].image.colorspace_settings.name = "Non-Color"
             
@@ -122,6 +233,9 @@ def _create_material_shader_specific(mat: bpy.types.Material) -> bool:
                 surfaceColor = mat.surfaceColor
                 surfaceColor = (*surfaceColor, 1)
                 mat.node_tree.nodes["cus_color"].outputs[0].default_value = surfaceColor
+
+            if is_v2:
+                _neutralize_missing_data_textures(mat)
 
             if "uv_scale" in mat.node_tree.nodes and "DefaultUVScale" in matData and matData["DefaultUVScale"] > 0:
                 mat.node_tree.nodes["uv_scale"].inputs["Scale"].default_value = matData["DefaultUVScale"]
@@ -218,7 +332,11 @@ def _create_default_material_nodes(mat: bpy.types.Material)->None:
         
         tm_props = get_global_props()
         custom_tex_source_folder = tm_props.ST_TextureSource
-        if custom_tex_source_folder != "":
+        if _is_library_material(mat):
+            # V2: game textures (environment folder first), custom source only as fallback
+            suffixes = ("_D.dds", "D.dds", "_R.dds", "R.dds", "_N.dds", "N.dds", "_I.dds", "I.dds", ".dds")
+            tex = _find_v2_texture_folder(_get_environment(mat), [mat.link + s for s in suffixes], custom_tex_source_folder) + mat.link
+        elif custom_tex_source_folder != "":
             tex = custom_tex_source_folder + "/" + mat.link
     else:
         tex = re.sub(r"_?(i|d)\.dds$", "", mat.baseTexture, flags=re.IGNORECASE)
@@ -257,11 +375,14 @@ def _create_default_material_nodes(mat: bpy.types.Material)->None:
         _assign_texture_to_node(ITextureName, NODE_tex_I)
 
     if RTextureSuccess:
-        _assign_texture_to_node(RTextureName, NODE_tex_R)
+        _assign_texture_to_node(_get_private_non_color_image(RTextureName) if _is_library_material(mat) else RTextureName, NODE_tex_R)
 
     if NTextureSuccess:
-        _assign_texture_to_node(NTextureName, NODE_tex_N)
-        NODE_tex_N.image.colorspace_settings.name = "Non-Color"
+        if _is_library_material(mat):
+            _assign_texture_to_node(_get_private_non_color_image(NTextureName), NODE_tex_N)
+        else:
+            _assign_texture_to_node(NTextureName, NODE_tex_N)
+            NODE_tex_N.image.colorspace_settings.name = "Non-Color"
 
     if HTextureSuccess:
         _assign_texture_to_node(HTextureName, NODE_tex_H)

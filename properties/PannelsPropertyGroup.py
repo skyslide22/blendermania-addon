@@ -28,6 +28,38 @@ def _set_ST_materialAddName_when_select_link(self, context):
     if tm_props.LI_materialAction == "CREATE":
         self.ST_materialAddName = tm_props.ST_selectedLinkedMat
 
+
+def _sync_material_collection_library(self, context):
+    tm_props = get_global_props()
+    if getattr(self, "LI_materialCollectionLibrary", None):
+        # the link enum index is stored as number, a new collection has a different list -> select its first link
+        from ..utils.materialLib import get_materiallibrary_material_names, sync_link_search_collection
+        names = get_materiallibrary_material_names(str(self.LI_materialCollectionLibrary))
+        if names:
+            try:    self.LI_materialLinkLibrary = names[0]
+            except  TypeError: pass
+        sync_link_search_collection(str(self.LI_materialCollectionLibrary))
+        redraw_all_panels()
+
+
+def _get_ST_materialLinkSearchLibrary(self) -> str:
+    try:    return str(self.LI_materialLinkLibrary)
+    except  Exception: return ""
+
+
+def _set_ST_materialLinkSearchLibrary(self, value: str) -> None:
+    """V2 link search field: only existing links of the selected collection can be chosen"""
+    from ..utils.materialLib import get_materiallibrary_material_names
+    if value in get_materiallibrary_material_names(str(self.LI_materialCollectionLibrary)):
+        self.LI_materialLinkLibrary = value
+
+
+def _set_ST_materialAddName_when_select_link_library(self, context):
+    tm_props = get_global_props()
+    if tm_props.LI_materialAction == "CREATE":
+        self.ST_materialAddName = str(tm_props.LI_materialLinkLibrary)
+
+
 def _set_CB_cfg_alignToWorldDir_when_set_interior(self, context):
     tm_props = get_global_props()
     if tm_props.CB_cfg_alignToInterior is True:
@@ -269,9 +301,13 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     LI_materialAction           : EnumProperty(name="Material Action",            default=0, items=getMaterialActions())
     ST_materialAddName          : StringProperty(name="Name",                     default="")
     LI_materialCollection       : EnumProperty(name="Collection",                 items=getMaterialCollectionTypes(), update=gameTypeGotUpdated)
+    LI_materialCollectionLibrary: EnumProperty(name="Environment",               items=getMaterialCollectionTypesLibrary, update=_sync_material_collection_library)
+    LI_materialLinkLibrary      : EnumProperty(name="Link",                      items=getMaterialLinksLibrary, update=_set_ST_materialAddName_when_select_link_library)
     CB_materialUsePhysicsId     : BoolProperty(name="Use PhysicsId",              default=False)
     LI_materialPhysicsId        : EnumProperty(name="PhysicId",                   items=getMaterialPhysicIds)
     CB_materialUseGameplayId    : BoolProperty(name="Use GameplayId",             default=False)
+    CB_materialUseCustomColor   : BoolProperty(name="Use Color",                   default=False)
+    ST_materialLinkSearchLibrary: StringProperty(name="Link", default="", get=_get_ST_materialLinkSearchLibrary, set=_set_ST_materialLinkSearchLibrary)
     LI_materialGameplayId       : EnumProperty(name="GameplayId",                 items=getMaterialGameplayIds)
     LI_materialModel            : EnumProperty(name="Model",                      items=getMaterialModelTypes())
     #LI_materialLink             : EnumProperty(name="Link",                       items=getMaterialLinks)

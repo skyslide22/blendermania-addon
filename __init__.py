@@ -139,6 +139,7 @@ classes = (
     TM_PT_Settings_BlenderRelated,
     TM_PT_Settings_NadeoImporter,
     TM_PT_Settings_Performance,
+    TM_PT_Settings_Materials,
     TM_OT_Settings_AutoFindNadeoIni,
     TM_OT_Settings_InstallNadeoImporter,
     TM_OT_Settings_InstallGameTextures,
@@ -251,6 +252,7 @@ classes = (
 
     # materials
     TM_PT_Materials,
+    TM_PT_Materials_Library,
     TM_OT_Materials_Create,
     TM_OT_Materials_Update,
     TM_OT_Materials_Create_Asset_Lib,
@@ -332,6 +334,7 @@ def register():
     bpy.types.Scene.tm_props_generated        = CollectionProperty(type=GeneratedProperties)
     bpy.types.Scene.tm_props_convertingItems  = CollectionProperty(type=ConvertingItemsProperties)
     bpy.types.Scene.tm_props_linkedMaterials  = CollectionProperty(type=LinkedMaterialsProperties)
+    bpy.types.Scene.tm_props_linkedMaterialsLibrary = CollectionProperty(type=LinkedMaterialsProperties)
     bpy.types.Scene.tm_props_invalidMaterials = CollectionProperty(type=InvalidMaterial)
     bpy.types.Scene.tm_props_failed_converts  = PointerProperty(type=FailedConverts)
     # bpy.types.Scene.tm_props_itemxml_templates= CollectionProperty(type=ItemXMLTemplatesProperties)
@@ -373,6 +376,9 @@ def register():
     bpy.types.Material.usePhysicsId     = BoolProperty(         name="Use PhysicsId",       default=False)
     bpy.types.Material.gameplayId       = StringProperty(       name="GameplayId",          default="")
     bpy.types.Material.useGameplayId    = BoolProperty(         name="Use GameplayId",      default=False)
+    bpy.types.Material.useColor         = BoolProperty(         name="Use Color",           default=False)
+    bpy.types.Material.isLibraryMaterial = BoolProperty(        name="Created with materiallib (V2)", default=False)
+    bpy.types.Material.libraryEnvironment = StringProperty(     name="Materiallib collection (V2)", default="")
     bpy.types.Material.model            = EnumProperty(         name="Model",               default="TDSN",    items=getMaterialModelTypes())
     bpy.types.Material.environment      = EnumProperty(         name="Collection",          default="Stadium", items=getMaterialCollectionTypes())#Material."collection" not allowed
     # the size should be 4 (for BSDF) but to keep backward compability we have to keep it with size=3 (we convert it later in the code)
@@ -406,6 +412,7 @@ def unregister():
     del bpy.types.Scene.tm_props_pivots
     del bpy.types.Scene.tm_props_convertingItems
     del bpy.types.Scene.tm_props_linkedMaterials
+    del bpy.types.Scene.tm_props_linkedMaterialsLibrary
     del bpy.types.Scene.tm_props_itemxml_templates_ui
     del bpy.types.Scene.tm_props_itemxml_templates
 

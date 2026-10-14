@@ -225,7 +225,7 @@ def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
     
     # take first valid object and main one
     for obj in objects:
-        if obj.type == "MESH" and is_real_object_by_name(obj.name)\
+        if obj.type == "MESH" \
         and (len(offset) == 0 or SPECIAL_NAME_INFIX_ORIGIN in obj.name):
             offset = [
                 obj.location[0] - location[0],

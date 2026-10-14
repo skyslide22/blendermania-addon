@@ -656,6 +656,18 @@ def updateMaterialSettings(self, context):
         except TypeError:
             pass
 
+    # V2 (materiallib) material panel values, only touches the V2 properties
+    if getattr(matToUpdate, "isLibraryMaterial", False):
+        for prop, value in (
+            ("LI_materialCollectionLibrary", matToUpdate.libraryEnvironment or matToUpdate.environment),
+            ("LI_materialLinkLibrary",       matToUpdate.link),
+            ("CB_materialUseCustomColor",    matToUpdate.useColor),
+        ):
+            try:
+                setattr(tm_props, prop, value)
+            except TypeError:
+                pass
+
     if matToUpdate.baseTexture != "":
         tm_props.LI_materialChooseSource = "CUSTOM"
     else:
@@ -932,6 +944,40 @@ def getMaterialLinks(self, context)-> list:
     materials.sort()
     material_links = materials
     return material_links
+
+
+# V2 (TM2020 materiallib driven) material enums, independent from the legacy material enums above.
+# Lists are cached on module level, Blender needs the strings of enum callbacks to stay alive.
+_material_collections_library = ERROR_ENUM_PROPS
+_material_links_library       = ERROR_ENUM_PROPS
+
+def getMaterialCollectionTypesLibrary(self=None, context=None)->list:
+    global _material_collections_library
+    from ..utils.materialLib import get_materiallibrary_collection_names
+
+    names = get_materiallibrary_collection_names()
+    if not names:
+        return ERROR_ENUM_PROPS
+
+    enum_items = EnumProps()
+    for name in names:
+        try:    icon = get_addon_icon(f"ENVI_{name.upper()}")
+        except  Exception: icon = "NONE"
+        enum_items.add(id=name, name=name, desc=name, icon=icon)
+    _material_collections_library = enum_items.to_list()
+    return _material_collections_library
+
+
+def getMaterialLinksLibrary(self, context)->list:
+    global _material_links_library
+    from ..utils.materialLib import get_materiallibrary_material_names
+
+    names = get_materiallibrary_material_names(str(self.LI_materialCollectionLibrary))
+    if not names:
+        return ERROR_ENUM_PROPS
+
+    _material_links_library = [(name, name, name) for name in names]
+    return _material_links_library
 
 
 def getMaterialGameplayIds(self, context)->None:

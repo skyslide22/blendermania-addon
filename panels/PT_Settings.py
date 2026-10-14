@@ -319,3 +319,20 @@ class TM_PT_Settings_Performance(Panel):
         # row.prop(tm_props, "CB_xml_format_itemxml",     text="Item XML", toggle=True)
 
         
+class TM_PT_Settings_Materials(Panel):
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Materials"
+    bl_idname = "TM_PT_Settings_Materials"
+    bl_parent_id = "TM_PT_Settings"
+    
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok()    
+    
+    def draw(self, context):
+
+        layout = self.layout
+        tm_props = get_global_props()
+
+        row = layout.row(align=True)
+        row.prop(tm_props, "ST_materialLibPath", text="Material Lib")

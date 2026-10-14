@@ -949,7 +949,10 @@ def _get_material_configs_from_collection(objs: list[bpy.types.Object], collecti
         mat_config.Name = mat_name
 
         if mat_game_is_tm2020:
-            use_custom_color_attr = mat_use_custom_color and mat_link.lower().startswith("custom")
+            if mat.isLibraryMaterial: # new materiallib flow: explicit "use color" checkbox
+                use_custom_color_attr = mat.useColor
+            else:                     # legacy flow
+                use_custom_color_attr = mat_use_custom_color and mat_link.lower().startswith("custom")
             mat_config.Link = mat_link
             if use_custom_color_attr:
                 mat_config.Color = mat_custom_color

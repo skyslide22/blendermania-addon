@@ -101,7 +101,7 @@ def draw_export_panel(self:Panel) -> None:
     right_col.prop(tm_props, "LI_gameType", text="")
     right_col.prop(tm_props, "LI_exportFolderType", text="")
     right_col.row().prop(tm_props, "LI_exportWhichObjs", expand=True)
-    right_col.prop(tm_props, "ST_materialLibPath", text="")
+    #right_col.prop(tm_props, "ST_materialLibPath", text="")
 
     # if is_game_trackmania2020():
     #         right_col.prop(tm_props, "CB_generateMeshAndShapeGBX", text="Meshmodeler importable", toggle=True, icon=ICON_IMPORT)
