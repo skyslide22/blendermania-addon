@@ -995,15 +995,16 @@ def _get_mesh_configs_from_collection(objs: list[bpy.types.Object], collection: 
             mesh_flags |= MeshFlags.SingleMesh
 
        
-
+        gameplay_dir = Vector(getattr(obj, ObjectProp.GAMEPLAY_MAIN_DIR, None))
+        gameplay_dir.normalize()
+        gameplay_strength = getattr(obj, ObjectProp.GAMEPLAY_STRENGTH, 1.0)
+        mesh_cfg.GameplayMainDir = Vec3.from_seq(gameplay_dir * gameplay_strength)
+        
         if mesh_flags & MeshFlags.TriggerWaypoint:
             mesh_cfg.WaypointType = _get_waypoint_type_from_collection(collection)
         if mesh_flags & MeshFlags.TriggerEffect:
             mesh_cfg.TriggerEffect = getattr(obj, ObjectProp.TRIGGER_EFFECT_TYPE, None)
-            gameplay_dir = Vector(getattr(obj, ObjectProp.GAMEPLAY_MAIN_DIR, None))
-            gameplay_dir.normalize()
-            gameplay_strength = getattr(obj, ObjectProp.GAMEPLAY_STRENGTH, 1.0)
-            mesh_cfg.GameplayMainDir = Vec3.from_seq(gameplay_dir * gameplay_strength)
+           
 
         if getattr(obj, ObjectProp.ENABLE_LODS, False):
             mesh_cfg.Lods = [int(lod.value) for lod in getattr(obj, ObjectProp.LOD_INDEXES, [])]

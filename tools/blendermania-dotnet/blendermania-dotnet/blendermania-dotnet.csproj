@@ -28,16 +28,16 @@
   		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 	
-	<ItemGroup>
+	<!-- <ItemGroup>
   	<ProjectReference Include="F:\Development\Projects\Visual Studio\TM_Projects\TM_GenericMapping\TM_GenericMapping.csproj" />
-	</ItemGroup>
+	</ItemGroup> -->
 
   <ItemGroup>
     <PackageReference Include="GBX.NET" Version="2.4.5" />
     <PackageReference Include="GBX.NET.Imaging" Version="2.0.3" />
     <PackageReference Include="GBX.NET.Json" Version="0.1.7" />
     <PackageReference Include="GBX.NET.LZO" Version="2.1.6" />
-    <!-- <PackageReference Include="TM_CSharpMapping" Version="0.4.1-alpha.10" /> -->
+    <PackageReference Include="TM_CSharpMapping" Version="0.4.1-alpha.11" />
 
     
     <!-- TGA & DDS Library -->

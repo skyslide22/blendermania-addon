@@ -79,6 +79,14 @@ def material_supports_color(material_name: str, collection_name: str) -> bool:
         return False
     return material.get("Color", False) is True
 
+def has_material_with_gameplay_effect(obj: bpy.types.Object) -> str | None:
+    """True if the object has any material with a gameplay effect."""
+    if not obj or not obj.data or not hasattr(obj.data, "materials"):
+        return None
+    for mat in obj.data.materials:
+        if mat and getattr(mat, "useGameplayId", False):
+            return getattr(mat, "gameplayId", None)
+    return None
 
 def parse_materiallibrary() -> dict:
     """parse NadeoImporterMaterialLib.txt into materiallib_materials, no side effects on other state"""

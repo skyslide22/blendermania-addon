@@ -5,6 +5,7 @@ from itertools import count
 import bpy
 from bpy.types import Panel
 from bpy.types import Operator
+from ..utils.materialLib import has_material_with_gameplay_effect
 
 
 
@@ -160,6 +161,7 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
             row.prop(obj, ObjectProp.TRIGGER_EFFECT, text="Trigger Effect", toggle=True)
             row.prop(obj, ObjectProp.TRIGGER_WAYPOINT, text="Trigger Waypoint", toggle=True)
 
+            mat_gameplay_effect = has_material_with_gameplay_effect(obj)
             if getattr(obj, ObjectProp.TRIGGER_EFFECT):
                 #col = row.column(align=True)
                 row = col.row(align=True)
@@ -170,6 +172,14 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
                 row = col.row(align=True)
                 row.label(text="Effect Strength", icon=ICON_FORCE)
                 row.prop(obj, ObjectProp.GAMEPLAY_STRENGTH, text="")
+
+            elif mat_gameplay_effect:
+                row = col.row(align=True)
+                row.prop(obj, ObjectProp.GAMEPLAY_MAIN_DIR, text=f"Gameplay Dir")
+                row = col.row(align=True)
+                row.label(text=f"Effect Strength ({mat_gameplay_effect})", icon=ICON_FORCE)
+                row.prop(obj, ObjectProp.GAMEPLAY_STRENGTH, text="")
+            
 
             row = col.row(align=True)
             row.prop(obj, ObjectProp.NO_MERGE, text="No Merge", toggle=True)
