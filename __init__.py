@@ -92,6 +92,7 @@ from .panels.PT_Textures                import *
 from .panels.PT_VisibilitySelection     import *
 from .panels.PT_EditorTrails            import *
 from .panels.PT_Items_Placement         import *
+from .panels.PT_Animation               import *
 
 from .panels.PT_Items_ExportV2 import *
 from .ui.widgets.lists import *
@@ -187,7 +188,10 @@ classes = (
     TM_OT_Items_ShowUVMap,
     TM_OT_Items_CollectionManipulationToggleNICE,
     TM_OT_Items_ObjectManipulationToggleGate,
-    
+
+    #anim
+    TM_PT_Animation_Preview,
+
     # object visibility and selection controls
     TM_PT_VisibilitySelection,
     TM_OT_VisibilitySelection_Toggle,
@@ -366,7 +370,7 @@ def register():
     register_object_properties()
     register_light_properties()
     register_placement_callbacks()
-
+    register_animation_preview()
 
     # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
@@ -425,6 +429,7 @@ def unregister():
     unregister_object_properties()
 
     unregister_placement_callbacks()
+    register_animation_preview()
 
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)
