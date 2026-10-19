@@ -8,7 +8,7 @@ from ..utils.ItemsExportV2Models import *
 from ..utils import Constants
 from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin
 from .Materials import is_material_exportable, save_mat_props_json
-from .ItemsIcon import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
+from .ItemsIconV2 import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
 from ..utils.CustomImporter import is_collection_exportable, start_batch_convert, get_convert_items_failed_props
 import queue

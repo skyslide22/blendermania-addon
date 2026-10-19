@@ -244,6 +244,12 @@ def is_real_object_by_name(name: str) -> bool:
             ))\
             or SPECIAL_NAME_INFIX_ORIGIN in name
 
+def is_obj_visible(obj: bpy.types.Object) -> bool:
+    """check if the object is not a interpreted as special"""
+    return getattr(obj, ObjectProp.IGNORE, False) is False \
+        and getattr(obj, ObjectProp.INVISIBLE, False) is False \
+        
+
 
 
 # other
