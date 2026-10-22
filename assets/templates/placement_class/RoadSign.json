@@ -1,0 +1,226 @@
+{
+  "SizeGroup": "0x0",
+  "CompatibleGroupsIds": [
+    "Border",
+    "BorderOpen",
+    "BorderWaterSmall",
+    "BorderPlatform",
+    "BorderOpenCurve1",
+    "StructureSupport",
+    "BorderWater",
+    "BorderPlatformWater",
+    "BorderDecoWall",
+    "BorderTrackWall",
+    "BorderRallyRoadDirt",
+    "BorderMultiSize"
+  ],
+  "AlwaysUp": true,
+  "AlignToInterior": true,
+  "AlignToWorldDir": false,
+  "WorldDir": "0 0 1",
+  "PatchLayouts": [
+    {
+      "ItemCount": 0,
+      "ItemSpacing": 8.0,
+      "FillDir": "V",
+      "FillAlign": "Center",
+      "NormedPos": 0.5,
+      "OnlyOnGroups": [
+        "Border",
+        "StructureSupport",
+        "BorderPlatform",
+        "BorderWaterSmall",
+        "BorderPlatformWater",
+        "BorderDecoWall",
+        "BorderTrackWall",
+        "BorderMultiSize"
+      ],
+      "Altitude": 0.0
+    },
+    {
+      "ItemCount": 0,
+      "ItemSpacing": 16.0,
+      "FillDir": "V",
+      "FillAlign": "Center",
+      "NormedPos": 0.5,
+      "OnlyOnGroups": [
+        "Border",
+        "StructureSupport",
+        "BorderPlatform",
+        "BorderWaterSmall",
+        "BorderPlatformWater",
+        "BorderDecoWall",
+        "BorderTrackWall",
+        "BorderMultiSize"
+      ],
+      "Altitude": 0.0
+    },
+    {
+      "ItemCount": 3,
+      "ItemSpacing": 4,
+      "FillAlign": "Begin",
+      "FillDir": "V",
+      "NormedPos": 0.5,
+      "OnlyOnGroups": [
+        "Border",
+        "StructureSupport",
+        "BorderPlatform",
+        "BorderWaterSmall",
+        "BorderPlatformWater",
+        "BorderDecoWall",
+        "BorderMultiSize"
+      ],
+      "Altitude": 0.0
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "End",
+      "FillDir": "V",
+      "ItemCount": 3,
+      "ItemSpacing": 4,
+      "NormedPos": 0.5,
+      "OnlyOnGroups": [
+        "Border",
+        "StructureSupport",
+        "BorderPlatform",
+        "BorderWaterSmall",
+        "BorderPlatformWater",
+        "BorderDecoWall",
+        "BorderMultiSize"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Center",
+      "FillDir": "V",
+      "ItemCount": 0,
+      "ItemSpacing": 8,
+      "NormedPos": 0.9,
+      "OnlyOnGroups": [
+        "BorderOpen"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Center",
+      "FillDir": "V",
+      "ItemCount": 0,
+      "ItemSpacing": 16,
+      "NormedPos": 0.9,
+      "OnlyOnGroups": [
+        "BorderOpen"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Begin",
+      "FillDir": "V",
+      "ItemCount": 3,
+      "ItemSpacing": 4,
+      "NormedPos": 0.9,
+      "OnlyOnGroups": [
+        "BorderOpen"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "End",
+      "FillDir": "V",
+      "ItemCount": 3,
+      "ItemSpacing": 4,
+      "NormedPos": 0.9,
+      "OnlyOnGroups": [
+        "BorderOpen"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Center",
+      "FillDir": "V",
+      "ItemCount": 0,
+      "ItemSpacing": 8,
+      "NormedPos": 0.915,
+      "OnlyOnGroups": [
+        "BorderWater"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Center",
+      "FillDir": "V",
+      "ItemCount": 0,
+      "ItemSpacing": 16,
+      "NormedPos": 0.915,
+      "OnlyOnGroups": [
+        "BorderWater"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Begin",
+      "FillDir": "V",
+      "ItemCount": 3,
+      "ItemSpacing": 4,
+      "NormedPos": 0.915,
+      "OnlyOnGroups": [
+        "BorderWater"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "End",
+      "FillDir": "V",
+      "ItemCount": 3,
+      "ItemSpacing": 4,
+      "NormedPos": 0.915,
+      "OnlyOnGroups": [
+        "BorderWater"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Center",
+      "FillDir": "V",
+      "ItemCount": 0,
+      "ItemSpacing": 8,
+      "NormedPos": 0.875,
+      "OnlyOnGroups": [
+        "BorderOpenCurve1"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Center",
+      "FillDir": "V",
+      "ItemCount": 0,
+      "ItemSpacing": 16,
+      "NormedPos": 0.875,
+      "OnlyOnGroups": [
+        "BorderOpenCurve1"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "Begin",
+      "FillDir": "V",
+      "ItemCount": 3,
+      "ItemSpacing": 4,
+      "NormedPos": 0.875,
+      "OnlyOnGroups": [
+        "BorderOpenCurve1"
+      ]
+    },
+    {
+      "Altitude": 0.0,
+      "FillAlign": "End",
+      "FillDir": "V",
+      "ItemCount": 3,
+      "ItemSpacing": 4,
+      "NormedPos": 0.875,
+      "OnlyOnGroups": [
+        "BorderOpenCurve1"
+      ]
+    }
+  ],
+  "GroupCurPatchLayouts": []
+}

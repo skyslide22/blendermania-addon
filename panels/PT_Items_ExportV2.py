@@ -73,7 +73,6 @@ class TM_PT_Items_ExportV2(Panel):
 
 def draw_export_panel(self:Panel) -> None:
     layout = self.layout
-
     
     tm_props = get_global_props()
 

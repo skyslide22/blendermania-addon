@@ -30,7 +30,17 @@ class PatchGroupRef(bpy.types.PropertyGroup):
         search=valid_for_group_search,
         search_options={'SUGGESTION'},  # SUGGESTION = custom text allowed
     )
-    
+
+FILL_ALIGN_ITEMS = [
+    ('FRONT', CHAR_RIGHT +" Front", "Align items from the front"),
+    ('CENTER', CHAR_HORIZONTAL +" Center", "Align items from the center"),
+    ('BACK', CHAR_LEFT +" Back", "Align items from the back")
+]
+FILL_DIR_ITEMS = [
+    ('LEFT/RIGHT', CHAR_HORIZONTAL +" Left/Right", "Fill items from the left/right"),
+    ('FRONT/BACK', CHAR_VERTICAL +" Front/Back", "Fill items from the front/back"),
+]
+
 class PlacementPatchProperties(bpy.types.PropertyGroup):
     autoItemCount: bpy.props.BoolProperty(
         name="Auto Item Count",
@@ -51,20 +61,29 @@ class PlacementPatchProperties(bpy.types.PropertyGroup):
         soft_min=0,
         step=100.0)
 
-    fillAlignment: bpy.props.BoolProperty(
+    fillAlignment: bpy.props.EnumProperty(
         name="Fill Alignment",
         description="Alignment of items in this patch.",
-        default=True)
+        items=FILL_ALIGN_ITEMS,
+        default='CENTER')
 
     fillDirection: bpy.props.EnumProperty(
         name="Fill Direction",
         description="Direction to fill items in this patch.",
-        items=[
-            ('FRONT', CHAR_RIGHT +" Front", "Fill items from the front"),
-            ('CENTER', CHAR_HORIZONTAL +" Center", "Fill items from the center"),
-            ('BACK', CHAR_LEFT +" Back", "Fill items from the back")
-        ],
-        default='FRONT')
+        items=FILL_DIR_ITEMS,
+        default='LEFT/RIGHT')
+
+    fillOffsetU: bpy.props.FloatProperty(
+        name="Fill Offset U",
+        description="Offset in the left/right direction before filling items in this patch.",
+        default=0.0,
+        step=100)
+
+    fillOffsetV: bpy.props.FloatProperty(
+        name="Fill Offset V",
+        description="Offset in the front/back direction before filling items in this patch.",
+        default=0.0,
+        step=100)
 
     normedPos: bpy.props.FloatProperty(
         name="Horizontal Position",

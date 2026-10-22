@@ -106,3 +106,4 @@ class OT_MediaTrackerClipTriggerTemplates(Operator):
     def add_menu_item(self, context):
         layout = self.layout
         layout.operator_menu_enum("view3d.tm_import_mt_clip_trigger", "mt_trigger_templates", icon=ICON_GHOSTMODE)
+

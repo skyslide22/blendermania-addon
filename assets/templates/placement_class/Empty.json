@@ -1,0 +1,12 @@
+{
+  "SizeGroup": "0x0",
+  "CompatibleGroupsIds": [
+  ],
+  "AlwaysUp": false,
+  "AlignToInterior": false,
+  "AlignToWorldDir": false,
+  "WorldDir": "0 0 1",
+  "PatchLayouts": [
+  ],
+  "GroupCurPatchLayouts": []
+}

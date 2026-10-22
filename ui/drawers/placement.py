@@ -54,15 +54,22 @@ def draw_patch_layout(layout, item, index):
     count.prop(item, "itemCount", text="Count")
     row.prop(item, "itemSpacing", text=CHAR_HORIZONTAL +" Spacing")
 
-    row = layout.row(align=True)
-    row.prop(item, "fillAlignment", text="Fill Align", toggle=True)
-    align_row = row.row(align=True)
-    align_row.enabled = item.fillAlignment
-    align_row.prop(item, "fillDirection", text="Fill Direction", expand=True)
+  
+    align_row = layout.row(align=True)
+    align_row.label(text="Fill Alignment:")
+    align_row.prop(item, "fillAlignment", text="Fill Alignment", expand=True)
+
+    dir_row = layout.row(align=True)
+    dir_row.label(text="Fill Direction:")
+    dir_row.prop(item, "fillDirection", text="Fill Direction", expand=True)
     
     row = layout.row(align=True)
     row.prop(item, "normedPos", text=CHAR_HORIZONTAL +" Pos (norm)")
-    row.prop(item, "altitude", text=CHAR_VERTICAL +" Offset")
+    row.prop(item, "altitude", text=CHAR_VERTICAL +" Vertical Offset")
+
+    row = layout.row(align=True)
+    row.prop(item, "fillOffsetU", text=CHAR_HORIZONTAL +" Fill Offset")
+    row.prop(item, "fillOffsetV", text=CHAR_VERTICAL +" Fill Offset")
 
   
 
@@ -201,6 +208,13 @@ def draw_item_placement_editor(layout, context, placement, section):
                                                             enable_owner=placement,
                                                             enable_prop="CB_attachmentConfiguration")
         if attachment_body:
+            row = attachment_body.row(align=True)
+            row.label(text="Load Attachment Template:")
+            row.prop(context.window_manager, "tm_placement_class_templates", text="")
+            row.context_pointer_set("tm_placement", placement)
+            op = row.operator("view3d.tm_load_item_config_placement_class_template", text="", icon=ICON_IMPORT)
+            op.template_name =  context.window_manager.tm_placement_class_templates
+
             row = attachment_body.row(align=True)
             size_group_row = row.row(align=True)
             size_group_row.enabled = False

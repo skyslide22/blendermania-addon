@@ -96,6 +96,25 @@ class EWaypointType(str, Enum):
     Finish = "Finish"
     StartFinish = "StartFinish"
 
+class FillAlign(str, Enum):
+    Center = "Center"
+    Begin = "Begin"
+    End = "End"
+
+class FillDir(str, Enum):
+    U = "U"
+    V = "V"
+    
+FILL_ALIGN_MAP = {
+    FillAlign.Begin: 'FRONT',
+    FillAlign.Center: 'CENTER',
+    FillAlign.End: 'BACK',
+}
+FILL_DIR_MAP = {
+    FillDir.U: 'LEFT/RIGHT',
+    FillDir.V: 'FRONT/BACK',
+}
+
 
 class EAxis(str, Enum):
     X = "X"
@@ -185,9 +204,11 @@ class Waypoint:
 class PlacementPatchLayout:
     ItemCount: int = 0
     ItemSpacing: float = 0.0
-    FillAlign: int = 0
-    FillDir: int = 1
+    FillDir: FillDir = FillDir.U
+    FillAlign: FillAlign = FillAlign.Center
     NormedPos: float = 0.5
+    FillOffsetU: float = 0.0
+    FillOffsetV: float = 0.0
     OnlyOnGroups: list[PlacementPatchGroup] | None = field(default_factory=list)
     Altitude: float = 0.0
 
@@ -569,8 +590,10 @@ def get_placement_config_from_properties(placement_props: PlacementProperties) -
             patchLayout = PlacementPatchLayout()
             patchLayout.ItemCount = int(plp.itemCount) if not plp.autoItemCount else 0
             patchLayout.ItemSpacing = float(plp.itemSpacing)
-            patchLayout.FillAlign = 1 if plp.fillAlignment else 0
-            patchLayout.FillDir = {"FRONT": -1, "CENTER": 0, "BACK": 1}.get(plp.fillDirection, 0)
+            patchLayout.FillDir = {"LEFT/RIGHT": 0, "FRONT/BACK": 1}.get(plp.fillDirection, 0)
+            patchLayout.FillAlign = {"FRONT": 1, "CENTER": 0, "BACK": 2}.get(plp.fillAlignment, 0)
+            patchLayout.FillOffsetU = float(plp.fillOffsetU)
+            patchLayout.FillOffsetV = float(plp.fillOffsetV)
             patchLayout.NormedPos = float(plp.normedPos)
             patchLayout.Altitude = float(plp.altitude)
             patchLayout.OnlyOnGroups = [g.name for g in plp.validForGroups]
@@ -606,3 +629,5 @@ def get_item_placement_template(name: str) -> PlacementProperties | None:
             return template.config
     else:
         return None
+
+

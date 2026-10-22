@@ -1,4 +1,5 @@
 from bpy.types import (Operator)
+from ..utils.Placement import load_placement_class_template
 from ..properties.PlacementProperties import PlacementProperties
 from ..properties.Functions import *
 from ..utils.Functions import *
@@ -154,7 +155,21 @@ def draw_nightonly_option(self, context):
     row.prop(context.object.data, "night_only", text="Night & Sunset only")
 
 
+class TM_OT_Items_ItemConfig_LoadPlacementClassTemplate(Operator):
+    bl_idname = "view3d.tm_load_item_config_placement_class_template"
+    bl_description = "Execute Order 66"
+    bl_icon = 'ADD'
+    bl_label = "Load Item Config Template Class"
 
+    template_name: bpy.props.StringProperty("")
+        
+    def execute(self, context):
+        placement = getattr(context, "tm_placement", None)
+        if placement is None:
+            self.report({'ERROR'}, "No placement in context")
+            return {'CANCELLED'}
+        load_placement_class_template(placement, self.template_name)
+        return {'FINISHED'}
 
 
 

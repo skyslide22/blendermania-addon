@@ -94,6 +94,8 @@ from .panels.PT_EditorTrails            import *
 from .panels.PT_Items_Placement         import *
 from .panels.PT_Animation               import *
 
+from .utils.Placement import register_placement_templates, unregister_placement_templates
+
 from .panels.PT_Items_ExportV2 import *
 from .ui.widgets.lists import *
 from .ui.widgets.foldouts import *
@@ -229,6 +231,8 @@ classes = (
     TM_OT_Items_ItemConfig_SaveItemPlacementTemplate,
     TM_OT_Items_ItemConfig_RemoveItemPlacementTemplate,
     TM_OT_Items_ItemConfig_LoadPlacementTemplate,
+
+    TM_OT_Items_ItemConfig_LoadPlacementClassTemplate,
 
     # Export Options V2
     # TM_PT_Items_ItemPlacement,
@@ -372,6 +376,9 @@ def register():
     register_placement_callbacks()
     register_animation_preview()
 
+    # templates
+    register_placement_templates()
+
     # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())
     bpy.types.Material.baseTexture      = StringProperty(       name="BaseTexture",         default="")
@@ -430,6 +437,8 @@ def unregister():
 
     unregister_placement_callbacks()
     register_animation_preview()
+
+    unregister_placement_templates()
 
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)

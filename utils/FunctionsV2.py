@@ -256,7 +256,7 @@ def is_obj_visible(obj: bpy.types.Object) -> bool:
 def copy_props(src, dst):
     for p in src.bl_rna.properties:
         name = p.identifier
-        if name in {"rna_type", "name"}:
+        if name == "rna_type":
             continue
         value = getattr(src, name)
         if p.type == 'POINTER' and isinstance(value, bpy.types.PropertyGroup):
@@ -307,3 +307,7 @@ def props_from_dict(group, d):
                 setattr(group, pid, val)
         except (TypeError, ValueError) as e:
             print(f"Could not set {pid}: {e}")
+
+
+def get_addon_templates_path() -> str:
+    return get_addon_assets_path() + "templates/"
