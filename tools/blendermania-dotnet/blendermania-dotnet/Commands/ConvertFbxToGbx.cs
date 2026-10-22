@@ -108,7 +108,15 @@ public class ConvertFbxToGbx : ICommand
             Console.WriteLine(ex.ToString());
             return (int)ExitCodes.InvalidPayload;
         }
-        var convertFbxToGbx = new ConvertFbxToGbx() { Payload = fbxGbxPayload };
-        return await convertFbxToGbx.Run();
+        try
+        {
+            var convertFbxToGbx = new ConvertFbxToGbx() { Payload = fbxGbxPayload };
+            return await convertFbxToGbx.Run();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            return (int)ExitCodes.UnknownError;
+        }
     }
 }

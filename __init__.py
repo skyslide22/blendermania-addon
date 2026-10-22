@@ -12,6 +12,8 @@ import os
 
 
 
+
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
@@ -33,6 +35,7 @@ from .utils.Dotnet         import *
 from .utils.Functions      import *
 from .utils.ItemsExport    import *
 from .utils.ItemsIcon      import *
+from .utils.ItemsIconV2    import *
 from .utils.ItemsImport    import *
 from .utils.ItemsUVs       import *
 from .utils.Materials      import *
@@ -74,17 +77,20 @@ from .operators.OT_WikiLink                import *
 from .operators.OT_Textures                import * 
 from .operators.OT_Imports                 import * 
 from .operators.OT_VisibilitySelection     import *
-from .operators.OT_Items_Placement import *
-from .operators.OT_Items_ExportV2 import *
+from .operators.OT_Items_Placement          import *
+from .operators.OT_Items_ExportV2           import *
+from .operators.OT_Items_IconV2             import *
 
 from .panels.PT_Map_Manipulate          import *
 from .panels.PT_Imports                 import *
 from .panels.PT_Settings                import *
 from .panels.PT_Items_Export            import *
+from .panels.PT_Items_ExportV2          import *
 from .panels.PT_Materials               import *
 from .panels.PT_Items_XML               import *
 from .panels.PT_Items_UVMaps            import *
 from .panels.PT_Items_Icon              import *
+from .panels.PT_Items_IconV2            import *
 from .panels.PT_Items_Manipulate        import *
 from .panels.PT_Items_ManipulateV2      import *
 from .panels.PT_UV_Manipulate           import *
@@ -96,7 +102,7 @@ from .panels.PT_Animation               import *
 
 from .utils.Placement import register_placement_templates, unregister_placement_templates
 
-from .panels.PT_Items_ExportV2 import *
+
 from .ui.widgets.lists import *
 from .ui.widgets.foldouts import *
 from .ui.drawers.placement import register_placement_callbacks, unregister_placement_callbacks
@@ -253,6 +259,10 @@ classes = (
     # icons,
     TM_PT_Items_Icon,
     TM_OT_Items_Icon_Test,
+
+
+    TM_PT_Items_IconV2,
+    TM_OT_Items_Icon_TestV2,
 
     # uvs
     TM_PT_Items_UVmaps_LightMap,
