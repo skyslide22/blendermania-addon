@@ -139,6 +139,7 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
 
         is_Light   = (obj.type == "LIGHT") if obj is not None else False
         is_Mesh    = (obj.type == "MESH")  if obj is not None else False
+        is_Empty   = (obj.type == "EMPTY") if obj is not None else False
             
         obj_box = layout
         row = obj_box.row(align=True)
@@ -319,8 +320,11 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
                 row.label(text="Emitting Length")
                 row.row().prop(light, LightProp.LIGHT_EMITTING_LENGTH, text="")
   
-
-
+        if is_Empty:
+            col = layout.column()
+            row = col.row(align=True)
+            row.prop(obj, ObjectProp.ORIGIN, text="Origin", icon=ICON_ORIGIN)
+            row.prop(obj, ObjectProp.PIVOT, text="Pivot", icon=ICON_PIVOTS)
 
 
         # lights
@@ -340,7 +344,7 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
 
     @classmethod
     def register_callbacks(self):
-        register_list_hooks(bpy.types.Collection, CollectionProp.LODS, after_add=self.on_lod_add)
+        register_list_hooks(bpy.types.Collection, CollectionProp.LODS, after_add=self.on_lod_add, after_remove=self.on_lod_remove)
 
     @classmethod
     def unregister_callbacks(self):
@@ -779,6 +783,18 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
     def on_lod_add(owner, item, index):
         last_distance = getattr(owner, CollectionProp.LODS)[index - 1].distance if index > 0 else 0.0
         item.distance = last_distance + 64.0
+
+    @staticmethod
+    def on_lod_remove(owner, index):
+        col = owner
+        for obj in col.all_objects:
+            entries = getattr(obj, ObjectProp.LOD_INDEXES)
+            for pos in range(len(entries) - 1, -1, -1):
+                entry = entries[pos]
+                if entry.value == index:    # adjust the field name to your TM_LodIndex
+                    entries.remove(pos)
+                elif entry.value > index:
+                    entry.value -= 1
 
     def draw_lod_footer(self, layout, last_item, last_index):
         row = layout.split(factor=0.25, align=True)

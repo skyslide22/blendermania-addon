@@ -42,6 +42,12 @@ def _sync_material_collection_library(self, context):
         sync_link_search_collection(str(self.LI_materialCollectionLibrary))
         redraw_all_panels()
 
+def _update_materiallib_path(self, context):
+    from ..utils.materialLib import reset_materiallibrary_cache
+    reset_materiallibrary_cache()
+    gameTypeGotUpdated()
+    _sync_material_collection_library(self, context)
+
 
 def _get_ST_materialLinkSearchLibrary(self) -> str:
     try:    return str(self.LI_materialLinkLibrary)
@@ -98,7 +104,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     LI_blenderClipStart         : EnumProperty(items=getClipStartSizes(),    default=1, update=apply_custom_blender_clip_start_end)
     LI_blenderClipEnd           : EnumProperty(items=getClipEndSizes(),      default=1, update=apply_custom_blender_clip_start_end)
 
-    CB_blendermaniaV2           : BoolProperty(  name="Blendermania V2", default=True, description="Enable the new Blendermania V2 features and UI")
+    CB_blendermaniaV2           : BoolProperty(  name="Blendermania V2", default=True, description="Enable the new Blendermania V2 features and UI", update=lambda s, c: disable_animation_preview())
 
 
     # textures
@@ -173,7 +179,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_useMultiScaleExport      : BoolProperty(default=True, name="Scale exports", description=DESC_MULTI_SCALE_EXPORT)
     CB_overwriteMultiScaleFactor: BoolProperty(default=False, name="Step factor" , description=DESC_MULTI_SCALE_EXPORT)
 
-    ST_materialLibPath          : StringProperty(name="MaterialLib Path", default=DEFAULT_MATERIAL_LIB_FILEPATH_TM2020,   subtype="FILE_PATH") #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
+    ST_materialLibPath          : StringProperty(name="MaterialLib Path", default=DEFAULT_MATERIAL_LIB_FILEPATH_TM2020,   subtype="FILE_PATH", update=_update_materiallib_path) #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
 
     
     #convert

@@ -197,7 +197,15 @@ PATH_PROGRAM_DATA          = os.environ.get("ALLUSERSPROFILE").replace("\\", "/"
 PATH_PROGRAM_FILES         = os.environ.get("PROGRAMFILES").replace("\\", "/")      + "/"
 PATH_PROGRAM_FILES_X86     = os.environ.get("PROGRAMFILES(X86)").replace("\\", "/") + "/"
 PATH_CONVERT_REPORT        = PATH_HOME + "convert_report.html"
-PATH_DEFAULT_SETTINGS_JSON = PATH_HOME + "blender_addon_for_tm2020_maniaplanet_settings.json"
+PATH_SETTINGS_FOLDER       = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "Blendermania").replace("\\", "/") + "/"
+PATH_DEFAULT_SETTINGS_JSON = PATH_SETTINGS_FOLDER + "settings.json"
+_PATH_LEGACY_SETTINGS_JSON = PATH_HOME + "blender_addon_for_tm2020_maniaplanet_settings.json"
+
+# one-time migration of the old settings file in the home folder
+os.makedirs(PATH_SETTINGS_FOLDER, exist_ok=True)
+if not os.path.isfile(PATH_DEFAULT_SETTINGS_JSON) and os.path.isfile(_PATH_LEGACY_SETTINGS_JSON):
+    import shutil
+    shutil.copy2(_PATH_LEGACY_SETTINGS_JSON, PATH_DEFAULT_SETTINGS_JSON)
 
 
 # Links
@@ -528,6 +536,7 @@ SETTINGS_JSON_KEYS = (
     SETTINGS_BLENDER_GRID_DIVISION    := "blender_grid_division",
     SETTINGS_ITEM_XML_TEMPLATES       := "itemxml_templates",
     SETTINGS_ITEM_PLACEMENT_TEMPLATES       := "itemplacement_templates",
+    SETTINGS_MATERIALLIB                := "materiallib_path",
 
     SETTINGS_NEW_BLEND_PREFERRED_GAME := "new_blend_game",
 )

@@ -1,6 +1,6 @@
 import bpy
 from bpy.props import *
-from .Functions import toggle_infix, toggleNameSpecialPrefix
+from .Functions import has_infix, has_prefix, toggle_infix, toggleNameSpecialPrefix
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
 from .PropertyIdentifiers import ObjectProp
 from ..utils.Constants import *
@@ -42,7 +42,7 @@ def register_object_properties():
     setattr(bpy.types.Object, ObjectProp.IGNORE, _bool("Ignore", "Object should be ignored", ObjectProp.IGNORE, _update_tm_ignore))
     setattr(bpy.types.Object, ObjectProp.PIVOT, _bool("Pivot", "Object is a pivot point", ObjectProp.PIVOT, _update_tm_pivot))
     setattr(bpy.types.Object, ObjectProp.ORIGIN, _bool("Origin", "Object is an origin point", ObjectProp.ORIGIN, _update_tm_origin))
-    setattr(bpy.types.Object, ObjectProp.NO_MERGE, _bool("No Merge", "Object should not be merged with others into the same structure", ObjectProp.NO_MERGE, _update_tm_no_merge))
+    setattr(bpy.types.Object, ObjectProp.NO_MERGE, _bool("No Merge", "Object handled as separate entity within the item receiving its own lightmap", ObjectProp.NO_MERGE, _update_tm_no_merge))
 
     setattr(bpy.types.Object, ObjectProp.TRIGGER_EFFECT_TYPE, EnumProperty(name="Trigger Effect Type", description="Type of trigger effect", items=enum_items(LegacyGameplayId), default=LegacyGameplayId.None_.value,))
     setattr(bpy.types.Object, ObjectProp.GAMEPLAY_MAIN_DIR, FloatVectorProperty(name="Gameplay Main Dir", description="Main direction for gameplay", subtype='XYZ', size=3, default=(0.0, -1.0, 0.0)))
@@ -130,29 +130,29 @@ def _on_object_renamed():
             # all properties that should be a part of the node name must update here
 
             # prefixes
-            if getattr(obj, ObjectProp.IGNORE) != obj.name.startswith(SPECIAL_NAME_PREFIX_IGNORE):
-                setattr(obj, ObjectProp.IGNORE, obj.name.startswith(SPECIAL_NAME_PREFIX_IGNORE))
-            if getattr(obj, ObjectProp.SOCKET) != obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET):
-                setattr(obj, ObjectProp.SOCKET, obj.name.startswith(SPECIAL_NAME_PREFIX_SOCKET))
-            if getattr(obj, ObjectProp.ICON_ONLY) != obj.name.startswith(SPECIAL_NAME_PREFIX_ICON_ONLY):
-                setattr(obj, ObjectProp.ICON_ONLY, obj.name.startswith(SPECIAL_NAME_PREFIX_ICON_ONLY))
+            if getattr(obj, ObjectProp.IGNORE) != has_prefix(obj.name, SPECIAL_NAME_PREFIX_IGNORE):
+                setattr(obj, ObjectProp.IGNORE, has_prefix(obj.name, SPECIAL_NAME_PREFIX_IGNORE))
+            if getattr(obj, ObjectProp.SOCKET) != has_prefix(obj.name, SPECIAL_NAME_PREFIX_SOCKET):
+                setattr(obj, ObjectProp.SOCKET, has_prefix(obj.name, SPECIAL_NAME_PREFIX_SOCKET))
+            if getattr(obj, ObjectProp.ICON_ONLY) != has_prefix(obj.name, SPECIAL_NAME_PREFIX_ICON_ONLY):
+                setattr(obj, ObjectProp.ICON_ONLY, has_prefix(obj.name, SPECIAL_NAME_PREFIX_ICON_ONLY))
 
 
             # infixes
-            if getattr(obj, ObjectProp.ORIGIN) != (SPECIAL_NAME_INFIX_ORIGIN in obj.name):
-                setattr(obj, ObjectProp.ORIGIN, (SPECIAL_NAME_INFIX_ORIGIN in obj.name))
-            if getattr(obj, ObjectProp.PIVOT) != (SPECIAL_NAME_INFIX_PIVOT in obj.name):
-                setattr(obj, ObjectProp.PIVOT, (SPECIAL_NAME_INFIX_PIVOT in obj.name))
-            if getattr(obj, ObjectProp.TRIGGER_EFFECT) != (SPECIAL_NAME_INFIX_TRIGGEREFFECT in obj.name):
-                setattr(obj, ObjectProp.TRIGGER_EFFECT, (SPECIAL_NAME_INFIX_TRIGGEREFFECT in obj.name))
-            if getattr(obj, ObjectProp.TRIGGER_WAYPOINT) != (SPECIAL_NAME_INFIX_TRIGGERWAYPOINT in obj.name):
-                setattr(obj, ObjectProp.TRIGGER_WAYPOINT, (SPECIAL_NAME_INFIX_TRIGGERWAYPOINT in obj.name))
-            if getattr(obj, ObjectProp.NON_COLLIDABLE) != (SPECIAL_NAME_INFIX_NOTCOLLIDABLE in obj.name):
-                setattr(obj, ObjectProp.NON_COLLIDABLE, (SPECIAL_NAME_INFIX_NOTCOLLIDABLE in obj.name))
-            if getattr(obj, ObjectProp.INVISIBLE) != (SPECIAL_NAME_INFIX_NOTVISIBLE in obj.name):
-                setattr(obj, ObjectProp.INVISIBLE, (SPECIAL_NAME_INFIX_NOTVISIBLE in obj.name))
-            if getattr(obj, ObjectProp.NO_MERGE) != (SPECIAL_NAME_INFIX_NOMERGE in obj.name):
-                setattr(obj, ObjectProp.NO_MERGE, (SPECIAL_NAME_INFIX_NOMERGE in obj.name))
+            if getattr(obj, ObjectProp.ORIGIN) != has_infix(obj.name, SPECIAL_NAME_INFIX_ORIGIN):
+                setattr(obj, ObjectProp.ORIGIN, has_infix(obj.name, SPECIAL_NAME_INFIX_ORIGIN))
+            if getattr(obj, ObjectProp.PIVOT) != has_infix(obj.name, SPECIAL_NAME_INFIX_PIVOT):
+                setattr(obj, ObjectProp.PIVOT, has_infix(obj.name, SPECIAL_NAME_INFIX_PIVOT))
+            if getattr(obj, ObjectProp.TRIGGER_EFFECT) != has_infix(obj.name, SPECIAL_NAME_INFIX_TRIGGEREFFECT):
+                setattr(obj, ObjectProp.TRIGGER_EFFECT, has_infix(obj.name, SPECIAL_NAME_INFIX_TRIGGEREFFECT))
+            if getattr(obj, ObjectProp.TRIGGER_WAYPOINT) != has_infix(obj.name, SPECIAL_NAME_INFIX_TRIGGERWAYPOINT):
+                setattr(obj, ObjectProp.TRIGGER_WAYPOINT, has_infix(obj.name, SPECIAL_NAME_INFIX_TRIGGERWAYPOINT))
+            if getattr(obj, ObjectProp.NON_COLLIDABLE) != has_infix(obj.name, SPECIAL_NAME_INFIX_NOTCOLLIDABLE):
+                setattr(obj, ObjectProp.NON_COLLIDABLE, has_infix(obj.name, SPECIAL_NAME_INFIX_NOTCOLLIDABLE))
+            if getattr(obj, ObjectProp.INVISIBLE) != has_infix(obj.name, SPECIAL_NAME_INFIX_NOTVISIBLE):
+                setattr(obj, ObjectProp.INVISIBLE, has_infix(obj.name, SPECIAL_NAME_INFIX_NOTVISIBLE))
+            if getattr(obj, ObjectProp.NO_MERGE) != has_infix(obj.name, SPECIAL_NAME_INFIX_NOMERGE):
+                setattr(obj, ObjectProp.NO_MERGE, has_infix(obj.name, SPECIAL_NAME_INFIX_NOMERGE))
     finally:
         _syncing = False
 

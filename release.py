@@ -8,7 +8,7 @@ import tempfile
 import datetime
 
 ADDON_DIR = "blendermania-addon" + os.path.sep
-LOCAL = False
+LOCAL = True
 
 PATTERNS_TO_RELEASE = [
     # blendermania
@@ -19,6 +19,8 @@ PATTERNS_TO_RELEASE = [
     "panels/**",
     "properties/**",
     "utils/**",
+    "ui/**",
+
     # NICE
     "NICE/nice.py",
     "NICE/blender/**/*.py",

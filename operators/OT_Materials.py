@@ -139,8 +139,10 @@ def _create_or_update_material(action)->None:
     applyMaterialLiveChanges()
 
     if action == "CREATE":
-        tm_props.ST_selectedLinkedMat = ""
-        tm_props.ST_materialAddName = ""
+        keep_name = tm_props.ST_materialAddName
+        tm_props.ST_selectedLinkedMat = ""  # its update callback overwrites the name field
+        tm_props.ST_materialAddName = keep_name
+
 
 
 

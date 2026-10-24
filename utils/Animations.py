@@ -114,7 +114,7 @@ def local_matrix(col, t_ms, rot=True):
     if tdefs:
         idx, sign = AXIS_MAP[g(CollectionProp.KINEMATIC_TRANS_AXIS)]
         loc[idx] = sign * eval_channel(tdefs, t_ms, g(CollectionProp.KINEMATIC_TRANS_MIN), g(CollectionProp.KINEMATIC_TRANS_MAX))
-    # rotation about the anchor (angles are already radians via subtype ANGLE)
+    # rotation about the anchor point = rest position of the anchor object (angles are already radians via subtype ANGLE)
     rdefs = read_defs(g(CollectionProp.KINEMATIC_ROT_ANIMS))
     R = Matrix.Identity(4)
     if rdefs and rot:
@@ -152,9 +152,6 @@ def _moving_collections():
 
 def _objects_to_track(col):
     objs = set(col.all_objects)
-    anchor = getattr(col, CollectionProp.MOVING_ANCHOR)
-    if anchor:
-        objs.add(anchor)
     return objs
 
 def _store_rest(ob, m):
@@ -239,7 +236,8 @@ def apply_preview(scene):
             M = total_matrix(col, t_ms, cache)
             for ob in _objects_to_track(col):
                 if "tm_rest" not in ob:
-                    continue
+                    # object added (e.g. new anchor) while preview is on: it is shown under M right now
+                    _store_rest(ob, M.inverted_safe() @ ob.matrix_world)
                 if ob.parent and ob.parent.name in col.all_objects:
                     continue
                 ob.matrix_world = M @ rest_matrix(ob)
@@ -307,12 +305,20 @@ def _u_playing(self, ctx):
         _last[0] = time.perf_counter()
         bpy.app.timers.register(_tick)
 
+def disable_animation_preview(scene=None):
+    """turn the preview off and restore all objects to their rest transforms"""
+    scene = scene or bpy.context.scene
+    if getattr(scene, "tm_preview_enabled", False):
+        scene.tm_preview_enabled = False   # update callback restores the rest matrices
+    else:
+        restore_rest()
+
 _PROPS = ("enabled", "use_timeline", "time", "speed", "playing", "show_range")
 
 def register_animation_preview():
     S = bpy.types.Scene
     S.tm_preview_enabled = BoolProperty(name="Preview", default=False, update=_u_enabled)
-    S.tm_preview_use_timeline = BoolProperty(name="Use Timeline", default=True, update=_u_mode)
+    S.tm_preview_use_timeline = BoolProperty(name="Use Timeline", default=False, update=_u_mode)
     S.tm_preview_time = FloatProperty(name="Time (ms)", default=0.0, min=0.0, step=1000, update=_u_time)
     S.tm_preview_speed = FloatProperty(name="Speed", default=1.0, min=0.0, soft_max=4.0)
     S.tm_preview_playing = BoolProperty(name="Play", default=False, update=_u_playing)

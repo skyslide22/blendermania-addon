@@ -123,6 +123,10 @@ class TM_PT_Settings(Panel):
         row.prop(tm_props, ini, text="Ini file")
         row.operator("view3d.tm_autofindnadeoini", text="", icon=ICON_SEARCH)
 
+        row = col.row(align=True)
+        row.prop(tm_props, "ST_materialLibPath", text="Material Lib")
+
+
         row = layout.row(align=True)
         row.enabled = True if not tm_props.CB_converting else False
         row.prop(tm_props, "CB_blendermaniaV2", text="Blendermania V2")
@@ -267,11 +271,6 @@ class TM_PT_Settings_NadeoImporter(Panel):
 
 
 
-
-
-
-
-
 class TM_PT_Settings_Experimentals(Panel):
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Experimentals"
@@ -287,8 +286,6 @@ class TM_PT_Settings_Experimentals(Panel):
         layout = self.layout
         tm_props = get_global_props()
         layout.prop(tm_props, "CB_allow_dangerous_manual_manipulations", text="Allow Dangerous Manual Manipulations")
-
-
 
 
 
@@ -327,6 +324,7 @@ class TM_PT_Settings_Materials(Panel):
     
     @classmethod
     def poll(self, context):
+        return False
         return is_selected_nadeoini_file_name_ok()    
     
     def draw(self, context):

@@ -57,36 +57,37 @@ class AnimEase(str, Enum):
     QuadIn = "QuadIn"
     QuadOut = "QuadOut"
     QuadInOut = "QuadInOut"
-    CubicIn = "CubicIn"
-    CubicOut = "CubicOut"
-    CubicInOut = "CubicInOut"
-    QuartIn = "QuartIn"
-    QuartOut = "QuartOut"
-    QuartInOut = "QuartInOut"
-    QuintIn = "QuintIn"
-    QuintOut = "QuintOut"
-    QuintInOut = "QuintInOut"
-    SineIn = "SineIn"
-    SineOut = "SineOut"
-    SineInOut = "SineInOut"
-    ExpIn = "ExpIn"
-    ExpOut = "ExpOut"
-    ExpInOut = "ExpInOut"
-    CircIn = "CircIn"
-    CircOut = "CircOut"
-    CircInOut = "CircInOut"
-    BackIn = "BackIn"
-    BackOut = "BackOut"
-    BackInOut = "BackInOut"
-    ElasticIn = "ElasticIn"
-    ElasticOut = "ElasticOut"
-    ElasticInOut = "ElasticInOut"
-    ElasticIn2 = "ElasticIn2"
-    ElasticOut2 = "ElasticOut2"
-    ElasticInOut2 = "ElasticInOut2"
-    BounceIn = "BounceIn"
-    BounceOut = "BounceOut"
-    BounceInOut = "BounceInOut"
+    # for some reason the others are not supported even though they are in gbx-net?
+    # CubicIn = "CubicIn"
+    # CubicOut = "CubicOut"
+    # CubicInOut = "CubicInOut"
+    # QuartIn = "QuartIn"
+    # QuartOut = "QuartOut"
+    # QuartInOut = "QuartInOut"
+    # QuintIn = "QuintIn"
+    # QuintOut = "QuintOut"
+    # QuintInOut = "QuintInOut"
+    # SineIn = "SineIn"
+    # SineOut = "SineOut"
+    # SineInOut = "SineInOut"
+    # ExpIn = "ExpIn"
+    # ExpOut = "ExpOut"
+    # ExpInOut = "ExpInOut"
+    # CircIn = "CircIn"
+    # CircOut = "CircOut"
+    # CircInOut = "CircInOut"
+    # BackIn = "BackIn"
+    # BackOut = "BackOut"
+    # BackInOut = "BackInOut"
+    # ElasticIn = "ElasticIn"
+    # ElasticOut = "ElasticOut"
+    # ElasticInOut = "ElasticInOut"
+    # ElasticIn2 = "ElasticIn2"
+    # ElasticOut2 = "ElasticOut2"
+    # ElasticInOut2 = "ElasticInOut2"
+    # BounceIn = "BounceIn"
+    # BounceOut = "BounceOut"
+    # BounceInOut = "BounceInOut"
 
 
 
@@ -517,9 +518,13 @@ def add_or_update_itemconfig_placement_template(name: str, placement: PlacementP
     template.name = name
     copy_props(placement, template.config)
 
-def add_or_update_itemconfig_placement_template_from_dict(d: dict) -> None:
+def add_or_update_itemconfig_placement_template_from_dict(d: dict, keep_existing: bool = False) -> None:
+    """keep_existing: don't overwrite a template of the same name that already exists (e.g. saved in the blend file)"""
     templates = bpy.context.scene.tm_props_cfg_placement_templates
-    template = templates.get(d.get("name")) or templates.add()
+    existing = templates.get(d.get("name"))
+    if existing is not None and keep_existing:
+        return
+    template = existing or templates.add()
     props_from_dict(template, d)   # sets name and fills template.config
 
 def remove_itemconfig_placement_template(template_name: str) -> None:

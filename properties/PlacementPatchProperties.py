@@ -1,3 +1,5 @@
+import re
+
 import bpy
 from bpy.props import *
 from ..utils.Functions import get_global_props
@@ -9,11 +11,32 @@ def compatible_group_search(self, context, edit_text):
     return [ident for ident in PLACEMENT_KNOWN_PATCH_GROUPS
             if edit_text.lower() in ident.lower()]
 
+# matches the last path segment, e.g. ".validForGroups[0]" or '.patches["Name"]'
+_LAST_SEGMENT = re.compile(r'\.[^.\[\]]+(?:\[(?:\d+|"[^"]*")\])?$')
+
+def find_owner_with(prop: bpy.types.PropertyGroup, attr: str):
+    """Walk up from a property group until an ancestor has `attr`."""
+    id_data = prop.id_data
+    path = prop.path_from_id()          # e.g. "tm_props.placement.patches[2].validForGroups[0]"
+    while path:
+        path = _LAST_SEGMENT.sub("", path, count=1) if _LAST_SEGMENT.search(path) else ""
+        if not path:
+            break
+        parent = id_data.path_resolve(path)
+        if hasattr(parent, attr):
+            return parent
+    return None
+
 def valid_for_group_search(self, context, edit_text):
-    # get selected group
-    tm_props = get_global_props()
-    compatible_groups = [ident.name for ident in tm_props.LI_cfg_compatibleGroups]
-    return [ident for ident in compatible_groups]
+    try:
+        owner = find_owner_with(self, "LI_compatibleGroups")
+    except ValueError:                  # not reachable from an ID
+        return []
+    if owner is None:
+        return []
+
+    needle = edit_text.lower()
+    return [g.name for g in owner.LI_compatibleGroups if needle in g.name.lower()]
 
 class CompatiblePatchGroupProperty(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(

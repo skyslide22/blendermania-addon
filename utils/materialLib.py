@@ -33,6 +33,17 @@ def sync_link_search_collection(collection_name: str) -> None:
     _link_search_collection_synced = collection_name
 
 
+def reset_materiallibrary_cache() -> None:
+    """drop parsed materiallib and link search state, everything is rebuilt lazily from the current ST_materialLibPath"""
+    global _link_search_collection_synced
+    materiallib_materials.clear()
+    _link_search_collection_synced = ""
+    try:
+        bpy.context.scene.tm_props_linkedMaterialsLibrary.clear()
+    except AttributeError:
+        pass
+
+
 def request_link_search_sync() -> None:
     """drawing can't write properties, so the sync is done by a one-shot timer"""
     global _link_search_sync_pending

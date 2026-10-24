@@ -1,5 +1,5 @@
 from bpy.types import (Operator)
-from ..utils.Placement import load_placement_class_template
+from ..utils.Placement import load_placement_class_template, placement_class_template_items
 from ..properties.PlacementProperties import PlacementProperties
 from ..properties.Functions import *
 from ..utils.Functions import *
@@ -39,6 +39,8 @@ class TM_OT_Items_ItemConfig_SaveItemPlacementTemplate(Operator):
             return {'CANCELLED'}
 
         add_or_update_itemconfig_placement_template(self.template_name, placement)
+        from .OT_Settings import save_local_placement_template
+        save_local_placement_template(self.template_name)
         return {'FINISHED'}
     
     def draw(self, context):
@@ -60,23 +62,64 @@ class TM_OT_Items_ItemConfig_RemoveItemPlacementTemplate(Operator):
         
     def execute(self, context):
         remove_itemconfig_placement_template(self.template_name)
+        from .OT_Settings import remove_local_placement_template
+        remove_local_placement_template(self.template_name)
         return {"FINISHED"}
     
-class TM_OT_Items_ItemConfig_LoadPlacementTemplate(Operator):
-    bl_idname = "view3d.tm_load_item_config_placement_template"
-    bl_description = "Execute Order 66"
-    bl_icon = 'ADD'
-    bl_label = "Load Item Config Template"
+class _PlacementTemplatePicker:
+    """Base for operators that pop up a list of templates and apply the chosen one to context.tm_placement.
+    Subclasses implement get_template_names(context) and load(placement)."""
+    picker_title = "Insert Template"
+    template_name: bpy.props.StringProperty(default="", options={'SKIP_SAVE'})
 
-    template_name: bpy.props.StringProperty("")
-        
+    def get_template_names(self, context):
+        return []
+
+    def load(self, placement):
+        pass
+
+    def invoke(self, context, event):
+        placement = getattr(context, "tm_placement", None)
+        if placement is None:
+            self.report({'ERROR'}, "No placement in context")
+            return {'CANCELLED'}
+        if self.template_name:
+            return self.execute(context)
+
+        names = self.get_template_names(context)
+        idname = self.bl_idname
+
+        def draw(menu, _context):
+            layout = menu.layout
+            if not names:
+                layout.label(text="No templates found", icon='INFO')
+                return
+            layout.context_pointer_set("tm_placement", placement)
+            for name in names:
+                layout.operator(idname, text=name.replace("_", " ")).template_name = name
+
+        context.window_manager.popup_menu(draw, title=self.picker_title)
+        return {'FINISHED'}
+
     def execute(self, context):
         placement = getattr(context, "tm_placement", None)
         if placement is None:
             self.report({'ERROR'}, "No placement in context")
             return {'CANCELLED'}
-        load_itemconfig_placement_template(placement, self.template_name)
+        self.load(placement)
         return {'FINISHED'}
+
+
+class TM_OT_Items_ItemConfig_LoadPlacementTemplate(_PlacementTemplatePicker, Operator):
+    bl_idname = "view3d.tm_load_item_config_placement_template"
+    bl_label = "Load Template"
+    bl_description = "Choose a template and insert its values into the custom placement"
+
+    def get_template_names(self, context):
+        return [t.name for t in context.scene.tm_props_cfg_placement_templates]
+
+    def load(self, placement):
+        load_itemconfig_placement_template(placement, self.template_name)
 
 class TM_OT_Items_Config_AddCompatiblePatchGroup(Operator):
     bl_idname = "view3d.tm_add_compatible_patch_group"
@@ -155,21 +198,17 @@ def draw_nightonly_option(self, context):
     row.prop(context.object.data, "night_only", text="Night & Sunset only")
 
 
-class TM_OT_Items_ItemConfig_LoadPlacementClassTemplate(Operator):
+class TM_OT_Items_ItemConfig_LoadPlacementClassTemplate(_PlacementTemplatePicker, Operator):
     bl_idname = "view3d.tm_load_item_config_placement_class_template"
-    bl_description = "Execute Order 66"
-    bl_icon = 'ADD'
     bl_label = "Load Item Config Template Class"
+    bl_description = "Choose a template and insert its values into the attachment configuration"
+    picker_title = "Insert Attachment Template"
 
-    template_name: bpy.props.StringProperty("")
-        
-    def execute(self, context):
-        placement = getattr(context, "tm_placement", None)
-        if placement is None:
-            self.report({'ERROR'}, "No placement in context")
-            return {'CANCELLED'}
+    def get_template_names(self, context):
+        return [item[0] for item in placement_class_template_items(self, context)]
+
+    def load(self, placement):
         load_placement_class_template(placement, self.template_name)
-        return {'FINISHED'}
 
 
 

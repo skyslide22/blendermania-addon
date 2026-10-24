@@ -19,6 +19,7 @@
 		<IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
 		<DebugType>none</DebugType>
 		<PublishDir>$(AssetsDir)release\</PublishDir>
+
 	</PropertyGroup>
 
 	<!-- Debug: every build is copied to assets/dotnet/debug/ -->
@@ -37,7 +38,7 @@
     <PackageReference Include="GBX.NET.Imaging" Version="2.0.3" />
     <PackageReference Include="GBX.NET.Json" Version="0.1.7" />
     <PackageReference Include="GBX.NET.LZO" Version="2.1.6" />
-    <PackageReference Include="TM_CSharpMapping" Version="0.4.1-alpha.14" />
+    <PackageReference Include="TM_CSharpMapping" Version="0.4.1-alpha.15" />
 
     
     <!-- TGA & DDS Library -->

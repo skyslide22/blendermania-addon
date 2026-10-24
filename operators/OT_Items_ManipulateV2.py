@@ -70,7 +70,6 @@ class TM_OT_Create_Anchor(Operator):
         empty.empty_display_type = 'ARROWS'    # the 3-axis look
         empty.empty_display_size = 1.0
         empty.location = center
-        setattr(empty, ObjectProp.IGNORE, True)  # mark as ignore, so it is not exported
         coll.objects.link(empty)
 
         setattr(coll, CollectionProp.MOVING_ANCHOR, empty)

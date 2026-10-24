@@ -2,7 +2,7 @@ import bpy
 from bpy.props import *
 
 from ..properties.ItemConfigProperties import ItemConfigProperties
-from .Functions import set_collection_moving_group, toggle_infix, toggleNameSpecialPrefix
+from .Functions import has_infix, has_prefix, set_collection_moving_group, toggle_infix, toggleNameSpecialPrefix
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
 from .PropertyIdentifiers import CollectionProp
 from ..utils.Constants import *
@@ -311,6 +311,8 @@ def _moving_group_poll(self, obj):
         and getattr(obj, CollectionProp.MOVING_GROUP, True)   # property filter
     )
 
+
+
 # name changes sets property
 # syncing to avoid infinite loops
 from bpy.app.handlers import persistent
@@ -326,12 +328,12 @@ def _on_collection_renamed():
         for obj in bpy.data.collections:
             # all properties that should be a part of the collection name must update here
             # prefix
-            if getattr(obj, CollectionProp.IGNORE) != obj.name.startswith(SPECIAL_NAME_PREFIX_IGNORE):
-                setattr(obj, CollectionProp.IGNORE, obj.name.startswith(SPECIAL_NAME_PREFIX_IGNORE))
+            if getattr(obj, CollectionProp.IGNORE) != has_prefix(obj.name, SPECIAL_NAME_PREFIX_IGNORE):
+                setattr(obj, CollectionProp.IGNORE, has_prefix(obj.name, SPECIAL_NAME_PREFIX_IGNORE))
 
             # infixes
-            if getattr(obj, CollectionProp.MOVING_GROUP) != (SPECIAL_NAME_INFIX_MOVINGGROUP in obj.name):
-                setattr(obj, CollectionProp.MOVING_GROUP, SPECIAL_NAME_INFIX_MOVINGGROUP in obj.name)
+            if getattr(obj, CollectionProp.MOVING_GROUP) != has_infix(obj.name, SPECIAL_NAME_INFIX_MOVINGGROUP):
+                setattr(obj, CollectionProp.MOVING_GROUP, has_infix(obj.name, SPECIAL_NAME_INFIX_MOVINGGROUP))
                 set_collection_moving_group(obj, getattr(obj, CollectionProp.MOVING_GROUP))
     finally:
         _syncing = False

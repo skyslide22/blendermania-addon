@@ -44,11 +44,13 @@ import math
 
 
 
-def export_and_convert(only_failed_ones: bool=False):
+def export_and_convert(only_failed_ones: bool=False, which: str | None = None):
     tm_props = get_global_props()
     failed = get_convert_items_failed_props()
     
-    selected_only = tm_props.LI_exportWhichObjs == "SELECTED"
+    # explicit scope wins, otherwise fall back to the panel setting
+    scope = which or tm_props.LI_exportWhichObjs
+    selected_only = scope == "SELECTED"
 
     objs = bpy.context.selected_objects if selected_only else bpy.context.scene.objects
     objs = [obj.object for obj in failed.objects] if only_failed_ones else objs

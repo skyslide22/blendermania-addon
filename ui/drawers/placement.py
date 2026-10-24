@@ -83,7 +83,8 @@ def draw_patch_layout(layout, item, index):
                         item,
                         "validForGroups",
                         "validForGroups_index",
-                        rows=1)
+                        rows=5,
+                        show_move=True, show_clipboard=True)
 
 
 def draw_item_placement_editor(layout, context, placement, section):
@@ -93,11 +94,8 @@ def draw_item_placement_editor(layout, context, placement, section):
     row.label(text="Custom Placement Parameters:")
 
     row = layout.row(align=True)
-    row.label(text="Load Template")
     row.context_pointer_set("tm_placement", placement)
-    row.prop(context.scene, "tm_props_cfg_placement_template_ui", text="")
-    op = row.operator("view3d.tm_load_item_config_placement_template", text="", icon=ICON_IMPORT)
-    op.template_name =  context.scene.tm_props_cfg_placement_template_ui
+    row.operator("view3d.tm_load_item_config_placement_template", text="Insert from Template...", icon=ICON_IMPORT)
 
     row = layout.row(align=True)
     row.prop(placement, "LI_simpleOrAdvanced", expand=True)
@@ -189,7 +187,8 @@ def draw_item_placement_editor(layout, context, placement, section):
                         placement, 
                         "LI_pivots", 
                         draw_item=draw_pivot,
-                        add_text="Add Pivot")   # add button lives in the foldout header
+                        add_text="Add Pivot",
+                        show_move=True, show_clipboard=True)   # add button lives in the foldout header
 
         placement_cube_body, placement_cube_header = foldout_toggle(layout, placement, 
                                                 "CB_placementCube", 
@@ -209,11 +208,8 @@ def draw_item_placement_editor(layout, context, placement, section):
                                                             enable_prop="CB_attachmentConfiguration")
         if attachment_body:
             row = attachment_body.row(align=True)
-            row.label(text="Load Attachment Template:")
-            row.prop(context.window_manager, "tm_placement_class_templates", text="")
             row.context_pointer_set("tm_placement", placement)
-            op = row.operator("view3d.tm_load_item_config_placement_class_template", text="", icon=ICON_IMPORT)
-            op.template_name =  context.window_manager.tm_placement_class_templates
+            row.operator("view3d.tm_load_item_config_placement_class_template", text="Insert Attachment Template...", icon=ICON_IMPORT)
 
             row = attachment_body.row(align=True)
             size_group_row = row.row(align=True)
@@ -239,7 +235,8 @@ def draw_item_placement_editor(layout, context, placement, section):
                     placement, 
                     "LI_compatibleGroups", 
                     "NU_compatibleGroups_index", 
-                    rows=3)
+                    rows=5,
+                    show_move=True, show_clipboard=True)
 
             # ---- Patch layouts ----
             patch_layout_body, patch_layout_header = foldout_toggle(attachment_body, tm_props, 
@@ -253,7 +250,9 @@ def draw_item_placement_editor(layout, context, placement, section):
                             "LI_patchLayouts",
                             "NU_patchLayouts_index",
                             draw_detail=draw_patch_layout,
-                            rows = 1)
+                            rows = 5,
+                            show_move=True, show_clipboard=True,
+                            copy_on_add=WIDGET_NEW_ENTRY_MODE_SELECTED)
 
     row = layout.row()
     row.context_pointer_set("tm_placement", placement)

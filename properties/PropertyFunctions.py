@@ -32,4 +32,3 @@ def set_lod_indexes(obj, indexes) -> None:
     coll.clear()
     for i in sorted(set(indexes)):
         coll.add().value = i
-

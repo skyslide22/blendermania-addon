@@ -30,6 +30,8 @@ class CollectionProp(StrEnum):
     CONFIG = "tm_item_config"
 
     MOVING_GROUP = "tm_moving_group"
+    DUMMY_GROUP = "tm_dummy_group"
+    
     LODS = "tm_lods"
     SELECTED_LODS = "tm_selected_lods"
     WAYPOINT_TYPE = "tm_waypoint_type"

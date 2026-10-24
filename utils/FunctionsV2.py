@@ -1,5 +1,6 @@
 from typing import List
 import bpy
+
 from .Functions import *
 import json
 from ..properties.PropertyIdentifiers import CollectionProp, ObjectProp
@@ -42,32 +43,6 @@ def get_active_collection_of_selected_object() -> bpy.types.Collection:
 def get_selected_collection() -> bpy.types.Collection:
     col = bpy.context.collection
     return col
-
-def get_item_collections_v2(objs: List[bpy.types.Object])->set:
-    scene = bpy.context.scene
-    collections = set()
-
-    for obj in objs:
-
-        if obj.type != "MESH":
-            continue
-
-        if obj.visible_get() is False: 
-            continue
-
-        # filter special objects, allow only real "mesh" objects, not helpers (_xyz_)
-        if not is_real_object_by_name(obj.name):
-            continue
-
-        for col in obj.users_collection:
-            root = get_item_root(col, scene)
-            if root.name.lower() in NOT_ALLOWED_COLLECTION_NAMES: continue
-            if root in collections: continue
-            if is_collection_excluded_or_hidden(root): continue
-
-            collections.add(root)
-    
-    return collections
 
 
 
@@ -202,47 +177,47 @@ def has_valid_LODs(obj: bpy.types.Object) -> bool:
     if len(lods) == 0: return False
     return True
 
+# def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
+#     location: list[float] = [0,0,0]
+#     offset: list[float] = []
+    
+#     # take first valid object and main one
+#     for obj in objects:
+#         if is_object_exportable(obj)\
+#         and (len(offset) == 0 or getattr(obj, ObjectProp.ORIGIN, False)):
+#             offset = [
+#                 obj.location[0] - location[0],
+#                 obj.location[1] - location[1],
+#                 obj.location[2] - location[2],
+#             ]
+            
+#     return offset
+
+
 def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
     location: list[float] = [0,0,0]
     offset: list[float] = []
+
+    origin = next(
+        (obj for obj in objects
+         if obj.type in {"MESH", "EMPTY"} and getattr(obj, ObjectProp.ORIGIN, False)),
+        None,
+    )
+    # fallback: first mesh only
+    fallback = next((obj for obj in objects if obj.type == "MESH"), None)
+
+    main = origin or fallback
+
+    if main is not None:
+        offset = [
+            main.location[0] - location[0],
+            main.location[1] - location[1],
+            main.location[2] - location[2],
+        ]
     
-    # take first valid object and main one
-    for obj in objects:
-        if is_object_exportable(obj)\
-        and (len(offset) == 0 or getattr(obj, ObjectProp.ORIGIN, False)):
-            offset = [
-                obj.location[0] - location[0],
-                obj.location[1] - location[1],
-                obj.location[2] - location[2],
-            ]
             
     return offset
 
-
-def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
-    location: list[float] = [0,0,0]
-    offset: list[float] = []
-    
-    # take first valid object and main one
-    for obj in objects:
-        if obj.type == "MESH" \
-        and (len(offset) == 0 or SPECIAL_NAME_INFIX_ORIGIN in obj.name):
-            offset = [
-                obj.location[0] - location[0],
-                obj.location[1] - location[1],
-                obj.location[2] - location[2],
-            ]
-            
-    return offset
-
-def is_real_object_by_name(name: str) -> bool:
-    """check if the object name is not a interpreted as special"""
-    name = name.lower()
-    return not name.startswith((
-                SPECIAL_NAME_PREFIX_NOTVISIBLE,
-                SPECIAL_NAME_PREFIX_NOTCOLLIDABLE,
-            ))\
-            or SPECIAL_NAME_INFIX_ORIGIN in name
 
 def is_obj_visible(obj: bpy.types.Object) -> bool:
     """check if the object is not a interpreted as special"""
@@ -311,3 +286,7 @@ def props_from_dict(group, d):
 
 def get_addon_templates_path() -> str:
     return get_addon_assets_path() + "templates/"
+
+
+def is_editor_object_mode() -> bool:
+    return bpy.context.mode == 'OBJECT'

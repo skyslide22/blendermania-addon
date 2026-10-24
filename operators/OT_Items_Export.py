@@ -3,6 +3,7 @@ from bpy.types import (Operator)
 
 from ..utils.ItemsExport import export_collections, export_objects
 from ..utils.Functions import *
+from ..utils.Animations import disable_animation_preview
 
 class TM_OT_Items_Export_ExportAndOrConvert(Operator):
     """export and or convert an item"""
@@ -14,6 +15,7 @@ class TM_OT_Items_Export_ExportAndOrConvert(Operator):
         
     def execute(self, context):
         tm_props = get_global_props()
+        disable_animation_preview()
         
         if not save_blend_file():
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
@@ -35,6 +37,7 @@ class TM_OT_Items_Export_ExportAndOrConverFailedOnes(Operator):
         
     def execute(self, context):
         tm_props = get_global_props()
+        disable_animation_preview()
         
         if not save_blend_file():
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")

@@ -1,3 +1,4 @@
+import re
 import bpy
 from ...utils.Constants import *
 
@@ -46,10 +47,76 @@ def _op(layout, idname, owner, collection, *,
         setattr(op, k, v)
     return op
 
+def _snapshot(item):
+    """Stores values in a temporary scene-independent dict clipboard."""
+    data = {}
+    for prop in item.bl_rna.properties:
+        pid = prop.identifier
+        if pid == "rna_type":
+            continue
+        if prop.type == 'COLLECTION':
+            data[pid] = [_snapshot(s) for s in getattr(item, pid)]
+        elif prop.type == 'POINTER':
+            sub = getattr(item, pid)
+            if sub is not None and not isinstance(sub, bpy.types.ID):
+                data[pid] = _snapshot(sub)
+            elif prop.is_readonly is False:
+                data[pid] = sub
+        elif not prop.is_readonly:
+            value = getattr(item, pid)
+            if hasattr(value, "__len__") and not isinstance(value, str):
+                value = tuple(value)
+            data[pid] = value
+    return data
+
+
+def _restore(item, data, skip=()):
+    for pid, value in data.items():
+        if pid in skip:
+            continue
+        prop = item.bl_rna.properties.get(pid)
+        if prop is None:
+            continue
+        try:
+            if prop.type == 'COLLECTION':
+                coll = getattr(item, pid)
+                coll.clear()
+                for d in value:
+                    _restore(coll.add(), d)
+            elif isinstance(value, dict):
+                _restore(getattr(item, pid), value)
+            else:
+                setattr(item, pid, value)
+        except (AttributeError, TypeError, ValueError):
+            pass
+
+
+LIST_CLIPBOARD = {"type": None, "data": None}
+
 # =============================================================================
 #    LIST OPERATORS (registered)
 #    Generic add/remove used by every list.
 # =============================================================================
+
+def _make_name_unique(items, item):
+    """Increments a trailing number (or appends one) until the name is unique."""
+    if "name" not in item.bl_rna.properties or item.bl_rna.properties["name"].is_readonly:
+        return
+    used = {i.name for i in items if i != item}
+    name = item.name
+    if name not in used:
+        return
+    m = re.match(r"^(.*?)(\d+)$", name)
+    base, num, width = (m.group(1), int(m.group(2)), len(m.group(2))) if m else (name + "_", 0, 1)
+    while name in used:
+        num += 1
+        name = f"{base}{num:0{width}d}"
+    item.name = name
+
+
+WIDGET_NEW_ENTRY_MODE_NONE = "NONE"
+WIDGET_NEW_ENTRY_MODE_LAST = "LAST"
+WIDGET_NEW_ENTRY_MODE_SELECTED = "SELECTED"
 
 class TM_OT_List_Add(bpy.types.Operator):
     bl_idname = "tm.list_add"
@@ -59,6 +126,9 @@ class TM_OT_List_Add(bpy.types.Operator):
     collection: bpy.props.StringProperty()
     index_prop: bpy.props.StringProperty()
     open_prop: bpy.props.StringProperty()
+    copy_from: bpy.props.EnumProperty(
+        items=[(WIDGET_NEW_ENTRY_MODE_NONE, "None", ""), (WIDGET_NEW_ENTRY_MODE_SELECTED, "Selected", ""), (WIDGET_NEW_ENTRY_MODE_LAST, "Last", "")],
+        default=WIDGET_NEW_ENTRY_MODE_NONE)
 
     def execute(self, context):
         owner = getattr(context, "tm_list_owner", None)
@@ -72,8 +142,21 @@ class TM_OT_List_Add(bpy.types.Operator):
         if (hook := hooks.get("before_add")) and hook(owner) is False:
             return {'CANCELLED'}
 
+        source = None
+        if len(items) > 0 and self.copy_from != WIDGET_NEW_ENTRY_MODE_NONE:
+            src_i = len(items) - 1
+            if self.copy_from == WIDGET_NEW_ENTRY_MODE_SELECTED and self.index_prop and index_owner is not None:
+                sel = getattr(index_owner, self.index_prop)
+                if 0 <= sel < len(items):
+                    src_i = sel
+            source = items[src_i]
+            snapshot = _snapshot(source)
+
         item = items.add()
         index = len(items) - 1
+        if source is not None:
+            _restore(item, snapshot)
+            _make_name_unique(items, item)
 
         if hook := hooks.get("after_add"):
             hook(owner, item, index)
@@ -123,7 +206,65 @@ class TM_OT_List_Remove(bpy.types.Operator):
         if hook := hooks.get("after_remove"):
             hook(owner, i)
         return {'FINISHED'}
-    
+
+
+class TM_OT_List_Move(bpy.types.Operator):
+    bl_idname = "tm.list_move"
+    bl_label = "Move"
+    bl_options = {'UNDO'}
+
+    collection: bpy.props.StringProperty()
+    index_prop: bpy.props.StringProperty()
+    index: bpy.props.IntProperty(default=-1)   # -1 = use the active index
+    direction: bpy.props.EnumProperty(items=[('UP', "Up", ""), ('DOWN', "Down", "")])
+
+    def execute(self, context):
+        owner = getattr(context, "tm_list_owner", None)
+        index_owner = getattr(context, "tm_list_index_owner", None)
+        if owner is None:
+            return {'CANCELLED'}
+
+        items = getattr(owner, self.collection)
+        i = self.index
+        if i < 0 and self.index_prop and index_owner is not None:
+            i = getattr(index_owner, self.index_prop)
+        j = i - 1 if self.direction == 'UP' else i + 1
+        if not (0 <= i < len(items) and 0 <= j < len(items)):
+            return {'CANCELLED'}
+
+        items.move(i, j)
+        if self.index_prop and index_owner is not None \
+                and getattr(index_owner, self.index_prop) == i:
+            setattr(index_owner, self.index_prop, j)
+        return {'FINISHED'}
+
+
+class TM_OT_List_Clipboard(bpy.types.Operator):
+    bl_idname = "tm.list_clipboard"
+    bl_label = "Copy / Paste"
+    bl_options = {'UNDO'}
+
+    action: bpy.props.EnumProperty(
+        items=[('COPY', "Copy Entry", "Copy the entry values"),
+               ('PASTE', "Paste Entry Values", "Paste copied values onto the entry")])
+
+    def execute(self, context):
+        item = getattr(context, "tm_list_item", None)
+        if item is None:
+            return {'CANCELLED'}
+
+        type_id = item.bl_rna.identifier
+        if self.action == 'COPY':
+            LIST_CLIPBOARD["type"] = type_id
+            LIST_CLIPBOARD["data"] = _snapshot(item)
+            return {'FINISHED'}
+
+        if LIST_CLIPBOARD["type"] != type_id:
+            self.report({'WARNING'}, "Clipboard is empty or from a different entry type")
+            return {'CANCELLED'}
+        _restore(item, LIST_CLIPBOARD["data"], skip=("name",))
+        return {'FINISHED'}
+
 # =============================================================================
 # MODULE 1: LIST + INSPECTOR (Blender UIList)
 # =============================================================================
@@ -154,8 +295,27 @@ def _list_id(owner, collection):
     path = "" if owner is id_block else owner.path_from_id()
     return f"{id_block.name}.{path}.{collection}"
 
+class TM_MT_List_Clipboard(bpy.types.Menu):
+    bl_idname = "TM_MT_List_Clipboard"
+    bl_label = "Entry"
+
+    def draw(self, context):
+        # the item comes from the context pointer set on the button's layout
+        self.layout.operator("tm.list_clipboard", text="Copy Entry",
+                             icon='COPYDOWN').action = 'COPY'
+        self.layout.operator("tm.list_clipboard", text="Paste Entry Values",
+                             icon='PASTEDOWN').action = 'PASTE'
+
+
+def _clipboard_menu(layout, item):
+    sub = layout.column(align=True)
+    sub.context_pointer_set("tm_list_item", item)
+    sub.menu("TM_MT_List_Clipboard", text="", icon='DOWNARROW_HLT')
+
+
 def list_inspector(layout, owner, collection, index_prop, index_owner=None,
-                   draw_detail=None, draw_footer=None, rows=4):
+                   draw_detail=None, draw_footer=None, rows=4,
+                   show_move=False, copy_on_add=None, show_clipboard=False):
     """Blender list with add/remove column. draw_detail(layout, item, index)
     draws the active item below. draw_footer(layout) draws a fixed non-data row
     under the list. index_owner: where index_prop lives (defaults to owner)."""
@@ -178,9 +338,21 @@ def list_inspector(layout, owner, collection, index_prop, index_owner=None,
 
     col = row.column(align=True)
     _op(col, "tm.list_add", owner, collection, icon='ADD',
-        index_owner=index_owner, index_prop=index_prop)
+        index_owner=index_owner, index_prop=index_prop,
+        copy_from=copy_on_add or 'NONE')
     _op(col, "tm.list_remove", owner, collection, icon='REMOVE',
         index_owner=index_owner, index_prop=index_prop)
+    items = getattr(owner, collection)
+    i = getattr(index_owner, index_prop)
+    if show_clipboard and 0 <= i < len(items):
+        col.separator()
+        _clipboard_menu(col, items[i])
+    if show_move and len(items) >= 2:
+        col.separator()
+        _op(col, "tm.list_move", owner, collection, icon='TRIA_UP',
+            index_owner=index_owner, index_prop=index_prop, direction='UP')
+        _op(col, "tm.list_move", owner, collection, icon='TRIA_DOWN',
+            index_owner=index_owner, index_prop=index_prop, direction='DOWN')
 
     if draw_detail:
         items = getattr(owner, collection)
@@ -199,7 +371,8 @@ WIDGET_ADD_BUTTON_BOTTOM = 'BOTTOM'
 
 def item_list(layout, owner, collection: str, draw_item,
               add=WIDGET_ADD_BUTTON_NONE, add_icon='ADD', add_text="",
-              numbered: bool = False, open_prop="", draw_footer=None):
+              numbered: bool = False, open_prop="", draw_footer=None,
+              show_move=False, copy_on_add=None, show_clipboard=False):
     """Items drawn directly, remove button per item.
     add: 'TOP' | 'BOTTOM' | None (draw the add button yourself)
     draw_item(layout, item, index) is your function."""
@@ -207,7 +380,8 @@ def item_list(layout, owner, collection: str, draw_item,
 
     def add_button(lay):
         _op(lay, "tm.list_add", owner, collection,
-            icon=add_icon, text=add_text, open_prop=open_prop)
+            icon=add_icon, text=add_text, open_prop=open_prop,
+            copy_from=copy_on_add or 'NONE')
 
     if add == WIDGET_ADD_BUTTON_TOP:
         add_button(layout.row())
@@ -221,7 +395,15 @@ def item_list(layout, owner, collection: str, draw_item,
             num.label(text=f"{i + 1}.")
         content = row.column(align=True)
         draw_item(content, item, i)
-        _op(row, "tm.list_remove", owner, collection, icon='X', index=i)
+        # right of the entry: move column, then delete / dropdown column
+        if show_move and len(items) >= 2:
+            move = row.column(align=True)
+            _op(move, "tm.list_move", owner, collection, icon='TRIA_UP', index=i, direction='UP')
+            _op(move, "tm.list_move", owner, collection, icon='TRIA_DOWN', index=i, direction='DOWN')
+        buttons = row.column(align=True)
+        _op(buttons, "tm.list_remove", owner, collection, icon='X', index=i)
+        if show_clipboard:
+            _clipboard_menu(buttons, item)
 
     if draw_footer:
         last_index = len(items) - 1

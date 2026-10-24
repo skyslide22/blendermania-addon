@@ -14,6 +14,10 @@ import os
 
 
 
+
+
+
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
@@ -44,6 +48,10 @@ from .utils.NadeoImporter  import *
 from .utils.NadeoXML       import *
 from .utils.BlenderObjects import *
 from .utils.ItemsExportV2Models       import *
+from .utils.OutlinerMenus import *
+from .utils.HeaderMenus import *
+
+from .utils.KeyMappings import *
 
 from .utils.Server import run_server
 
@@ -197,8 +205,6 @@ classes = (
     TM_OT_Items_CollectionManipulationToggleNICE,
     TM_OT_Items_ObjectManipulationToggleGate,
 
-    #anim
-    TM_PT_Animation_Preview,
 
     # object visibility and selection controls
     TM_PT_VisibilitySelection,
@@ -218,6 +224,7 @@ classes = (
     TM_PT_ExportV2_Placement,
     TM_OT_Items_ExportV2,
     TM_OT_Items_Export_ExportAndOrConverFailedOnesV2,
+
 
     # xml,
     TM_PT_Items_MeshXML,
@@ -267,6 +274,11 @@ classes = (
     # uvs
     TM_PT_Items_UVmaps_LightMap,
     TM_PT_Items_UVmaps_BaseMaterial_CubeProject,
+
+
+    #anim
+    TM_PT_Animation_Preview,
+
 
     # materials
     TM_PT_Materials,
@@ -329,6 +341,9 @@ classes = (
     # widgets
     TM_OT_List_Add,
     TM_OT_List_Remove,
+    TM_OT_List_Move,
+    TM_OT_List_Clipboard,
+    TM_MT_List_Clipboard,
     TM_UL_Generic,
     
 )
@@ -418,8 +433,15 @@ def register():
 
 
     TM_PT_Items_CollectionManipulationV2.register_callbacks()
+
+    from .ui.drawers.gameplay_dir import register_gameplay_dir
+    register_gameplay_dir()
     
     NICE_register()
+
+    register_keymaps()
+    register_outliner_menus()
+    register_header_menus()
     
 
 
@@ -470,7 +492,13 @@ def unregister():
 
     TM_PT_Items_CollectionManipulationV2.unregister_callbacks()
 
+    from .ui.drawers.gameplay_dir import unregister_gameplay_dir
+    unregister_gameplay_dir()
+
     NICE_unregister()
+    unregister_keymaps()
+    unregister_outliner_menus()
+    unregister_header_menus()
 
 @persistent
 def on_save(what, idontknow) -> None: # on quit?
@@ -548,6 +576,10 @@ def on_startup(dummy) -> None:
         print("server died hm..")
 
 
-bpy.app.handlers.load_post.append(on_startup)
-bpy.app.handlers.save_post.append(on_save)
+# drop stale handlers from previous addon (re)loads, otherwise they run multiple times
+for _handlers, _fn in ((bpy.app.handlers.load_post, on_startup), (bpy.app.handlers.save_post, on_save)):
+    for _h in list(_handlers):
+        if getattr(_h, "__name__", None) == _fn.__name__ and getattr(_h, "__module__", "") == _fn.__module__:
+            _handlers.remove(_h)
+    _handlers.append(_fn)
 

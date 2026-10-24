@@ -468,3 +468,7 @@ class TM_PT_ExportV2_Placement(Panel):
             draw_item_placement_editor(layout, context, placement_ref.placement, section="Placement")
         if mode == 'TEMPLATE':
             draw_item_placement_template_selection(layout, context, placement_ref, section="Placement Template")
+
+
+
+

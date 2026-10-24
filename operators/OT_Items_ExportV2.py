@@ -3,26 +3,43 @@ from bpy.types import (Operator)
 
 from ..utils.FunctionsV2 import *
 from ..utils.ItemsExportV2 import *
+from ..utils.Animations import disable_animation_preview
 
 class TM_OT_Items_ExportV2(Operator):
     """export and or convert an item"""
     bl_idname = "view3d.tm_export_v2"
     bl_description = "Export and convert items"
     bl_icon = 'MATERIAL'
-    bl_label = "Export or/and Convert"
+    bl_label = "Export or/and Convert items"
     bl_options = {"REGISTER", "UNDO"} #without, ctrl+Z == crash
 
+    scope: bpy.props.EnumProperty(
+        name="Scope",
+        items=[
+            ("PANEL",    "Panel setting", "Use the scope chosen in the export panel"),
+            ("SELECTED", "Selected",      "Export only selected objects"),
+            ("VISIBLE",  "Visible",       "Export all visible objects"),
+        ],
+        default="PANEL",
+        options={"SKIP_SAVE"},   # don't remember the last used value
+    )
+
+    @classmethod
+    def poll(cls, context):
+        if not is_editor_object_mode():
+            cls.poll_message_set("Only available in Object Mode")  # Blender 3.0+
+            return False
+        return True
+    
     def execute(self, context):
         tm_props = get_global_props()
+        disable_animation_preview()
 
         if not save_blend_file():
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
-        # elif not tm_props.ST_author:
-            # show_report_popup("Author name is empty!", ["Please fill in your name in the author input field", "You can find it in the settings panel of blendermania."], "ERROR")
-        else:
-            # export_and_convert()
-
-            export_and_convert()
+            return {"CANCELLED"}
+        
+        export_and_convert(which=None if self.scope == "PANEL" else self.scope)
         return {"FINISHED"}
 
 
@@ -36,11 +53,13 @@ class TM_OT_Items_Export_ExportAndOrConverFailedOnesV2(Operator):
 
     def execute(self, context):
         tm_props = get_global_props()
+        disable_animation_preview()
 
         if not save_blend_file():
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
-        else:
-            export_and_convert(only_failed_ones=True)
+            return {"CANCELLED"}
+        
+        export_and_convert(only_failed_ones=True)
 
         return {"FINISHED"}
 

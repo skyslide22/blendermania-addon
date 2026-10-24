@@ -1278,50 +1278,48 @@ def getCompatiblePatchGroups() -> list:
         for group in PLACEMENT_KNOWN_PATCH_GROUPS
     ]
 
+def _alternation(items):
+    return "|".join(re.escape(i) for i in items)
 
-def toggleNameSpecialPrefix(obj:object, prefix:str) -> None:
-    """switch prefix if bpy.types (collection, object, etc) .name"""
+# build after the SPECIAL_NAME_* constants are defined
+_PREFIX_RE = re.compile(rf"^(?:{_alternation(SPECIAL_NAME_PREFIXES)})+", re.IGNORECASE)
+_SUFFIX_RE = re.compile(rf"(?:{_alternation(SPECIAL_NAME_SUFFIXES)})+$", re.IGNORECASE)
+
+
+def toggleNameSpecialPrefix(obj, prefix: str) -> None:
     name = obj.name
-    had_prefix = False
+    had_prefix = name.lower().startswith(prefix.lower())
+    name = _PREFIX_RE.sub("", name)          # strip all special prefixes at the start
+    obj.name = name if had_prefix else prefix + name
 
-    for special_prefix in SPECIAL_NAME_PREFIXES:
-        if name.startswith(prefix):
-            had_prefix = True
-        name = name.replace(special_prefix, "")
-    
-    new_name = name
-    if not had_prefix:
-        new_name = prefix+name
 
-    obj.name = new_name
-
-def toggleNameSpecialSuffix(obj:object, suffix:str) -> None:
-    """switch prefix if bpy.types (collection, object, etc) .name"""
+def toggleNameSpecialSuffix(obj, suffix: str) -> None:
     name = obj.name
-    had_suffix = False
+    had_suffix = name.lower().endswith(suffix.lower())
+    name = _SUFFIX_RE.sub("", name)          # strip all special suffixes at the end
+    obj.name = name if had_suffix else name + suffix
 
-    for special_suffix in SPECIAL_NAME_SUFFIXES:
-        if name.endswith(suffix):
-            had_suffix = True
-        name = name.replace(special_suffix, "")
-    
-    new_name = name
-    if not had_suffix:
-        new_name = name+suffix
 
-    obj.name = new_name
+def toggle_infix(obj, infix: str) -> None:
+    name = obj.name
+    infix_re = re.compile(re.escape(infix), re.IGNORECASE)
 
-def toggle_infix(obj: object, infix: str) -> None:
-    if infix in obj.name:
-        obj.name = obj.name.replace(infix, "")
+    if infix_re.search(name):
+        obj.name = infix_re.sub("", name)
     else:
-        prefix = "".join(re.findall(r"^_\w+_", obj.name, re.IGNORECASE ))
+        m = _PREFIX_RE.match(name)           # insert after any special prefixes
+        pos = m.end() if m else 0
+        obj.name = name[:pos] + infix + name[pos:]
 
-        if prefix:
-            obj.name = obj.name.replace(prefix, prefix + infix)
-        else:
-            obj.name = infix + obj.name
 
+def has_prefix(name: str, prefix: str) -> bool:
+    return name.lower().startswith(prefix.lower())
+
+def has_suffix(name: str, suffix: str) -> bool:
+    return name.lower().endswith(suffix.lower())
+
+def has_infix(name: str, infix: str) -> bool:
+    return infix.lower() in name.lower()
 
 #collection
 def set_collection_moving_group(collection: bpy.types.Collection, v: bool) -> None:

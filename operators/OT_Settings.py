@@ -321,6 +321,8 @@ def getDefaultSettingsJSON() -> dict:
             SETTINGS_BLENDER_GRID_DIVISION :    "",
             SETTINGS_ITEM_XML_TEMPLATES:        [],
             SETTINGS_NEW_BLEND_PREFERRED_GAME:  "",
+            SETTINGS_MATERIALLIB:                "",
+            SETTINGS_ITEM_PLACEMENT_TEMPLATES:  []
         }
 
     if not file_exist:
@@ -355,6 +357,7 @@ def loadDefaultSettingsJSON() -> None:
     fromjson_itemxml_templates  = data.get(SETTINGS_ITEM_XML_TEMPLATES, [])
     fromjson_itemplacement_templates  = data.get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, [])
     fromjson_new_blend_pref_game= data.get(SETTINGS_NEW_BLEND_PREFERRED_GAME)
+    fromjson_material_lib_path  = data.get(SETTINGS_MATERIALLIB)
 
     tm_props.ST_author                  = fromjson_author_name   or tm_props.ST_author
     tm_props.LI_blenderGridSize         = fromjson_grid_size     or tm_props.LI_blenderGridSize 
@@ -394,16 +397,53 @@ def loadDefaultSettingsJSON() -> None:
     for template_dict in fromjson_itemxml_templates:
         add_itemxml_template(template_dict)
     for placement_dict in fromjson_itemplacement_templates:
-        add_or_update_itemconfig_placement_template_from_dict(placement_dict)
+        # templates saved in the blend file win over local ones, so shared blends keep their own templates
+        add_or_update_itemconfig_placement_template_from_dict(placement_dict, keep_existing=True)
 
+    if is_file_existing(fromjson_material_lib_path):
+        tm_props.ST_materialLibPath = fromjson_material_lib_path
+    elif is_file_existing(tm_props.ST_materialLibPath) is False:
+        tm_props.ST_materialLibPath = DEFAULT_MATERIAL_LIB_FILEPATH_TM2020
+    else:
+        debug("material lib not found from json & blendfile")
+
+
+
+def _json_default(o):
+    try:
+        return list(o)  # mathutils Vector/Color/Matrix, sets, ...
+    except TypeError:
+        return str(o)
+
+
+def _write_local_placement_templates(templates: list) -> None:
+    data = getDefaultSettingsJSON()
+    data[SETTINGS_ITEM_PLACEMENT_TEMPLATES] = templates
+    text = json.dumps(data, indent=4, sort_keys=True, default=_json_default)  # before open(), a failure must not truncate the file
+    with open(PATH_DEFAULT_SETTINGS_JSON, "w+") as settingsfile:
+        settingsfile.write(text)
+
+
+def save_local_placement_template(name: str) -> None:
+    """store/overwrite the scene template `name` in the local settings.json"""
+    template = bpy.context.scene.tm_props_cfg_placement_templates.get(name)
+    if template is None:
+        return
+    local = [t for t in getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, []) if t.get("name") != name]
+    local.append(props_to_dict(template))
+    _write_local_placement_templates(local)
+
+
+def remove_local_placement_template(name: str) -> None:
+    local = getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, [])
+    _write_local_placement_templates([t for t in local if t.get("name") != name])
 
 
 def saveDefaultSettingsJSON() -> None:
     debug("save default settings.json")
     tm_props = get_global_props()
     old_data = getDefaultSettingsJSON()
-    with open(PATH_DEFAULT_SETTINGS_JSON, "w+") as settingsfile:
-        new_data = {
+    new_data = {
             SETTINGS_AUTHOR_NAME                : tm_props.ST_author or old_data[SETTINGS_AUTHOR_NAME],
             SETTINGS_NADEO_INI_MANIAPLANET      : tm_props.ST_nadeoIniFile_MP or old_data[SETTINGS_NADEO_INI_MANIAPLANET],
             SETTINGS_NADEO_INI_TRACKMANIA2020   : tm_props.ST_nadeoIniFile_TM or old_data[SETTINGS_NADEO_INI_TRACKMANIA2020],
@@ -412,13 +452,25 @@ def saveDefaultSettingsJSON() -> None:
             SETTINGS_ITEM_XML_TEMPLATES         : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates],
             SETTINGS_ITEM_PLACEMENT_TEMPLATES   : [props_to_dict(temp) for temp in bpy.context.scene.tm_props_cfg_placement_templates],
 
+            SETTINGS_MATERIALLIB                : tm_props.ST_materialLibPath or old_data[SETTINGS_MATERIALLIB],
             SETTINGS_NEW_BLEND_PREFERRED_GAME   : get_game()
         }
-        
-            
-        debug("new settings.json data:")
-        debug(new_data, pp=True, raw=True)
-        settingsfile.write(json.dumps(new_data, indent=4, sort_keys=True))
+
+    new_text = json.dumps(new_data, indent=4, sort_keys=True, default=_json_default)
+
+    # compare serialized text (normalizes tuples/lists, key order, missing keys)
+    old_text = None
+    if is_file_existing(PATH_DEFAULT_SETTINGS_JSON):
+        with open(PATH_DEFAULT_SETTINGS_JSON, "r") as settingsfile:
+            old_text = settingsfile.read()
+    if new_text == old_text:
+        debug("settings.json unchanged, skip write")
+        return
+
+    debug("new settings.json data:")
+    debug(new_data, pp=True, raw=True)
+    with open(PATH_DEFAULT_SETTINGS_JSON, "w+") as settingsfile:
+        settingsfile.write(new_text)
 
 
 
