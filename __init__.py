@@ -243,6 +243,7 @@ classes = (
     TM_OT_Items_Config_RemovePatchLayout,
     TM_OT_Items_ItemConfig_SaveItemPlacementTemplate,
     TM_OT_Items_ItemConfig_RemoveItemPlacementTemplate,
+    TM_OT_Items_ItemConfig_CopyPlacementTemplateToLocal,
     TM_OT_Items_ItemConfig_LoadPlacementTemplate,
 
     TM_OT_Items_ItemConfig_LoadPlacementClassTemplate,
@@ -375,7 +376,8 @@ def register():
     bpy.types.Scene.tm_props_itemxml_templates        = CollectionProperty(type=ItemXMLTemplate)
     bpy.types.Scene.tm_props_cfg_placement_templates     = CollectionProperty(type=ItemPlacementTemplate)
     bpy.types.Scene.tm_props_cfg_placement_template_ui  = EnumProperty(items=get_item_config_template_names_enum)
-
+    # local templates (settings.json), runtime only: not saved into the blend file
+    bpy.types.WindowManager.tm_local_placement_templates = CollectionProperty(type=ItemPlacementTemplate)
     bpy.types.DATA_PT_EEVEE_light.append(draw_nightonly_option)
 
     bpy.types.VIEW3D_MT_add.prepend(OT_MediaTrackerClipTriggerTemplates.add_menu_item)
@@ -442,6 +444,13 @@ def register():
     register_keymaps()
     register_outliner_menus()
     register_header_menus()
+
+    # addon enabled in a running session: load_post did not run yet
+    try:
+        from .operators.OT_Settings import reload_local_placement_templates
+        reload_local_placement_templates()
+    except Exception as e:
+        debug(f"loading local placement templates failed: {e}")
     
 
 
@@ -461,6 +470,7 @@ def unregister():
 
     del bpy.types.Scene.tm_props_cfg_placement_templates
     del bpy.types.Scene.tm_props_cfg_placement_template_ui
+    del bpy.types.WindowManager.tm_local_placement_templates
     # del bpy.types.Scene.tm_props_itemxml_templates
     del bpy.types.Object.location_before 
 
@@ -499,6 +509,15 @@ def unregister():
     unregister_keymaps()
     unregister_outliner_menus()
     unregister_header_menus()
+
+@persistent
+def on_save_pre(what, idontknow) -> None:
+    """embed the local placement templates into the blend file"""
+    try:
+        from .utils.ItemsExportV2Models import embed_local_placement_templates
+        embed_local_placement_templates()
+    except Exception as e:
+        debug(f"embedding placement templates failed: {e}")
 
 @persistent
 def on_save(what, idontknow) -> None: # on quit?
@@ -577,7 +596,7 @@ def on_startup(dummy) -> None:
 
 
 # drop stale handlers from previous addon (re)loads, otherwise they run multiple times
-for _handlers, _fn in ((bpy.app.handlers.load_post, on_startup), (bpy.app.handlers.save_post, on_save)):
+for _handlers, _fn in ((bpy.app.handlers.load_post, on_startup), (bpy.app.handlers.save_post, on_save), (bpy.app.handlers.save_pre, on_save_pre)):
     for _h in list(_handlers):
         if getattr(_h, "__name__", None) == _fn.__name__ and getattr(_h, "__module__", "") == _fn.__module__:
             _handlers.remove(_h)

@@ -19,6 +19,7 @@ class TM_OT_Items_ExportV2(Operator):
             ("PANEL",    "Panel setting", "Use the scope chosen in the export panel"),
             ("SELECTED", "Selected",      "Export only selected objects"),
             ("VISIBLE",  "Visible",       "Export all visible objects"),
+            ("COLLECTIONS", "Collections", "Export the selected collections (Outliner selection or active collection)"),
         ],
         default="PANEL",
         options={"SKIP_SAVE"},   # don't remember the last used value
@@ -39,7 +40,17 @@ class TM_OT_Items_ExportV2(Operator):
             show_report_popup("FILE NOT SAVED!", ["Save your blend file!"], "ERROR")
             return {"CANCELLED"}
         
-        export_and_convert(which=None if self.scope == "PANEL" else self.scope)
+        collections = None
+        if self.scope == "COLLECTIONS":
+            collections = get_selected_collections(context)
+            if not collections:
+                show_report_popup("Nothing to export", ["Select a collection first"], "ERROR")
+                return {"CANCELLED"}
+
+        export_and_convert(
+            which=None if self.scope in ("PANEL", "COLLECTIONS") else self.scope,
+            collections=collections,
+        )
         return {"FINISHED"}
 
 

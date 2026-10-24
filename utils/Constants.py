@@ -276,9 +276,19 @@ WAYPOINT_ORDER = (WAYPOINT_NAME_NONE, *WAYPOINT_VALID_NAMES)
 
 COLLECTION_GROUP_VALID_NAMES = (
     COLLECTION_GROUP_MOVING := "MovingGroup",
+    COLLECTION_GROUP_CONTAINER := "Container",
 )
 COLLECTION_GROUPS = WaypointDict() # reuse
 COLLECTION_GROUPS[COLLECTION_GROUP_MOVING]  = COLLECTION_COLOR_TAG_PINK
+COLLECTION_GROUPS[COLLECTION_GROUP_CONTAINER] = COLLECTION_COLOR_TAG_BROWN
+
+COLLECTION_TYPE_DEFAULT = "Default"
+# (identifier, label, description, name infix or None)
+COLLECTION_TYPES = (
+    (COLLECTION_TYPE_DEFAULT, "Default", "Regular item collection", None),
+    (COLLECTION_GROUP_MOVING, "Moving Group", "Collection is a moving group", "_movingGroup_"),
+    (COLLECTION_GROUP_CONTAINER, "Container", "Structural only collection, has no item data", "_container_"),
+)
 
 
 
@@ -309,6 +319,7 @@ SPECIAL_NAME_INFIXES = (
     SPECIAL_NAME_INFIX_NOTCOLLIDABLE    := "_notcollidable_",
 
     SPECIAL_NAME_INFIX_MOVINGGROUP    := "_movingGroup_",
+    SPECIAL_NAME_INFIX_CONTAINER      := "_container_",
 )
 
 SPECIAL_NAME_SUFFIXES = (

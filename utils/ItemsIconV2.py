@@ -20,6 +20,7 @@ from .Functions import (
 )
 from .FunctionsV2 import (
     is_obj_visible,
+    get_item_collection_objects,
 )
 from .Constants import (
     SPECIAL_NAME_PREFIX_ICON_ONLY
@@ -124,7 +125,7 @@ def _add_camera(empty: bpy.types.Object) -> bpy.types.Camera:
 
 
 def generate_collection_icon(coll: bpy.types.Collection, export_path: str = None):
-    generate_objects_icon(coll.all_objects, coll.name, export_path)
+    generate_objects_icon(get_item_collection_objects(coll), coll.name, export_path)
 
 
 

@@ -1181,8 +1181,14 @@ def get_collection_hierachy(colname: str="", hierachystart: list=[]) -> list:
     # debug(f"hierachy is {hierachy}")
     return hierachy
 
+def strip_ignore_prefix(name: str) -> str:
+    """remove the _ignore_ prefix, it is not part of an exported item/folder name"""
+    while name.lower().startswith(SPECIAL_NAME_PREFIX_IGNORE):
+        name = name[len(SPECIAL_NAME_PREFIX_IGNORE):]
+    return name
+
 def get_coll_relative_path(coll: bpy.types.Collection) -> str:
-    return '/'.join(map(safe_name, get_collection_hierachy(coll.name, [coll.name])))
+    return '/'.join(safe_name(strip_ignore_prefix(n)) for n in get_collection_hierachy(coll.name, [coll.name]))
 
 def get_object_relative_path(obj: bpy.types.Object) -> str:
     return '/'.join(map(safe_name, get_collection_hierachy(obj.users_collection[0].name, [obj.name, obj.users_collection[0].name])))

@@ -1013,8 +1013,10 @@ def _get_mesh_configs_from_collection(objs: list[bpy.types.Object], collection: 
             mesh_cfg.LightmapSize = getattr(obj, ObjectProp.LIGHTMAP_SIZE, None)
 
 
-        obj_col = obj.users_collection[0] if len(obj.users_collection) > 0 else None
-        is_moving_group = getattr(obj_col, CollectionProp.MOVING_GROUP, False) if obj_col else False
+        is_moving_group = False
+        obj_col = get_object_moving_group(obj)
+        if obj_col is not None:
+            is_moving_group = True
         if is_moving_group:
             mesh_cfg.MovingGroup = obj_col.name
             mesh_flags |= MeshFlags.Moving
@@ -1028,7 +1030,7 @@ def _get_mesh_configs_from_collection(objs: list[bpy.types.Object], collection: 
 def _get_moving_group_configs_from_collection(collection: bpy.types.Collection) -> list[MovingGroupConfig]:
     moving_groups_configs = []
 
-    col_children = collection.children
+    col_children = get_item_moving_groups(collection)
 
     for child_col in col_children:
         if getattr(child_col, CollectionProp.MOVING_GROUP, False):

@@ -14,6 +14,9 @@ class TM_OT_Items_Icon_TestV2(Operator):
     def execute(self, context):
         if bpy.context.object:
             item_collection = get_active_item_collection_of_selected_object()
+            if item_collection is None:
+                show_report_popup("Icon test failed", ["Selected object is not part of an item collection"], "ERROR")
+                return {"CANCELLED"}
             generate_collection_icon(item_collection)
         else:
             show_report_popup("Icon test failed", ["No object selected"], "ERROR")

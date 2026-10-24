@@ -29,8 +29,9 @@ class ObjectProp(StrEnum):
 class CollectionProp(StrEnum):
     CONFIG = "tm_item_config"
 
-    MOVING_GROUP = "tm_moving_group"
-    DUMMY_GROUP = "tm_dummy_group"
+    COLLECTION_TYPE = "tm_collection_type"
+    MOVING_GROUP = "tm_moving_group"  # read-only bool derived from COLLECTION_TYPE
+    CONTAINER_GROUP = "tm_container_group"    # read-only bool derived from COLLECTION_TYPE
     
     LODS = "tm_lods"
     SELECTED_LODS = "tm_selected_lods"

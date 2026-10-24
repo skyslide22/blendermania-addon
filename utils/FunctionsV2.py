@@ -13,6 +13,25 @@ def get_parent_collection(col, scene):
             return c
     return None  # directly under the scene root
 
+# collections explicitly chosen for export: they (and their ancestors) override "ignore"
+# mutated in place only, because other modules star-import this name
+EXPLICIT_EXPORT_COLLECTIONS: set[str] = set()
+
+def is_collection_ignored(col: bpy.types.Collection) -> bool:
+    """ignore flag of this collection only (explicitly chosen collections are never ignored)"""
+    return bool(getattr(col, CollectionProp.IGNORE, False)) and col.name not in EXPLICIT_EXPORT_COLLECTIONS
+
+def is_collection_hierarchy_ignored(col: bpy.types.Collection) -> bool:
+    """collection or any ancestor ignored; an explicitly chosen collection stops the check"""
+    scene = bpy.context.scene
+    while col is not None:
+        if col.name in EXPLICIT_EXPORT_COLLECTIONS:
+            return False
+        if getattr(col, CollectionProp.IGNORE, False):
+            return True
+        col = get_parent_collection(col, scene)
+    return False
+
 def get_item_root(col, scene):
     while is_group_collection(col):
         parent = get_parent_collection(col, scene)
@@ -54,6 +73,7 @@ def get_active_item_collection() -> bpy.types.Collection:
 
 def set_waypointtype_of_active_collection() -> None:
     col      = get_active_item_collection()
+    if col is None: return
     waypoint = get_global_props().LI_xml_waypointtype
     
     col.color_tag = WAYPOINTS[waypoint]
@@ -68,10 +88,17 @@ def get_active_item_collection_of_selected_object() -> bpy.types.Collection:
         col = get_item_root(col, bpy.context.scene)
     return col
 
-# group collection (moving)
+# group collections (moving group / container)
+
+def is_moving_group_collection(col: bpy.types.Collection) -> bool:
+    return col is not None and bool(getattr(col, CollectionProp.MOVING_GROUP, False))
+
+def is_container_collection(col: bpy.types.Collection) -> bool:
+    return col is not None and bool(getattr(col, CollectionProp.CONTAINER_GROUP, False))
 
 def is_group_collection(col: bpy.types.Collection) -> bool:
-    return col.tm_moving_group == True
+    """collection that is not an item itself (moving group or container)"""
+    return is_moving_group_collection(col) or is_container_collection(col)
 
 def get_active_group_collection() -> bpy.types.Collection:
     col = get_active_collection()
@@ -79,34 +106,143 @@ def get_active_group_collection() -> bpy.types.Collection:
         return col
     return None
 
-def can_convert_to_group_collection(col: bpy.types.Collection) -> bool:
+def can_convert_to_moving_group_collection(col: bpy.types.Collection) -> bool:
     if col is None: return False
-    if is_group_collection(col): return False
-    if col.children: return False 
-    return True
+    # groups may not contain items (default collections)
+    return all(is_group_collection(child) for child in col.children)
+
+def can_convert_to_container_collection(col: bpy.types.Collection) -> bool:
+    if col is None: return False
+    # groups may not contain items (default collections)
+    return all(is_group_collection(child) for child in col.children)
+
+def get_item_collection_objects(item: bpy.types.Collection) -> list[bpy.types.Object]:
+    """
+    all objects belonging to the item: its own objects plus the objects of its moving groups
+    and containers (containers are flattened). Nested item collections are separate items and skipped.
+    """
+    objs: list[bpy.types.Object] = []
+    seen: set[str] = set()
+
+    def walk(col: bpy.types.Collection) -> None:
+        for obj in col.objects:
+            if obj.name not in seen:
+                seen.add(obj.name)
+                objs.append(obj)
+        for child in col.children:
+            if is_group_collection(child) and not is_collection_ignored(child):
+                walk(child)
+
+    walk(item)
+    return objs
+
+def get_item_moving_groups(item: bpy.types.Collection) -> list[bpy.types.Collection]:
+    """moving groups of the item, found through containers and other moving groups"""
+    groups: list[bpy.types.Collection] = []
+
+    def walk(col: bpy.types.Collection) -> None:
+        for child in col.children:
+            if is_collection_ignored(child):
+                continue
+            if is_moving_group_collection(child):
+                groups.append(child)
+                walk(child)
+            elif is_container_collection(child):
+                walk(child)
+
+    walk(item)
+    return groups
+
+def get_object_moving_group(obj: bpy.types.Object) -> bpy.types.Collection | None:
+    """nearest moving group of the object, containers are transparent"""
+    col = obj.users_collection[0] if obj.users_collection else None
+    scene = bpy.context.scene
+    while col is not None and is_group_collection(col):
+        if is_moving_group_collection(col):
+            return col
+        col = get_parent_collection(col, scene)
+    return None
+
+def get_invalid_group_children(item: bpy.types.Collection) -> list[bpy.types.Collection]:
+    """item (default) collections inside moving groups/containers below the item, which is not allowed"""
+    invalid: list[bpy.types.Collection] = []
+
+    def walk(col: bpy.types.Collection) -> None:
+        for child in col.children:
+            if is_collection_ignored(child):
+                continue
+            if is_group_collection(child):
+                walk(child)
+            elif is_group_collection(col):
+                invalid.append(child)
+
+    walk(item)
+    return invalid
+
+def is_inside_group_collection(col: bpy.types.Collection) -> bool:
+    """item collections must end at a moving group/container, they can not live inside one"""
+    return is_group_collection(get_parent_collection(col, bpy.context.scene))
+
+# selected collections (outliner selection, falls back to the active collection)
+
+def get_selected_collections(context=None) -> list[bpy.types.Collection]:
+    context = context or bpy.context
+    scene_root = context.scene.collection
+    ids = getattr(context, "selected_ids", None) or []   # only available in the Outliner
+    cols = [i for i in ids if isinstance(i, bpy.types.Collection) and i != scene_root]
+    if not cols:
+        layer_col = context.view_layer.active_layer_collection
+        if layer_col is not None and layer_col.collection != scene_root:
+            cols = [layer_col.collection]
+    return cols
+
+def get_item_collections_from_collections(cols: list[bpy.types.Collection]) -> list[bpy.types.Collection]:
+    """
+    resolve collections to exportable item collections:
+    - item: itself and all items below it
+    - moving group/container: the item it belongs to
+    - plain folder: all items below it
+    """
+    scene = bpy.context.scene
+    items: list[bpy.types.Collection] = []
+    seen: set[str] = set()
+
+    def add(col):
+        if col is None or col == scene.collection or col.name in seen:
+            return
+        seen.add(col.name)
+        items.append(col)
+
+    def walk(col):
+        if not is_group_collection(col):
+            add(col)
+        for child in col.children:
+            walk(child)
+
+    for col in cols:
+        if is_group_collection(col):
+            add(get_item_root(col, scene))
+        else:
+            walk(col)
+
+    return [c for c in items if is_collection_exportable(c)]
 
 # waypoint
 def is_waypoint_collection(col: bpy.types.Collection) -> bool:
-    return getattr(col, CollectionProp.IGNORE, WAYPOINT_NAME_NONE) != WAYPOINT_NAME_NONE
+    return getattr(col, CollectionProp.WAYPOINT_TYPE, WAYPOINT_NAME_NONE) != WAYPOINT_NAME_NONE
 
 # export
 
 def is_collection_exportable(coll: bpy.types.Collection)->bool:
-    if len(coll.objects) == 0\
-    or coll.name.lower() in NOT_ALLOWED_COLLECTION_NAMES:
+    if coll.name.lower() in NOT_ALLOWED_COLLECTION_NAMES:
         return False
 
-    if getattr(coll, CollectionProp.IGNORE, False):
+    if is_collection_hierarchy_ignored(coll):
         return False
-    if getattr(coll, CollectionProp.MOVING_GROUP, False):
+    if is_group_collection(coll):
         return False
 
-    is_exportable = False
-    for obj in coll.objects:
-        is_exportable = is_object_exportable(obj)
-        if is_exportable: break
-    
-    return is_exportable
+    return any(is_object_exportable(obj) for obj in get_item_collection_objects(coll))
 
 
 def is_object_exportable(obj: bpy.types.Object)-> bool:
@@ -116,8 +252,15 @@ def is_object_exportable(obj: bpy.types.Object)-> bool:
 
     if getattr(obj, ObjectProp.IGNORE, False):
         return False
-    if getattr(obj.users_collection[0], CollectionProp.IGNORE, False):
-        return False
+    # ignored group (container/moving group) on the way up to the item root hides its objects
+    col   = obj.users_collection[0] if obj.users_collection else None
+    scene = bpy.context.scene
+    while col is not None:
+        if is_collection_ignored(col):
+            return False
+        if not is_group_collection(col):
+            break
+        col = get_parent_collection(col, scene)
     return True
 
 def get_exportable_collections(objs, stop_after: int | None = None) -> set:
@@ -135,11 +278,14 @@ def get_exportable_collections(objs, stop_after: int | None = None) -> set:
             if root is None:
                 root = root_of[col] = get_item_root(col, scene)
 
+            if root is None:
+                continue
+
             if root in accepted or root in rejected:
                 continue
 
             if (root.name.lower() in NOT_ALLOWED_COLLECTION_NAMES
-                    or getattr(root, CollectionProp.IGNORE, False)
+                    or is_collection_hierarchy_ignored(root)
                     or is_collection_excluded_or_hidden(root)):
                 rejected.add(root)
                 continue

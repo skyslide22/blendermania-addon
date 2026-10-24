@@ -2,11 +2,11 @@ import bpy
 from bpy.props import *
 
 from ..properties.ItemConfigProperties import ItemConfigProperties
-from .Functions import has_infix, has_prefix, set_collection_moving_group, toggle_infix, toggleNameSpecialPrefix
+from .Functions import has_infix, has_prefix, apply_collection_type, toggle_infix, toggleNameSpecialPrefix
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
 from .PropertyIdentifiers import CollectionProp
 from ..utils.Constants import *
-from ..utils.FunctionsV2 import get_active_item_collection
+from ..utils.FunctionsV2 import get_active_item_collection, get_item_collection_objects, get_item_moving_groups
 from ..utils.ItemsExportV2Models import EAxis, AnimEase, ItemConfig
 
 _sorting = False
@@ -57,6 +57,35 @@ AXIS_ENUM_ITEMS = [
     ('Z', 'Z', "Z Axis", 'NONE', 2),
 ]
 
+COLLECTION_TYPE_ENUM_ITEMS = [
+    (type_id, label, desc, 'NONE', i)
+    for i, (type_id, label, desc, _infix) in enumerate(COLLECTION_TYPES)
+]
+_TYPE_INFIXES = {type_id: infix for type_id, _l, _d, infix in COLLECTION_TYPES if infix}
+
+def _type_from_name(name):
+    for type_id, infix in _TYPE_INFIXES.items():
+        if has_infix(name, infix):
+            return type_id
+    return COLLECTION_TYPE_DEFAULT
+
+def _apply_type_to_name(col, type_id):
+    """remove all type infixes from the name, add the one of type_id"""
+    for infix in _TYPE_INFIXES.values():
+        if has_infix(col.name, infix):
+            toggle_infix(col, infix)
+    if type_id in _TYPE_INFIXES:
+        toggle_infix(col, _TYPE_INFIXES[type_id])
+
+def _type_toggle_setter(type_id):
+    def _set(self, value):
+        current = getattr(self, CollectionProp.COLLECTION_TYPE)
+        if value:
+            setattr(self, CollectionProp.COLLECTION_TYPE, type_id)
+        elif current == type_id:
+            setattr(self, CollectionProp.COLLECTION_TYPE, COLLECTION_TYPE_DEFAULT)
+    return _set
+
 def register_collection_properties():
     bpy.types.Collection.tm_itemxml_template = StringProperty(
         name="Item XML Template", 
@@ -82,11 +111,25 @@ def register_collection_properties():
         default=WAYPOINT_NAME_NONE,
         update=_update_waypoint
     ))
+    setattr(bpy.types.Collection, CollectionProp.COLLECTION_TYPE, EnumProperty(
+        name="Collection Type",
+        description="Type of the collection",
+        items=COLLECTION_TYPE_ENUM_ITEMS,
+        default=COLLECTION_TYPE_DEFAULT,
+        update=_update_collection_type
+    ))
+    # toggle buttons: enabling sets the type, disabling falls back to Default
     setattr(bpy.types.Collection, CollectionProp.MOVING_GROUP, BoolProperty(
         name="Moving Group",
-        description="Indicates if the collection is a moving group",
-        default=False,
-        update=_update_tm_moving_group
+        description="Collection type is Moving Group",
+        get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_MOVING,
+        set=_type_toggle_setter(COLLECTION_GROUP_MOVING),
+    ))
+    setattr(bpy.types.Collection, CollectionProp.CONTAINER_GROUP, BoolProperty(
+        name="Container",
+        description="Collection type is Container (structural only)",
+        get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_CONTAINER,
+        set=_type_toggle_setter(COLLECTION_GROUP_CONTAINER),
     ))
 
     setattr(bpy.types.Collection, CollectionProp.LODS, CollectionProperty(
@@ -283,10 +326,12 @@ def unregister_collection_properties():
 
 
 #
-def _update_tm_moving_group(self, context):
+def _update_collection_type(self, context):
     if _syncing: return
-    toggle_infix(self, SPECIAL_NAME_INFIX_MOVINGGROUP)
-    set_collection_moving_group(self, getattr(self, CollectionProp.MOVING_GROUP))
+    type_id = getattr(self, CollectionProp.COLLECTION_TYPE)
+    _apply_type_to_name(self, type_id)
+    apply_collection_type(self, type_id)
+
 
 def _update_waypoint(self, context):
     waypoint = getattr(self, CollectionProp.WAYPOINT_TYPE)
@@ -299,17 +344,15 @@ def _update_ignore(self, context):
 def _anchor_poll(self, obj):
     # self = the owner of the property (here: the PropertyGroup)
     coll = get_active_item_collection()
-    return obj.name in coll.all_objects   # recursive over child collections
+    if coll is None: return False
+    return obj in get_item_collection_objects(coll)   # containers/moving groups flattened, nested items excluded
 
 def _moving_group_poll(self, obj):
     # self = the owner of the property (here: the PropertyGroup)
     coll = get_active_item_collection()
+    if coll is None: return False
     self_coll = getattr(self, "id_data", self)
-    return (
-        obj in coll.children_recursive
-        and obj != self_coll
-        and getattr(obj, CollectionProp.MOVING_GROUP, True)   # property filter
-    )
+    return obj != self_coll and obj in get_item_moving_groups(coll)
 
 
 
@@ -332,9 +375,10 @@ def _on_collection_renamed():
                 setattr(obj, CollectionProp.IGNORE, has_prefix(obj.name, SPECIAL_NAME_PREFIX_IGNORE))
 
             # infixes
-            if getattr(obj, CollectionProp.MOVING_GROUP) != has_infix(obj.name, SPECIAL_NAME_INFIX_MOVINGGROUP):
-                setattr(obj, CollectionProp.MOVING_GROUP, has_infix(obj.name, SPECIAL_NAME_INFIX_MOVINGGROUP))
-                set_collection_moving_group(obj, getattr(obj, CollectionProp.MOVING_GROUP))
+            name_type = _type_from_name(obj.name)
+            if getattr(obj, CollectionProp.COLLECTION_TYPE) != name_type:
+                setattr(obj, CollectionProp.COLLECTION_TYPE, name_type)
+                apply_collection_type(obj, name_type)
     finally:
         _syncing = False
 

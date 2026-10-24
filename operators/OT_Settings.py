@@ -5,8 +5,6 @@ import webbrowser
 import addon_utils
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty
-from ..utils.ItemsExportV2Models import add_or_update_itemconfig_placement_template_from_dict
-
 from ..utils.Constants      import *
 from ..utils.Functions      import *
 from ..utils.NadeoXML       import (
@@ -396,9 +394,8 @@ def loadDefaultSettingsJSON() -> None:
 
     for template_dict in fromjson_itemxml_templates:
         add_itemxml_template(template_dict)
-    for placement_dict in fromjson_itemplacement_templates:
-        # templates saved in the blend file win over local ones, so shared blends keep their own templates
-        add_or_update_itemconfig_placement_template_from_dict(placement_dict, keep_existing=True)
+    # placement templates: local ones are kept apart from the blend file's embedded ones
+    reload_local_placement_templates()
 
     if is_file_existing(fromjson_material_lib_path):
         tm_props.ST_materialLibPath = fromjson_material_lib_path
@@ -424,19 +421,26 @@ def _write_local_placement_templates(templates: list) -> None:
         settingsfile.write(text)
 
 
-def save_local_placement_template(name: str) -> None:
-    """store/overwrite the scene template `name` in the local settings.json"""
-    template = bpy.context.scene.tm_props_cfg_placement_templates.get(name)
-    if template is None:
-        return
+def reload_local_placement_templates() -> None:
+    """(re)load the local templates from settings.json into the runtime-only window manager collection"""
+    local = bpy.context.window_manager.tm_local_placement_templates
+    local.clear()
+    for d in getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, []):
+        props_from_dict(local.add(), d)
+
+
+def save_local_placement_template(name: str, config) -> None:
+    """store/overwrite template `name` (config: PlacementProperties) in the local settings.json"""
     local = [t for t in getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, []) if t.get("name") != name]
-    local.append(props_to_dict(template))
+    local.append({"name": name, "config": props_to_dict(config)})
     _write_local_placement_templates(local)
+    reload_local_placement_templates()
 
 
 def remove_local_placement_template(name: str) -> None:
     local = getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, [])
     _write_local_placement_templates([t for t in local if t.get("name") != name])
+    reload_local_placement_templates()
 
 
 def saveDefaultSettingsJSON() -> None:
@@ -450,7 +454,7 @@ def saveDefaultSettingsJSON() -> None:
             SETTINGS_BLENDER_GRID_SIZE          : tm_props.LI_blenderGridSize or old_data[SETTINGS_BLENDER_GRID_SIZE],
             SETTINGS_BLENDER_GRID_DIVISION      : tm_props.LI_blenderGridSizeDivision or old_data[SETTINGS_BLENDER_GRID_DIVISION],
             SETTINGS_ITEM_XML_TEMPLATES         : [temp.to_dict() for temp in bpy.context.scene.tm_props_itemxml_templates],
-            SETTINGS_ITEM_PLACEMENT_TEMPLATES   : [props_to_dict(temp) for temp in bpy.context.scene.tm_props_cfg_placement_templates],
+            SETTINGS_ITEM_PLACEMENT_TEMPLATES   : old_data.get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, []),  # blend templates are not merged into local ones
 
             SETTINGS_MATERIALLIB                : tm_props.ST_materialLibPath or old_data[SETTINGS_MATERIALLIB],
             SETTINGS_NEW_BLEND_PREFERRED_GAME   : get_game()

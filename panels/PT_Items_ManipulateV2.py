@@ -401,13 +401,17 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
         col.enabled = not getattr(current_collection, CollectionProp.IGNORE)
 
 
-        can_convert_to_moving_group_collection = can_convert_to_group_collection(current_collection)
+
         is_moving_group_collection = getattr(current_collection, CollectionProp.MOVING_GROUP, False)
+        is_container = getattr(current_collection, CollectionProp.CONTAINER_GROUP, False)
+        is_default = not is_moving_group_collection and not is_container
 
         row = row.row(align=True)
-        row.enabled = col.enabled and (can_convert_to_moving_group_collection if not is_moving_group_collection else True)
-        row.prop(current_collection, CollectionProp.MOVING_GROUP, icon="NLA_PUSHDOWN")
-
+        row.enabled = col.enabled and (can_convert_to_moving_group_collection(current_collection) if not is_moving_group_collection else True)
+        row.prop(current_collection, CollectionProp.MOVING_GROUP, icon="NLA_PUSHDOWN", toggle=True)
+        row = row.row(align=True)
+        row.enabled = col.enabled and (can_convert_to_container_collection(current_collection) if not is_container else True)
+        row.prop(current_collection, CollectionProp.CONTAINER_GROUP, icon="OUTLINER_COLLECTION", toggle=True)
 
         if is_moving_group_collection:
             row = col.row(align=True)
@@ -535,10 +539,10 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
                                     text="Add Moving Texture Animation",
                                     icon=ICON_ADD)
                 
-    
-                
+        if is_container:
+            row = col.row(align=True)
 
-        if not is_moving_group_collection:
+        if is_default:
 
             row = col.row(align=True)
 
@@ -787,7 +791,7 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
     @staticmethod
     def on_lod_remove(owner, index):
         col = owner
-        for obj in col.all_objects:
+        for obj in get_item_collection_objects(col):
             entries = getattr(obj, ObjectProp.LOD_INDEXES)
             for pos in range(len(entries) - 1, -1, -1):
                 entry = entries[pos]
@@ -899,7 +903,7 @@ class TM_PT_Items_MovingGroupCollectionManipulationV2(Panel):
             return
 
         row = layout.row(align=True)
-        row.prop(current_collection, CollectionProp.MOVING_GROUP)
+        row.prop(current_collection, CollectionProp.COLLECTION_TYPE, text="Type")
        
 
         layout.separator(factor=2)

@@ -12,7 +12,7 @@ from ..properties.PropertyIdentifiers import CollectionProp
     
 from ..properties.PlacementProperties import PlacementProperties
 from ..utils.Functions import *
-from ..utils.FunctionsV2 import copy_props, props_from_dict
+from ..utils.FunctionsV2 import copy_props, props_from_dict, props_to_dict
 import types
 
 
@@ -518,15 +518,6 @@ def add_or_update_itemconfig_placement_template(name: str, placement: PlacementP
     template.name = name
     copy_props(placement, template.config)
 
-def add_or_update_itemconfig_placement_template_from_dict(d: dict, keep_existing: bool = False) -> None:
-    """keep_existing: don't overwrite a template of the same name that already exists (e.g. saved in the blend file)"""
-    templates = bpy.context.scene.tm_props_cfg_placement_templates
-    existing = templates.get(d.get("name"))
-    if existing is not None and keep_existing:
-        return
-    template = existing or templates.add()
-    props_from_dict(template, d)   # sets name and fills template.config
-
 def remove_itemconfig_placement_template(template_name: str) -> None:
     templates = bpy.context.scene.tm_props_cfg_placement_templates
 
@@ -627,12 +618,45 @@ def generate_placement_config(collection: bpy.types.Collection) -> PlacementConf
 
     return get_placement_config_from_properties(placement)
 
+TEMPLATE_SOURCE_BLEND = 'BLEND'
+TEMPLATE_SOURCE_LOCAL = 'LOCAL'
+LOCAL_TEMPLATE_SUFFIX = " (local)"
+
+def list_placement_templates() -> list[tuple[str, str, Any]]:
+    """All selectable placement templates as (id, source, template).
+    Blend-embedded templates (scene) keep their plain name; local ones (window manager, loaded from settings.json)
+    are skipped when identical to the blend one and get a ' (local)' suffix when their content differs."""
+    result = []
+    blend_by_name = {}
+    for t in bpy.context.scene.tm_props_cfg_placement_templates:
+        result.append((t.name, TEMPLATE_SOURCE_BLEND, t))
+        blend_by_name[t.name] = t
+
+    for t in bpy.context.window_manager.tm_local_placement_templates:
+        blend_t = blend_by_name.get(t.name)
+        if blend_t is None:
+            result.append((t.name, TEMPLATE_SOURCE_LOCAL, t))
+        elif props_to_dict(blend_t.config) != props_to_dict(t.config):
+            result.append((t.name + LOCAL_TEMPLATE_SUFFIX, TEMPLATE_SOURCE_LOCAL, t))
+    return result
+
+def find_placement_template(template_id: str):
+    """(source, template) for a template id from list_placement_templates(), or (None, None)"""
+    for tid, source, template in list_placement_templates():
+        if tid == template_id:
+            return source, template
+    return None, None
+
 def get_item_placement_template(name: str) -> PlacementProperties | None:
+    _, template = find_placement_template(name)
+    return template.config if template is not None else None
+
+def embed_local_placement_templates() -> None:
+    """copy local templates missing in the blend file into it (run before saving); existing blend templates are kept"""
     templates = bpy.context.scene.tm_props_cfg_placement_templates
-    for template in templates:
-        if template.name == name:
-            return template.config
-    else:
-        return None
+    for local in bpy.context.window_manager.tm_local_placement_templates:
+        if local.name in templates:
+            continue
+        props_from_dict(templates.add(), props_to_dict(local))
 
 

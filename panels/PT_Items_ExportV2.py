@@ -143,6 +143,10 @@ def draw_export_panel(self:Panel) -> None:
     row.alert   = not enableExportButton #red button, 0 selected
     row.operator(TM_OT_Items_ExportV2.bl_idname, text=text, icon=ICON_CONVERT)
 
+    row = layout.row(align=True)
+    op = row.operator(TM_OT_Items_ExportV2.bl_idname, text="Export Active Collection", icon=ICON_CONVERT)
+    op.scope = "COLLECTIONS"
+
 
 
 

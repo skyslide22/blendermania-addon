@@ -33,27 +33,26 @@ class TM_OT_Items_ItemConfig_SaveItemPlacementTemplate(Operator):
             self.report({'ERROR'}, "Name cannot be empty")
             return {'CANCELLED'}
 
-        exists = self.template_name in context.scene.tm_props_cfg_placement_templates
-        if exists and not self.overwrite:
-            self.report({'ERROR'}, f"'{self.template_name}' already exists (tick Overwrite)")
+        local_names = [t.name for t in context.window_manager.tm_local_placement_templates]
+        if self.template_name in local_names and not self.overwrite:
+            self.report({'ERROR'}, f"'{self.template_name}' already exists locally (tick Overwrite)")
             return {'CANCELLED'}
 
-        add_or_update_itemconfig_placement_template(self.template_name, placement)
         from .OT_Settings import save_local_placement_template
-        save_local_placement_template(self.template_name)
+        save_local_placement_template(self.template_name, placement)
         return {'FINISHED'}
     
     def draw(self, context):
         tm_props = get_global_props()
         layout   = self.layout
         layout.prop(self, "template_name", text="Name")
-        if self.template_name in context.scene.tm_props_cfg_placement_templates:
-            layout.label(text="A template with this name exists.", icon='ERROR')
+        if self.template_name in [t.name for t in context.window_manager.tm_local_placement_templates]:
+            layout.label(text="A local template with this name exists.", icon='ERROR')
             layout.prop(self, "overwrite")
 
 class TM_OT_Items_ItemConfig_RemoveItemPlacementTemplate(Operator):
     bl_idname = "view3d.tm_remove_item_config_placement_template"
-    bl_description = "Execute Order 66"
+    bl_description = "Remove the selected template from where it is stored (blend file or local disk)"
     bl_icon = 'ADD'
     bl_label = "Remove Item Config Template"
 
@@ -61,9 +60,29 @@ class TM_OT_Items_ItemConfig_RemoveItemPlacementTemplate(Operator):
 
         
     def execute(self, context):
-        remove_itemconfig_placement_template(self.template_name)
-        from .OT_Settings import remove_local_placement_template
-        remove_local_placement_template(self.template_name)
+        source, template = find_placement_template(self.template_name)
+        if template is None:
+            return {"CANCELLED"}
+        if source == TEMPLATE_SOURCE_LOCAL:
+            from .OT_Settings import remove_local_placement_template
+            remove_local_placement_template(template.name)
+        else:
+            remove_itemconfig_placement_template(template.name)
+        return {"FINISHED"}
+
+class TM_OT_Items_ItemConfig_CopyPlacementTemplateToLocal(Operator):
+    bl_idname = "view3d.tm_copy_item_config_placement_template_to_local"
+    bl_description = "Save the selected blend file template to your local templates"
+    bl_label = "Save Template Locally"
+
+    template_name: bpy.props.StringProperty("")
+
+    def execute(self, context):
+        source, template = find_placement_template(self.template_name)
+        if template is None or source != TEMPLATE_SOURCE_BLEND:
+            return {"CANCELLED"}
+        from .OT_Settings import save_local_placement_template
+        save_local_placement_template(template.name, template.config)
         return {"FINISHED"}
     
 class _PlacementTemplatePicker:
@@ -116,7 +135,7 @@ class TM_OT_Items_ItemConfig_LoadPlacementTemplate(_PlacementTemplatePicker, Ope
     bl_description = "Choose a template and insert its values into the custom placement"
 
     def get_template_names(self, context):
-        return [t.name for t in context.scene.tm_props_cfg_placement_templates]
+        return [tid for tid, _, _ in list_placement_templates()]
 
     def load(self, placement):
         load_itemconfig_placement_template(placement, self.template_name)

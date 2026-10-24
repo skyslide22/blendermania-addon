@@ -1227,14 +1227,20 @@ def get_itemxml_template_names_enum(self, context) -> list:
     return templates.to_list() or ERROR_ENUM_PROPS
 
 
+_placement_template_enum_items: list = []  # Blender does not copy dynamic enum strings, they must stay referenced
+
 def get_item_config_template_names_enum(self, context) -> list:
+    from ..utils.ItemsExportV2Models import list_placement_templates, TEMPLATE_SOURCE_BLEND
+    global _placement_template_enum_items
     templates = EnumProps()
-    for template in context.scene.tm_props_cfg_placement_templates:
+    for template_id, source, _ in list_placement_templates():
         templates.add(
-            id=template.name,
-            name=template.name,
+            id=template_id,
+            name=template_id,
+            desc="Embedded in the blend file" if source == TEMPLATE_SOURCE_BLEND else "Local template",
         )
-    return templates.to_list() or ERROR_ENUM_PROPS
+    _placement_template_enum_items = templates.to_list() or ERROR_ENUM_PROPS
+    return _placement_template_enum_items
 
 class MediaTrackerClips:
     current_names:list[str] = []
@@ -1322,8 +1328,8 @@ def has_infix(name: str, infix: str) -> bool:
     return infix.lower() in name.lower()
 
 #collection
-def set_collection_moving_group(collection: bpy.types.Collection, v: bool) -> None:
-    if v:
-        collection.color_tag = COLLECTION_GROUPS[COLLECTION_GROUP_MOVING]
+def apply_collection_type(collection: bpy.types.Collection, type_id: str) -> None:
+    if type_id in COLLECTION_GROUPS:
+        collection.color_tag = COLLECTION_GROUPS[type_id]
     else:
         collection.color_tag = WAYPOINTS[getattr(collection, CollectionProp.WAYPOINT_TYPE, "None")]

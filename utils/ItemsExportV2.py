@@ -6,7 +6,8 @@ from ..properties.ObjectProperties import sync_object_properties_with_names
 from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp
 from ..utils.ItemsExportV2Models import *
 from ..utils import Constants
-from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin
+from ..utils.Functions import strip_ignore_prefix
+from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin, get_item_collection_objects, get_invalid_group_children, is_inside_group_collection, EXPLICIT_EXPORT_COLLECTIONS, is_group_collection, get_item_root, get_item_collections_from_collections
 from .Materials import is_material_exportable, save_mat_props_json
 from .ItemsIconV2 import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
@@ -44,9 +45,26 @@ import math
 
 
 
-def export_and_convert(only_failed_ones: bool=False, which: str | None = None):
+def export_and_convert(only_failed_ones: bool=False, which: str | None = None, collections: list[bpy.types.Collection] | None = None):
     tm_props = get_global_props()
     failed = get_convert_items_failed_props()
+
+    if collections is not None:
+        sync_name_and_properties()
+        # explicitly selected collections (and the items of selected groups) override "ignore"
+        scene = bpy.context.scene
+        EXPLICIT_EXPORT_COLLECTIONS.clear()
+        for col in collections:
+            EXPLICIT_EXPORT_COLLECTIONS.add(col.name)
+            if is_group_collection(col) and (root := get_item_root(col, scene)) is not None:
+                EXPLICIT_EXPORT_COLLECTIONS.add(root.name)
+        try:
+            if colls := get_item_collections_from_collections(collections):
+                return export_collections(colls)
+        finally:
+            EXPLICIT_EXPORT_COLLECTIONS.clear()
+        show_report_popup("Error", ("No exportable item collections found in the selected collections!",))
+        return
     
     # explicit scope wins, otherwise fall back to the panel setting
     scope = which or tm_props.LI_exportWhichObjs
@@ -100,8 +118,22 @@ def export_collections(colls: list[bpy.types.Collection]):
             continue
 
         debug(f"Preparing collection <{coll.name}> for export")
+
+        if is_inside_group_collection(coll):
+            show_report_popup("Invalid item collection", (
+                f"<{coll.name}> skipped: item collections can not be inside a moving group or container.",
+            ))
+            continue
+
+        invalid_children = get_invalid_group_children(coll)
+        if invalid_children:
+            show_report_popup("Invalid group", (
+                f"<{coll.name}> skipped: moving groups/containers may not contain item collections, but found:",
+                *(f"  - {c.name}" for c in invalid_children),
+            ))
+            continue
         
-        objs = get_exportable_collection_objects(coll.all_objects)
+        objs = get_exportable_collection_objects(get_item_collection_objects(coll))
 
         invalid_mats = get_invalid_materials_props()
 
@@ -124,7 +156,7 @@ def export_collections(colls: list[bpy.types.Collection]):
 
         # fill metadata
         item_to_export = ExportedItem()
-        item_to_export.name = safe_name(coll.name)
+        item_to_export.name = safe_name(strip_ignore_prefix(coll.name))
         item_to_export.name_raw = coll.name
         item_to_export.objects = objs
         item_to_export.collection = coll

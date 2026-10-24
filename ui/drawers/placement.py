@@ -6,6 +6,8 @@ from ...utils.Functions import *
 from ...utils.Constants import * 
 from ...ui.widgets.lists import *
 from ...ui.widgets.foldouts import *
+from ...utils.ItemsExportV2Models import find_placement_template, TEMPLATE_SOURCE_BLEND
+
 
 # callbacks for list items
 def _draw_compatible_group_row(layout, item, index):
@@ -267,4 +269,8 @@ def draw_item_placement_template_selection(layout, context, placement_ref, secti
     row.label(text="Placement Template:")
     row.prop(placement_ref, "template", text="")
     row.operator("view3d.tm_remove_item_config_placement_template", text=f"", icon=ICON_REMOVE).template_name = selected_template_name
+
+    source, _ = find_placement_template(selected_template_name)
+    if source == TEMPLATE_SOURCE_BLEND:
+        layout.operator("view3d.tm_copy_item_config_placement_template_to_local", text="Save Blend Template to Local", icon=ICON_SAVE).template_name = selected_template_name
 

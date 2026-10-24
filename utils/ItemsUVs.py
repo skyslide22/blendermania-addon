@@ -1,10 +1,11 @@
 import bpy
 from ..utils.Functions      import *
+from ..utils.FunctionsV2    import get_item_collection_objects
 
 def generate_base_material_cube_projection(coll: bpy.types.Collection) -> None:
     """generate basematerial uvlayer with cube project method, only useful for repeating textures"""
     tm_props    = get_global_props()
-    objs        = [obj for obj in coll.all_objects if select_obj(obj)]
+    objs        = [obj for obj in get_item_collection_objects(coll) if select_obj(obj)]
     bm_objs     = []
 
     debug(f"overwrite basematerial with cubeproject for <{coll.name}>")
@@ -38,7 +39,7 @@ def generate_base_material_cube_projection(coll: bpy.types.Collection) -> None:
 def generate_lightmap(col, use_overlapping_check=False) -> None:
     """generate lightmap of all mesh objects from given collection"""
     tm_props    = get_global_props()
-    objs        = [obj for obj in col.all_objects if select_obj(obj)]
+    objs        = [obj for obj in get_item_collection_objects(col) if select_obj(obj)]
     lm_objs     = []
 
     debug(f"create lightmap for <{col.name}>")
@@ -103,7 +104,7 @@ def _check_uv_layer_overlaps_of_col(uv_name: str, col: bpy.types.Collection)-> b
 
     deselect_all_objects()
     
-    objs = [obj for obj in col.objects  if  obj.type == "MESH" \
+    objs = [obj for obj in get_item_collection_objects(col)  if  obj.type == "MESH" \
                                             and is_obj_visible_by_name(obj.name) \
                                             and select_obj(obj) ]
 
