@@ -98,7 +98,7 @@ def rest_matrix(ob):
 def item_origin_object(col):
     origin = None
     for ob in col.all_objects:        # use the same iteration/order as your export
-        if ob.type == 'MESH' and (origin is None or getattr(col, ObjectProp.ORIGIN)):
+        if ob.type == 'MESH' and (origin is None or getattr(ob, ObjectProp.ORIGIN)):
             origin = ob
     return origin
 
