@@ -11,6 +11,8 @@ DOTNET_COMMANDS = (
     GET_MEDIATRACKER_CLIPS           := "get-mediatracker-clips",
     PLACE_MEDIATRACKER_CLIPS_ON_MAP  := "place-mediatracker-clips-on-map",
     CONVERT_FBX_TO_GBX               := "convert-fbx-to-gbx",
+    PLAN_FBX_TO_GBX                  := "plan-fbx-to-gbx",
+
 )
 
 
@@ -310,6 +312,7 @@ SPECIAL_NAME_PREFIXES = (
 SPECIAL_NAME_INFIXES = (
     SPECIAL_NAME_INFIX_ORIGIN           := "_origin_",
     SPECIAL_NAME_INFIX_PIVOT            := "_pivot_",
+    SPECIAL_NAME_INFIX_MAGNET           := "_magnet_",
     
     SPECIAL_NAME_INFIX_NOMERGE           := "_noMerge_",
 

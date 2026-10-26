@@ -192,6 +192,25 @@ def draw_item_placement_editor(layout, context, placement, section):
                         add_text="Add Pivot",
                         show_move=True, show_clipboard=True)   # add button lives in the foldout header
 
+
+
+        magnet_count = len(placement.LI_magnets)
+        magnet_body, magnet_header = foldout_toggle(layout, tm_props, 
+                                    "CB_cfg_magnets", 
+                                    label=f"Magnets (Placement Variants) ({magnet_count})",
+                                    indent = UI_FOLDOUT_INDENT)
+        if magnet_body:
+            row = magnet_body.row(align=True)
+            list_add_button(row, placement, "LI_magnets", text="Add", icon=ICON_ADD)
+            item_list(magnet_body,
+                        placement, 
+                        "LI_magnets", 
+                        draw_item=draw_pivot,
+                        add_text="Add magnet",
+                        show_move=True, show_clipboard=True)   # add button lives in the foldout header
+
+
+
         placement_cube_body, placement_cube_header = foldout_toggle(layout, placement, 
                                                 "CB_placementCube", 
                                                 label="Placement Cube",

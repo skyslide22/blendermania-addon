@@ -41,6 +41,8 @@ def register_object_properties():
     setattr(bpy.types.Object, ObjectProp.SOCKET, _bool("Spawn", "Object is a spawn point", ObjectProp.SOCKET, _update_tm_socket))
     setattr(bpy.types.Object, ObjectProp.IGNORE, _bool("Ignore", "Object should be ignored", ObjectProp.IGNORE, _update_tm_ignore))
     setattr(bpy.types.Object, ObjectProp.PIVOT, _bool("Pivot", "Object is a pivot point", ObjectProp.PIVOT, _update_tm_pivot))
+    setattr(bpy.types.Object, ObjectProp.MAGNET, _bool("Magnet", "Object is a magnet point", ObjectProp.MAGNET, _update_tm_magnet))
+
     setattr(bpy.types.Object, ObjectProp.ORIGIN, _bool("Origin", "Object is an origin point", ObjectProp.ORIGIN, _update_tm_origin))
     setattr(bpy.types.Object, ObjectProp.NO_MERGE, _bool("No Merge", "Object handled as separate entity within the item receiving its own lightmap", ObjectProp.NO_MERGE, _update_tm_no_merge))
 
@@ -91,6 +93,10 @@ def _update_tm_no_merge(self, context):
 def _update_tm_pivot(self, context):
     if _syncing: return
     toggle_infix(self, SPECIAL_NAME_INFIX_PIVOT)
+
+def _update_tm_magnet(self, context):
+    if _syncing: return
+    toggle_infix(self, SPECIAL_NAME_INFIX_MAGNET)
 
 def _update_tm_trigger_effect(self, context):
     if _syncing: return
@@ -143,6 +149,8 @@ def _on_object_renamed():
                 setattr(obj, ObjectProp.ORIGIN, has_infix(obj.name, SPECIAL_NAME_INFIX_ORIGIN))
             if getattr(obj, ObjectProp.PIVOT) != has_infix(obj.name, SPECIAL_NAME_INFIX_PIVOT):
                 setattr(obj, ObjectProp.PIVOT, has_infix(obj.name, SPECIAL_NAME_INFIX_PIVOT))
+            if getattr(obj, ObjectProp.MAGNET) != has_infix(obj.name, SPECIAL_NAME_INFIX_MAGNET):
+                setattr(obj, ObjectProp.MAGNET, has_infix(obj.name, SPECIAL_NAME_INFIX_MAGNET))
             if getattr(obj, ObjectProp.TRIGGER_EFFECT) != has_infix(obj.name, SPECIAL_NAME_INFIX_TRIGGEREFFECT):
                 setattr(obj, ObjectProp.TRIGGER_EFFECT, has_infix(obj.name, SPECIAL_NAME_INFIX_TRIGGEREFFECT))
             if getattr(obj, ObjectProp.TRIGGER_WAYPOINT) != has_infix(obj.name, SPECIAL_NAME_INFIX_TRIGGERWAYPOINT):

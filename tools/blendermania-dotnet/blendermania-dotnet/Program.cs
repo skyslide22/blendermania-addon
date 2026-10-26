@@ -60,6 +60,8 @@ try
             return await PlaceObjectsOnMap.Execute(payload);
         case ConvertFbxToGbx.COMMAND_NAME:
             return await ConvertFbxToGbx.Execute(payload);
+        case ConvertFbxToGbx.PLANNING_COMMAND_NAME:
+            return await ConvertFbxToGbx.ExecutePlanning(payload);
 
         default:
             throw new Exception("No such command: " + command);

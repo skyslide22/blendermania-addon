@@ -10,6 +10,7 @@ class ObjectProp(StrEnum):
     SOCKET           = "tm_socket"
     IGNORE           = "tm_ignore"
     PIVOT            = "tm_pivot"
+    MAGNET           = "tm_magnet"
     ORIGIN           = "tm_origin"
     NO_MERGE         = "tm_no_merge"
 
@@ -69,6 +70,8 @@ class CollectionProp(StrEnum):
     KINEMATIC_MOVING_TEXTURE_PER_COLUMN = "tm_kinematic_moving_texture_per_column"
     KINEMATIC_MOVING_TEXTURE_TOP_TO_BOTTOM = "tm_kinematic_moving_texture_top_to_bottom"
     KINEMATIC_MOVING_TEXTURE_ANIMS = "tm_kinematic_moving_texture_anims"
+
+    ANALYZED_FBXGBX_PLAN = "tm_analyzed_fbxgbx_plan"
 
 @unique
 class LightProp(StrEnum):

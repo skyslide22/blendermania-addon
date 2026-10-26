@@ -1,6 +1,7 @@
 import bpy
 from bpy.props import *
 
+from ..properties.ItemPlanProperties import FbxGbxPlanProperties
 from ..properties.ItemConfigProperties import ItemConfigProperties
 from .Functions import has_infix, has_prefix, apply_collection_type, toggle_infix, toggleNameSpecialPrefix
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
@@ -305,6 +306,12 @@ def register_collection_properties():
         name="Moving Texture Animations",
         description="Animation settings for the moving texture of the kinematic object",
         type=TM_TextureAnimProperties
+    ))
+
+    setattr(bpy.types.Collection, CollectionProp.ANALYZED_FBXGBX_PLAN, PointerProperty(
+        name="Analyzed FBXGBX Plan",
+        description="Analyzed FBXGBX plan for the collection",
+        type=FbxGbxPlanProperties
     ))
 
     subscribe_to_msgbus(_msgbus_owner, bpy.types.Collection, "name", _on_collection_renamed)

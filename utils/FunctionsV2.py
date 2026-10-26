@@ -136,6 +136,13 @@ def get_item_collection_objects(item: bpy.types.Collection) -> list[bpy.types.Ob
     walk(item)
     return objs
 
+def get_item_meshes_which_require_uvmaps(item: bpy.types.Collection) -> list[bpy.types.Object]:
+    """meshes of the item incl. moving groups and containers that need uv maps"""
+    return [obj for obj in get_item_collection_objects(item)
+        if obj.type == "MESH"
+        and obj.visible_get()
+        and not getattr(obj, ObjectProp.SOCKET, False)]
+
 def get_item_moving_groups(item: bpy.types.Collection) -> list[bpy.types.Collection]:
     """moving groups of the item, found through containers and other moving groups"""
     groups: list[bpy.types.Collection] = []

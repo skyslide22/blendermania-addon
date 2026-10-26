@@ -45,7 +45,8 @@ import math
 
 
 
-def export_and_convert(only_failed_ones: bool=False, which: str | None = None, collections: list[bpy.types.Collection] | None = None):
+def export_and_convert(only_failed_ones: bool=False, which: str | None = None, collections: list[bpy.types.Collection] | None = None, plan_only: bool=False):
+    """plan_only: export fbx (+ json config) only, no icon, no gbx convert; returns the list of ExportedItem"""
     tm_props = get_global_props()
     failed = get_convert_items_failed_props()
 
@@ -60,7 +61,7 @@ def export_and_convert(only_failed_ones: bool=False, which: str | None = None, c
                 EXPLICIT_EXPORT_COLLECTIONS.add(root.name)
         try:
             if colls := get_item_collections_from_collections(collections):
-                return export_collections(colls)
+                return export_collections(colls, plan_only=plan_only)
         finally:
             EXPLICIT_EXPORT_COLLECTIONS.clear()
         show_report_popup("Error", ("No exportable item collections found in the selected collections!",))
@@ -81,13 +82,13 @@ def export_and_convert(only_failed_ones: bool=False, which: str | None = None, c
     
     # export normal way
     if colls := get_exportable_collections(objs):
-        return export_collections(colls)
+        return export_collections(colls, plan_only=plan_only)
     
     show_report_popup("Error", ("No objects/collections found to export!",))
 
     
     
-def export_collections(colls: list[bpy.types.Collection]):
+def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False) -> list[ExportedItem] | None:
     current_selection       = bpy.context.selected_objects.copy()
     tm_props                = get_global_props()
     
@@ -185,25 +186,46 @@ def export_collections(colls: list[bpy.types.Collection]):
         # move collection to 0,0,0
         offset = _move_collection_to(objs)
 
-        # export .fbx
-        _export_item_FBX(item_to_export)
-        
-        # tm2020 socket fix
-        # if tmp_socket:
-        #     item_to_export.objects.remove(tmp_socket)
-        # _remove_empty_socket_unhide_existing(coll)
+        scaled_items: list[ExportedItem] = []
+        try:
+            # export .fbx
+            _export_item_FBX(item_to_export)
 
-        # generate icon
-        generate_collection_icon(coll, item_to_export.icon_path)
-        
+            # generate icon
+            if not plan_only:
+                generate_collection_icon(coll, item_to_export.icon_path)
+        except (PermissionError, OSError, RuntimeError) as e:
+            if isinstance(e, RuntimeError) and "Permission denied" not in str(e) and "Errno 13" not in str(e):
+                _move_collection_by(objs, offset)
+                raise
+            _move_collection_by(objs, offset)
+            deselect_all_objects()
+            show_report_popup("Export failed", (
+                f"<{coll.name}> skipped: permission denied (file may be in use).",
+                f"  {e}",
+            ))
+            continue
+
         # move collection back to original position
         _move_collection_by(objs, offset)
 
-        items_to_export += _duplicate_scaled(item_to_export)
+        try:
+            scaled_items = _duplicate_scaled(item_to_export)
+        except PermissionError as e:
+            show_report_popup("Export failed", (
+                f"<{coll.name}> skipped: permission denied (file may be in use).",
+                f"  {e}",
+            ))
+            continue
+
+        items_to_export += scaled_items
 
     for obj in current_selection:
         try: select_obj(obj)
         except: pass
+
+    if plan_only:
+        return items_to_export
 
     clean_failed_converts()
 

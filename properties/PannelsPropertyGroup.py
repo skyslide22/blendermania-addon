@@ -297,7 +297,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_cfg_showValidForGroups     : BoolProperty(name="Show Valid For Groups", description="Show or hide the valid for groups section", default=True,)
 
     CB_cfg_ignore_assigned_templates: BoolProperty(name="Ignore the template that has been assigned to the collection(s)", default=False)
-
+    CB_cfg_magnets              : BoolProperty(name="Magnets", default=True)
 
     #
     CB_cfg_show_anim_texture_anims      : BoolProperty(name="Show Anim Texture Anims", default=True, description="Show or hide the animation texture animations section")

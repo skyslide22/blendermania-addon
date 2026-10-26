@@ -6,9 +6,10 @@ from ..properties.Functions import getSimpleGridParams
 
 
 class PivotsProperties(bpy.types.PropertyGroup):
-    """trackmania properties generated for pivots (item xml)"""
+    """trackmania properties generated for pivots/magnets (item xml)"""
     FV_position   : FloatVectorProperty(name="Pivot Position", size=3, subtype='XYZ', default=(0.0, 0.0, 0.0), step=100)
     FV_rotation   : FloatVectorProperty(name="Pivot Rotation", size=3, subtype='EULER', default=(0.0, 0.0, 0.0), step=100)
+
 
     # NU_pivotX   : FloatProperty(name="X", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
     # NU_pivotY   : FloatProperty(name="Y", default=0.0, min=-1024, max=1024, soft_min=-8, soft_max=8, step=10)
@@ -89,5 +90,6 @@ class PlacementProperties(bpy.types.PropertyGroup):
     NU_patchLayouts_index   : IntProperty(name="Patch Layouts Index", default=-1)
 
     LI_pivots                : CollectionProperty(name="Pivots", type=PivotsProperties, description="Define pivot points for item placement.",)
+    LI_magnets               : CollectionProperty(name="Magnets", type=PivotsProperties, description="Define magnet points for item placement.",)
 
 

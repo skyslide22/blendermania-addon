@@ -18,6 +18,7 @@ import os
 
 
 
+
 ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 
@@ -68,6 +69,7 @@ from .properties.ObjectProperties           import *
 from .properties.PlacementPatchProperties   import *
 from .properties.LightProperties            import *
 from .properties.ItemConfigProperties       import *
+from .properties.ItemPlanProperties       import *
 
 from .operators.OT_Map_Manipulate          import *
 from .operators.OT_NinjaRipper             import *
@@ -88,6 +90,8 @@ from .operators.OT_VisibilitySelection     import *
 from .operators.OT_Items_Placement          import *
 from .operators.OT_Items_ExportV2           import *
 from .operators.OT_Items_IconV2             import *
+from .operators.OT_Items_AnalyzeGroups import *
+
 
 from .panels.PT_Map_Manipulate          import *
 from .panels.PT_Imports                 import *
@@ -132,6 +136,9 @@ classes = (
     PlacementPatchProperties,
     #WorldDirProperties,
     PivotsProperties,
+    FBXPlanNodeProperties,
+    FbxGbxPlanGroupProperties,
+    FbxGbxPlanProperties,
     PlacementProperties,
     PlacementPropertiesRef,
     ItemConfigProperties,
@@ -177,7 +184,9 @@ classes = (
     TM_PT_Items_ObjectManipulation,
     TM_PT_ObjectManipulationsV2,
     TM_PT_Items_CollectionManipulationV2,
+    TM_PT_ItemCollection_Lightmap,
     TM_PT_ItemCollection_Placement,
+
     #TM_PT_Items_MovingGroupCollectionManipulationV2,
     TM_PT_Items_ObjectManipulationV2,
     TM_OT_Items_ObjectManipulationAddSocketItem,
@@ -201,7 +210,10 @@ classes = (
     TM_OT_Items_ToggleNightOnly,
     TM_OT_Items_RenameObject,
     TM_OT_Items_EditUVMap,
+    TM_OT_Items_EditUVMapV2,
+    TM_OT_Items_EditGroupLightmap,
     TM_OT_Items_ShowUVMap,
+    TM_OT_Items_ShowUVMapV2,
     TM_OT_Items_CollectionManipulationToggleNICE,
     TM_OT_Items_ObjectManipulationToggleGate,
 
@@ -275,6 +287,9 @@ classes = (
     # uvs
     TM_PT_Items_UVmaps_LightMap,
     TM_PT_Items_UVmaps_BaseMaterial_CubeProject,
+
+
+    OT_ITEMS_analyze_groups,
 
 
     #anim
@@ -405,6 +420,7 @@ def register():
 
     # templates
     register_placement_templates()
+
 
     # material extra props
     bpy.types.Material.gameType         = EnumProperty(         name="Game",                default=0, items=getGameTypes())

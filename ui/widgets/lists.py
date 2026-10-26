@@ -372,8 +372,11 @@ WIDGET_ADD_BUTTON_BOTTOM = 'BOTTOM'
 def item_list(layout, owner, collection: str, draw_item,
               add=WIDGET_ADD_BUTTON_NONE, add_icon='ADD', add_text="",
               numbered: bool = False, open_prop="", draw_footer=None,
-              show_move=False, copy_on_add=None, show_clipboard=False):
+              show_move=False, copy_on_add=None, show_clipboard=False,
+              inline_buttons=False):
     """Items drawn directly, remove button per item.
+    inline_buttons: True puts move/remove/clipboard buttons in ONE row
+    (use when draw_item draws a single line) instead of stacked columns.
     add: 'TOP' | 'BOTTOM' | None (draw the add button yourself)
     draw_item(layout, item, index) is your function."""
     items = getattr(owner, collection)
@@ -397,13 +400,18 @@ def item_list(layout, owner, collection: str, draw_item,
         draw_item(content, item, i)
         # right of the entry: move column, then delete / dropdown column
         if show_move and len(items) >= 2:
-            move = row.column(align=True)
+            move = row.row(align=True) if inline_buttons else row.column(align=True)
             _op(move, "tm.list_move", owner, collection, icon='TRIA_UP', index=i, direction='UP')
             _op(move, "tm.list_move", owner, collection, icon='TRIA_DOWN', index=i, direction='DOWN')
-        buttons = row.column(align=True)
-        _op(buttons, "tm.list_remove", owner, collection, icon='X', index=i)
-        if show_clipboard:
-            _clipboard_menu(buttons, item)
+        buttons = row.row(align=True) if inline_buttons else row.column(align=True)
+        if inline_buttons:
+            if show_clipboard:
+                _clipboard_menu(buttons, item)
+            _op(buttons, "tm.list_remove", owner, collection, icon='X', index=i)
+        else:
+            _op(buttons, "tm.list_remove", owner, collection, icon='X', index=i)
+            if show_clipboard:
+                _clipboard_menu(buttons, item)
 
     if draw_footer:
         last_index = len(items) - 1

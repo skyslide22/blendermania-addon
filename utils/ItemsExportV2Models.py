@@ -1,6 +1,6 @@
 from __future__ import annotations
 import math
-from mathutils import Euler
+from mathutils import Euler, Quaternion
 
 from dataclasses import dataclass, field, asdict, is_dataclass, fields
 from enum import Enum, IntFlag
@@ -171,19 +171,9 @@ class Vec3:
         return (self.X, self.Y, self.Z)
 
 
-@dataclass
-class Quat:
-
-    @staticmethod
-    def from_euler(vec, degrees=True, order="XYZ") -> Quat:
-        angles = [math.radians(a) for a in vec] if degrees else list(vec)
-        q = Euler(angles, order).to_quaternion()      # mathutils order is (w, x, y, z)
-        return Quat(q.x, q.y, q.z, q.w)
-    
-    X: float = 0.0
-    Y: float = 0.0
-    Z: float = 0.0
-    W: float = 1.0
+def quat_from_euler(vec, degrees=True, order="XYZ") -> Quaternion:
+    angles = [math.radians(a) for a in vec] if degrees else list(vec)
+    return Euler(angles, order).to_quaternion()
 
 
 @dataclass
@@ -242,7 +232,9 @@ class PlacementConfig:
     FlyVOffset: float = 0.0
     PivotSnapDistance: float = 0.0
     PivotPositions: list[Vec3] | None = field(default_factory=list)
-    PivotRotations: list[Quat] | None = field(default_factory=list)
+    PivotRotations: list[Quaternion] | None = field(default_factory=list)
+    MagnetPositions: list[Vec3] | None = field(default_factory=list)
+    MagnetRotations: list[Quaternion] | None = field(default_factory=list)
     PlacementClass: PlacementClass | None = None
 
 
@@ -387,6 +379,8 @@ class ExportedItem:
 def _encode(value: Any) -> Any:
     if isinstance(value, Vec3):
         return value.to_string()
+    if isinstance(value, Quaternion):  # mathutils order is (w, x, y, z); C# Quaternion fields are X, Y, Z, W
+        return {"X": value.x, "Y": value.y, "Z": value.z, "W": value.w}
     if is_dataclass(value) and not isinstance(value, type):
         # shallow field walk, so nested Vec3/enums reach _encode themselves
         return {f.name: _encode(getattr(value, f.name)) for f in fields(value)}
@@ -499,6 +493,9 @@ def _decode(tp: Any, value: Any, exact_nones: bool = False) -> Any:
                 elif exact_nones and _is_optional(hints[f.name]):
                     kwargs[f.name] = None  # was dropped by _drop_nones
             return tp(**kwargs)
+        if tp is Quaternion:
+            return Quaternion((float(value.get("W", 1.0)), float(value.get("X", 0.0)),
+                               float(value.get("Y", 0.0)), float(value.get("Z", 0.0))))
         if tp is MeshFlags:  # before generic IntFlag
             return _decode_mesh_flags(value)
         if issubclass(tp, IntFlag):  # before generic Enum
@@ -538,6 +535,7 @@ def load_itemconfig_placement_template(placement: PlacementProperties, template_
 def get_placement_config_from_properties(placement_props: PlacementProperties) -> PlacementConfig:
     
     pivots = placement_props.LI_pivots
+    
 
     use_simple_ui       = placement_props.LI_simpleOrAdvanced.upper() == "SIMPLE"
     
@@ -565,8 +563,16 @@ def get_placement_config_from_properties(placement_props: PlacementProperties) -
         for p in pivots
     ]
     placement.PivotRotations = [
-        Quat.from_euler(p.FV_rotation, degrees=False, order="XYZ")
+        quat_from_euler(p.FV_rotation, degrees=False, order="XYZ")
         for p in pivots
+    ]
+    placement.MagnetPositions = [
+        Vec3.from_seq(m.FV_position)
+        for m in placement_props.LI_magnets
+    ]
+    placement.MagnetRotations = [
+        quat_from_euler(m.FV_rotation, degrees=False, order="XYZ")
+        for m in placement_props.LI_magnets
     ]
 
     if bool(placement_props.CB_attachmentConfiguration):

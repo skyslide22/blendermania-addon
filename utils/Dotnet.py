@@ -75,9 +75,13 @@ def get_block_dir_for_angle(angle: int) -> int:
 class DotnetExecResult:
     success: bool
     message: str
-    def __init__(self, message: str, success: bool):
+    stdout: str = ""
+    stderr: str = ""
+    def __init__(self, message: str, success: bool, stdout: str = "", stderr: str = ""):
         self.success = success
         self.message = message
+        self.stdout = stdout
+        self.stderr = stderr
 
 
 # Dotnet types
@@ -342,6 +346,24 @@ def run_convert_fbx_to_gbx(
     res = _run_dotnet(CONVERT_FBX_TO_GBX, json.dumps(payload, cls=ComplexEncoder, ensure_ascii=False))
     return res
 
+def run_plan_fbx_to_gbx(
+    fbx_path: str,
+    material_library_path: str,
+    item_output_path: str,
+    icon_path: str,
+    target: ItemModel,
+    optimization: OptimizationOptions,
+) -> DotnetExecResult:
+    payload = ConvertFbxToGbxPayload(
+        fbx_path,
+        material_library_path,
+        item_output_path,
+        icon_path,
+        target,
+        optimization
+    )
+    res = _run_dotnet(PLAN_FBX_TO_GBX, json.dumps(payload, cls=ComplexEncoder, ensure_ascii=False))
+    return res
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     dotnet_exe = get_blendermania_dotnet_path()
@@ -360,8 +382,8 @@ def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     messages = out_msg + ("\n" + err_msg if len(err_msg) > 0 else "")
 
     if process.returncode == DOTNET_RETURN_CODE_SUCCESS:
-        return DotnetExecResult(message=messages, success=True)
+        return DotnetExecResult(message=messages, success=True, stdout=out_msg, stderr=err_msg)
     
     messages = DOTNET_RETURN_CODES.get(process.returncode, "Unknown Error") + "\n" + messages
 
-    return DotnetExecResult(message=messages, success=False)
+    return DotnetExecResult(message=messages, success=False, stdout=out_msg, stderr=err_msg)

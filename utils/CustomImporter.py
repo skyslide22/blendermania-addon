@@ -5,7 +5,7 @@ import bpy
 import queue
 import threading
 import time
-from mathutils import Vector
+from mathutils import Vector, Quaternion
 import html, json
 
 from ..properties.PropertyIdentifiers import LightProp
@@ -14,9 +14,10 @@ from ..utils.NadeoImporter import BinaryReader, HeaderChunk
 
 from ..utils import Constants
 
-from ..utils.FunctionsV2 import *
+
 from ..utils.ItemsExportV2Models import * 
 from ..utils.Dotnet import *
+from ..utils.FunctionsV2 import *
 
 class ConvertStep():
     def __init__(self, title, additional_infos: tuple=()):
@@ -430,10 +431,8 @@ def start_batch_convert(items: list[ExportedItem]):
     for item in items:
         item.game = GAMETYPE_TRACKMANIA2020 if is_game_trackmania2020() else GAMETYPE_MANIAPLANET
 
-        item.config = _generate_item_config(item)
         item.material_lib_path = get_global_props().ST_materialLibPath
-        cfg_save_path = item.fbx_path.replace(".fbx", ".json")
-        _save_item_config(item.config, cfg_save_path)
+        generate_and_save_item_config(item)
 
         thread = threading.Thread(target=convert_fbx, args=[item])
         _CONVERT_THREADS.append(thread)
@@ -444,6 +443,31 @@ def start_batch_convert(items: list[ExportedItem]):
     _CONVERT_RESULTS.clear()
 
     bpy.app.timers.register(_process_convert_queue, first_interval=0.5)
+
+def plan_item(item: ExportedItem) -> dict | None:
+    """save config next to the (already exported) fbx and run the dotnet planner, no gbx is generated"""
+    item.game = GAMETYPE_TRACKMANIA2020 if is_game_trackmania2020() else GAMETYPE_MANIAPLANET
+    item.material_lib_path = get_global_props().ST_materialLibPath
+    generate_and_save_item_config(item)
+
+    res = run_plan_fbx_to_gbx(
+        fbx_path=item.fbx_path,
+        material_library_path=item.material_lib_path,
+        item_output_path=item.item_path,
+        icon_path=item.icon_path,
+        target=ItemModel.Prefab,
+        optimization=OptimizationOptions.PreferNadeoImporterStructure,
+    )
+    if not res.success:
+        debug(f"plan failed for {item.name}: {res.message}")
+        return None
+    return json.loads(res.stdout)  # stdout only, never res.message
+
+def generate_and_save_item_config(item: ExportedItem) -> None:
+    """generate item config and save it to json file next to the fbx"""
+    item.config = _generate_item_config(item)
+    cfg_save_path = item.fbx_path.replace(".fbx", ".json")
+    _save_item_config(item.config, cfg_save_path)
 
 def _save_item_config(config: ItemConfig, filepath: str) -> None:
     """save item config to json file"""
@@ -804,6 +828,8 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.LodParameters = _get_lod_parameters_from_collection(collection)
     cfg.Waypoint = _get_waypoint_from_collection(collection)
     cfg.Placement = generate_placement_config(collection)
+    _add_pivot_objects_to_placement(cfg.Placement, item.objects)
+    _add_magnet_objects_to_placement(cfg.Placement, item.objects)
     cfg.Scale = item.scale
     cfg.Materials = _get_material_configs_from_collection(item.objects, collection)
     cfg.Lights = _get_light_configs_from_collection(item.objects, collection)
@@ -814,6 +840,78 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
 
 
     return cfg
+
+def _add_pivot_objects_to_placement(placement: PlacementConfig, objs: list[bpy.types.Object]) -> None:
+    """append all objects marked as pivot to the placement pivots (position relative to the item origin)"""
+    pivot_objs = [
+        obj for obj in objs
+        if getattr(obj, ObjectProp.PIVOT, False) and not getattr(obj, ObjectProp.IGNORE, False)
+    ]
+    if not pivot_objs:
+        return
+
+    offset = get_offset_from_item_origin(objs) or [0.0, 0.0, 0.0]
+
+    if placement.PivotPositions is None:
+        placement.PivotPositions = []
+    if placement.PivotRotations is None:
+        placement.PivotRotations = []
+
+    # keep rotations aligned with positions
+    while len(placement.PivotRotations) < len(placement.PivotPositions):
+        placement.PivotRotations.append(Quaternion())
+
+    for obj in pivot_objs:
+        # matrix_world can be stale here: the export moved the objects by the origin offset and back again
+        # without a depsgraph update, so the offset would be subtracted twice. Rebuild from the current local values.
+        world = _fresh_world_matrix(obj)
+        loc = world.translation
+        placement.PivotPositions.append(Vec3(
+            loc.x - offset[0],
+            loc.y - offset[1],
+            loc.z - offset[2],
+        ))
+        placement.PivotRotations.append(world.to_euler('XYZ').to_quaternion())
+
+def _add_magnet_objects_to_placement(placement: PlacementConfig, objs: list[bpy.types.Object]) -> None:
+    """append all objects marked as magnet to the placement magnets (position relative to the item origin)"""
+    magnet_objs = [
+        obj for obj in objs
+        if getattr(obj, ObjectProp.MAGNET, False) and not getattr(obj, ObjectProp.IGNORE, False)
+    ]
+    if not magnet_objs:
+        return
+
+    offset = get_offset_from_item_origin(objs) or [0.0, 0.0, 0.0]
+
+    if placement.MagnetPositions is None:
+        placement.MagnetPositions = []
+    if placement.MagnetRotations is None:
+        placement.MagnetRotations = []
+
+    # keep rotations aligned with positions
+    while len(placement.MagnetRotations) < len(placement.MagnetPositions):
+        placement.MagnetRotations.append(Quaternion())
+
+    for obj in magnet_objs:
+        # matrix_world can be stale here: the export moved the objects by the origin offset and back again
+        # without a depsgraph update, so the offset would be subtracted twice. Rebuild from the current local values.
+        world = _fresh_world_matrix(obj)
+        loc = world.translation
+        placement.MagnetPositions.append(Vec3(
+            loc.x - offset[0],
+            loc.y - offset[1],
+            loc.z - offset[2],
+        ))
+        placement.MagnetRotations.append(world.to_euler('XYZ').to_quaternion())
+
+
+def _fresh_world_matrix(obj: bpy.types.Object):
+    """world matrix built from the current location/rotation/scale of the object and its parents"""
+    matrix = obj.matrix_basis.copy()
+    if obj.parent is not None:
+        matrix = _fresh_world_matrix(obj.parent) @ obj.matrix_parent_inverse @ matrix
+    return matrix
 
 def _get_lod_parameters_from_collection(collection: bpy.types.Collection) -> LodParameters:
     params = LodParameters()
