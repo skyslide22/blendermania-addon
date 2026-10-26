@@ -85,6 +85,8 @@ def get_materiallibrary_materials() -> dict:
 
 def material_supports_color(material_name: str, collection_name: str) -> bool:
     """True if the material has a color entry (DColor0) in the material library."""
+    can_use_custom_color = material_name.lower().startswith("custom")
+    return can_use_custom_color
     material = get_materiallibrary_materials().get(collection_name, {}).get(material_name)
     if material is None:
         return False
