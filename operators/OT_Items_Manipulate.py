@@ -408,6 +408,35 @@ class TM_OT_Items_EditGroupLightmap(Operator):
         objectmode()
         editUVMap(col, UV_LAYER_NAME_LIGHTMAP, objs)
         return {"FINISHED"}
+    
+class TM_OT_Items_ShowGroupLightmap(Operator):
+    bl_idname = "view3d.tm_showgrouplightmap"
+    bl_description = "Select only the nodes of this planned groupslightmap uv map"
+    bl_label = "Show group lightmap"
+
+    group_index: bpy.props.IntProperty()
+
+    def execute(self, context):
+        from ..utils.FunctionsV2 import get_active_item_collection as get_active_collection_v2
+        from ..properties.PropertyIdentifiers import CollectionProp
+        col = get_active_collection_v2()
+        plan = getattr(col, CollectionProp.ANALYZED_FBXGBX_PLAN, None) if col else None
+        if plan is None or not plan.is_valid or self.group_index >= len(plan.groups):
+            self.report({"WARNING"}, "No valid plan, re-analyze")
+            return {"CANCELLED"}
+
+        group = plan.groups[self.group_index]
+        objs = [n.obj for n in group.nodes if n.obj is not None and n.obj.type == "MESH" and n.obj.visible_get()]
+        if not objs:
+            self.report({"WARNING"}, "Group has no mesh objects")
+            return {"CANCELLED"}
+
+        objectmode()
+    
+        showUVMap(col, UV_LAYER_NAME_LIGHTMAP, objs)
+        selectUVMapItems(col, objs)
+
+        return {"FINISHED"}
 
 
 class TM_OT_Items_ShowUVMap(Operator):
@@ -711,6 +740,18 @@ def editUVMap(col: bpy.types.Collection, uv_name: str, objs=None) -> None:
     editmode()
     select_all_geometry()  # UV editor only shows selected faces
 
+def selectUVMapItems(col: bpy.types.Collection, objs=None) -> None:
+    if objs is None:
+        objs = get_meshes_which_require_uvmaps(col)
+
+    if not objs:
+        return
+    
+    deselect_all_objects()
+    for obj in objs:
+        select_obj(obj)
+    # multi-object edit mode requires an active object that is part of the selection
+    bpy.context.view_layer.objects.active = objs[0]
 
 
 def set_itemxml_template_of_collection(col: bpy.types.Collection, template: str) -> None:

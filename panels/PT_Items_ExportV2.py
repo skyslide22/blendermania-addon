@@ -1,6 +1,7 @@
 from ast import main
 import bpy
 from bpy.types import (Panel)
+from ..ui.widgets.panels import ViewPanelMixin
 
 from ..ui.drawers.placement import draw_item_placement_editor, draw_item_placement_template_selection
 from ..utils.diagnostics import timed, performance
@@ -11,14 +12,18 @@ from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
 from ..utils.FunctionsV2      import *
 
-class TM_PT_Items_ExportV2(Panel):
+class TM_PT_Items_ExportV2(ViewPanelMixin, Panel):
+    view_id = "items_export_v2"
+    view_label = "Export Items V2"
+
     bl_label   = "Export Items V2"
     bl_idname  = "TM_PT_Items_ExportV2"
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_order = 11
 
     @classmethod
-    def poll(self, context):
+    def view_poll(self, context):
         tm_props = get_global_props()
         return tm_props.CB_blendermaniaV2 and is_selected_nadeoini_file_name_ok()
 

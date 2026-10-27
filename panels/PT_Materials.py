@@ -7,6 +7,7 @@ from bpy.types import (
     Panel,
     Operator,
 )
+from ..ui.widgets.panels import ViewPanelMixin
 from ..utils.materialLib import material_supports_color, is_link_search_synced, request_link_search_sync
 
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
@@ -255,13 +256,18 @@ class TM_PT_Materials(Panel):
         
 
 
-class TM_PT_Materials_Library(Panel):
+class TM_PT_Materials_Library(ViewPanelMixin, Panel):
+    view_id = "materials_v2"
+    view_label = "Materials V2"
+    #view_group = "materials"
+
     bl_label = "Materials V2"
     bl_idname = "OBJECT_PT_TM_Materials_V2"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_order = 13
 
     @classmethod
-    def poll(self, context):
+    def view_poll(self, context):
         tm_props = get_global_props()
         return tm_props.CB_blendermaniaV2 and is_selected_nadeoini_file_name_ok()
     

@@ -1,6 +1,7 @@
 from pydoc import text
 import bpy
 from bpy.types import Panel
+from ..ui.widgets.panels import VIEW_REGISTRY, get_prefs, is_hidden
 
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
@@ -16,6 +17,7 @@ class TM_PT_Settings(Panel):
     bl_idname = "TM_PT_Settings"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_options = set() # default is closed, open as default
+    bl_order = 0  # default order, can be overridden by subclasses
 
     def draw_header(self, context):
         layout = self.layout
@@ -334,3 +336,45 @@ class TM_PT_Settings_Materials(Panel):
 
         row = layout.row(align=True)
         row.prop(tm_props, "ST_materialLibPath", text="Material Lib")
+
+
+class TM_PT_Settings_Views(Panel):
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Views"
+    bl_idname = "TM_PT_Settings_Views"
+    bl_parent_id = "TM_PT_Settings"
+    
+    def draw(self, context):
+        layout = self.layout
+        prefs = get_prefs(context)
+ 
+        # build groups from the registry, keep declaration order
+        groups = {}
+        for cls in VIEW_REGISTRY:
+            groups.setdefault(cls.view_group, []).append(cls)
+ 
+        for group, classes in groups.items():
+            box = layout.box()
+            box.label(text=group)
+            col = box.column(align=True)
+            for cls in classes:
+                hidden = is_hidden(cls.view_id, context)
+                row = col.row(align=True)
+                op = row.operator(
+                    "tm.toggle_view",
+                    text=cls.view_label,
+                    icon='HIDE_ON' if hidden else 'HIDE_OFF',
+                    depress=not hidden,
+                )
+                op.view_id = cls.view_id
+ 
+        # presets
+        row = layout.row(align=True)
+        row.operator("tm.view_preset", text="All").preset = "ALL"
+        row.operator("tm.view_preset", text="Minimal").preset = "MINIMAL"
+        row.operator("tm.view_preset", text="None").preset = "NONE"
+ 
+        # status line so a missing panel never feels like a bug
+        n = len(prefs.hidden_views)
+        if n:
+            layout.label(text=f"{n} view(s) hidden", icon='INFO')

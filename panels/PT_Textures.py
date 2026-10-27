@@ -1,6 +1,7 @@
 from pydoc import text
 import bpy
 from bpy.types import Panel
+from ..ui.widgets.panels import ViewPanelMixin
 
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
@@ -13,13 +14,17 @@ from ..utils.Constants      import *
 from .. import bl_info
 
 
-class TM_PT_Textures(Panel):
+class TM_PT_Textures(ViewPanelMixin, Panel):
+    view_id = "textures"
+    view_label = "Textures"
+
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Textures"
     bl_idname = "TM_PT_Textures"
+    bl_order = 14
     
     @classmethod
-    def poll(self, context):
+    def view_poll(self, context):
         return is_selected_nadeoini_file_name_ok()
 
     def draw_header(self, context):

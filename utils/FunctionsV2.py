@@ -88,6 +88,38 @@ def get_active_item_collection_of_selected_object() -> bpy.types.Collection:
         col = get_item_root(col, bpy.context.scene)
     return col
 
+def get_item_collections_from_selected(context=None) -> list[bpy.types.Collection]:
+    context = context or bpy.context
+    scene = context.scene
+    scene_root = scene.collection
+
+    # 1) Outliner context: explicit collection selection wins
+    ids = getattr(context, "selected_ids", None) or []
+    cols = [i for i in ids if isinstance(i, bpy.types.Collection) and i != scene_root]
+    if cols:
+        return cols
+
+    # 2) Objects selected: derive the item collections from them.
+    #    Active object first, so the panel's target is stable.
+    objs = list(context.selected_objects)
+    active = context.view_layer.objects.active
+    if active is not None and active.select_get():
+        objs = [active] + [o for o in objs if o != active]
+
+    result = []
+    for obj in objs:
+        root = get_item_root(obj.users_collection[0], scene)
+        if root and root not in result:
+            result.append(root)
+    if result:
+        return result
+
+    # 3) Nothing selected: fall back to the active collection
+    layer_col = context.view_layer.active_layer_collection
+    if layer_col is not None and layer_col.collection != scene_root:
+        return [layer_col.collection]
+    return []
+
 # group collections (moving group / container)
 
 def is_moving_group_collection(col: bpy.types.Collection) -> bool:

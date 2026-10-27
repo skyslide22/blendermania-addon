@@ -22,6 +22,11 @@ class FBXPlanNodeProperties(bpy.types.PropertyGroup):
     obj: PointerProperty(type=bpy.types.Object)
     lod_indices: StringProperty()
 
+    has_uv_overlap: BoolProperty(
+        name="Has UV Overlap",
+        default=False,
+    )
+
 class FbxGbxPlanGroupProperties(bpy.types.PropertyGroup):
     key: StringProperty()
     group_type: StringProperty()
@@ -38,6 +43,15 @@ class FbxGbxPlanGroupProperties(bpy.types.PropertyGroup):
         name="Override Lightmap Size",
         default=False,
         update=_apply_override_lightmap_size,
+    )
+
+    has_uv_overlap: BoolProperty(
+        name="Has UV Overlap",
+        default=False,
+    )
+    num_uv_overlap_faces: IntProperty(
+        name="Number of UV Overlap Faces",
+        default=0,
     )
 
 class FbxGbxPlanProperties(bpy.types.PropertyGroup):

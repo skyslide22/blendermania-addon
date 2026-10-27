@@ -1,5 +1,6 @@
 from email.policy import default
 import bpy
+from ..ui.widgets.panels import ViewPanelMixin
 
 from .. operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
@@ -25,14 +26,18 @@ from ..operators.OT_WikiLink import add_ui_wiki_icon
 
 
 
-class PT_UIMapManipulation(bpy.types.Panel):
+class PT_UIMapManipulation(ViewPanelMixin, bpy.types.Panel):
+    view_id = "map"
+    view_label = "Map"
+
     bl_label   = "Map"
     bl_idname  = "TM_PT_Map_Manipulate"
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_order = 100
 
     @classmethod
-    def poll(self, context):
+    def view_poll(self, context):
         return is_selected_nadeoini_file_name_ok()
 
 

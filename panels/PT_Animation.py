@@ -1,15 +1,19 @@
 from bpy.types import (Panel)
+from ..ui.widgets.panels import ViewPanelMixin
 from ..utils.Functions import get_global_props
 from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS
 
-class TM_PT_Animation_Preview(Panel):
+class TM_PT_Animation_Preview(ViewPanelMixin, Panel):
+    view_id = "animation_preview"
+    view_label = "Animation Preview"
+
     bl_label   = "Moving Animation Preview"
     bl_idname  = "TM_PT_Animation_Preview"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-
+    bl_order = 12
 
     @classmethod
-    def poll(self, context):
+    def view_poll(self, context):
         #tm_props = get_global_props()
         return True
 

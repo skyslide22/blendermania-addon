@@ -5,6 +5,7 @@ from itertools import count
 import bpy
 from bpy.types import Panel
 from bpy.types import Operator
+from ..ui.widgets.panels import ViewPanelMixin
 from ..utils.materialLib import has_material_with_gameplay_effect
 
 
@@ -20,15 +21,19 @@ from ..ui.widgets.foldouts import *
 from ..ui.drawers.placement import draw_item_placement_editor, draw_item_placement_template_selection
 
 
+    
+class TM_PT_ObjectManipulationsV2(ViewPanelMixin, Panel):
+    view_id = "object_manipulations_v2"
+    view_label = "ManipulationsV2"
 
-class TM_PT_ObjectManipulationsV2(Panel):
     bl_label   = "ManipulationsV2"
     bl_idname  = "TM_PT_ObjectManipulationsV2"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_order = 10
     
     
     @classmethod
-    def poll(self, context):
+    def view_poll(self, context):
         tm_props = get_global_props()
         return tm_props.CB_blendermaniaV2 and is_selected_nadeoini_file_name_ok()
 
@@ -89,6 +94,7 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
     bl_idname = "TM_PT_Items_ObjectManipulationV2"
     bl_parent_id = "TM_PT_ObjectManipulationsV2"
     # endregion
+    bl_order = 10
 
 
     def draw_header(self, context):
@@ -336,13 +342,14 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
         layout.separator(factor=1)
 
 
-class TM_PT_Items_CollectionManipulationV2(Panel):
+class TM_PT_Items_DefaultCollectionManipulationV2(Panel):
     # region bl_
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = ""
-    bl_idname = "TM_PT_Items_CollectionManipulationV2"
+    bl_idname = "TM_PT_Items_DefaultCollectionManipulationV2"
     bl_parent_id = "TM_PT_ObjectManipulationsV2"
     # endregion
+    bl_order = 30
 
     @classmethod
     def register_callbacks(self):
@@ -354,7 +361,8 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        current_collection      = get_active_collection()
+        current_collection      = get_active_item_collection()
+
         layout.enabled = current_collection is not None
         
 
@@ -377,7 +385,7 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
         tm_props = get_global_props()
         row = layout.row(align=True)
     
-        current_collection      = get_active_collection()
+        current_collection      = get_active_item_collection()
         current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
 
         row.operator("wm.tm_renameobject", text="", icon=ICON_EDIT).col_name = current_collection_name        
@@ -385,7 +393,7 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
 
     def draw(self, context):
         layout = self.layout
-        current_collection      = get_active_collection()
+        current_collection      = get_active_item_collection()
         layout.enabled = current_collection is not None
         tm_props = get_global_props()
 
@@ -407,6 +415,301 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
         is_moving_group_collection = getattr(current_collection, CollectionProp.MOVING_GROUP, False)
         is_container = getattr(current_collection, CollectionProp.CONTAINER_GROUP, False)
         is_default = not is_moving_group_collection and not is_container
+
+        row = row.row(align=True)
+        row.enabled = col.enabled and (can_convert_to_moving_group_collection(current_collection) if not is_moving_group_collection else True)
+        row.prop(current_collection, CollectionProp.MOVING_GROUP, icon="NLA_PUSHDOWN", toggle=True)
+        row = row.row(align=True)
+        row.enabled = col.enabled and (can_convert_to_container_collection(current_collection) if not is_container else True)
+        row.prop(current_collection, CollectionProp.CONTAINER_GROUP, icon="OUTLINER_COLLECTION", toggle=True)
+
+
+        if is_default:
+
+            row = col.row(align=True)
+
+            row.prop(current_collection,CollectionProp.WAYPOINT_TYPE, text="Type")
+            row = row.row(align=True)
+            row.prop(current_collection, CollectionProp.NO_RESPAWN, text="No Respawn", )
+            row.enabled = is_waypoint_collection(current_collection)
+
+            if False: # disable until we know what it does and where
+                row = col.row(align=True)
+                row.prop(current_collection, CollectionProp.DEFAULT_GRAVITY_SPAWN)
+                row = col.row(align=True)
+                row.prop(current_collection, CollectionProp.TORQUE_X)
+                row = col.row(align=True)
+                row.prop(current_collection, CollectionProp.TORQUE_DURATION)
+
+            box = col.box()
+            lods = box.column(align=True)
+            item_list(lods,
+                      owner=current_collection,
+                      collection=CollectionProp.LODS,
+                      draw_item=self.draw_lod_row,
+                      add=WIDGET_ADD_BUTTON_BOTTOM,
+                      add_text="Add LOD",
+                      draw_footer=self.draw_lod_footer)
+    
+
+            active_uvlayer_is_basematerial = True
+            objs_with_uvmaps    = get_item_meshes_which_require_uvmaps(get_active_item_collection() or current_collection)
+            if len(objs_with_uvmaps) > 0:
+                base_uv = objs_with_uvmaps[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
+                if base_uv:
+                    active_uvlayer_is_basematerial = base_uv.active is True
+            depress_basematerial = active_uvlayer_is_basematerial
+            depress_lightmap     = not active_uvlayer_is_basematerial
+    
+            row = col.row(align=True)
+            col= row.column(align=True)
+            row = col.row()
+            row.enabled = len(objs_with_uvmaps) > 0
+            uv_row = row.column(align=True).row(align=True)
+            uv_row.operator("view3d.tm_showuvmap_v2", text="BaseMaterial", icon=ICON_VISIBLE, depress=depress_basematerial).uv_name = UV_LAYER_NAME_BASEMATERIAL
+            uv_row.operator("view3d.tm_edituvmap_v2", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_BASEMATERIAL
+            #uv_row = row.column(align=True).row(align=True)
+            # uv_row.operator("view3d.tm_showuvmap", text="LightMap",     icon=ICON_VISIBLE, depress=depress_lightmap).uv_name = UV_LAYER_NAME_LIGHTMAP
+            # uv_row.operator("view3d.tm_edituvmap", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_LIGHTMAP
+
+
+
+        return
+
+
+    def draw_lod_row(self, layout, item, index):
+        row = layout.split(factor=0.25, align=True)
+        row.label(text=f"LOD {index}")          # clicking here selects the row
+        row.prop(item, "distance", text="")     # clicking here edits the value
+
+    @staticmethod
+    def on_lod_add(owner, item, index):
+        last_distance = getattr(owner, CollectionProp.LODS)[index - 1].distance if index > 0 else 0.0
+        item.distance = last_distance + 64.0
+
+    @staticmethod
+    def on_lod_remove(owner, index):
+        col = owner
+        for obj in get_item_collection_objects(col):
+            entries = getattr(obj, ObjectProp.LOD_INDEXES)
+            for pos in range(len(entries) - 1, -1, -1):
+                entry = entries[pos]
+                if entry.value == index:    # adjust the field name to your TM_LodIndex
+                    entries.remove(pos)
+                elif entry.value > index:
+                    entry.value -= 1
+
+    def draw_lod_footer(self, layout, last_item, last_index):
+        row = layout.split(factor=0.25, align=True)
+        row.enabled = False
+        row.label(text=f"LOD {last_index + 1}")          # clicking here selects the row
+        last_distance = last_item.distance if last_item is not None else 0.0
+        row.label(text=f"{last_distance:g} → ∞")     # clicking here edits the value
+    
+
+
+
+
+class TM_PT_ItemCollection_Placement(Panel):
+    # region bl_
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Placement Configuration"
+    bl_idname = "TM_PT_Items_CollectionManipulation_Placement"
+    bl_parent_id = "TM_PT_Items_DefaultCollectionManipulationV2"
+    # endregion
+
+    @classmethod
+    def poll(cls, context):
+        current_collection      = get_active_item_collection()
+        return getattr(current_collection, CollectionProp.COLLECTION_TYPE, COLLECTION_TYPE_DEFAULT) == COLLECTION_TYPE_DEFAULT
+
+    def draw(self, context):
+        layout = self.layout
+        current_collection      = get_active_item_collection()
+        layout.enabled = current_collection is not None
+
+        if current_collection is None:
+            return
+        item_config = getattr(current_collection, CollectionProp.CONFIG)
+        placement_ref = getattr(item_config, "placement")
+        row = layout.row(align=True)
+        row.prop(placement_ref, "mode", expand=True)
+        mode = placement_ref.mode
+        if mode == 'INHERIT':
+            row = layout.row(align=True)
+            row.enabled = False
+            row.label(text="Inherit from export settings")
+        if mode == 'CUSTOM':
+            draw_item_placement_editor(layout, context, placement_ref.placement, section="Placement")
+        if mode == 'TEMPLATE':
+            draw_item_placement_template_selection(layout, context, placement_ref, section="Placement Template")
+
+
+class TM_PT_ItemCollection_Lightmap(Panel):
+    # region bl_
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Lightmap Configuration"
+    bl_idname = "TM_PT_Items_CollectionManipulation_Lightmap"
+    bl_parent_id = "TM_PT_Items_DefaultCollectionManipulationV2"
+    # endregion
+
+    @classmethod
+    def poll(cls, context):
+        current_collection      = get_active_item_collection()
+        return getattr(current_collection, CollectionProp.COLLECTION_TYPE, COLLECTION_TYPE_DEFAULT) == COLLECTION_TYPE_DEFAULT
+    
+    def draw(self, context):
+        layout = self.layout
+        current_collection      = get_active_item_collection()
+        layout.enabled = current_collection is not None
+        plan = getattr(current_collection, CollectionProp.ANALYZED_FBXGBX_PLAN, None) if current_collection else None
+        layout.operator("view3d.analyze_groups", text="Analyze Lightmap Groups", icon='FILE_REFRESH')
+
+        row = layout.row(align=True)
+        op = row.operator("view3d.analyze_uv_overlaps", text="Find UV Overlap")
+        op.collection_name = current_collection.name if current_collection else ""
+        op.group_index = -1
+        
+
+        if plan is None or not plan.is_valid:
+            layout.label(text="Not analyzed", icon='INFO')
+            return
+        if plan.is_stale:
+            box = layout.box()
+            box.alert = True
+            box.label(text="Collection changed, re-analyze", icon='ERROR')
+        #layout.label(text=f"{len(plan.groups)} groups")
+        
+        for i, g in enumerate(plan.groups):
+            box = layout.box()
+            # header: expand toggle + summary
+            header_row = box.row(align=True)
+            row = header_row.row(align=True)
+            row.prop(g, "show_expanded", text="", emboss=False,
+                        icon='TRIA_DOWN' if g.show_expanded else 'TRIA_RIGHT')
+            row.label(text=f"", icon='GROUP')
+            row.label(text=f"{g.group_type} [{len(g.nodes)}]")
+           
+
+            row = header_row.row(align=True)
+            if g.has_uv_overlap:
+                row.alert = True
+                row.label(text="", icon='ERROR')
+                row.separator(factor=2)
+                row.alert = False
+            else:
+                row.label(text="", icon='BLANK1')
+                row.separator(factor=2.1)
+            row.operator("view3d.tm_showgrouplightmap", text="LightMap", icon=ICON_VISIBLE).group_index = i
+            row.operator("view3d.tm_editgrouplightmap", text="",icon=ICON_EDIT).group_index = i
+
+            row.prop(g, "override_lightmap_size", text="", icon=ICON_DAYTIME, toggle=True)
+            row = row.row(align=True)
+            row.enabled = g.override_lightmap_size
+            row.prop(g, "lightmap_size", text="Override Lightmap Size", )
+
+            # actions always visible; move into the expanded part if you prefer
+            # draw_group_actions(box, col.name, i)
+
+            if not g.show_expanded:
+                continue
+            uv_overlap = box.column(align=True)
+            row = uv_overlap.row(align=True)
+            row.separator(factor=2)
+            row.label(text=f"UV Overlaps: {g.num_uv_overlap_faces}")
+            op = row.operator("view3d.analyze_uv_overlaps", text="Find UV Overlap")
+            op.collection_name = current_collection.name if current_collection else ""
+            op.group_index = i
+
+            
+            # read-only details
+            info = box.column(align=True)
+            if g.lod_distances:
+                row.label(text=f"LOD distances: {g.lod_distances}")
+
+            
+
+            nodes = box.column(align=True)
+            for n in g.nodes:
+                r = nodes.row()
+                r.separator(factor=2)
+
+                split = r.split(factor=1)
+                split.label(text=n.obj.name if n.obj else "Missing Object",
+                            icon='OBJECT_DATA' if n.obj else 'ERROR')
+                split.label(text=str(n.lod_indices))
+
+                if n.has_uv_overlap:
+                    r.alert = True
+                    r.label(text="UV Overlap", icon='ERROR')
+                    op = r.operator("tm.select_all_uvs", text="", icon=ICON_EDIT)
+                    op.node_name = n.obj.name if n.obj else ""
+                    op.keep_visible= ",".join([n.obj.name for n in g.nodes if n.obj])
+                    op.layer_name = UV_LAYER_NAME_LIGHTMAP
+
+            
+
+    
+
+class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
+    # region bl_
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = ""
+    bl_idname = "TM_PT_Items_SpecialCollectionManipulationV2"
+    bl_parent_id = "TM_PT_ObjectManipulationsV2"
+    bl_order = 20
+    # endregion
+
+
+    def draw_header(self, context):
+        layout = self.layout
+        current_collection      = get_active_group_collection()
+        layout.enabled = current_collection is not None
+  
+        current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
+
+        row = layout.row()
+
+        col_text = row.column(align=True)
+        row = col_text.row(align=True)
+
+        icon = ICON_COLLECTION
+        if current_collection and current_collection.color_tag != 'NONE':
+            icon = 'COLLECTION_' + current_collection.color_tag 
+
+        row.label(text=current_collection_name.split("_#SCALE")[0], icon=icon)
+
+
+    def draw_header_preset(self, context):
+        layout = self.layout
+        tm_props = get_global_props()
+        row = layout.row(align=True)
+    
+        current_collection      = get_active_group_collection()
+        current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
+
+        row.operator("wm.tm_renameobject", text="", icon=ICON_EDIT).col_name = current_collection_name        
+
+
+    def draw(self, context):
+        layout = self.layout
+        current_collection      = get_active_group_collection()
+        layout.enabled = current_collection is not None
+        tm_props = get_global_props()
+
+        if current_collection is None:
+            return
+
+      
+        row = layout.row(align=True)
+        row.prop(current_collection, CollectionProp.IGNORE, icon_value=get_addon_icon("CANCEL"))
+
+        col = layout.column()
+        col.enabled = not getattr(current_collection, CollectionProp.IGNORE)
+       
+
+        is_moving_group_collection = getattr(current_collection, CollectionProp.MOVING_GROUP, False)
+        is_container = getattr(current_collection, CollectionProp.CONTAINER_GROUP, False)
 
         row = row.row(align=True)
         row.enabled = col.enabled and (can_convert_to_moving_group_collection(current_collection) if not is_moving_group_collection else True)
@@ -545,89 +848,6 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
         if is_container:
             row = col.row(align=True)
 
-        if is_default:
-
-            row = col.row(align=True)
-
-            row.prop(current_collection,CollectionProp.WAYPOINT_TYPE, text="Type")
-            row = row.row(align=True)
-            row.prop(current_collection, CollectionProp.NO_RESPAWN, text="No Respawn", )
-            row.enabled = is_waypoint_collection(current_collection)
-
-            if False: # disable until we know what it does and where
-                row = col.row(align=True)
-                row.prop(current_collection, CollectionProp.DEFAULT_GRAVITY_SPAWN)
-                row = col.row(align=True)
-                row.prop(current_collection, CollectionProp.TORQUE_X)
-                row = col.row(align=True)
-                row.prop(current_collection, CollectionProp.TORQUE_DURATION)
-
-            box = col.box()
-            lods = box.column(align=True)
-            item_list(lods,
-                      owner=current_collection,
-                      collection=CollectionProp.LODS,
-                      draw_item=self.draw_lod_row,
-                      add=WIDGET_ADD_BUTTON_BOTTOM,
-                      add_text="Add LOD",
-                      draw_footer=self.draw_lod_footer)
-    
-
-            active_uvlayer_is_basematerial = True
-            objs_with_uvmaps    = get_item_meshes_which_require_uvmaps(get_active_item_collection() or current_collection)
-            if len(objs_with_uvmaps) > 0:
-                base_uv = objs_with_uvmaps[0].data.uv_layers.get(UV_LAYER_NAME_BASEMATERIAL)
-                if base_uv:
-                    active_uvlayer_is_basematerial = base_uv.active is True
-            depress_basematerial = active_uvlayer_is_basematerial
-            depress_lightmap     = not active_uvlayer_is_basematerial
-    
-            row = col.row(align=True)
-            col= row.column(align=True)
-            row = col.row()
-            row.enabled = len(objs_with_uvmaps) > 0
-            uv_row = row.column(align=True).row(align=True)
-            uv_row.operator("view3d.tm_showuvmap_v2", text="BaseMaterial", icon=ICON_VISIBLE, depress=depress_basematerial).uv_name = UV_LAYER_NAME_BASEMATERIAL
-            uv_row.operator("view3d.tm_edituvmap_v2", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_BASEMATERIAL
-            #uv_row = row.column(align=True).row(align=True)
-            # uv_row.operator("view3d.tm_showuvmap", text="LightMap",     icon=ICON_VISIBLE, depress=depress_lightmap).uv_name = UV_LAYER_NAME_LIGHTMAP
-            # uv_row.operator("view3d.tm_edituvmap", text="",             icon=ICON_EDIT).uv_name = UV_LAYER_NAME_LIGHTMAP
-
-
-
-        return
-
-
-    def draw_lod_row(self, layout, item, index):
-        row = layout.split(factor=0.25, align=True)
-        row.label(text=f"LOD {index}")          # clicking here selects the row
-        row.prop(item, "distance", text="")     # clicking here edits the value
-
-    @staticmethod
-    def on_lod_add(owner, item, index):
-        last_distance = getattr(owner, CollectionProp.LODS)[index - 1].distance if index > 0 else 0.0
-        item.distance = last_distance + 64.0
-
-    @staticmethod
-    def on_lod_remove(owner, index):
-        col = owner
-        for obj in get_item_collection_objects(col):
-            entries = getattr(obj, ObjectProp.LOD_INDEXES)
-            for pos in range(len(entries) - 1, -1, -1):
-                entry = entries[pos]
-                if entry.value == index:    # adjust the field name to your TM_LodIndex
-                    entries.remove(pos)
-                elif entry.value > index:
-                    entry.value -= 1
-
-    def draw_lod_footer(self, layout, last_item, last_index):
-        row = layout.split(factor=0.25, align=True)
-        row.enabled = False
-        row.label(text=f"LOD {last_index + 1}")          # clicking here selects the row
-        last_distance = last_item.distance if last_item is not None else 0.0
-        row.label(text=f"{last_distance:g} → ∞")     # clicking here edits the value
-    
-
     def draw_anim_row(self, layout, item, index):
         box = layout.box()
         col = box.column(align=True)
@@ -639,159 +859,6 @@ class TM_PT_Items_CollectionManipulationV2(Panel):
         row = layout.row(align=True)
         row.prop(item, "duration", text="Duration Millis")
         row.prop(item, "textureIndex", text="Texture Id")
-
-
-class TM_PT_ItemCollection_Placement(Panel):
-    # region bl_
-    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "Placement Configuration"
-    bl_idname = "TM_PT_Items_CollectionManipulation_Placement"
-    bl_parent_id = "TM_PT_Items_CollectionManipulationV2"
-    # endregion
-
-    @classmethod
-    def poll(cls, context):
-        current_collection      = get_active_collection()
-        return getattr(current_collection, CollectionProp.COLLECTION_TYPE, COLLECTION_TYPE_DEFAULT) == COLLECTION_TYPE_DEFAULT
-
-    def draw(self, context):
-        layout = self.layout
-        current_collection      = get_active_collection()
-        layout.enabled = current_collection is not None
-
-        if current_collection is None:
-            return
-        item_config = getattr(current_collection, CollectionProp.CONFIG)
-        placement_ref = getattr(item_config, "placement")
-        row = layout.row(align=True)
-        row.prop(placement_ref, "mode", expand=True)
-        mode = placement_ref.mode
-        if mode == 'INHERIT':
-            row = layout.row(align=True)
-            row.enabled = False
-            row.label(text="Inherit from export settings")
-        if mode == 'CUSTOM':
-            draw_item_placement_editor(layout, context, placement_ref.placement, section="Placement")
-        if mode == 'TEMPLATE':
-            draw_item_placement_template_selection(layout, context, placement_ref, section="Placement Template")
-
-
-class TM_PT_ItemCollection_Lightmap(Panel):
-    # region bl_
-    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "Lightmap Configuration"
-    bl_idname = "TM_PT_Items_CollectionManipulation_Lightmap"
-    bl_parent_id = "TM_PT_Items_CollectionManipulationV2"
-    # endregion
-
-    @classmethod
-    def poll(cls, context):
-        current_collection      = get_active_collection()
-        return getattr(current_collection, CollectionProp.COLLECTION_TYPE, COLLECTION_TYPE_DEFAULT) == COLLECTION_TYPE_DEFAULT
-    
-    def draw(self, context):
-        layout = self.layout
-        current_collection      = get_active_item_collection()
-        layout.enabled = current_collection is not None
-        plan = getattr(current_collection, CollectionProp.ANALYZED_FBXGBX_PLAN, None) if current_collection else None
-        layout.operator("view3d.analyze_groups", text="Analyze Lightmap Groups", icon='FILE_REFRESH')
-        if plan is None or not plan.is_valid:
-            layout.label(text="Not analyzed", icon='INFO')
-            return
-        if plan.is_stale:
-            box = layout.box()
-            box.alert = True
-            box.label(text="Collection changed, re-analyze", icon='ERROR')
-        #layout.label(text=f"{len(plan.groups)} groups")
-        
-        for i, g in enumerate(plan.groups):
-            box = layout.box()
-            # header: expand toggle + summary
-            row = box.row(align=True)
-            row.prop(g, "show_expanded", text="", emboss=False,
-                        icon='TRIA_DOWN' if g.show_expanded else 'TRIA_RIGHT')
-            row.label(text=f"", icon='GROUP')
-            row.label(text=f"{g.group_type}  [{len(g.nodes)}]")
-
-            row.operator("view3d.tm_editgrouplightmap", text="LightMap", icon=ICON_EDIT).group_index = i
-
-            row.prop(g, "override_lightmap_size", text="", icon=ICON_DAYTIME, toggle=True)
-            row = row.row(align=True)
-            row.enabled = g.override_lightmap_size
-            row.prop(g, "lightmap_size", text="Override Lightmap Size", )
-
-            # actions always visible; move into the expanded part if you prefer
-            # draw_group_actions(box, col.name, i)
-
-            if not g.show_expanded:
-                continue
-
-            # read-only details
-            info = box.column(align=True)
-            if g.lod_distances:
-                info.label(text=f"LOD distances: {g.lod_distances}")
-
-            nodes = box.column(align=True)
-            for n in g.nodes:
-                r = nodes.row()
-                r.separator(factor=2)
-                r.label(text=n.obj.name, icon='OBJECT_DATA' if n.obj else 'ERROR')
-                r.label(text=n.lod_indices)
-
-    
-
-class TM_PT_Items_MovingGroupCollectionManipulationV2(Panel):
-    # region bl_
-    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = ""
-    bl_idname = "TM_PT_Items_MovingGroupCollectionManipulationV2"
-    bl_parent_id = "TM_PT_ObjectManipulationsV2"
-    # endregion
-
-
-    def draw_header(self, context):
-        layout = self.layout
-        current_collection      = get_active_group_collection()
-        layout.enabled = current_collection is not None
-        
-
-        current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
-
-        row = layout.row()
-
-        col_text = row.column(align=True)
-        row = col_text.row(align=True)
-        row.label(text=""+current_collection_name.split("_#SCALE")[0] + "", icon=ICON_COLLECTION)
-
-
-    def draw_header_preset(self, context):
-        layout = self.layout
-        tm_props = get_global_props()
-        row = layout.row(align=True)
-    
-        current_collection      = get_active_group_collection()
-        current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
-
-        row.operator("wm.tm_renameobject", text="", icon=ICON_EDIT).col_name = current_collection_name        
-
-
-    def draw(self, context):
-        layout = self.layout
-        current_collection      = get_active_group_collection()
-        layout.enabled = current_collection is not None
-        tm_props = get_global_props()
-        
-
-        current_collection_name = current_collection.name if current_collection is not None else "Select any object !"
-
-        if current_collection is None:
-            return
-
-        row = layout.row(align=True)
-        row.prop(current_collection, CollectionProp.COLLECTION_TYPE, text="Type")
-       
-
-        layout.separator(factor=2)
 
 
 class TM_PT_DangerousManualManipulationsV2(Panel):
@@ -963,6 +1030,7 @@ def draw_dangerous_manual_manipulation_collection(self, layout):
     ...
 
 def draw_dangerous_manual_manipulation_tm_props(self, layout):
+    
     tm_props = get_global_props()
     tm_prop_names = []
 

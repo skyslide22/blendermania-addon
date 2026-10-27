@@ -26,8 +26,8 @@ bl_info = {
     "name"          : "Blendermania",
     "author"        : "skyslide22, juice & schadocalex",
     "description"   : "Makes creating objects for Trackmania more easy and fun!",
-    "blender"       : (5, 2, 0),
-    "version"       : (4, 4, 3),
+    "blender"       : (5, 2, 3),
+    "version"       : (4, 4, 4),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic",
@@ -118,6 +118,7 @@ from .utils.Placement import register_placement_templates, unregister_placement_
 from .ui.widgets.lists import *
 from .ui.widgets.foldouts import *
 from .ui.drawers.placement import register_placement_callbacks, unregister_placement_callbacks
+from .ui.widgets.panels import register_panel_widgets, unregister_panel_widgets
 
 from .NICE.nice import NICE_register, NICE_unregister
 
@@ -177,17 +178,18 @@ classes = (
     TM_OT_Settings_DebugAll,
     TM_OT_Settings_OpenConvertReport,
     TM_PT_Settings_Experimentals,
+    TM_PT_Settings_Views,
     
     # object manipulation
     TM_PT_ObjectManipulations,
     TM_PT_Items_CollectionManipulation,
     TM_PT_Items_ObjectManipulation,
-    TM_PT_ObjectManipulationsV2,
-    TM_PT_Items_CollectionManipulationV2,
+    #TM_PT_ObjectManipulationsV2,
+    TM_PT_Items_DefaultCollectionManipulationV2,
     TM_PT_ItemCollection_Lightmap,
     TM_PT_ItemCollection_Placement,
 
-    #TM_PT_Items_MovingGroupCollectionManipulationV2,
+    TM_PT_Items_SpecialCollectionManipulationV2,
     TM_PT_Items_ObjectManipulationV2,
     TM_OT_Items_ObjectManipulationAddSocketItem,
     TM_OT_Items_ObjectManipulationAddTriggerItem,
@@ -214,6 +216,7 @@ classes = (
     TM_OT_Items_EditGroupLightmap,
     TM_OT_Items_ShowUVMap,
     TM_OT_Items_ShowUVMapV2,
+    TM_OT_Items_ShowGroupLightmap,
     TM_OT_Items_CollectionManipulationToggleNICE,
     TM_OT_Items_ObjectManipulationToggleGate,
 
@@ -232,7 +235,7 @@ classes = (
     TM_OT_Items_Export_CloseConvertSubPanel,
     TM_OT_Items_Export_ExportAndOrConverFailedOnes,
 
-    TM_PT_Items_ExportV2,
+    #TM_PT_Items_ExportV2,
     TM_PT_ExportV2_Placement,
     TM_OT_Items_ExportV2,
     TM_OT_Items_Export_ExportAndOrConverFailedOnesV2,
@@ -290,15 +293,15 @@ classes = (
 
 
     OT_ITEMS_analyze_groups,
-
-
+    OT_ITEMS_analyze_uv_overlaps,
+    TM_OT_select_all_uvs,
     #anim
-    TM_PT_Animation_Preview,
+    #TM_PT_Animation_Preview,
 
 
     # materials
     TM_PT_Materials,
-    TM_PT_Materials_Library,
+    #TM_PT_Materials_Library,
     TM_OT_Materials_Create,
     TM_OT_Materials_Update,
     TM_OT_Materials_Create_Asset_Lib,
@@ -308,7 +311,7 @@ classes = (
     
 
     # textures
-    TM_PT_Textures,
+    #TM_PT_Textures,
     TM_PT_Textures_Install,
     TM_OT_Textures_ToggleModwork,
     TM_OT_Textures_UpdateTextureSource,
@@ -319,7 +322,7 @@ classes = (
 
     # imports
     TM_OT_ImportItem,
-    TM_PT_Imports,
+    #TM_PT_Imports,
 
     # templates
     OT_ItemsCarsTemplates,
@@ -329,7 +332,7 @@ classes = (
     # map
     OT_UICollectionToMap,
     OT_UIValidateMapCollection,
-    PT_UIMapManipulation,
+    #PT_UIMapManipulation,
     PT_UIMapExport,
     PT_UIMapObjectsManipulation,
     OT_UICreateUpdateMapItemBlock,
@@ -342,7 +345,7 @@ classes = (
     PT_UIMapHelpers,
     
     # editor trails
-    TM_PT_UIEditorTrails,
+    #TM_PT_UIEditorTrails,
 
     # util
     OT_UIWikiLink,
@@ -370,6 +373,8 @@ from collections import Counter
 
 # register classes 
 def register():
+
+    register_panel_widgets()
 
     for cls in classes:
         print(f"Registering: {cls!r}, type: {type(cls)}")
@@ -450,7 +455,7 @@ def register():
     bpy.types.Object.location_before = FloatVectorProperty(name="old pos", subtype="TRANSLATION")
 
 
-    TM_PT_Items_CollectionManipulationV2.register_callbacks()
+    TM_PT_Items_DefaultCollectionManipulationV2.register_callbacks()
 
     from .ui.drawers.gameplay_dir import register_gameplay_dir
     register_gameplay_dir()
@@ -490,6 +495,8 @@ def unregister():
     # del bpy.types.Scene.tm_props_itemxml_templates
     del bpy.types.Object.location_before 
 
+    unregister_panel_widgets()
+
     unregister_collection_properties()
     unregister_object_properties()
 
@@ -516,7 +523,7 @@ def unregister():
         pass
 
 
-    TM_PT_Items_CollectionManipulationV2.unregister_callbacks()
+    TM_PT_Items_DefaultCollectionManipulationV2.unregister_callbacks()
 
     from .ui.drawers.gameplay_dir import unregister_gameplay_dir
     unregister_gameplay_dir()

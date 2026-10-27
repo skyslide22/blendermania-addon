@@ -1,4 +1,5 @@
 import bpy
+from ..ui.widgets.panels import ViewPanelMixin
 
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
@@ -14,12 +15,16 @@ from ..utils.Constants import (
 
 
 
-class TM_PT_UIEditorTrails(bpy.types.Panel):
+class TM_PT_UIEditorTrails(ViewPanelMixin, bpy.types.Panel):
+    view_id = "editor_trails"
+    view_label = "Editor Trails"
+
     bl_label   = "Editor Trails"
     bl_idname  = "TM_PT_UIEditorTrails"
     bl_context = "objectmode"
     # bl_parent_id = "TM_PT_Map_Manipulate"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_order = 100
 
     def draw_header(self, context):
         layout = self.layout

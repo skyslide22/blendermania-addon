@@ -1,5 +1,6 @@
 import bpy
 from bpy.types import Panel
+from ..ui.widgets.panels import ViewPanelMixin
 
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 
@@ -9,13 +10,17 @@ from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS, BLENDER_INSTANCE
 from ..operators.OT_NinjaRipper import *
 from ..operators.OT_Imports import TM_OT_ImportItem
 
-class TM_PT_Imports(Panel):
+class TM_PT_Imports(ViewPanelMixin, Panel):
+    view_id = "imports"
+    view_label = "Imports"
+
     bl_label = "Imports"
     bl_idname = "TM_PT_Imports"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_order = 100
 
     @classmethod
-    def poll(self, context):
+    def view_poll(self, context):
         return is_selected_nadeoini_file_name_ok()
 
     def draw_header(self, context):
