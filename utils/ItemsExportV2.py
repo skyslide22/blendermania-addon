@@ -306,6 +306,7 @@ def _export_item_FBX(item: ExportedItem) -> None:
         "use_selection":        True,
         "use_custom_props":     True,
         "apply_unit_scale":     False,
+        "bake_anim":            False, # required else the active node in multi-export is not exported from 0,0,0. For some reason.
     }
 
     if is_game_maniaplanet():
