@@ -78,3 +78,11 @@ class LightProp(StrEnum):
     LIGHT_NIGHT_ONLY = "night_only" # backwards compatibility
     LIGHT_EMITTING_RADIUS = "tm_light_emitting_radius"
     LIGHT_EMITTING_LENGTH = "tm_light_emitting_length"
+
+    LIGHT_CONFIG_TYPE = "tm_light_config_type"
+    LIGHT_ENABLE_SPECULAR = "tm_light_enable_specular"
+    LIGHT_ENABLED = "tm_light_enabled"
+    LIGHT_ATTENUATION_TENSION = "tm_light_attenuation_tension"
+    LIGHT_ATTENUATION_DERIVATIVE_AT_ZERO = "tm_light_attenuation_derivative_at_zero"
+    LIGHT_ATTENUATION_HDR_RADIUS_COEFF = "tm_light_attenuation_hdr_radius_coefficient"
+    LIGHT_INVERTED = "tm_light_inverted"

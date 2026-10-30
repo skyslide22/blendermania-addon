@@ -173,6 +173,10 @@ def draw_item_placement_editor(layout, context, placement, section):
         boxRow = boxCol.row(align=True)
         boxRow.prop(placement, "CB_oneAxisRot",  icon=ICON_ONE_AXIS_ROTATION)
         boxRow.prop(placement, "CB_notOnItem",   icon=ICON_NOT_ON_ITEM)
+        boxRow = boxCol.row(align=True)
+        boxRow.prop(placement, "CB_attachment_placement_only", icon=ICON_SNAP_NORMAL)
+        boxRow.prop(placement, "CB_hasPath",     icon=ICON_CURVE_PATH)
+     
         
         pivot_count = len(placement.LI_pivots)
         pivot_body, pivot_header = foldout_toggle(layout, tm_props, 

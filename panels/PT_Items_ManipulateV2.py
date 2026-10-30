@@ -5,6 +5,7 @@ from itertools import count
 import bpy
 from bpy.types import Panel
 from bpy.types import Operator
+from ..ui.widgets.progress import draw_task_status
 from ..ui.widgets.panels import ViewPanelMixin
 from ..utils.materialLib import has_material_with_gameplay_effect
 
@@ -262,26 +263,37 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
             row.prop(obj, "lock_scale", text="Scale")
 
         if is_Light:
+            light = obj.data
+            ignored = getattr(obj, ObjectProp.IGNORE)
+
+            row = layout.row(align=True)
+            row.enabled = not ignored
+            row.prop(light, LightProp.LIGHT_CONFIG_TYPE, expand=True)
+            is_advanced = getattr(light, LightProp.LIGHT_CONFIG_TYPE) == "ADVANCED"
+
             light_box = layout.box()
-            light_box.enabled = is_Light and not getattr(obj, ObjectProp.IGNORE)
+            light_box.enabled = not ignored
             
             col = light_box.column(align=True)
             is_spotlight  = obj.data.type == "SPOT"
             is_pointlight = obj.data.type == "POINT"
-            light = obj.data
-            if len(bpy.context.selected_objects) > 1:
-                is_spotlight  = all([obj.data.type == "SPOT"  for obj in bpy.context.selected_objects]) or None
-                is_pointlight = all([obj.data.type == "POINT" for obj in bpy.context.selected_objects]) or None
+
+
+            selected_lights = [obj for obj in bpy.context.selected_objects if obj.type == "LIGHT"]
+            if len(selected_lights) > 1:
+                is_spotlight  = all([self.is_light_of(obj, "SPOT") for obj in selected_lights]) or None
+                is_pointlight = all([self.is_light_of(obj, "POINT") for obj in selected_lights]) or None
 
             row = col.row(align=True)
             row.operator("view3d.tm_togglelighttype", text="Spot" , icon=ICON_LIGHT_SPOT , depress=(is_spotlight  is True)).light_type = "SPOT"
             row.operator("view3d.tm_togglelighttype", text="Point", icon=ICON_LIGHT_POINT, depress=(is_pointlight is True)).light_type = "POINT"
 
+           
 
             light_is_nightonly = obj.data.night_only
-            if len(bpy.context.selected_objects) > 1:
-                all_false = all([obj.data.night_only is False for obj in bpy.context.selected_objects])
-                all_true =  all([obj.data.night_only is True  for obj in bpy.context.selected_objects])
+            if len(selected_lights) > 1:
+                all_false = all([obj.data.night_only is False for obj in selected_lights])
+                all_true =  all([obj.data.night_only is True  for obj in selected_lights])
                 
                 if all_false:
                     light_is_nightonly = False
@@ -294,6 +306,15 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
             row = col.row(align=True)
             row.operator("view3d.tm_togglenightonly", text="Day+Night" , icon=ICON_DAYTIME, depress=(light_is_nightonly is False)).night_only = False
             row.operator("view3d.tm_togglenightonly", text="Night Only", icon=ICON_DAYTIME, depress=(light_is_nightonly is True) ).night_only = True
+
+            if is_advanced:
+                row = col.row(align=True)
+                row.prop(light, LightProp.LIGHT_ENABLED, text="Enabled", toggle=True,icon=ICON_LIGHT)
+                row.prop(light, LightProp.LIGHT_ENABLE_SPECULAR, text="Specular", toggle=True,icon=ICON_SPECULAR)
+
+                row = col.row(align=True)
+                row.prop(light, "use_shadow", emboss=True, text="Cast Shadow", toggle=True, icon=ICON_SHADOW)
+                row.prop(light, LightProp.LIGHT_INVERTED, emboss=True, text="Inverted", toggle=True, icon=ICON_INVERTED)
 
             if len(bpy.context.selected_objects) == 1 or True:
                 row = col.row(align=True)
@@ -320,12 +341,25 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
 
 
                 row = col.row(align=True)
-                row.label(text="Emitting Radius")
+                row.label(text="Area Emitting Radius")
                 row.row().prop(light, LightProp.LIGHT_EMITTING_RADIUS, text="")        
 
                 row = col.row(align=True)
-                row.label(text="Emitting Length")
+                row.label(text="Area Emitting Length")
                 row.row().prop(light, LightProp.LIGHT_EMITTING_LENGTH, text="")
+
+                if is_advanced:
+                    row = col.row(align=True)
+                    row.label(text="Attenuation Tension")
+                    row.row().prop(light, LightProp.LIGHT_ATTENUATION_TENSION, text="")
+
+                    row = col.row(align=True)
+                    row.label(text="Attenuation Derivative At Zero")
+                    row.row().prop(light, LightProp.LIGHT_ATTENUATION_DERIVATIVE_AT_ZERO, text="")
+
+                    row = col.row(align=True)
+                    row.label(text="Attenuation HDR Radius Coefficient")
+                    row.row().prop(light, LightProp.LIGHT_ATTENUATION_HDR_RADIUS_COEFF, text="")
   
         if is_Empty:
             col = layout.column()
@@ -341,6 +375,9 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
        
         layout.separator(factor=1)
 
+
+    def is_light_of(self, o, kind):
+        return o.type == 'LIGHT' and o.data.type == kind
 
 class TM_PT_Items_DefaultCollectionManipulationV2(Panel):
     # region bl_
@@ -564,6 +601,7 @@ class TM_PT_ItemCollection_Lightmap(Panel):
         layout.enabled = current_collection is not None
         plan = getattr(current_collection, CollectionProp.ANALYZED_FBXGBX_PLAN, None) if current_collection else None
         layout.operator("view3d.analyze_groups", text="Analyze Lightmap Groups", icon='FILE_REFRESH')
+        draw_task_status(layout, "view3d.analyze_groups", show_bar=True)
 
         row = layout.row(align=True)
         op = row.operator("view3d.analyze_uv_overlaps", text="Find UV Overlap")
@@ -623,26 +661,38 @@ class TM_PT_ItemCollection_Lightmap(Panel):
 
             
             # read-only details
-            info = box.column(align=True)
+            
             if g.lod_distances:
-                row.label(text=f"LOD distances: {g.lod_distances}")
+                info = box.row(align=True)
+                info.separator(factor=2)
+                info.label(text=f"LOD distances: {g.lod_distances}")
 
             
 
             nodes = box.column(align=True)
+            
             for n in g.nodes:
                 r = nodes.row()
                 r.separator(factor=2)
-
-                split = r.split(factor=1)
-                split.label(text=n.obj.name if n.obj else "Missing Object",
-                            icon='OBJECT_DATA' if n.obj else 'ERROR')
+                split = r.split(factor=0.85, align=True)
+                if n.obj:
+                    op = split.operator(
+                        "view3d.select_node_objects",
+                        text=n.obj.name,
+                        icon='OBJECT_DATA',
+                        emboss=True,
+                        depress=n.obj.select_get(),
+                    )
+                    op.obj_names = n.obj.name
+                else:
+                    split.label(text="Missing Object", icon='ERROR')
                 split.label(text=str(n.lod_indices))
 
                 if n.has_uv_overlap:
-                    r.alert = True
-                    r.label(text="UV Overlap", icon='ERROR')
-                    op = r.operator("tm.select_all_uvs", text="", icon=ICON_EDIT)
+                    row = r.row(align=True)
+                    row.alert = True
+                    row.label(text="UV", icon='ERROR')
+                    op = row.operator("tm.select_all_uvs", text="", icon=ICON_EDIT)
                     op.node_name = n.obj.name if n.obj else ""
                     op.keep_visible= ",".join([n.obj.name for n in g.nodes if n.obj])
                     op.layer_name = UV_LAYER_NAME_LIGHTMAP

@@ -344,3 +344,52 @@ class TM_OT_Items_EditUVMapV2(Operator):
         objectmode()
         editUVMap(col, self.uv_name, get_item_meshes_which_require_uvmaps(col))
         return {"FINISHED"}
+
+
+class OT_ITEMS_select_node_objects(bpy.types.Operator):
+    bl_idname = "view3d.select_node_objects"
+    bl_label = "Select Objects"
+    bl_description = "Select objects (Shift: add, Ctrl: toggle)"
+    bl_options = {"REGISTER", "UNDO"}
+
+    obj_names: bpy.props.StringProperty()
+    extend: bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
+    toggle: bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
+
+    def invoke(self, context, event):
+        self.extend = event.shift
+        self.toggle = event.ctrl
+        return self.execute(context)
+
+    def execute(self, context):
+        names = self.obj_names.split("|")
+        objects = [
+            bpy.data.objects.get(name)
+            for name in names
+        ]
+        objects = [
+            obj for obj in objects
+            if obj is not None
+            and obj.name in context.view_layer.objects
+            and obj.visible_get()
+        ]
+
+        if not objects:
+            return {'CANCELLED'}
+
+        if context.mode != 'OBJECT' and context.active_object:
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+        if not self.extend and not self.toggle:
+            for obj in context.selected_objects:
+                obj.select_set(False)
+
+        for obj in objects:
+            if self.toggle and obj.select_get():
+                obj.select_set(False)
+            else:
+                obj.select_set(True)
+
+        context.view_layer.objects.active = objects[-1]
+        return {'FINISHED'}
+    

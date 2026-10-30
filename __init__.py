@@ -119,6 +119,7 @@ from .ui.widgets.lists import *
 from .ui.widgets.foldouts import *
 from .ui.drawers.placement import register_placement_callbacks, unregister_placement_callbacks
 from .ui.widgets.panels import register_panel_widgets, unregister_panel_widgets
+from .ui.widgets.progress import register as register_progress, unregister as unregister_progress
 
 from .NICE.nice import NICE_register, NICE_unregister
 
@@ -213,6 +214,7 @@ classes = (
     TM_OT_Items_RenameObject,
     TM_OT_Items_EditUVMap,
     TM_OT_Items_EditUVMapV2,
+    OT_ITEMS_select_node_objects,
     TM_OT_Items_EditGroupLightmap,
     TM_OT_Items_ShowUVMap,
     TM_OT_Items_ShowUVMapV2,
@@ -416,7 +418,9 @@ def register():
     bpy.types.Object.tm_forced_grid_helper_step_y = FloatProperty(default=0.0)
     bpy.types.Object.tm_forced_grid_helper_step_z = FloatProperty(default=0.0)
 
+
     # collections callbacks
+    register_progress()
     register_collection_properties()
     register_object_properties()
     register_light_properties()
@@ -425,6 +429,8 @@ def register():
 
     # templates
     register_placement_templates()
+
+
 
 
     # material extra props
@@ -466,6 +472,7 @@ def register():
     register_outliner_menus()
     register_header_menus()
 
+
     # addon enabled in a running session: load_post did not run yet
     try:
         from .operators.OT_Settings import reload_local_placement_templates
@@ -495,13 +502,14 @@ def unregister():
     # del bpy.types.Scene.tm_props_itemxml_templates
     del bpy.types.Object.location_before 
 
+    unregister_progress()
     unregister_panel_widgets()
 
     unregister_collection_properties()
     unregister_object_properties()
 
     unregister_placement_callbacks()
-    register_animation_preview()
+    unregister_animation_preview()
 
     unregister_placement_templates()
 

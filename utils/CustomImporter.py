@@ -980,18 +980,34 @@ def _get_light_configs_from_collection(objs: list[bpy.types.Object], collection:
         light_cfg.NightOnly = getattr(light, LightProp.LIGHT_NIGHT_ONLY, False) # custom prop
         light_cfg.Distance  = light.shadow_soft_size
 
-        #TODO: Check wether this makes sense
-        light_cfg.PointEmissionRadius = 0 # getattr(light, LightProp.LIGHT_EMITTING_RADIUS, 0)
-        light_cfg.PointEmissionLength = 0 # getattr(light, LightProp.LIGHT_EMITTING_LENGTH, 0)
 
-        light_cfg.SpotEmissionRadius = 0 # getattr(light, LightProp.LIGHT_EMITTING_RADIUS, 0)
-        light_cfg.SpotEmissionLength = 0 # getattr(light, LightProp.LIGHT_EMITTING_LENGTH, 0)
+        light_cfg.PointEmissionRadius = getattr(light, LightProp.LIGHT_EMITTING_RADIUS, 0)
+        light_cfg.PointEmissionLength = getattr(light, LightProp.LIGHT_EMITTING_LENGTH, 0)
+
+        light_cfg.SpotEmissionRadius = getattr(light, LightProp.LIGHT_EMITTING_RADIUS, 0)
+        light_cfg.SpotEmissionLength = getattr(light, LightProp.LIGHT_EMITTING_LENGTH, 0)
+
 
         # convert euler to degree
         spot_size_degree = light.spot_size * (180.0 / math.pi) if light_is_spot else 0.0
 
         light_cfg.SpotInnerAngle = spot_size_degree * getattr(light, "spot_blend", 0)
         light_cfg.SpotOuterAngle = spot_size_degree
+
+        is_advanced = getattr(light, LightProp.LIGHT_CONFIG_TYPE, False) == "ADVANCED"
+        if is_advanced:
+            light_cfg.Advanced = AdvancedLightConfig()
+            light_cfg.Advanced.LightingEnabled = getattr(light, LightProp.LIGHT_ENABLED, True)
+            light_cfg.Advanced.SpecularEnabled = getattr(light, LightProp.LIGHT_ENABLE_SPECULAR, True)
+            light_cfg.Advanced.CastShadows = getattr(light,"use_shadow", True)
+            light_cfg.Advanced.AttenuationTension = getattr(light, LightProp.LIGHT_ATTENUATION_TENSION, 0.3)
+            light_cfg.Advanced.AttenuationDerivativeAtZero = getattr(light, LightProp.LIGHT_ATTENUATION_DERIVATIVE_AT_ZERO, -1.5)
+            light_cfg.Advanced.AttenuationHdrRadiusCoefficient = getattr(light, LightProp.LIGHT_ATTENUATION_HDR_RADIUS_COEFF, 0.015625)
+
+            if getattr(light, LightProp.LIGHT_INVERTED, False):
+                light_cfg.Intensity *= -1.0
+
+
         light_configs.append(light_cfg)
 
     return light_configs

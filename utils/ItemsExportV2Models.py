@@ -222,6 +222,9 @@ class PlacementConfig:
     NotOnObject: bool = False
     AutoRotation: bool = False
     SwitchPivotManually: bool = False
+    GhostMode: bool = True
+    HasPath: bool = False
+    IsFreelyAnchorable: bool = True
     CubeCenter: Vec3 | None = None
     CubeSize: float = 0.0
     GridSnapHStep: float = 0.0
@@ -280,6 +283,18 @@ class LightConfig:
     SpotOuterAngle: float = 60.0
     SpotEmissionRadius: float = 0.0
     SpotEmissionLength: float = 0.0
+    Advanced: AdvancedLightConfig | None = None
+
+@dataclass
+class AdvancedLightConfig:
+    LightingEnabled: bool = True
+    SpecularEnabled: bool = True
+    CastShadows: bool = True
+    AttenuationTension: float = 0.3
+    AttenuationDerivativeAtZero: float = -1.5
+    AttenuationHdrRadiusCoefficient: float = 0.015625
+
+
 
 
 @dataclass
@@ -545,6 +560,9 @@ def get_placement_config_from_properties(placement_props: PlacementProperties) -
     placement.FlyVStep = float(placement_props.NU_leviY if not use_simple_ui else placement_props.LI_simpleGridZ)
     placement.AutoRotation = bool(placement_props.CB_autoRot)
     placement.NotOnObject = bool(placement_props.CB_notOnItem)
+    placement.GhostMode = bool(placement_props.CB_ghostMode)
+    placement.HasPath = bool(placement_props.CB_hasPath)
+    placement.IsFreelyAnchorable = not bool(placement_props.CB_attachment_placement_only)
 
     if(use_simple_ui):
         return placement # early out, other properties cannot be configured in simple mode

@@ -1,7 +1,13 @@
 import math
+import time
+
 import bmesh
 from mathutils import Vector
 from mathutils.geometry import tessellate_polygon
+
+# How often the generator hands control back to Blender (seconds of work between yields).
+# Small enough that the UI can redraw, large enough that yield overhead is negligible.
+_YIELD_EVERY = 0.02
 
 
 def _orient(a, b, c):
@@ -50,21 +56,30 @@ def _read_face_uvs(obj, layer_name):
             for p in me.polygons]
 
 
-def find_uv_overlaps(objects, layer_name=None, min_area=1e-10, eps=1e-6):
-    """Returns (pairs, skipped).
+def find_uv_overlaps_steps(objects, layer_name=None, min_area=1e-10, eps=1e-6):
+    """Generator version of find_uv_overlaps.
+
+    Yields (fraction 0..1, text) regularly so the caller can redraw the UI.
+    RETURNS (pairs, skipped), read it from StopIteration.value or use `yield from`.
+
     pairs:   set of ((obj_name, face_idx), (obj_name, face_idx)), sorted tuples
     skipped: names of objects without usable UVs
     layer_name: UV layer to check (None = active layer)
     min_area:   triangles smaller than this are ignored (degenerate)
     eps:        overlap depth in UV units that is ignored.
-                For lightmaps ~0.25 / texture_size is a sensible value."""
+                For lightmaps ~0.25 / texture_size is a sensible value.
+    """
     faces = []
     skipped = []
+    meshes = [o for o in objects if o.type == 'MESH']
+    n_objs = max(len(meshes), 1)
+    last = time.perf_counter()
 
-    # --- collect faces ------------------------------------------------------
-    for obj in objects:
-        if obj.type != 'MESH':
-            continue
+    # --- phase 1 (0% - 50%): collect faces ----------------------------------
+    for oi, obj in enumerate(meshes):
+        # always report at the start of an object, BEFORE its blocking UV read
+        yield 0.5 * oi / n_objs, f"Reading UVs: {obj.name}"
+        last = time.perf_counter()
 
         data = _read_face_uvs(obj, layer_name)
         if data is None:
@@ -72,7 +87,14 @@ def find_uv_overlaps(objects, layer_name=None, min_area=1e-10, eps=1e-6):
             continue
 
         found = False
-        for face_idx, coords in data:
+        n_faces = max(len(data), 1)
+        for fi, (face_idx, coords) in enumerate(data):
+            # time check FIRST in the loop body, so the `continue`s below can't skip it
+            now = time.perf_counter()
+            if now - last > _YIELD_EVERY:
+                last = now
+                yield 0.5 * (oi + fi / n_faces) / n_objs, f"Reading UVs: {obj.name}"
+
             if len(coords) < 3:
                 continue
 
@@ -97,12 +119,19 @@ def find_uv_overlaps(objects, layer_name=None, min_area=1e-10, eps=1e-6):
         if not found:
             skipped.append(obj.name)
 
-    # --- sweep along U, test only faces whose bounds overlap ----------------
+    # --- phase 2 (50% - 100%): sweep along U, test only faces whose bounds overlap
     faces.sort(key=lambda f: f["bounds"][0])
+    total = max(len(faces), 1)
     pairs = set()
     active = []
+    last = time.perf_counter()
 
-    for face in faces:
+    for i, face in enumerate(faces):
+        now = time.perf_counter()
+        if now - last > _YIELD_EVERY:
+            last = now
+            yield 0.5 + 0.5 * i / total, f"Comparing faces {i}/{len(faces)}"
+
         x0, y0, x1, y1 = face["bounds"]
         active = [f for f in active if f["bounds"][2] > x0 + eps]
 
@@ -121,4 +150,15 @@ def find_uv_overlaps(objects, layer_name=None, min_area=1e-10, eps=1e-6):
 
         active.append(face)
 
+    yield 1.0, "Done"
     return pairs, skipped
+
+
+def find_uv_overlaps(objects, layer_name=None, min_area=1e-10, eps=1e-6):
+    """Blocking version with the original signature: returns (pairs, skipped)."""
+    gen = find_uv_overlaps_steps(objects, layer_name, min_area, eps)
+    while True:
+        try:
+            next(gen)
+        except StopIteration as stop:
+            return stop.value
