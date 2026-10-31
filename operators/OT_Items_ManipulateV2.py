@@ -8,7 +8,7 @@ from mathutils import Vector
 from ..properties.PropertyFunctions import get_lod_indexes, set_lod_indexes
 
 from ..utils.Functions import *
-from ..utils.FunctionsV2 import get_active_item_collection, get_item_meshes_which_require_uvmaps, get_offset_from_item_origin
+from ..utils.FunctionsV2 import get_active_item_collection, get_item_collections_in_hierarchy, get_item_meshes_which_require_uvmaps, get_offset_from_item_origin
 from ..utils.Constants import * 
 from ..properties.PropertyIdentifiers import CollectionProp, ObjectProp
 
@@ -392,4 +392,71 @@ class OT_ITEMS_select_node_objects(bpy.types.Operator):
 
         context.view_layer.objects.active = objects[-1]
         return {'FINISHED'}
-    
+
+class TM_OT_Items_ObjectManipulations_CopyScaleToHierarchyV2(Operator):
+    bl_idname = "tm.copyhierarchyscale"
+    bl_description = "Copy scale of selected object to all objects in collections of type 'default'"
+    bl_icon = 'ADD'
+    bl_label = "Copy scale of selected object to all children in hierarchy"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        coll = get_active_item_collection()
+        target_collections = [x for x in get_item_collections_in_hierarchy(coll) if x is not coll]
+        for target_col in target_collections:
+            setattr(target_col, CollectionProp.SCALE_ITEM, getattr(coll, CollectionProp.SCALE_ITEM))
+            setattr(target_col, CollectionProp.SCALE_MODE, getattr(coll, CollectionProp.SCALE_MODE))
+            setattr(target_col, CollectionProp.SCALE_FROM, getattr(coll, CollectionProp.SCALE_FROM))
+            setattr(target_col, CollectionProp.SCALE_TO, getattr(coll, CollectionProp.SCALE_TO))
+            setattr(target_col, CollectionProp.SCALE_FACTOR, getattr(coll, CollectionProp.SCALE_FACTOR))
+            items = getattr(target_col, CollectionProp.SCALE_VALUES)
+            items.clear()
+            for item in getattr(coll, CollectionProp.SCALE_VALUES):
+                items.add().value = item.value
+
+            setattr(target_col, CollectionProp.SCALE_SELECTED_VALUE, 0)
+
+            setattr(target_col, CollectionProp.SCALE_PIVOTS, getattr(coll, CollectionProp.SCALE_PIVOTS))
+            setattr(target_col, CollectionProp.SCALE_MAGNETS, getattr(coll, CollectionProp.SCALE_MAGNETS))
+            setattr(target_col, CollectionProp.SCALE_LIGHT_DISTANCE, getattr(coll, CollectionProp.SCALE_LIGHT_DISTANCE))
+            setattr(target_col, CollectionProp.SCALE_ANIMATION_DISTANCE, getattr(coll, CollectionProp.SCALE_ANIMATION_DISTANCE))
+            setattr(target_col, CollectionProp.SCALE_ANIMATION_TIME, getattr(coll, CollectionProp.SCALE_ANIMATION_TIME))
+            setattr(target_col, CollectionProp.SCALE_LIGHTMAP_SIZE, getattr(coll, CollectionProp.SCALE_LIGHTMAP_SIZE))
+
+        
+        return {"FINISHED"}
+
+def getCollectionNameWithoutScaleSuffix(coll:bpy.types.Collection) -> str:
+    return coll.name.split("_#SCALE")[0]
+
+
+def setScaledCollectionName(col:bpy.types.Collection, remove:bool=False) -> None: 
+    tm_props        = get_global_props()
+    scale_from      = tm_props.NU_objMplScaleFrom
+    scale_to        = tm_props.NU_objMplScaleTo
+    scale_factor    = tm_props.NU_objMplScaleFactor
+    affect_children = tm_props.CB_objMplScaleRecursive
+
+    collections_to_scale = set()
+    collections_to_scale.add(col)
+
+    if affect_children:
+        for obj in col.all_objects:
+            for child_col in obj.users_collection:
+                collections_to_scale.add(child_col)
+
+
+    for col in collections_to_scale:
+        col_name_new = col.name
+
+        if "_#SCALE" in col_name_new or remove:
+            col_name_new = col.name.split("_#SCALE")[0]
+        
+        if not remove:
+            col_name_new += f"_#SCALE_{scale_from}to{scale_to}_x{scale_factor}"
+
+        col.name = col_name_new

@@ -3,8 +3,9 @@ from email import header
 from itertools import count
 
 import bpy
-from bpy.types import Panel
+from bpy.types import Panel, UIList
 from bpy.types import Operator
+from ..properties.CollectionProperties import ScaleValueItem, apply_scale_to_name
 from ..ui.widgets.progress import draw_task_status
 from ..ui.widgets.panels import ViewPanelMixin
 from ..utils.materialLib import has_material_with_gameplay_effect
@@ -446,7 +447,7 @@ class TM_PT_Items_DefaultCollectionManipulationV2(Panel):
 
         col = layout.column()
         col.enabled = not getattr(current_collection, CollectionProp.IGNORE)
-
+        
 
 
         is_moving_group_collection = getattr(current_collection, CollectionProp.MOVING_GROUP, False)
@@ -459,6 +460,7 @@ class TM_PT_Items_DefaultCollectionManipulationV2(Panel):
         row = row.row(align=True)
         row.enabled = col.enabled and (can_convert_to_container_collection(current_collection) if not is_container else True)
         row.prop(current_collection, CollectionProp.CONTAINER_GROUP, icon="OUTLINER_COLLECTION", toggle=True)
+
 
 
         if is_default:
@@ -697,9 +699,157 @@ class TM_PT_ItemCollection_Lightmap(Panel):
                     op.keep_visible= ",".join([n.obj.name for n in g.nodes if n.obj])
                     op.layer_name = UV_LAYER_NAME_LIGHTMAP
 
-            
 
+class TM_PT_ItemCollection_Scale(Panel):
+    # region bl_
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Scale Configuration"
+    bl_idname = "TM_PT_Items_CollectionManipulation_Scale"
+    bl_parent_id = "TM_PT_Items_DefaultCollectionManipulationV2"
+    # endregion
+
+    @classmethod
+    def register_callbacks(self):
+        register_list_hooks(bpy.types.Collection, CollectionProp.SCALE_VALUES, after_remove=self._on_scale_value_remove)
+        register_row_drawer(ScaleValueItem, self._draw_scale_row)
+
+    @classmethod
+    def unregister_callbacks(self):
+        unregister_list_hooks(bpy.types.Collection, CollectionProp.SCALE_VALUES)
+        unregister_row_drawer(ScaleValueItem)
+
+    @classmethod
+    def poll(cls, context):
+        current_collection      = get_active_item_collection()
+        return getattr(current_collection, CollectionProp.COLLECTION_TYPE, COLLECTION_TYPE_DEFAULT) == COLLECTION_TYPE_DEFAULT
     
+    def draw_header(self, context):
+        current_collection      = get_active_item_collection()
+        layout = self.layout
+        row = layout.row(align=True)
+        row.prop(current_collection, CollectionProp.SCALE_ITEM, text="",)
+
+    def draw(self, context):
+        layout = self.layout
+        current_collection      = get_active_item_collection()
+        
+        row = layout.row(align=True)
+        row.operator("tm.copyhierarchyscale",icon=ICON_RECURSIVE,text="Copy Scale to Hierarchy")
+
+        layout = layout.box()
+        layout.enabled = getattr(current_collection, CollectionProp.SCALE_ITEM, False)
+        generated_files = []
+        raw_col_name    =  name_without_scale(current_collection.name)
+        current_scale = 1
+
+        row = layout.row(align=True)
+        row.prop(current_collection, CollectionProp.SCALE_MODE, expand=True)
+
+
+        mode = getattr(current_collection, CollectionProp.SCALE_MODE, "LINEAR")
+        is_linear = mode == "LINEAR"
+        is_values = mode == "VALUES"
+  
+        if is_linear:
+            row = layout.row(align=True)
+            col = row.column(align=True)
+            col.prop(current_collection, CollectionProp.SCALE_FROM, text="From")
+            col = row.column(align=True)
+            col.prop(current_collection, CollectionProp.SCALE_TO, text="To")
+            col = row.column(align=True)
+            col.prop(current_collection, CollectionProp.SCALE_FACTOR, text="Factor")
+
+            layout.separator(factor=UI_SPACER_FACTOR)
+
+            row = layout.row()
+            row.scale_y = .5
+            row.label(text=f"{current_collection.name}")
+
+            layout.separator(factor=UI_SPACER_FACTOR)
+
+            scale_from = getattr(current_collection, CollectionProp.SCALE_FROM, 0)
+            scale_to = getattr(current_collection, CollectionProp.SCALE_TO, 0)
+
+            scale_step_raw  = getattr(current_collection, CollectionProp.SCALE_FACTOR, 1)
+            scale_step      = 1 / scale_step_raw
+
+            if not (scale_from > scale_to):
+                row = layout.row()
+                row.alert = True
+                row.label(text="FROM needs to be bigger than TO")
+                return
+            
+            reverse_range = list(reversed(range(scale_to, scale_from+1)))
+            for scale in reverse_range:
+                generated_files.append([
+                    f"{raw_col_name}_#{scale}.fbx    %.2f%%" % (current_scale * 100),
+                    current_scale
+                ])
+                current_scale -= scale_step
+
+
+        if is_values:
+            list_inspector(
+                layout, 
+                current_collection, 
+                CollectionProp.SCALE_VALUES, 
+                CollectionProp.SCALE_SELECTED_VALUE, 
+                rows=5,
+                show_move=False, 
+                # show_clipboard=True, 
+                copy_on_add='SELECTED')
+
+            values = getattr(current_collection, CollectionProp.SCALE_VALUES, [])
+            num_values = len(values)
+            for idx, scaleProp in list(enumerate(values)):
+                scale_value = getattr(scaleProp, "value", 1.0)
+                generated_files.append([
+                    f"{raw_col_name}_#{num_values - idx}.fbx    %.2f%%" % scale_value,
+                    scale_value
+                ])
+
+
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        row.prop(current_collection, CollectionProp.SCALE_LIGHT_DISTANCE, toggle=True)
+        row.prop(current_collection, CollectionProp.SCALE_LIGHTMAP_SIZE, toggle=True)
+
+        row = col.row(align=True)
+        row.prop(current_collection, CollectionProp.SCALE_ANIMATION_DISTANCE, toggle=True)
+        row.prop(current_collection, CollectionProp.SCALE_ANIMATION_TIME, toggle=True)
+
+
+        row = col.row(align=True)
+        row.prop(current_collection, CollectionProp.SCALE_PIVOTS, toggle=True)
+        row.prop(current_collection, CollectionProp.SCALE_MAGNETS, toggle=True)
+
+
+        layout.separator(factor=UI_SPACER_FACTOR)
+        row = layout.row()
+        row.scale_y = .5
+        row.label(text="Exported files like:")
+        for file in generated_files:
+            text, scale = file
+            
+            is_invalid = scale <= 0.06 # 0.0 == 0 is False for some reason
+            text       = text if not is_invalid else text + " - increase factor?"
+            
+            row = layout.row()
+            row.scale_y = .5
+            row.alert = is_invalid
+            row.label(text=text)
+
+    @classmethod
+    def _draw_scale_row(self, layout, item, index):
+        row = layout.row(align=True)
+        row.alignment = "CENTER"
+        row.label(text=f"Scale {index + 1}")
+        layout.prop(item, "value", slider=False)
+
+    @staticmethod
+    def _on_scale_value_remove(owner, index):
+        apply_scale_to_name(owner)
+
 
 class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
     # region bl_

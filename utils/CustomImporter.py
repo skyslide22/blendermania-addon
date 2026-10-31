@@ -835,6 +835,8 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.Lights = _get_light_configs_from_collection(item.objects, collection)
     cfg.Meshes = _get_mesh_configs_from_collection(item.objects, collection)
     cfg.MovingGroups = _get_moving_group_configs_from_collection(collection)
+    cfg.ScaleOptions = _get_scale_config_from_collection(collection)
+
     #TODO: conversion options
 
 
@@ -1215,3 +1217,14 @@ def _get_moving_group_configs_from_collection(collection: bpy.types.Collection) 
 
     return moving_groups_configs
 
+def _get_scale_config_from_collection(collection: bpy.types.Collection) -> ScaleConfig | None:
+    if getattr(collection, CollectionProp.SCALE_ITEM, False) is False:
+        return None
+    scale_cfg = ScaleConfig()
+    scale_cfg.ScaleAnimationDistance = getattr(collection, CollectionProp.SCALE_ANIMATION_DISTANCE, True)
+    scale_cfg.ScaleAnimationTime = getattr(collection, CollectionProp.SCALE_ANIMATION_TIME, False)
+    scale_cfg.ScalePivots = getattr(collection, CollectionProp.SCALE_PIVOTS, True)
+    scale_cfg.ScaleMagnets = getattr(collection, CollectionProp.SCALE_MAGNETS, True)
+    scale_cfg.ScaleLightRadius = getattr(collection, CollectionProp.SCALE_LIGHT_DISTANCE, True)
+    scale_cfg.ScaleLightmapSizeOverrides = getattr(collection, CollectionProp.SCALE_LIGHTMAP_SIZE, True)
+    return scale_cfg

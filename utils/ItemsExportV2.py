@@ -2,12 +2,14 @@ import bpy
 import pprint
 from copy import copy
 
+from ..properties.CollectionProperties import sync_collection_properties_with_names
+
 from ..properties.ObjectProperties import sync_object_properties_with_names
 from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp
 from ..utils.ItemsExportV2Models import *
 from ..utils import Constants
 from ..utils.Functions import strip_ignore_prefix
-from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin, get_item_collection_objects, get_invalid_group_children, is_inside_group_collection, EXPLICIT_EXPORT_COLLECTIONS, is_group_collection, get_item_root, get_item_collections_from_collections
+from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin, get_item_collection_objects, get_invalid_group_children, is_inside_group_collection, EXPLICIT_EXPORT_COLLECTIONS, is_group_collection, get_item_root, get_item_collections_from_collections, name_without_scale
 from .Materials import is_material_exportable, save_mat_props_json
 from .ItemsIconV2 import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
@@ -272,6 +274,7 @@ def _fix_uv_layers_name(objects: list[bpy.types.Object]) -> None:
 
 def sync_name_and_properties():
     sync_object_properties_with_names()
+    sync_collection_properties_with_names()
 
 def _move_collection_to(objects: list[bpy.types.Object]) -> list[float]:
     offset = get_offset_from_item_origin(objects)
@@ -322,57 +325,74 @@ def _export_item_FBX(item: ExportedItem) -> None:
 
     deselect_all_objects()
 
+_SANITIZED_SCALE_RE = re.compile(
+    r"_#SCALE_(?:"
+    r"\d+to\d+_x\d+"                    # linear
+    r"|_*\d+(?:\.\d+)?(?:_+\d+(?:\.\d+)?)*_*"   # values joined by "_" (tolerates leading/trailing "_")
+    r")"
+)
+def _name_without_scale_sanitized(name):
+    """Removes the scale token from an already sanitized collection name."""
+    return _SANITIZED_SCALE_RE.sub("", name)
+
 def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
-    pattern   = r"_#SCALE_(\d+)to(\d+)_x(\d+)"
-    scale_list = re.findall(pattern, item.name, flags=re.IGNORECASE)
 
-    items = [item]
+    if getattr(item.collection, CollectionProp.SCALE_ITEM, False) is False:
+        return [item]
 
-    if len(scale_list) > 0:
-        items.clear()
-        scale_from    = int(scale_list[0][0]) 
-        scale_to      = int(scale_list[0][1])
-        scale_step_raw= int(scale_list[0][2]) 
-        scale_step    = 1 / scale_step_raw
-        current_scale = 1
+    items = []
+    scale_mode = getattr(item.collection, CollectionProp.SCALE_MODE, False)
+    is_linear = scale_mode == "LINEAR"
+    is_values = scale_mode == "VALUES"
+    name_with_scale_str = item.name
+    name_without_scale_str = _name_without_scale_sanitized(item.name)
+    scales = []
 
-        # swap, always lowest to biggest
+    if is_linear:
+        scale_from = getattr(item.collection, CollectionProp.SCALE_FROM, 1)
+        scale_to = getattr(item.collection, CollectionProp.SCALE_TO, 1)
+        scale_factor = getattr(item.collection, CollectionProp.SCALE_FACTOR, 1)
         if scale_from > scale_to:
             scale_from, scale_to = scale_to, scale_from
-
-        debug(f"{scale_from=}\n{scale_to=}\n{scale_step=}")
         reverse_range = reversed(range(scale_from, scale_to+1))
-
+        scale_step      = 1 / scale_factor
+        current_scale = 1
         for scale in reverse_range:
-
-            if current_scale <= 0:
-                raise Exception(f"""
-                    Atleast one exported object scale is below 0!
-                    try to increase your "_x{scale_step_raw}" to x{scale_step_raw + 1} or
-                    x{scale_step_raw+2} in {item.name}
-                """)
-
-            new_item = copy(item)
-            new_item.scale = current_scale
-            new_item.name = re.sub(pattern, f"_#{scale}", item.name)
-            new_item.r_path = re.sub(pattern, f"_#{scale}", item.r_path)
-            new_item.fbx_path = re.sub(pattern, f"_#{scale}", item.fbx_path)
-            new_item.icon_path = re.sub(pattern, f"_#{scale}", item.icon_path)
-            new_item.item_path = re.sub(pattern, f"_#{scale}", item.item_path)
-
-            debug(f"create new file: {new_item.fbx_path}")
-            copyfile(item.fbx_path, new_item.fbx_path)
-            try:
-                copyfile(item.icon_path, new_item.icon_path)
-            except FileNotFoundError:
-                pass
-
+            scales.append([scale, current_scale])
             current_scale -= scale_step
 
-            items.append(new_item)
-        
-        debug(f"remove original: {item.fbx_path}")
-        os.remove(item.fbx_path) # rm original
+    if is_values:
+        scale_values = getattr(item.collection, CollectionProp.SCALE_VALUES, "1")
+        for i, scale in enumerate(reversed(scale_values)):
+            scales.append([i + 1, scale.value / 100])
+
+    for scaleT in scales:
+        scale = scaleT[1]
+        if scale <= 0:
+            raise Exception(f"""
+                Atleast one exported object scale is below 0!
+            """)
+
+        index = scaleT[0]
+        new_item = copy(item)
+        new_item.scale = scale
+        new_item.name = f"{name_without_scale_str}_#{index}"
+        new_item.r_path = str.replace(item.r_path, name_with_scale_str, f"{name_without_scale_str}_#{index}")
+        new_item.fbx_path = str.replace(item.fbx_path, name_with_scale_str, f"{name_without_scale_str}_#{index}")
+        new_item.icon_path = str.replace(item.icon_path, name_with_scale_str, f"{name_without_scale_str}_#{index}")
+        new_item.item_path = str.replace(item.item_path, name_with_scale_str, f"{name_without_scale_str}_#{index}")
+
+        debug(f"create new file: {new_item.fbx_path}")
+        copyfile(item.fbx_path, new_item.fbx_path)
+        try:
+            copyfile(item.icon_path, new_item.icon_path)
+        except FileNotFoundError:
+            pass
+
+        items.append(new_item)
+    
+    debug(f"remove original: {item.fbx_path}")
+    os.remove(item.fbx_path) # rm original
 
     return items
 

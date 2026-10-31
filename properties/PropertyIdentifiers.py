@@ -73,6 +73,21 @@ class CollectionProp(StrEnum):
 
     ANALYZED_FBXGBX_PLAN = "tm_analyzed_fbxgbx_plan"
 
+    SCALE_ITEM = "tm_scale_item"
+    SCALE_MODE = "tm_scale_mode"
+    SCALE_FROM = "tm_scale_from"
+    SCALE_TO = "tm_scale_to"
+    SCALE_FACTOR = "tm_scale_factor"
+    SCALE_VALUES = "tm_scale_values"
+    SCALE_SELECTED_VALUE = "tm_scale_selected_value"
+
+    SCALE_PIVOTS = "tm_scale_pivots"
+    SCALE_MAGNETS = "tm_scale_magnets"
+    SCALE_LIGHT_DISTANCE = "tm_scale_light_distance"
+    SCALE_ANIMATION_DISTANCE = "tm_scale_animation_distance"
+    SCALE_ANIMATION_TIME = "tm_scale_animation_time"
+    SCALE_LIGHTMAP_SIZE = "tm_scale_lightmap_size"
+
 @unique
 class LightProp(StrEnum):
     LIGHT_NIGHT_ONLY = "night_only" # backwards compatibility

@@ -291,9 +291,8 @@ class TM_UL_Generic(bpy.types.UIList):
 
 def _list_id(owner, collection):
     """Unique per list instance, also for ID owners (Collection, Object...)."""
-    id_block = owner.id_data
-    path = "" if owner is id_block else owner.path_from_id()
-    return f"{id_block.name}.{path}.{collection}"
+    uid = getattr(owner, "session_uid", None)   # ID datablocks (Collection, Object...)
+    return f"TM_{collection}_{uid}" if uid is not None else f"TM_{collection}"
 
 class TM_MT_List_Clipboard(bpy.types.Menu):
     bl_idname = "TM_MT_List_Clipboard"

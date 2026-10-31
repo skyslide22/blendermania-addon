@@ -120,6 +120,24 @@ def get_item_collections_from_selected(context=None) -> list[bpy.types.Collectio
         return [layer_col.collection]
     return []
 
+def get_item_collections_in_hierarchy(col: bpy.types.Collection) -> list[bpy.types.Collection]:
+    """all item collections below this collection, including itself if it is an item"""
+    scene = bpy.context.scene
+    items: list[bpy.types.Collection] = []
+    seen: set[str] = set()
+
+    def walk(col):
+        if col.name in seen:
+            return
+        seen.add(col.name)
+        if not is_group_collection(col):
+            items.append(col)
+        for child in col.children:
+            walk(child)
+
+    walk(col)
+    return items
+
 # group collections (moving group / container)
 
 def is_moving_group_collection(col: bpy.types.Collection) -> bool:
@@ -475,3 +493,44 @@ def get_addon_templates_path() -> str:
 
 def is_editor_object_mode() -> bool:
     return bpy.context.mode == 'OBJECT'
+
+
+#scale
+SCALE_RE = re.compile(
+    r"_#SCALE_(?:(?P<from>\d+)to(?P<to>\d+)_x(?P<factor>\d+)|\((?P<values>[^)]*)\))"
+)
+
+def name_without_scale(name):
+    """Collection name with the _#SCALE_... token removed."""
+    return SCALE_RE.sub("", name)
+
+def build_scale_token(coll) -> str:
+    if getattr(coll, CollectionProp.SCALE_MODE) == 'LINEAR':
+        f = getattr(coll, CollectionProp.SCALE_FROM)
+        t = getattr(coll, CollectionProp.SCALE_TO)
+        x = getattr(coll, CollectionProp.SCALE_FACTOR)
+        return f"_#SCALE_{f}to{t}_x{x}"
+    else:
+        vals = ",".join(_fmt(i.value) for i in getattr(coll, CollectionProp.SCALE_VALUES))
+        return f"_#SCALE_({vals})"
+    
+def _fmt(v: float) -> str:
+    return f"{v:g}"
+
+def parse_scale_from_name(name: str):
+    """Returns None if no token, else a dict describing it."""
+    m = SCALE_RE.search(name)
+    if not m:
+        return None
+    if m["values"] is not None:
+        vals = []
+        for p in m["values"].split(","):
+            p = p.strip()
+            if p:
+                try:
+                    vals.append(float(p))
+                except ValueError:
+                    pass
+        return {"mode": "VALUES", "values": vals}
+    return {"mode": "LINEAR", "from": int(m["from"]),
+            "to": int(m["to"]), "factor": int(m["factor"])}

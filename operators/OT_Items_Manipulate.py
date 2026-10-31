@@ -631,8 +631,8 @@ def importFBXFile(filepath):
 
 
 def getCollectionNameWithoutScaleSuffix(coll:bpy.types.Collection) -> str:
-    return coll.name.split("_#SCALE")[0]
-
+        return coll.name.split("_#SCALE")[0]
+        
 
 def setScaledCollectionName(col:bpy.types.Collection, remove:bool=False) -> None: 
     tm_props        = get_global_props()

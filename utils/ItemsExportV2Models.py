@@ -351,6 +351,14 @@ class MovingGroupConfig:
     KinematicMovement: KinematicMovement = field(default_factory=KinematicMovement)
     KinematicModel: KinematicModelConfig = field(default_factory=KinematicModelConfig)
 
+@dataclass
+class ScaleConfig:
+    ScaleAnimationDistance: bool = True
+    ScaleAnimationTime: bool = False
+    ScalePivots: bool = True
+    ScaleMagnets: bool = True
+    ScaleLightRadius: bool = True
+    ScaleLightmapSizeOverrides: bool = True
 
 @dataclass
 class ItemConfig:
@@ -363,6 +371,7 @@ class ItemConfig:
     Waypoint: Waypoint | None = None
     Placement: PlacementConfig | None = None
     Scale: float = 1.0
+    ScaleOptions: ScaleConfig | None = None
     Materials: list[MaterialConfig] = field(default_factory=list)
     Meshes: list[MeshConfig] = field(default_factory=list)
     Lights: list[LightConfig] = field(default_factory=list)

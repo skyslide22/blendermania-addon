@@ -154,6 +154,10 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     NU_objMplScaleTo        : IntProperty(default=4, min=1, max=20)
     NU_objMplScaleFactor    : IntProperty(default=4, min=1, max=20)
     CB_objMplScaleRecursive : BoolProperty(default=True, description="Affect child collections")
+
+    #scale
+    LI_objMplScaleType : EnumProperty(items=[("Formula", "Formula", ""),("Values", "Values", "")], name="Scale Type", default="Formula")
+
     #visibility and selection controls toggle
     CB_visSel_use_visibility       : BoolProperty(name="", default=False, description="Switch between Visibility and Selection Controls")
 

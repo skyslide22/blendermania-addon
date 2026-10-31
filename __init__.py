@@ -137,6 +137,7 @@ classes = (
     PatchGroupRef,
     PlacementPatchProperties,
     #WorldDirProperties,
+    ScaleValueItem,
     PivotsProperties,
     FBXPlanNodeProperties,
     FbxGbxPlanGroupProperties,
@@ -188,6 +189,7 @@ classes = (
     #TM_PT_ObjectManipulationsV2,
     TM_PT_Items_DefaultCollectionManipulationV2,
     TM_PT_ItemCollection_Lightmap,
+    TM_PT_ItemCollection_Scale,
     TM_PT_ItemCollection_Placement,
 
     TM_PT_Items_SpecialCollectionManipulationV2,
@@ -208,6 +210,7 @@ classes = (
     TM_OT_Items_ObjectManipulationToggleOrigin,
     TM_OT_Items_ObjectManipulationTogglePivot,
     TM_OT_Items_ObjectManipulationChangeCollectionScale,
+    TM_OT_Items_ObjectManipulations_CopyScaleToHierarchyV2,
     TM_OT_Items_SetItemXMLTemplateOfCollection,
     TM_OT_Items_ToggleLightType,
     TM_OT_Items_ToggleNightOnly,
@@ -462,6 +465,7 @@ def register():
 
 
     TM_PT_Items_DefaultCollectionManipulationV2.register_callbacks()
+    TM_PT_ItemCollection_Scale.register_callbacks()
 
     from .ui.drawers.gameplay_dir import register_gameplay_dir
     register_gameplay_dir()
@@ -532,6 +536,7 @@ def unregister():
 
 
     TM_PT_Items_DefaultCollectionManipulationV2.unregister_callbacks()
+    TM_PT_ItemCollection_Scale.unregister_callbacks()
 
     from .ui.drawers.gameplay_dir import unregister_gameplay_dir
     unregister_gameplay_dir()
