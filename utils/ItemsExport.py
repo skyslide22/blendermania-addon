@@ -346,7 +346,8 @@ def export_collections(colls: list[bpy.types.Collection]):
     overwrite_lightmaps            = tm_props.CB_uv_genLightMap
     
     overwrite_basematerials = tm_props.CB_uv_genBaseMaterialCubeMap
-    
+
+    target_type = tm_props.LI_exportTargetType
     # generate_icons          = tm_props.CB_icon_genIcons
     # overwrite_icon          = tm_props.CB_icon_overwriteIcons
     

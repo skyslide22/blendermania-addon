@@ -41,7 +41,9 @@ class ItemConvert(threading.Thread):
     def __init__(self, fbxfilepath: str, 
                 game: str,
                 icon_path: str="",
-                material_lib_path: str="") -> None:
+                material_lib_path: str="",
+                target_type: ItemModel = ItemModel.Prefab,
+                ) -> None:
         super(ItemConvert, self).__init__() #need to call init from Thread, otherwise error
         
         
@@ -64,6 +66,8 @@ class ItemConvert(threading.Thread):
         self.gbx_shape_filepath_old  = self.gbx_filepath.replace(".fbx", ".Shape.Gbx.old")
         self.icon_path               = icon_path
         self.material_lib_path       = material_lib_path
+
+        self.target_type = target_type
         
         # name to display in UI and error report
         self.name     = self.fbx_filepath.split("/")[-1]
@@ -190,7 +194,7 @@ class ItemConvert(threading.Thread):
 
 
         material_library_path = self.material_lib_path
-        target : ItemModel = ItemModel.Prefab
+        target : ItemModel = self.target_type
 
         optimization: OptimizationOptions = OptimizationOptions.PreferNadeoImporterStructure
 
@@ -430,7 +434,7 @@ def start_batch_convert(items: list[ExportedItem]):
 
     for item in items:
         item.game = GAMETYPE_TRACKMANIA2020 if is_game_trackmania2020() else GAMETYPE_MANIAPLANET
-
+        item.target_type = ItemModel.Prefab if tm_props.LI_exportTargetType == ItemModel.Prefab else ItemModel.MeshModeler
         item.material_lib_path = get_global_props().ST_materialLibPath
         generate_and_save_item_config(item)
 
@@ -756,7 +760,8 @@ def convert_fbx(item: ExportedItem) -> None:
         fbxfilepath=item.fbx_path, 
         game=item.game, 
         icon_path=item.icon_path,
-        material_lib_path=item.material_lib_path)
+        material_lib_path=item.material_lib_path,
+        target_type=item.target_type)
     conversion.start() #start the convert (call internal run())
     conversion.join()  #waits until the thread terminated (function/convert is done..)
     

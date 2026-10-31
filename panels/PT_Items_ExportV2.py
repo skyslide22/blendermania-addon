@@ -95,8 +95,7 @@ def draw_export_panel(self:Panel) -> None:
     left_col.label(text="Game")
     left_col.label(text="Folder")
     left_col.label(text="Limit by")
-    left_col.label(text="Material Lib")
-    left_col.label(text="Extras")
+    left_col.label(text="Type")
 
     right_col = main_row.column(align=True)
     right_col.scale_x = 1
@@ -105,6 +104,7 @@ def draw_export_panel(self:Panel) -> None:
     right_col.prop(tm_props, "LI_gameType", text="")
     right_col.prop(tm_props, "LI_exportFolderType", text="")
     right_col.row().prop(tm_props, "LI_exportWhichObjs", expand=True)
+    right_col.prop(tm_props, "LI_exportTargetType", text="")
     #right_col.prop(tm_props, "ST_materialLibPath", text="")
 
     # if is_game_trackmania2020():

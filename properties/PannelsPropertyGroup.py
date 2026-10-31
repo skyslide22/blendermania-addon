@@ -185,6 +185,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
 
     ST_materialLibPath          : StringProperty(name="MaterialLib Path", default=DEFAULT_MATERIAL_LIB_FILEPATH_TM2020,   subtype="FILE_PATH", update=_update_materiallib_path) #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
 
+    LI_exportTargetType         : EnumProperty(items=[(ItemModel.Prefab, "Prefab", "Supports all features. Not editable in MeshModeler."), (ItemModel.MeshModeler, "MeshModeler", "Only Mesh and limited features. Can be edited in MeshModeler.")], name="Target Type", default=ItemModel.Prefab, description="Prefab = All features, MeshModeler = Only limited features, editable in MeshModeler.")
     
     #convert
     NU_convertCount              : IntProperty(min=0,               default=0, update=redraw_panels)

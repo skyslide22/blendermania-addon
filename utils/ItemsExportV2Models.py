@@ -6,6 +6,8 @@ from dataclasses import dataclass, field, asdict, is_dataclass, fields
 from enum import Enum, IntFlag
 from typing import Any, Union, get_args, get_origin, get_type_hints
 
+from ..utils.Dotnet import ItemModel
+
 from ..properties.PropertyIdentifiers import CollectionProp
 
 
@@ -396,6 +398,7 @@ class ExportedItem:
     is_single_item: bool = False
     assigned_index: int = -1
     scale:          int  = 1
+    target_type:    ItemModel = ItemModel.Prefab
 
 # -----------------------------
 # JSON-ready conversion helpers
