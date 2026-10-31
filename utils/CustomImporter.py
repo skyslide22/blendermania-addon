@@ -893,7 +893,7 @@ def _add_magnet_objects_to_placement(placement: PlacementConfig, objs: list[bpy.
 
     # keep rotations aligned with positions
     while len(placement.MagnetRotations) < len(placement.MagnetPositions):
-        placement.MagnetRotations.append(Quaternion())
+        placement.MagnetRotations.append(Vec3())
 
     for obj in magnet_objs:
         # matrix_world can be stale here: the export moved the objects by the origin offset and back again
@@ -905,7 +905,9 @@ def _add_magnet_objects_to_placement(placement: PlacementConfig, objs: list[bpy.
             loc.y - offset[1],
             loc.z - offset[2],
         ))
-        placement.MagnetRotations.append(world.to_euler('XYZ').to_quaternion())
+        rot = obj.rotation_euler
+        rot_deg = [math.degrees(v) for v in rot]
+        placement.MagnetRotations.append(Vec3.from_seq(rot_deg))
 
 
 def _fresh_world_matrix(obj: bpy.types.Object):

@@ -237,7 +237,7 @@ class PlacementConfig:
     PivotPositions: list[Vec3] | None = field(default_factory=list)
     PivotRotations: list[Quaternion] | None = field(default_factory=list)
     MagnetPositions: list[Vec3] | None = field(default_factory=list)
-    MagnetRotations: list[Quaternion] | None = field(default_factory=list)
+    MagnetRotations: list[Vec3] | None = field(default_factory=list)
     PlacementClass: PlacementClass | None = None
 
 
@@ -598,7 +598,7 @@ def get_placement_config_from_properties(placement_props: PlacementProperties) -
         for m in placement_props.LI_magnets
     ]
     placement.MagnetRotations = [
-        quat_from_euler(m.FV_rotation, degrees=False, order="XYZ")
+        Vec3.from_seq(math.degrees(v) for v in m.FV_rotation)
         for m in placement_props.LI_magnets
     ]
 
