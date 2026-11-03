@@ -27,7 +27,7 @@ bl_info = {
     "author"        : "skyslide22, juice & schadocalex",
     "description"   : "Makes creating objects for Trackmania more easy and fun!",
     "blender"       : (5, 2, 3),
-    "version"       : (4, 4, 5),
+    "version"       : (4, 4, 6),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic",
@@ -301,6 +301,7 @@ classes = (
     OT_ITEMS_analyze_uv_overlaps,
     TM_OT_select_all_uvs,
     #anim
+    MY_OT_reset_value,
     #TM_PT_Animation_Preview,
 
 

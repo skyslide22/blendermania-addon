@@ -105,10 +105,21 @@ def apply_plan(scene, item_name: str, plan: dict, collection: bpy.types.Collecti
             group_prop.lod_distances = ", ".join(str(d) for d in lods)
 
         group_prop.nodes.clear()
+
+        # lightmap size of the group: a float when overridden, None otherwise
+        group_lightmap = _get(group, "LightmapSize")
+        if isinstance(group_lightmap, (int, float)) and not isinstance(group_lightmap, bool):
+            group_prop.override_lightmap_size = True
+            group_prop.lightmap_size = float(group_lightmap)
+        else:
+            group_prop.override_lightmap_size = False
+
         for node in _get(group, "Nodes", []):
             node_prop = group_prop.nodes.add()
             node_prop.name = _get(node, "Name", "")
-            node_prop.obj = scene.objects.get(node_prop.name)
+            # nodes created from collection instances only exist in the fbx, OriginalNode is the blender object they come from
+            node_prop.original_node = _get(node, "OriginalNode") or node_prop.name
+            node_prop.obj = bpy.data.objects.get(node_prop.original_node)
             lod_distances = _get(node, "LodIndices", [])
             if isinstance(lod_distances, list):
                 node_prop.lod_indices = ", ".join(str(d) for d in lod_distances)
@@ -182,10 +193,11 @@ class OT_ITEMS_analyze_uv_overlaps(ProgressTaskMixin, bpy.types.Operator):
                 continue
             group_prop = plan_prop.groups[gi]
 
-            objs = [
-                node.obj for node in group_prop.nodes
+            # instanced nodes of the same group can share one source object
+            objs = list({
+                node.obj.name: node.obj for node in group_prop.nodes
                 if node.obj is not None and node.obj.type == 'MESH'
-            ]
+            }.values())
 
             overlaps, skipped = yield from sub_progress(
                 find_uv_overlaps_steps(objs, layer_name=UV_LAYER_NAME_LIGHTMAP),

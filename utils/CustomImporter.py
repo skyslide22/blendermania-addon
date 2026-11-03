@@ -5,7 +5,7 @@ import bpy
 import queue
 import threading
 import time
-from mathutils import Vector, Quaternion
+from mathutils import Vector, Quaternion, Matrix
 import html, json
 
 from ..properties.PropertyIdentifiers import LightProp
@@ -833,13 +833,20 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.LodParameters = _get_lod_parameters_from_collection(collection)
     cfg.Waypoint = _get_waypoint_from_collection(collection)
     cfg.Placement = generate_placement_config(collection)
-    _add_pivot_objects_to_placement(cfg.Placement, item.objects)
-    _add_magnet_objects_to_placement(cfg.Placement, item.objects)
+    instanced = _get_instanced_objects_with_world(item.objects)   # (object, world matrix) per instance occurrence
+    _add_pivot_objects_to_placement(cfg.Placement, item.objects, instanced)
+    _add_magnet_objects_to_placement(cfg.Placement, item.objects, instanced)
     cfg.Scale = item.scale
-    cfg.Materials = _get_material_configs_from_collection(item.objects, collection)
-    cfg.Lights = _get_light_configs_from_collection(item.objects, collection)
-    cfg.Meshes = _get_mesh_configs_from_collection(item.objects, collection)
-    cfg.MovingGroups = _get_moving_group_configs_from_collection(collection)
+    # objects living in instanced collections share the flat Materials/Lights/Meshes lists (object names are unique in blender)
+    template_objs = get_instanced_template_objects(item.objects)
+    all_objs = list(item.objects) + template_objs
+    cfg.Materials = _get_material_configs_from_collection(all_objs, collection)
+    cfg.Lights = _get_light_configs_from_collection(all_objs, collection)
+    cfg.Meshes = _get_mesh_configs_from_collection(all_objs, collection)
+    cfg.Instances = _get_instance_configs(item.objects)
+    cfg.InstanceCollections = _get_instance_collection_configs(item.objects)
+    cfg.MovingGroups = _get_moving_group_configs_from_collection(collection, get_instanced_collections(item.objects))
+    _apply_plan_lightmap_overrides(cfg.Meshes, collection)
     cfg.ScaleOptions = _get_scale_config_from_collection(collection)
 
     #TODO: conversion options
@@ -848,13 +855,95 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
 
     return cfg
 
-def _add_pivot_objects_to_placement(placement: PlacementConfig, objs: list[bpy.types.Object]) -> None:
-    """append all objects marked as pivot to the placement pivots (position relative to the item origin)"""
-    pivot_objs = [
-        obj for obj in objs
-        if getattr(obj, ObjectProp.PIVOT, False) and not getattr(obj, ObjectProp.IGNORE, False)
-    ]
-    if not pivot_objs:
+def _get_instance_configs(objs) -> list[InstanceConfig]:
+    """flat list of all instancing empties: the ones of the item and the nested ones inside instanced collections"""
+    empties: dict[str, bpy.types.Object] = {o.name: o for o in objs if is_collection_instance(o)}
+    for col in get_instanced_collections(objs):
+        for o in col.all_objects:
+            if is_collection_instance(o):
+                empties.setdefault(o.name, o)
+
+    configs = []
+    for name in sorted(empties):
+        empty = empties[name]
+        moving_group = get_object_moving_group(empty)
+        lods = []
+        if getattr(empty, ObjectProp.ENABLE_LODS, False):
+            lods = [int(lod.value) for lod in getattr(empty, ObjectProp.LOD_INDEXES, [])]
+        configs.append(InstanceConfig(
+            Name=name,
+            Collection=empty.instance_collection.name,
+            MovingGroup=moving_group.name if moving_group else None,
+            Lods=lods,
+        ))
+    return configs
+
+def _apply_plan_lightmap_overrides(meshes: list[MeshConfig], collection: bpy.types.Collection):
+    """
+    Lightmap size overrides set on the groups of the analyzed plan win over the object overrides.
+    Nodes are mapped to their source object through original_node. Meshes of instanced collections
+    are shared by all instances, so the last overriding group wins for those.
+    """
+    plan = getattr(collection, CollectionProp.ANALYZED_FBXGBX_PLAN, None)
+    if plan is None or not plan.is_valid:
+        return
+    by_name = {m.Name: m for m in meshes}
+    for group in plan.groups:
+        if not group.override_lightmap_size:
+            continue
+        for node in group.nodes:
+            mesh = by_name.get(node.original_node or node.name)
+            if mesh is not None:
+                mesh.LightmapSize = group.lightmap_size
+
+def _get_instance_collection_configs(objs) -> list[InstanceCollectionConfig]:
+    """one entry per instanced collection (nested ones included), however often it is instanced"""
+    configs = []
+    for col in get_instanced_collections(objs):
+        configs.append(InstanceCollectionConfig(
+            Name=col.name,
+            Meshes=sorted(o.name for o in col.all_objects if o.type == EXPORTABLE_OBJECT_MESH),
+            Lights=sorted(o.name for o in col.all_objects if o.type == EXPORTABLE_OBJECT_LIGHT),
+            Instances=sorted(o.name for o in col.all_objects if is_collection_instance(o)),
+        ))
+    return configs
+
+def _get_instanced_objects_with_world(objs) -> list[tuple[bpy.types.Object, Matrix]]:
+    """
+    (object, world matrix) of every object inside instanced collections, once per instance occurrence,
+    nested instances included. Matrices are rebuilt from local values (see _fresh_world_matrix).
+    """
+    result = []
+    for inst in sorted((o for o in objs if is_collection_instance(o)), key=lambda o: o.name):
+        result += _walk_instance(inst, _fresh_world_matrix(inst), ())
+    return result
+
+def _walk_instance(inst: bpy.types.Object, inst_world: Matrix, stack: tuple) -> list[tuple[bpy.types.Object, Matrix]]:
+    col = inst.instance_collection
+    if col.name in stack:   # instance cycle
+        return []
+    to_world = inst_world @ Matrix.Translation(-Vector(col.instance_offset))
+    result = []
+    for o in col.all_objects:
+        world = to_world @ _fresh_world_matrix(o)
+        if is_collection_instance(o):
+            result += _walk_instance(o, world, stack + (col.name,))
+        else:
+            result.append((o, world))
+    return result
+
+def _collect_marked_objects(objs, instanced, prop: str) -> list[tuple[bpy.types.Object, Matrix, bool]]:
+    """(object, world matrix, is_instanced) of all objects with the given flag set, direct ones first"""
+    marked = [(o, _fresh_world_matrix(o), False) for o in objs
+              if getattr(o, prop, False) and not getattr(o, ObjectProp.IGNORE, False)]
+    marked += [(o, w, True) for o, w in instanced
+               if getattr(o, prop, False) and not getattr(o, ObjectProp.IGNORE, False)]
+    return marked
+
+def _add_pivot_objects_to_placement(placement: PlacementConfig, objs: list[bpy.types.Object], instanced=()) -> None:
+    """append all objects marked as pivot (also inside instanced collections) to the placement pivots (position relative to the item origin)"""
+    pivots = _collect_marked_objects(objs, instanced, ObjectProp.PIVOT)
+    if not pivots:
         return
 
     offset = get_offset_from_item_origin(objs) or [0.0, 0.0, 0.0]
@@ -868,10 +957,9 @@ def _add_pivot_objects_to_placement(placement: PlacementConfig, objs: list[bpy.t
     while len(placement.PivotRotations) < len(placement.PivotPositions):
         placement.PivotRotations.append(Quaternion())
 
-    for obj in pivot_objs:
+    for obj, world, _ in pivots:
         # matrix_world can be stale here: the export moved the objects by the origin offset and back again
-        # without a depsgraph update, so the offset would be subtracted twice. Rebuild from the current local values.
-        world = _fresh_world_matrix(obj)
+        # without a depsgraph update, so the offset would be subtracted twice. world is rebuilt from the current local values.
         loc = world.translation
         placement.PivotPositions.append(Vec3(
             loc.x - offset[0],
@@ -880,13 +968,10 @@ def _add_pivot_objects_to_placement(placement: PlacementConfig, objs: list[bpy.t
         ))
         placement.PivotRotations.append(world.to_euler('XYZ').to_quaternion())
 
-def _add_magnet_objects_to_placement(placement: PlacementConfig, objs: list[bpy.types.Object]) -> None:
-    """append all objects marked as magnet to the placement magnets (position relative to the item origin)"""
-    magnet_objs = [
-        obj for obj in objs
-        if getattr(obj, ObjectProp.MAGNET, False) and not getattr(obj, ObjectProp.IGNORE, False)
-    ]
-    if not magnet_objs:
+def _add_magnet_objects_to_placement(placement: PlacementConfig, objs: list[bpy.types.Object], instanced=()) -> None:
+    """append all objects marked as magnet (also inside instanced collections) to the placement magnets (position relative to the item origin)"""
+    magnets = _collect_marked_objects(objs, instanced, ObjectProp.MAGNET)
+    if not magnets:
         return
 
     offset = get_offset_from_item_origin(objs) or [0.0, 0.0, 0.0]
@@ -900,17 +985,14 @@ def _add_magnet_objects_to_placement(placement: PlacementConfig, objs: list[bpy.
     while len(placement.MagnetRotations) < len(placement.MagnetPositions):
         placement.MagnetRotations.append(Vec3())
 
-    for obj in magnet_objs:
-        # matrix_world can be stale here: the export moved the objects by the origin offset and back again
-        # without a depsgraph update, so the offset would be subtracted twice. Rebuild from the current local values.
-        world = _fresh_world_matrix(obj)
+    for obj, world, is_instanced in magnets:
         loc = world.translation
         placement.MagnetPositions.append(Vec3(
             loc.x - offset[0],
             loc.y - offset[1],
             loc.z - offset[2],
         ))
-        rot = obj.rotation_euler
+        rot = world.to_euler('XYZ') if is_instanced else obj.rotation_euler
         rot_deg = [math.degrees(v) for v in rot]
         placement.MagnetRotations.append(Vec3.from_seq(rot_deg))
 
@@ -1150,10 +1232,12 @@ def _get_mesh_configs_from_collection(objs: list[bpy.types.Object], collection: 
 
     return mesh_configs
 
-def _get_moving_group_configs_from_collection(collection: bpy.types.Collection) -> list[MovingGroupConfig]:
+def _get_moving_group_configs_from_collection(collection: bpy.types.Collection, instanced_collections: list[bpy.types.Collection] = ()) -> list[MovingGroupConfig]:
     moving_groups_configs = []
 
     col_children = get_item_moving_groups(collection)
+    known = {c.name for c in col_children}
+    col_children += [c for c in get_instanced_moving_groups(list(instanced_collections)) if c.name not in known]
 
     for child_col in col_children:
         if getattr(child_col, CollectionProp.MOVING_GROUP, False):

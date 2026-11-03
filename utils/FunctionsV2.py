@@ -11,6 +11,10 @@ def get_parent_collection(col, scene):
     for c in scene.collection.children_recursive:
         if col.name in c.children:
             return c
+    # collections only used as instance source are not linked into the scene
+    for c in bpy.data.collections:
+        if col.name in c.children:
+            return c
     return None  # directly under the scene root
 
 # collections explicitly chosen for export: they (and their ancestors) override "ignore"
@@ -302,9 +306,65 @@ def is_collection_exportable(coll: bpy.types.Collection)->bool:
     return any(is_object_exportable(obj) for obj in get_item_collection_objects(coll))
 
 
+def is_collection_instance(obj: bpy.types.Object) -> bool:
+    """empty which instances a collection (resolved to duplicated hierarchies by the fbx exporter)"""
+    return obj.type == "EMPTY" and obj.instance_type == "COLLECTION" and obj.instance_collection is not None
+
+def get_instanced_collections(objs) -> list[bpy.types.Collection]:
+    """collections instanced by objs, nested instances included; unique, in discovery order"""
+    result: dict[str, bpy.types.Collection] = {}
+
+    def walk(col: bpy.types.Collection) -> None:
+        if col.name in result:   # also protects against instance cycles
+            return
+        result[col.name] = col
+        for o in col.all_objects:
+            if is_collection_instance(o):
+                walk(o.instance_collection)
+
+    for obj in sorted(objs, key=lambda o: o.name):
+        if is_collection_instance(obj):
+            walk(obj.instance_collection)
+    return list(result.values())
+
+def get_template_objects(col: bpy.types.Collection) -> list[bpy.types.Object]:
+    """meshes and lights of an instanced collection (own sub collections included, nested instances excluded)"""
+    return [o for o in col.all_objects if o.type in (EXPORTABLE_OBJECT_MESH, EXPORTABLE_OBJECT_LIGHT)]
+
+def get_instanced_moving_groups(cols: list[bpy.types.Collection]) -> list[bpy.types.Collection]:
+    """moving groups defined in instanced collections: the collections themselves and the groups below them"""
+    groups: dict[str, bpy.types.Collection] = {}
+
+    def walk(col: bpy.types.Collection) -> None:
+        for child in col.children:
+            if is_collection_ignored(child):
+                continue
+            if is_moving_group_collection(child):
+                groups.setdefault(child.name, child)
+                walk(child)
+            elif is_container_collection(child):
+                walk(child)
+
+    for col in cols:
+        if is_collection_ignored(col):
+            continue
+        if is_moving_group_collection(col):
+            groups.setdefault(col.name, col)
+        walk(col)
+    return list(groups.values())
+
+def get_instanced_template_objects(objs) -> list[bpy.types.Object]:
+    """all meshes/lights living in collections instanced by objs (recursive), unique"""
+    result: dict[str, bpy.types.Object] = {}
+    for col in get_instanced_collections(objs):
+        for o in get_template_objects(col):
+            result.setdefault(o.name, o)
+    return list(result.values())
+
 def is_object_exportable(obj: bpy.types.Object)-> bool:
-    if (obj.type != EXPORTABLE_OBJECT_MESH and obj.type != EXPORTABLE_OBJECT_LIGHT) \
-    or obj.visible_get() is False:
+    if obj.visible_get() is False:
+        return False
+    if not (obj.type == EXPORTABLE_OBJECT_MESH or obj.type == EXPORTABLE_OBJECT_LIGHT or is_collection_instance(obj)):
         return False
 
     if getattr(obj, ObjectProp.IGNORE, False):
@@ -406,8 +466,8 @@ def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
          if obj.type in {"MESH", "EMPTY"} and getattr(obj, ObjectProp.ORIGIN, False)),
         None,
     )
-    # fallback: first mesh only
-    fallback = next((obj for obj in objects if obj.type == "MESH"), None)
+    # fallback: first mesh or collection instance
+    fallback = next((obj for obj in objects if obj.type == "MESH" or is_collection_instance(obj)), None)
 
     main = origin or fallback
 

@@ -255,6 +255,27 @@ class MaterialConfig:
 
 
 @dataclass
+class InstanceConfig:
+    # an instancing empty: node name in the fbx -> the collection it instances (defined once in InstanceCollections)
+    Name: str = ""
+    Collection: str = ""
+    MovingGroup: str | None = None   # moving group the empty lives in
+    Lods: list[int] = field(default_factory=list)
+
+
+@dataclass
+class InstanceCollectionConfig:
+    # content of an instanced collection, defined once no matter how often it is instanced.
+    # all entries are original object names: Meshes -> ItemConfig.Meshes, Lights -> ItemConfig.Lights,
+    # Instances -> ItemConfig.Instances (nested instancing empties)
+    Name: str = ""
+    Meshes: list[str] = field(default_factory=list)
+    Lights: list[str] = field(default_factory=list)
+    Instances: list[str] = field(default_factory=list)
+
+
+
+@dataclass
 class LodParameters:
     MaxLodDistances: list[float] = field(default_factory=list)
 
@@ -377,6 +398,8 @@ class ItemConfig:
     Materials: list[MaterialConfig] = field(default_factory=list)
     Meshes: list[MeshConfig] = field(default_factory=list)
     Lights: list[LightConfig] = field(default_factory=list)
+    Instances: list[InstanceConfig] = field(default_factory=list)
+    InstanceCollections: list[InstanceCollectionConfig] = field(default_factory=list)
     MovingGroups: list[MovingGroupConfig] = field(default_factory=list)
     LodParameters: LodParameters | None = None
     ConversionOptions: ItemConversionOptions = ItemConversionOptions.None_

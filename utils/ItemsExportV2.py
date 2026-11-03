@@ -9,7 +9,7 @@ from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp
 from ..utils.ItemsExportV2Models import *
 from ..utils import Constants
 from ..utils.Functions import strip_ignore_prefix
-from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin, get_item_collection_objects, get_invalid_group_children, is_inside_group_collection, EXPLICIT_EXPORT_COLLECTIONS, is_group_collection, get_item_root, get_item_collections_from_collections, name_without_scale
+from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin, get_item_collection_objects, get_invalid_group_children, is_inside_group_collection, EXPLICIT_EXPORT_COLLECTIONS, is_group_collection, get_item_root, get_item_collections_from_collections, name_without_scale, get_instanced_template_objects
 from .Materials import is_material_exportable, save_mat_props_json
 from .ItemsIconV2 import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
@@ -140,7 +140,10 @@ def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False)
 
         invalid_mats = get_invalid_materials_props()
 
-        for obj in objs:
+        # meshes inside instanced collections are exported by the fbx exporter too
+        template_objs = get_instanced_template_objects(objs)
+
+        for obj in list(objs) + template_objs:
             for slot in obj.material_slots:
                 mat = slot.material
                 if mat not in processed_materials: 
@@ -172,7 +175,7 @@ def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False)
         #item_to_export.physic_hack = _is_physic_hack_required(coll.objects)
 
         # fix UVs and check lods
-        _fix_uv_layers_name(objs)
+        _fix_uv_layers_name(list(objs) + template_objs)
 
 
         if overwrite_lightmaps: 

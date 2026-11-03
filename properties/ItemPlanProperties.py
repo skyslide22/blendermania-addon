@@ -1,25 +1,11 @@
 import bpy
 from bpy.props import CollectionProperty, StringProperty, PointerProperty, IntProperty, BoolProperty, FloatProperty
-from ..properties.PropertyIdentifiers import ObjectProp
 
-
-
-
-def _apply_lightmap_size(self, context):
-    """Runs whenever the group's value changes (UI or Python)."""
-    for n in self.nodes:
-        if n.obj is not None:
-            setattr(n.obj, ObjectProp.LIGHTMAP_SIZE, self.lightmap_size)
-
-def _apply_override_lightmap_size(self, context):
-    """Runs whenever the group's value changes (UI or Python)."""
-    for n in self.nodes:
-        if n.obj is not None:
-            setattr(n.obj, ObjectProp.OVERRIDE_LIGHTMAP_SIZE, self.override_lightmap_size)
 
 class FBXPlanNodeProperties(bpy.types.PropertyGroup):
-    name: StringProperty()
-    obj: PointerProperty(type=bpy.types.Object)
+    name: StringProperty()           # node name in the exported fbx (generated for collection instances)
+    original_node: StringProperty()  # name of the blender object the node was created from
+    obj: PointerProperty(type=bpy.types.Object)   # the original object
     lod_indices: StringProperty()
 
     has_uv_overlap: BoolProperty(
@@ -34,15 +20,14 @@ class FbxGbxPlanGroupProperties(bpy.types.PropertyGroup):
     lod_distances: StringProperty()
     nodes: CollectionProperty(type=FBXPlanNodeProperties)
     show_expanded: BoolProperty(default=False)
+    # applied to the mesh configs of the group's nodes on export, the objects stay untouched
     lightmap_size: FloatProperty(
         name="Lightmap Size",
         default=100.0, min=0.0,
-        update=_apply_lightmap_size,
     )
     override_lightmap_size: BoolProperty(
         name="Override Lightmap Size",
         default=False,
-        update=_apply_override_lightmap_size,
     )
 
     has_uv_overlap: BoolProperty(

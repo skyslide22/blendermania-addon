@@ -1,8 +1,17 @@
-from bpy.types import (Panel)
+
+from bpy.types import (Panel, Operator)
 from ..ui.widgets.panels import ViewPanelMixin
 from ..utils.Functions import get_global_props
 from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS
 
+class MY_OT_reset_value(Operator):
+    bl_idname = "tm.reset_animation_time"
+    bl_label = "Reset"
+
+    def execute(self, context):
+        context.scene.tm_preview_time = 0
+        return {'FINISHED'}
+    
 class TM_PT_Animation_Preview(ViewPanelMixin, Panel):
     view_id = "animation_preview"
     view_label = "Animation Preview"
@@ -27,8 +36,11 @@ class TM_PT_Animation_Preview(ViewPanelMixin, Panel):
         col.enabled = s.tm_preview_enabled
         # col.prop(s, "tm_preview_use_timeline")   # hidden for now, functionality kept
         if not s.tm_preview_use_timeline:
-            col.prop(s, "tm_preview_time")
+            row = col.row(align=True)
+            row.prop(s, "tm_preview_time")
+            row.operator("tm.reset_animation_time", text="", icon='LOOP_BACK')
             r = col.row(align=True)
+
             r.prop(s, "tm_preview_playing", toggle=True)
             r.prop(s, "tm_preview_speed")
         if s.tm_preview_enabled:
