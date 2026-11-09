@@ -372,9 +372,7 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
     for scaleT in scales:
         scale = scaleT[1]
         if scale <= 0:
-            raise Exception(f"""
-                Atleast one exported object scale is below 0!
-            """)
+            return []
 
         index = scaleT[0]
         new_item = copy(item)

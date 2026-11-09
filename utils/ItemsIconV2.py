@@ -1,5 +1,6 @@
 import re
 import bpy
+from mathutils import Matrix
 from ..properties.PropertyIdentifiers import ObjectProp
 
 from .BlenderObjects import apply_modifiers
@@ -41,34 +42,74 @@ def _get_cam_position() -> list:
     if style == "FRONT":       return   radian_list(90,  0, 0)
     if style == "BOTTOM":      return   radian_list(180, 0, 0)
 
-def _make_joined_object(objects: list[bpy.types.Object]) -> bpy.types.Object:
-    deselect_all_objects()
+def _expand_instances(objects, depth: int = 0):
+    """yield (mesh object, world matrix), collection instances are resolved recursively"""
     for obj in objects:
-        if  obj.type == "MESH"\
-        and (is_obj_visible(obj.name) or getattr(obj, ObjectProp.ICON_ONLY, False)):
-            if not getattr(obj, ObjectProp.ENABLE_LODS, False):
-                set_active_object(obj)
-            else:
-                lod_indexes = getattr(obj, ObjectProp.LOD_INDEXES, [])
-                has_lod0 = any(item.value == 0 for item in lod_indexes)
-                if has_lod0:
-                    set_active_object(obj)
+        if obj.type == "EMPTY" and obj.instance_type == "COLLECTION" and obj.instance_collection and depth < 8:
+            inst_col = obj.instance_collection
+            base = obj.matrix_world @ Matrix.Translation(-inst_col.instance_offset)
+            for sub, sub_matrix in _expand_instances(list(inst_col.all_objects), depth + 1):
+                # sub_matrix is relative to the instanced collection's own space
+                yield sub, base @ sub_matrix
+        elif obj.type == "MESH":
+            yield obj, obj.matrix_world.copy()
 
-    bpy.ops.object.duplicate(linked=False)
+def _make_joined_object(objects: list[bpy.types.Object]) -> bpy.types.Object:
+    if bpy.context.object and bpy.context.object.mode != "OBJECT":
+        bpy.ops.object.mode_set(mode="OBJECT")
 
-    for obj in bpy.context.selected_objects:
-        apply_modifiers(obj)
+    deselect_all_objects()
 
-    bpy.ops.object.join()
+    scene_coll = bpy.context.scene.collection
+    duplicates: list[bpy.types.Object] = []
+
+    for obj, world_matrix in _expand_instances(objects):
+        if not (is_obj_visible(obj) or getattr(obj, ObjectProp.ICON_ONLY, False)):
+            continue
+        if getattr(obj, ObjectProp.ENABLE_LODS, False):
+            lod_indexes = getattr(obj, ObjectProp.LOD_INDEXES, [])
+            if not any(item.value == 0 for item in lod_indexes):
+                continue
+
+        dup = obj.copy()
+        dup.data = obj.data.copy()
+        dup.animation_data_clear()  # moving group animation would override the transform
+        dup.parent = None
+        dup.constraints.clear()
+        scene_coll.objects.link(dup)
+        dup.matrix_world = world_matrix
+        dup.hide_viewport = False
+        dup.hide_set(False)
+        duplicates.append(dup)
+
+    if not duplicates:
+        raise RuntimeError("Icon generation: no visible mesh objects found to join")
+
+    bpy.context.view_layer.update()
+
+    for dup in duplicates:
+        deselect_all_objects()
+        bpy.context.view_layer.objects.active = dup
+        dup.select_set(True)
+        try:
+            apply_modifiers(dup)
+        except RuntimeError as e:
+            debug(f"icon: could not apply modifiers on <{dup.name}>: {e}")
+
+    deselect_all_objects()
+    for dup in duplicates:
+        dup.select_set(True)
+    bpy.context.view_layer.objects.active = duplicates[0]
+
+    if len(duplicates) > 1:
+        bpy.ops.object.join()
     bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
-    joined_obj = bpy.context.object
+    joined_obj = bpy.context.view_layer.objects.active
 
     joined_obj.name = "JOINED_OBJECT_FOR_ICON"
     joined_obj.hide_render = False
 
     bpy.ops.object.transform_apply(location=False, scale=True, rotation=True)
-
-    bpy.context.scene.collection.objects.link(joined_obj)
 
     return joined_obj
 
@@ -145,7 +186,7 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
     
     debug(f"creating icon <{icon_name}>")
 
-    is_single_object = len(objects) == 1
+    is_single_object = len(objects) == 1 and objects[0].type == "MESH"
 
     joined_obj = _make_joined_object(objects) if not is_single_object else objects[0]
     

@@ -726,7 +726,7 @@ class TM_PT_ItemCollection_Scale(Panel):
 
     @classmethod
     def register_callbacks(self):
-        register_list_hooks(bpy.types.Collection, CollectionProp.SCALE_VALUES, after_remove=self._on_scale_value_remove)
+        register_list_hooks(bpy.types.Collection, CollectionProp.SCALE_VALUES, after_remove=self._on_scale_value_remove, after_add=self._on_scale_value_add)
         register_row_drawer(ScaleValueItem, self._draw_scale_row)
 
     @classmethod
@@ -864,6 +864,10 @@ class TM_PT_ItemCollection_Scale(Panel):
 
     @staticmethod
     def _on_scale_value_remove(owner, index):
+        apply_scale_to_name(owner)
+
+    @staticmethod
+    def _on_scale_value_add(owner, item, index):
         apply_scale_to_name(owner)
 
 

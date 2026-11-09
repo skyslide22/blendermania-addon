@@ -452,10 +452,10 @@ def _sync_values_in_place(coll, new_values):
 
     # 4. keep the active index valid (don't reset it unless it's out of range)
     if items:
-        if coll.tm_scale_values_index >= len(items):
-            coll.tm_scale_values_index = len(items) - 1
+        if getattr(coll, CollectionProp.SCALE_SELECTED_VALUE) >= len(items):
+            setattr(coll, CollectionProp.SCALE_SELECTED_VALUE, len(items) - 1)
     else:
-        coll.tm_scale_values_index = 0
+        setattr(coll, CollectionProp.SCALE_SELECTED_VALUE, 0)
 
 
 def _values_equal(items, new_values):
