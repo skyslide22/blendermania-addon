@@ -33,6 +33,9 @@ class CollectionProp(StrEnum):
     COLLECTION_TYPE = "tm_collection_type"
     MOVING_GROUP = "tm_moving_group"  # read-only bool derived from COLLECTION_TYPE
     CONTAINER_GROUP = "tm_container_group"    # read-only bool derived from COLLECTION_TYPE
+    ATTACHMENTS_GROUP = "tm_attachments_group"    # read-only bool derived from COLLECTION_TYPE
+    ATTACHMENT_GROUP = "tm_attachment_group"      # read-only bool derived from COLLECTION_TYPE
+    ATTACHMENT = "tm_attachment"    # attachment settings (layout, options) of a collection inside an attachments collection
     
     LODS = "tm_lods"
     SELECTED_LODS = "tm_selected_lods"

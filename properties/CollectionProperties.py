@@ -5,6 +5,7 @@ from bpy.props import *
 
 from ..properties.ItemPlanProperties import FbxGbxPlanProperties
 from ..properties.ItemConfigProperties import ItemConfigProperties
+from ..properties.AttachmentProperties import AttachmentProperties
 from .Functions import has_infix, has_prefix, apply_collection_type, toggle_infix, toggleNameSpecialPrefix
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
 from .PropertyIdentifiers import CollectionProp
@@ -143,6 +144,23 @@ def register_collection_properties():
         description="Collection type is Container (structural only)",
         get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_CONTAINER,
         set=_type_toggle_setter(COLLECTION_GROUP_CONTAINER),
+    ))
+    setattr(bpy.types.Collection, CollectionProp.ATTACHMENTS_GROUP, BoolProperty(
+        name="Attachments",
+        description="Collection holds attachment collections (nothing inside is exported as fbx)",
+        get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_ATTACHMENTS,
+        set=_type_toggle_setter(COLLECTION_GROUP_ATTACHMENTS),
+    ))
+    setattr(bpy.types.Collection, CollectionProp.ATTACHMENT_GROUP, BoolProperty(
+        name="Attachment",
+        description="Collection type is Attachment (defines one attachment, nothing inside is exported as fbx)",
+        get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_ATTACHMENT,
+        set=_type_toggle_setter(COLLECTION_GROUP_ATTACHMENT),
+    ))
+    setattr(bpy.types.Collection, CollectionProp.ATTACHMENT, PointerProperty(
+        name="Attachment",
+        description="Attachment definition (layout and options)",
+        type=AttachmentProperties
     ))
 
     setattr(bpy.types.Collection, CollectionProp.LODS, CollectionProperty(

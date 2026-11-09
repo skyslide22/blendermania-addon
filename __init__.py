@@ -64,6 +64,7 @@ from .properties.LinkedMaterialsProperties  import *
 from .properties.MapObjectProperties        import *
 from .properties.PannelsPropertyGroup       import *
 from .properties.PlacementProperties        import *
+from .properties.AttachmentProperties       import AttachmentOptionEntryProperties, AttachmentOptionProperties, AttachmentProperties
 from .properties.CollectionProperties       import *
 from .properties.ObjectProperties           import *
 from .properties.PlacementPatchProperties   import *
@@ -118,6 +119,7 @@ from .utils.Placement import register_placement_templates, unregister_placement_
 from .ui.widgets.lists import *
 from .ui.widgets.foldouts import *
 from .ui.drawers.placement import register_placement_callbacks, unregister_placement_callbacks
+from .ui.drawers.attachments import register_attachment_callbacks, unregister_attachment_callbacks
 from .ui.widgets.panels import register_panel_widgets, unregister_panel_widgets
 from .ui.widgets.progress import register as register_progress, unregister as unregister_progress
 
@@ -130,6 +132,9 @@ object_eventlistner_owner = object()
 
 # register order matters for UI panel ordering
 classes = (
+    AttachmentOptionEntryProperties,
+    AttachmentOptionProperties,
+    AttachmentProperties,
     MapObjectProperties,
     #CubeCenterProperties,
 
@@ -429,6 +434,7 @@ def register():
     register_object_properties()
     register_light_properties()
     register_placement_callbacks()
+    register_attachment_callbacks()
     register_animation_preview()
 
     # templates
@@ -514,6 +520,7 @@ def unregister():
     unregister_object_properties()
 
     unregister_placement_callbacks()
+    unregister_attachment_callbacks()
     unregister_animation_preview()
 
     unregister_placement_templates()

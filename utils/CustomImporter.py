@@ -18,6 +18,7 @@ from ..utils import Constants
 from ..utils.ItemsExportV2Models import * 
 from ..utils.Dotnet import *
 from ..utils.FunctionsV2 import *
+from ..utils.Attachments import get_attachment_configs
 
 class ConvertStep():
     def __init__(self, title, additional_infos: tuple=()):
@@ -836,6 +837,7 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
     instanced = _get_instanced_objects_with_world(item.objects)   # (object, world matrix) per instance occurrence
     _add_pivot_objects_to_placement(cfg.Placement, item.objects, instanced)
     _add_magnet_objects_to_placement(cfg.Placement, item.objects, instanced)
+    cfg.Attachments = get_attachment_configs(collection, item.objects)
     cfg.Scale = item.scale
     # objects living in instanced collections share the flat Materials/Lights/Meshes lists (object names are unique in blender)
     template_objs = get_instanced_template_objects(item.objects)

@@ -21,6 +21,7 @@ from ..properties.PropertyIdentifiers import ObjectProp, CollectionProp, LightPr
 from ..ui.widgets.lists import *
 from ..ui.widgets.foldouts import *
 from ..ui.drawers.placement import draw_item_placement_editor, draw_item_placement_template_selection
+from ..ui.drawers.attachments import draw_attachments_collection, draw_attachment_collection
 
 
     
@@ -472,6 +473,9 @@ class TM_PT_Items_DefaultCollectionManipulationV2(Panel):
         row = row.row(align=True)
         row.enabled = col.enabled and (can_convert_to_container_collection(current_collection) if not is_container else True)
         row.prop(current_collection, CollectionProp.CONTAINER_GROUP, icon="OUTLINER_COLLECTION", toggle=True)
+        row = row.row(align=True)
+        row.enabled = col.enabled and can_convert_to_attachments_collection(current_collection)
+        row.prop(current_collection, CollectionProp.ATTACHMENTS_GROUP, icon="EMPTY_AXIS", toggle=True)
 
 
 
@@ -930,6 +934,18 @@ class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
 
         is_moving_group_collection = getattr(current_collection, CollectionProp.MOVING_GROUP, False)
         is_container = getattr(current_collection, CollectionProp.CONTAINER_GROUP, False)
+        is_attachments = getattr(current_collection, CollectionProp.ATTACHMENTS_GROUP, False)
+
+        # a collection below an _attachments_ collection can become an attachment (own type), otherwise the group types
+        if is_attachment_collection(current_collection) or is_inside_attachments_collection(current_collection):
+            row = row.row(align=True)
+            row.enabled = col.enabled
+            row.prop(current_collection, CollectionProp.ATTACHMENT_GROUP, icon="EMPTY_AXIS", toggle=True)
+            if is_attachment_collection(current_collection):
+                draw_attachment_collection(col, current_collection)
+            else:
+                col.label(text="Enable Attachment to configure this collection", icon='INFO')
+            return
 
         row = row.row(align=True)
         row.enabled = col.enabled and (can_convert_to_moving_group_collection(current_collection) if not is_moving_group_collection else True)
@@ -937,6 +953,12 @@ class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
         row = row.row(align=True)
         row.enabled = col.enabled and (can_convert_to_container_collection(current_collection) if not is_container else True)
         row.prop(current_collection, CollectionProp.CONTAINER_GROUP, icon="OUTLINER_COLLECTION", toggle=True)
+        row = row.row(align=True)
+        row.enabled = col.enabled and (can_convert_to_attachments_collection(current_collection) if not is_attachments else True)
+        row.prop(current_collection, CollectionProp.ATTACHMENTS_GROUP, icon="EMPTY_AXIS", toggle=True)
+
+        if is_attachments:
+            draw_attachments_collection(col, current_collection)
 
         if is_moving_group_collection:
             row = col.row(align=True)

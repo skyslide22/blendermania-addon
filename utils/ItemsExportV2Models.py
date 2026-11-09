@@ -384,6 +384,15 @@ class ScaleConfig:
     ScaleLightmapSizeOverrides: bool = True
 
 @dataclass
+class AttachmentConfig:
+    # one per attachment collection; positions/rotations (relative to the item origin) are index-aligned
+    Layout: int = 0
+    Options: list[dict[str, str]] = field(default_factory=list)
+    Positions: list[Vec3] = field(default_factory=list)
+    Rotations: list[Quaternion] = field(default_factory=list)
+
+
+@dataclass
 class ItemConfig:
     Version: int = 1
     Type: str = "StaticObject"
@@ -393,6 +402,7 @@ class ItemConfig:
     Description: str | None = None
     Waypoint: Waypoint | None = None
     Placement: PlacementConfig | None = None
+    Attachments: list[AttachmentConfig] = field(default_factory=list)
     Scale: float = 1.0
     ScaleOptions: ScaleConfig | None = None
     Materials: list[MaterialConfig] = field(default_factory=list)

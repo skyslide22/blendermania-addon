@@ -151,8 +151,63 @@ def is_container_collection(col: bpy.types.Collection) -> bool:
     return col is not None and bool(getattr(col, CollectionProp.CONTAINER_GROUP, False))
 
 def is_group_collection(col: bpy.types.Collection) -> bool:
-    """collection that is not an item itself (moving group or container)"""
-    return is_moving_group_collection(col) or is_container_collection(col)
+    """collection that is not an item itself (moving group, container or attachments collection incl. everything below it)"""
+    return is_moving_group_collection(col) or is_container_collection(col) or is_attachments_collection(col) or is_attachment_collection(col) or is_inside_attachments_collection(col)
+
+# attachments
+
+def is_attachments_collection(col: bpy.types.Collection) -> bool:
+    """the _attachments_ collection itself"""
+    return col is not None and bool(getattr(col, CollectionProp.ATTACHMENTS_GROUP, False))
+
+def is_inside_attachments_collection(col: bpy.types.Collection) -> bool:
+    """collection below an _attachments_ collection (so a collection which defines one attachment)"""
+    if col is None:
+        return False
+    scene = bpy.context.scene
+    seen: set[str] = {col.name}
+    parent = get_parent_collection(col, scene)
+    while parent is not None and parent.name not in seen:
+        if is_attachments_collection(parent):
+            return True
+        seen.add(parent.name)
+        parent = get_parent_collection(parent, scene)
+    return False
+
+def is_attachment_collection(col: bpy.types.Collection) -> bool:
+    """collection of type Attachment, defines one attachment (placement of the item onto blocks)"""
+    return col is not None and bool(getattr(col, CollectionProp.ATTACHMENT_GROUP, False))
+
+def can_convert_to_attachments_collection(col: bpy.types.Collection) -> bool:
+    if col is None: return False
+    # only meant for collections that hold attachment collections, not objects
+    return len(col.objects) == 0
+
+def get_item_attachment_collections(item: bpy.types.Collection) -> list[bpy.types.Collection]:
+    """all collections defining an attachment of the item, found through containers and moving groups"""
+    result: list[bpy.types.Collection] = []
+    seen: set[str] = set()
+
+    def walk_attachments(col: bpy.types.Collection) -> None:
+        for child in col.children:
+            if child.name in seen or is_collection_ignored(child):
+                continue
+            seen.add(child.name)
+            if is_attachment_collection(child):
+                result.append(child)
+            walk_attachments(child)
+
+    def walk(col: bpy.types.Collection) -> None:
+        for child in col.children:
+            if is_collection_ignored(child):
+                continue
+            if is_attachments_collection(child):
+                walk_attachments(child)
+            elif is_group_collection(child):
+                walk(child)
+
+    walk(item)
+    return result
 
 def get_active_group_collection() -> bpy.types.Collection:
     col = get_active_collection()
@@ -174,6 +229,7 @@ def get_item_collection_objects(item: bpy.types.Collection) -> list[bpy.types.Ob
     """
     all objects belonging to the item: its own objects plus the objects of its moving groups
     and containers (containers are flattened). Nested item collections are separate items and skipped.
+    Attachments collections only configure attachments, their objects are never exported.
     """
     objs: list[bpy.types.Object] = []
     seen: set[str] = set()
@@ -184,6 +240,8 @@ def get_item_collection_objects(item: bpy.types.Collection) -> list[bpy.types.Ob
                 seen.add(obj.name)
                 objs.append(obj)
         for child in col.children:
+            if is_attachments_collection(child) or is_attachment_collection(child):
+                continue
             if is_group_collection(child) and not is_collection_ignored(child):
                 walk(child)
 
@@ -329,7 +387,10 @@ def get_instanced_collections(objs) -> list[bpy.types.Collection]:
 
 def get_template_objects(col: bpy.types.Collection) -> list[bpy.types.Object]:
     """meshes and lights of an instanced collection (own sub collections included, nested instances excluded)"""
-    return [o for o in col.all_objects if o.type in (EXPORTABLE_OBJECT_MESH, EXPORTABLE_OBJECT_LIGHT)]
+    return [o for o in col.all_objects
+            if o.type in (EXPORTABLE_OBJECT_MESH, EXPORTABLE_OBJECT_LIGHT)
+            and not any(is_attachments_collection(c) or is_attachment_collection(c) or is_inside_attachments_collection(c)
+                        for c in o.users_collection)]
 
 def get_instanced_moving_groups(cols: list[bpy.types.Collection]) -> list[bpy.types.Collection]:
     """moving groups defined in instanced collections: the collections themselves and the groups below them"""
@@ -375,6 +436,8 @@ def is_object_exportable(obj: bpy.types.Object)-> bool:
     while col is not None:
         if is_collection_ignored(col):
             return False
+        if is_attachments_collection(col) or is_attachment_collection(col) or is_inside_attachments_collection(col):
+            return False   # attachment helpers are never exported
         if not is_group_collection(col):
             break
         col = get_parent_collection(col, scene)
@@ -412,7 +475,10 @@ def get_exportable_collections(objs, stop_after: int | None = None) -> set:
         # object-level checks only if they could change the result
         if not candidates:
             continue
-        if not obj.visible_get() or not is_object_exportable(obj):
+        # plain empties (attachment points, pivots, ...) are no exported geometry themselves, but selecting one
+        # still selects its item; the collection is checked for exportable content later (is_collection_exportable)
+        is_plain_empty = obj.type == "EMPTY" and not is_collection_instance(obj)
+        if not is_plain_empty and (not obj.visible_get() or not is_object_exportable(obj)):
             continue
 
         accepted.update(candidates)
