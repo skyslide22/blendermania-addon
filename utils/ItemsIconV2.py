@@ -83,7 +83,8 @@ def _make_joined_object(objects: list[bpy.types.Object]) -> bpy.types.Object:
         duplicates.append(dup)
 
     if not duplicates:
-        raise RuntimeError("Icon generation: no visible mesh objects found to join")
+        debug("icon: no visible mesh objects found to join, skipping")
+        return None
 
     bpy.context.view_layer.update()
 
@@ -190,6 +191,10 @@ def generate_objects_icon(objects: list[bpy.types.Object], name: str, export_pat
 
     joined_obj = _make_joined_object(objects) if not is_single_object else objects[0]
     
+    if joined_obj is None:
+        debug(f"icon creation skipped, nothing to render for <{icon_name}>")
+        return
+
     joined_obj.hide_render = False
 
     vl = _add_icon_view_layer_and_set_active()
