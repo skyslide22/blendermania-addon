@@ -261,6 +261,7 @@ class InstanceConfig:
     Collection: str = ""
     MovingGroup: str | None = None   # moving group the empty lives in
     Lods: list[int] = field(default_factory=list)
+    Variant: str | None = None       # variant (ItemConfig.Variants[].Name) it belongs to, None: part of every variant
 
 
 @dataclass
@@ -290,6 +291,7 @@ class MeshConfig:
     MovingGroup: str | None = None
     LightmapSize: float | None = None
     Lods: list[int] = field(default_factory=list)
+    Variant: str | None = None       # variant (ItemConfig.Variants[].Name) it belongs to, None: part of every variant
 
 
 @dataclass
@@ -307,6 +309,7 @@ class LightConfig:
     SpotEmissionRadius: float = 0.0
     SpotEmissionLength: float = 0.0
     Advanced: AdvancedLightConfig | None = None
+    Variant: str | None = None       # variant (ItemConfig.Variants[].Name) it belongs to, None: part of every variant
 
 @dataclass
 class AdvancedLightConfig:
@@ -389,7 +392,16 @@ class AttachmentConfig:
     Layout: int = 0
     Options: list[dict[str, str]] = field(default_factory=list)
     Positions: list[Vec3] = field(default_factory=list)
-    Rotations: list[Quaternion] = field(default_factory=list)
+    Rotations: list[Vec3] = field(default_factory=list)
+    Variant: str | None = None       # variant (ItemConfig.Variants[].Name) it belongs to, None: part of every variant
+
+
+@dataclass
+class VariantConfig:
+    # one per Variant collection of an item in variants mode
+    Name: str = ""
+    Tags: dict[str, str] = field(default_factory=dict)   # same key/value pairs as an attachment option
+    HiddenInManualCycle: bool = False
 
 
 @dataclass
@@ -403,6 +415,7 @@ class ItemConfig:
     Waypoint: Waypoint | None = None
     Placement: PlacementConfig | None = None
     Attachments: list[AttachmentConfig] = field(default_factory=list)
+    Variants: list[VariantConfig] = field(default_factory=list)
     Scale: float = 1.0
     ScaleOptions: ScaleConfig | None = None
     DisableAutoCreateSound: bool | None = False
@@ -479,6 +492,8 @@ def item_config_to_dict(item: ItemConfig, drop_none: bool = True) -> dict[str, A
         data.pop("Placement", None)
     if item.LodParameters is None:
         data.pop("LodParameters", None)
+    if not item.Variants:
+        data.pop("Variants", None)
 
     return _drop_nones(data) if drop_none else data
 

@@ -168,19 +168,20 @@ def apply_attachment_preset(attachment: AttachmentProperties, name: str, slot: i
     return True
 
 
+def get_option_dict(option: AttachmentOptionProperties) -> dict[str, str]:
+    """one option (key/value pairs) as written into the config, empty keys/values are skipped"""
+    pairs: dict[str, str] = {}
+    for entry in option.entries:
+        key = entry.key.strip()
+        if not key:
+            continue
+        if key in ATTACHMENT_INT_KEYS:
+            pairs[key] = format_attachment_slot(entry.intValue)
+        elif entry.value.strip():
+            pairs[key] = entry.value.strip()
+    return pairs
+
+
 def get_attachment_option_dicts(attachment: AttachmentProperties) -> list[dict[str, str]]:
-    """options as written into the config, empty keys/values are skipped, empty options dropped"""
-    options: list[dict[str, str]] = []
-    for option in attachment.options:
-        pairs: dict[str, str] = {}
-        for entry in option.entries:
-            key = entry.key.strip()
-            if not key:
-                continue
-            if key in ATTACHMENT_INT_KEYS:
-                pairs[key] = format_attachment_slot(entry.intValue)
-            elif entry.value.strip():
-                pairs[key] = entry.value.strip()
-        if pairs:
-            options.append(pairs)
-    return options
+    """options as written into the config, empty options dropped"""
+    return [pairs for pairs in (get_option_dict(option) for option in attachment.options) if pairs]

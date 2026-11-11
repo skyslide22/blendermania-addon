@@ -5,6 +5,7 @@ from .Functions import *
 import json
 from ..properties.PropertyIdentifiers import CollectionProp, ObjectProp
 from ..properties.PropertyFunctions import get_lod_indexes
+from .CollectionTypes import get_collection_type_def, get_collection_type_id, get_type_def, is_collection_of_type
 
 
 def get_parent_collection(col, scene):
@@ -44,6 +45,13 @@ def get_item_root(col, scene):
         col = parent
     return col
 
+
+def fresh_world_matrix(obj: bpy.types.Object):
+    """world matrix built from the current location/rotation/scale of the object and its parents (matrix_world can be stale)"""
+    matrix = obj.matrix_basis.copy()
+    if obj.parent is not None:
+        matrix = fresh_world_matrix(obj.parent) @ obj.matrix_parent_inverse @ matrix
+    return matrix
 
 
 # collection regardless of type
@@ -142,23 +150,31 @@ def get_item_collections_in_hierarchy(col: bpy.types.Collection) -> list[bpy.typ
     walk(col)
     return items
 
-# group collections (moving group / container)
+# group collections (moving group / container / attachments / variant), the types themselves are defined in CollectionTypes.py
 
 def is_moving_group_collection(col: bpy.types.Collection) -> bool:
-    return col is not None and bool(getattr(col, CollectionProp.MOVING_GROUP, False))
+    return is_collection_of_type(col, COLLECTION_GROUP_MOVING)
 
 def is_container_collection(col: bpy.types.Collection) -> bool:
-    return col is not None and bool(getattr(col, CollectionProp.CONTAINER_GROUP, False))
+    return is_collection_of_type(col, COLLECTION_GROUP_CONTAINER)
+
+def is_variant_collection(col: bpy.types.Collection) -> bool:
+    """collection of type Variant (one variant of an item)"""
+    return is_collection_of_type(col, COLLECTION_GROUP_VARIANT)
 
 def is_group_collection(col: bpy.types.Collection) -> bool:
-    """collection that is not an item itself (moving group, container or attachments collection incl. everything below it)"""
-    return is_moving_group_collection(col) or is_container_collection(col) or is_attachments_collection(col) or is_attachment_collection(col) or is_inside_attachments_collection(col)
+    """collection that is not an item itself (moving group, container, variant or attachments collection incl. everything below it)"""
+    return col is not None and (get_collection_type_def(col).is_group or is_inside_attachments_collection(col))
+
+def is_helper_collection(col: bpy.types.Collection) -> bool:
+    """collection that only configures the item, nothing inside is exported (attachments, attachment and everything below)"""
+    return col is not None and (not get_collection_type_def(col).exported or is_inside_attachments_collection(col))
 
 # attachments
 
 def is_attachments_collection(col: bpy.types.Collection) -> bool:
     """the _attachments_ collection itself"""
-    return col is not None and bool(getattr(col, CollectionProp.ATTACHMENTS_GROUP, False))
+    return is_collection_of_type(col, COLLECTION_GROUP_ATTACHMENTS)
 
 def is_inside_attachments_collection(col: bpy.types.Collection) -> bool:
     """collection below an _attachments_ collection (so a collection which defines one attachment)"""
@@ -176,7 +192,7 @@ def is_inside_attachments_collection(col: bpy.types.Collection) -> bool:
 
 def is_attachment_collection(col: bpy.types.Collection) -> bool:
     """collection of type Attachment, defines one attachment (placement of the item onto blocks)"""
-    return col is not None and bool(getattr(col, CollectionProp.ATTACHMENT_GROUP, False))
+    return is_collection_of_type(col, COLLECTION_GROUP_ATTACHMENT)
 
 def can_convert_to_attachments_collection(col: bpy.types.Collection) -> bool:
     if col is None: return False
@@ -215,6 +231,21 @@ def get_active_group_collection() -> bpy.types.Collection:
         return col
     return None
 
+def can_convert_to_collection_type(col: bpy.types.Collection, type_id: str) -> bool:
+    """availability of a type toggle: leaving the type is always possible, entering it needs matching parent and content"""
+    if col is None:
+        return False
+    if get_collection_type_id(col) == type_id:
+        return True
+    type_def = get_type_def(type_id)
+    if type_def.allowed_parents is not None:
+        parent = get_parent_collection(col, bpy.context.scene)
+        if parent is None or is_group_collection(parent) or get_collection_type_id(parent) not in type_def.allowed_parents:
+            return False
+    if not type_def.exported:
+        return len(col.objects) == 0   # helper types only hold collections / empties
+    return all(is_group_collection(child) for child in col.children)   # groups may not contain items
+
 def can_convert_to_moving_group_collection(col: bpy.types.Collection) -> bool:
     if col is None: return False
     # groups may not contain items (default collections)
@@ -240,7 +271,7 @@ def get_item_collection_objects(item: bpy.types.Collection) -> list[bpy.types.Ob
                 seen.add(obj.name)
                 objs.append(obj)
         for child in col.children:
-            if is_attachments_collection(child) or is_attachment_collection(child):
+            if is_helper_collection(child):
                 continue
             if is_group_collection(child) and not is_collection_ignored(child):
                 walk(child)
@@ -266,7 +297,7 @@ def get_item_moving_groups(item: bpy.types.Collection) -> list[bpy.types.Collect
             if is_moving_group_collection(child):
                 groups.append(child)
                 walk(child)
-            elif is_container_collection(child):
+            elif is_container_collection(child) or is_variant_collection(child):
                 walk(child)
 
     walk(item)
@@ -389,8 +420,7 @@ def get_template_objects(col: bpy.types.Collection) -> list[bpy.types.Object]:
     """meshes and lights of an instanced collection (own sub collections included, nested instances excluded)"""
     return [o for o in col.all_objects
             if o.type in (EXPORTABLE_OBJECT_MESH, EXPORTABLE_OBJECT_LIGHT)
-            and not any(is_attachments_collection(c) or is_attachment_collection(c) or is_inside_attachments_collection(c)
-                        for c in o.users_collection)]
+            and not any(is_helper_collection(c) for c in o.users_collection)]
 
 def get_instanced_moving_groups(cols: list[bpy.types.Collection]) -> list[bpy.types.Collection]:
     """moving groups defined in instanced collections: the collections themselves and the groups below them"""
@@ -403,7 +433,7 @@ def get_instanced_moving_groups(cols: list[bpy.types.Collection]) -> list[bpy.ty
             if is_moving_group_collection(child):
                 groups.setdefault(child.name, child)
                 walk(child)
-            elif is_container_collection(child):
+            elif is_container_collection(child) or is_variant_collection(child):
                 walk(child)
 
     for col in cols:
@@ -436,7 +466,7 @@ def is_object_exportable(obj: bpy.types.Object)-> bool:
     while col is not None:
         if is_collection_ignored(col):
             return False
-        if is_attachments_collection(col) or is_attachment_collection(col) or is_inside_attachments_collection(col):
+        if is_helper_collection(col):
             return False   # attachment helpers are never exported
         if not is_group_collection(col):
             break

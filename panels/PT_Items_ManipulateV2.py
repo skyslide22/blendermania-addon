@@ -22,6 +22,8 @@ from ..ui.widgets.lists import *
 from ..ui.widgets.foldouts import *
 from ..ui.drawers.placement import draw_item_placement_editor, draw_item_placement_template_selection
 from ..ui.drawers.attachments import draw_attachments_collection, draw_attachment_collection
+from ..ui.drawers.collection_types import draw_collection_type_toggles
+from ..ui.drawers.variants import draw_item_mode, draw_variant_collection
 
 
     
@@ -458,6 +460,7 @@ class TM_PT_Items_DefaultCollectionManipulationV2(Panel):
         row = layout.row(align=True)
         row.prop(current_collection, CollectionProp.IGNORE, icon_value=get_addon_icon("CANCEL"))
 
+        toggle_area = layout.column()   # type toggles, created before col so they are drawn above its content
         col = layout.column()
         col.enabled = not getattr(current_collection, CollectionProp.IGNORE)
         
@@ -467,19 +470,13 @@ class TM_PT_Items_DefaultCollectionManipulationV2(Panel):
         is_container = getattr(current_collection, CollectionProp.CONTAINER_GROUP, False)
         is_default = not is_moving_group_collection and not is_container
 
-        row = row.row(align=True)
-        row.enabled = col.enabled and (can_convert_to_moving_group_collection(current_collection) if not is_moving_group_collection else True)
-        row.prop(current_collection, CollectionProp.MOVING_GROUP, icon="NLA_PUSHDOWN", toggle=True)
-        row = row.row(align=True)
-        row.enabled = col.enabled and (can_convert_to_container_collection(current_collection) if not is_container else True)
-        row.prop(current_collection, CollectionProp.CONTAINER_GROUP, icon="OUTLINER_COLLECTION", toggle=True)
-        row = row.row(align=True)
-        row.enabled = col.enabled and can_convert_to_attachments_collection(current_collection)
-        row.prop(current_collection, CollectionProp.ATTACHMENTS_GROUP, icon="EMPTY_AXIS", toggle=True)
+        draw_collection_type_toggles(toggle_area, current_collection, enabled=col.enabled)
 
 
 
         if is_default:
+
+            draw_item_mode(col, current_collection)
 
             row = col.row(align=True)
 
@@ -933,6 +930,7 @@ class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
         row = layout.row(align=True)
         row.prop(current_collection, CollectionProp.IGNORE, icon_value=get_addon_icon("CANCEL"))
 
+        toggle_area = layout.column()   # type toggles, created before col so they are drawn above its content
         col = layout.column()
         col.enabled = not getattr(current_collection, CollectionProp.IGNORE)
        
@@ -943,7 +941,7 @@ class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
 
         # a collection below an _attachments_ collection can become an attachment (own type), otherwise the group types
         if is_attachment_collection(current_collection) or is_inside_attachments_collection(current_collection):
-            row = row.row(align=True)
+            row = toggle_area.row(align=True)
             row.enabled = col.enabled
             row.prop(current_collection, CollectionProp.ATTACHMENT_GROUP, icon="EMPTY_AXIS", toggle=True)
             if is_attachment_collection(current_collection):
@@ -952,15 +950,10 @@ class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
                 col.label(text="Enable Attachment to configure this collection", icon='INFO')
             return
     
-        row = row.row(align=True)
-        row.enabled = col.enabled and (can_convert_to_moving_group_collection(current_collection) if not is_moving_group_collection else True)
-        row.prop(current_collection, CollectionProp.MOVING_GROUP, icon="NLA_PUSHDOWN", toggle=True)
-        row = row.row(align=True)
-        row.enabled = col.enabled and (can_convert_to_container_collection(current_collection) if not is_container else True)
-        row.prop(current_collection, CollectionProp.CONTAINER_GROUP, icon="OUTLINER_COLLECTION", toggle=True)
-        row = row.row(align=True)
-        row.enabled = col.enabled and (can_convert_to_attachments_collection(current_collection) if not is_attachments else True)
-        row.prop(current_collection, CollectionProp.ATTACHMENTS_GROUP, icon="EMPTY_AXIS", toggle=True)
+        draw_collection_type_toggles(toggle_area, current_collection, enabled=col.enabled)
+
+        if is_variant_collection(current_collection):
+            draw_variant_collection(col, current_collection)
 
         if is_attachments:
             draw_attachments_collection(col, current_collection)

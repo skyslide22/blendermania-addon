@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import math
 import os
 from typing import Callable
 
 import bpy
-from mathutils import Matrix, Quaternion, Vector
+from mathutils import Matrix, Vector
 
 from ..properties.PropertyIdentifiers import CollectionProp, ObjectProp
 from ..properties.AttachmentProperties import (
@@ -17,20 +18,14 @@ from ..properties.AttachmentProperties import (
     ATTACHMENT_PODIUM_REQUIRED_SLOTS,
 )
 from .FunctionsV2 import (
+    fresh_world_matrix,
     get_item_attachment_collections,
     get_offset_from_item_origin,
     is_collection_instance,
 )
 from .ItemsExportV2Models import AttachmentConfig, Vec3
+from .Variants import VariantResolver
 from .Constants import ADDON_ITEM_FILEPATH_LAMP, ADDON_ITEM_FILEPATH_SPECTATOR, ADDON_ITEM_FILEPATH_CAR_TRACKMANIA2020_STADIUM
-
-
-def _fresh_world_matrix(obj: bpy.types.Object) -> Matrix:
-    """world matrix built from the current location/rotation/scale of the object and its parents (matrix_world can be stale)"""
-    matrix = obj.matrix_basis.copy()
-    if obj.parent is not None:
-        matrix = _fresh_world_matrix(obj.parent) @ obj.matrix_parent_inverse @ matrix
-    return matrix
 
 
 # -----------------------------
@@ -52,7 +47,7 @@ def _empties_source(col: bpy.types.Collection) -> list[Matrix]:
     """plain empties: position and rotation of the empty"""
     empties = [o for o in col.objects
                if o.type == 'EMPTY' and not is_collection_instance(o) and not getattr(o, ObjectProp.IGNORE, False)]
-    return [_fresh_world_matrix(o) for o in sorted(empties, key=lambda o: o.name)]
+    return [fresh_world_matrix(o) for o in sorted(empties, key=lambda o: o.name)]
 
 register_locator_source("EMPTIES", _empties_source)
 
@@ -93,9 +88,10 @@ def get_item_attachment_warnings(item_collection: bpy.types.Collection) -> list[
 
 
 def _iter_instance_occurrences(objs, stack: tuple = ()):
-    """(instanced collection, matrix from the collection space to world) for every instance occurrence, nested instances included"""
+    """(instanced collection, matrix from the collection space to world, instancing empty of the item) for every instance occurrence, nested instances included"""
     for inst in sorted((o for o in objs if is_collection_instance(o)), key=lambda o: o.name):
-        yield from _walk_instance(inst, _fresh_world_matrix(inst), stack)
+        for col, to_world in _walk_instance(inst, fresh_world_matrix(inst), stack):
+            yield col, to_world, inst
 
 def _walk_instance(inst: bpy.types.Object, inst_world: Matrix, stack: tuple):
     col = inst.instance_collection
@@ -105,45 +101,49 @@ def _walk_instance(inst: bpy.types.Object, inst_world: Matrix, stack: tuple):
     yield col, to_world
     for o in col.all_objects:
         if is_collection_instance(o):
-            yield from _walk_instance(o, to_world @ _fresh_world_matrix(o), stack + (col.name,))
+            yield from _walk_instance(o, to_world @ fresh_world_matrix(o), stack + (col.name,))
 
-def get_attachment_configs(item_collection: bpy.types.Collection, item_objects: list[bpy.types.Object]) -> list[AttachmentConfig]:
+def get_attachment_configs(item_collection: bpy.types.Collection, item_objects: list[bpy.types.Object], variants: VariantResolver | None = None) -> list[AttachmentConfig]:
     """
     one AttachmentConfig per attachment collection (of the item and of the collections it instances), holding all its
     attachment points; an attachment collection inside an instanced collection adds its points once per instance.
-    Positions/rotations are relative to the item origin (the same origin the fbx is exported with)
+    Positions/rotations are relative to the item origin (the same origin the fbx is exported with).
+    In a variant item the config gets the variant of the attachment collection (or of the instance that brings it in)
     """
     offset = get_offset_from_item_origin(item_objects) or [0.0, 0.0, 0.0]
+    variants = variants or VariantResolver(item_collection)
 
-    configs: dict[str, AttachmentConfig] = {}
+    configs: dict[tuple[str, str | None], AttachmentConfig] = {}
 
-    def add(col: bpy.types.Collection, to_world: Matrix) -> None:
+    def add(col: bpy.types.Collection, to_world: Matrix, variant: str | None) -> None:
         attachment = getattr(col, CollectionProp.ATTACHMENT, None)
         if attachment is None:
             return
         locators = get_attachment_locators(col)
         if not locators:
             return
-        config = configs.get(col.name)
+        config = configs.get((col.name, variant))
         if config is None:
-            config = configs[col.name] = AttachmentConfig(
+            config = configs[(col.name, variant)] = AttachmentConfig(
                 Layout=int(attachment.layout),
                 Options=get_attachment_option_dicts(attachment),
+                Variant=variant,
             )
         for world in locators:
             loc, rot, _scale = (to_world @ world).decompose()
+            euler = rot.to_euler('XYZ')
             config.Positions.append(Vec3(loc.x - offset[0], loc.y - offset[1], loc.z - offset[2]))
-            config.Rotations.append(Quaternion(rot))
+            config.Rotations.append(Vec3.from_seq([math.degrees(a) for a in euler]))
 
     identity = Matrix.Identity(4)
     global _auto_placeholder
     _auto_placeholder = True
     try:
         for col in get_item_attachment_collections(item_collection):
-            add(col, identity)
-        for inst_col, to_world in _iter_instance_occurrences(item_objects):
+            add(col, identity, variants.of_collection(col))
+        for inst_col, to_world, inst in _iter_instance_occurrences(item_objects):
             for col in get_item_attachment_collections(inst_col):
-                add(col, to_world)
+                add(col, to_world, variants.of_object(inst))
     finally:
         _auto_placeholder = False
 

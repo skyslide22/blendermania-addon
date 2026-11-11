@@ -6,10 +6,14 @@ from bpy.props import *
 from ..properties.ItemPlanProperties import FbxGbxPlanProperties
 from ..properties.ItemConfigProperties import ItemConfigProperties
 from ..properties.AttachmentProperties import AttachmentProperties
+from ..properties.VariantProperties import VariantProperties
 from .Functions import has_infix, has_prefix, apply_collection_type, toggle_infix, toggleNameSpecialPrefix
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
 from .PropertyIdentifiers import CollectionProp
 from ..utils.Constants import *
+from ..utils.CollectionTypes import (
+    COLLECTION_TYPE_ENUM_ITEMS, ITEM_MODE_ENUM_ITEMS, ITEM_MODE_SINGLE, TYPES_WITH_INFIX, TYPES_WITH_TOGGLE,
+)
 from ..utils.FunctionsV2 import SCALE_RE, build_scale_token, get_active_item_collection, get_item_collection_objects, get_item_moving_groups, parse_scale_from_name
 from ..utils.ItemsExportV2Models import EAxis, AnimEase, ItemConfig
 
@@ -65,30 +69,28 @@ AXIS_ENUM_ITEMS = [
     ('Z', 'Z', "Z Axis", 'NONE', 2),
 ]
 
-COLLECTION_TYPE_ENUM_ITEMS = [
-    (type_id, label, desc, 'NONE', i)
-    for i, (type_id, label, desc, _infix) in enumerate(COLLECTION_TYPES)
-]
-_TYPE_INFIXES = {type_id: infix for type_id, _l, _d, infix in COLLECTION_TYPES if infix}
-
 SCALE_MODE_ENUM_ITEMS = [
     ('LINEAR', 'Linear', "Linear scaling"),
     ('VALUES', 'Values', "Scaling based on values"),
 ]
 
 def _type_from_name(name):
-    for type_id, infix in _TYPE_INFIXES.items():
-        if has_infix(name, infix):
-            return type_id
+    for type_def in TYPES_WITH_INFIX:
+        if has_infix(name, type_def.infix):
+            return type_def.id
     return COLLECTION_TYPE_DEFAULT
 
 def _apply_type_to_name(col, type_id):
     """remove all type infixes from the name, add the one of type_id"""
-    for infix in _TYPE_INFIXES.values():
-        if has_infix(col.name, infix):
-            toggle_infix(col, infix)
-    if type_id in _TYPE_INFIXES:
-        toggle_infix(col, _TYPE_INFIXES[type_id])
+    for type_def in TYPES_WITH_INFIX:
+        if has_infix(col.name, type_def.infix):
+            toggle_infix(col, type_def.infix)
+    for type_def in TYPES_WITH_INFIX:
+        if type_def.id == type_id:
+            toggle_infix(col, type_def.infix)
+
+def _type_toggle_getter(type_id):
+    return lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == type_id
 
 def _type_toggle_setter(type_id):
     def _set(self, value):
@@ -132,35 +134,29 @@ def register_collection_properties():
         default=COLLECTION_TYPE_DEFAULT,
         update=_update_collection_type
     ))
-    # toggle buttons: enabling sets the type, disabling falls back to Default
-    setattr(bpy.types.Collection, CollectionProp.MOVING_GROUP, BoolProperty(
-        name="Moving Group",
-        description="Collection type is Moving Group",
-        get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_MOVING,
-        set=_type_toggle_setter(COLLECTION_GROUP_MOVING),
-    ))
-    setattr(bpy.types.Collection, CollectionProp.CONTAINER_GROUP, BoolProperty(
-        name="Container",
-        description="Collection type is Container (structural only)",
-        get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_CONTAINER,
-        set=_type_toggle_setter(COLLECTION_GROUP_CONTAINER),
-    ))
-    setattr(bpy.types.Collection, CollectionProp.ATTACHMENTS_GROUP, BoolProperty(
-        name="Attachments",
-        description="Collection holds attachment collections (nothing inside is exported as fbx)",
-        get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_ATTACHMENTS,
-        set=_type_toggle_setter(COLLECTION_GROUP_ATTACHMENTS),
-    ))
-    setattr(bpy.types.Collection, CollectionProp.ATTACHMENT_GROUP, BoolProperty(
-        name="Attachment",
-        description="Collection type is Attachment (defines one attachment, nothing inside is exported as fbx)",
-        get=lambda self: getattr(self, CollectionProp.COLLECTION_TYPE) == COLLECTION_GROUP_ATTACHMENT,
-        set=_type_toggle_setter(COLLECTION_GROUP_ATTACHMENT),
-    ))
+    # toggle buttons, one per type of the registry: enabling sets the type, disabling falls back to Default
+    for type_def in TYPES_WITH_TOGGLE:
+        setattr(bpy.types.Collection, type_def.toggle_prop, BoolProperty(
+            name=type_def.label,
+            description=f"Collection type is {type_def.label}: {type_def.description}",
+            get=_type_toggle_getter(type_def.id),
+            set=_type_toggle_setter(type_def.id),
+        ))
     setattr(bpy.types.Collection, CollectionProp.ATTACHMENT, PointerProperty(
         name="Attachment",
         description="Attachment definition (layout and options)",
         type=AttachmentProperties
+    ))
+    setattr(bpy.types.Collection, CollectionProp.VARIANT, PointerProperty(
+        name="Variant",
+        description="Variant definition (tags and options)",
+        type=VariantProperties
+    ))
+    setattr(bpy.types.Collection, CollectionProp.ITEM_MODE, EnumProperty(
+        name="Item Mode",
+        description="Single model, or an item made of variants (variant collections directly inside the item)",
+        items=ITEM_MODE_ENUM_ITEMS,
+        default=ITEM_MODE_SINGLE,
     ))
 
     setattr(bpy.types.Collection, CollectionProp.LODS, CollectionProperty(

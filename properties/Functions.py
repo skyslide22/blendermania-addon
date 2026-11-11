@@ -1329,7 +1329,9 @@ def has_infix(name: str, infix: str) -> bool:
 
 #collection
 def apply_collection_type(collection: bpy.types.Collection, type_id: str) -> None:
-    if type_id in COLLECTION_GROUPS:
-        collection.color_tag = COLLECTION_GROUPS[type_id]
+    from ..utils.CollectionTypes import get_type_color_tag
+    color_tag = get_type_color_tag(type_id)
+    if color_tag is not None:
+        collection.color_tag = color_tag
     else:
         collection.color_tag = WAYPOINTS[getattr(collection, CollectionProp.WAYPOINT_TYPE, "None")]

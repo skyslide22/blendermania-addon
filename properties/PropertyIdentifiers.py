@@ -36,6 +36,9 @@ class CollectionProp(StrEnum):
     ATTACHMENTS_GROUP = "tm_attachments_group"    # read-only bool derived from COLLECTION_TYPE
     ATTACHMENT_GROUP = "tm_attachment_group"      # read-only bool derived from COLLECTION_TYPE
     ATTACHMENT = "tm_attachment"    # attachment settings (layout, options) of a collection inside an attachments collection
+    VARIANT_GROUP = "tm_variant_group"            # read-only bool derived from COLLECTION_TYPE
+    VARIANT = "tm_variant"          # variant settings (tags, ...) of a collection of type Variant
+    ITEM_MODE = "tm_item_mode"      # SINGLE or VARIANTS, how an item collection is split into variants
     
     LODS = "tm_lods"
     SELECTED_LODS = "tm_selected_lods"

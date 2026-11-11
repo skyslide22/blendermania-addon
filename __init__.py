@@ -65,6 +65,7 @@ from .properties.MapObjectProperties        import *
 from .properties.PannelsPropertyGroup       import *
 from .properties.PlacementProperties        import *
 from .properties.AttachmentProperties       import AttachmentOptionEntryProperties, AttachmentOptionProperties, AttachmentProperties
+from .properties.VariantProperties          import VariantProperties
 from .properties.CollectionProperties       import *
 from .properties.ObjectProperties           import *
 from .properties.PlacementPatchProperties   import *
@@ -135,6 +136,7 @@ classes = (
     AttachmentOptionEntryProperties,
     AttachmentOptionProperties,
     AttachmentProperties,
+    VariantProperties,
     MapObjectProperties,
     #CubeCenterProperties,
 

@@ -11,6 +11,7 @@ from ..utils import Constants
 from ..utils.Functions import strip_ignore_prefix
 from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item_origin, get_item_collection_objects, get_invalid_group_children, is_inside_group_collection, EXPLICIT_EXPORT_COLLECTIONS, is_group_collection, get_item_root, get_item_collections_from_collections, name_without_scale, get_instanced_template_objects
 from .Materials import is_material_exportable, save_mat_props_json
+from .Variants import get_variant_issues
 from .ItemsIconV2 import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
 from ..utils.CustomImporter import is_collection_exportable, start_batch_convert, get_convert_items_failed_props
@@ -135,6 +136,19 @@ def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False)
                 *(f"  - {c.name}" for c in invalid_children),
             ))
             continue
+
+        variant_errors, variant_warnings = get_variant_issues(coll)
+        if variant_errors:
+            show_report_popup("Invalid variants", (
+                f"<{coll.name}> skipped:",
+                *(f"  - {msg}" for msg in variant_errors),
+            ))
+            continue
+        if variant_warnings:
+            show_report_popup("Variant warnings", (
+                f"<{coll.name}>:",
+                *(f"  - {msg}" for msg in variant_warnings),
+            ))
         
         objs = get_exportable_collection_objects(get_item_collection_objects(coll))
 
