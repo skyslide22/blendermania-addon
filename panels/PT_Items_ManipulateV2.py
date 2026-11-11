@@ -515,6 +515,11 @@ class TM_PT_Items_DefaultCollectionManipulationV2(Panel):
                     active_uvlayer_is_basematerial = base_uv.active is True
             depress_basematerial = active_uvlayer_is_basematerial
             depress_lightmap     = not active_uvlayer_is_basematerial
+
+
+            row = col.row(align=True)
+            row.prop(current_collection, CollectionProp.DISABLE_AUTO_CREATE_SOUND, text="Disable Auto Sound FX", toggle=True, icon=ICON_SOUND_FX)
+
     
             row = col.row(align=True)
             col= row.column(align=True)
@@ -946,7 +951,7 @@ class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
             else:
                 col.label(text="Enable Attachment to configure this collection", icon='INFO')
             return
-
+    
         row = row.row(align=True)
         row.enabled = col.enabled and (can_convert_to_moving_group_collection(current_collection) if not is_moving_group_collection else True)
         row.prop(current_collection, CollectionProp.MOVING_GROUP, icon="NLA_PUSHDOWN", toggle=True)

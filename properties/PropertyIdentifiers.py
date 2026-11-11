@@ -91,6 +91,8 @@ class CollectionProp(StrEnum):
     SCALE_ANIMATION_TIME = "tm_scale_animation_time"
     SCALE_LIGHTMAP_SIZE = "tm_scale_lightmap_size"
 
+    DISABLE_AUTO_CREATE_SOUND = "tm_disable_auto_create_sound"
+
 @unique
 class LightProp(StrEnum):
     LIGHT_NIGHT_ONLY = "night_only" # backwards compatibility

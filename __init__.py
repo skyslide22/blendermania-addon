@@ -272,6 +272,10 @@ classes = (
     TM_OT_Items_ItemConfig_LoadPlacementTemplate,
 
     TM_OT_Items_ItemConfig_LoadPlacementClassTemplate,
+    TM_OT_Items_Attachment_LoadPreset,
+    TM_OT_Items_Attachments_LoadPreset,
+    TM_OT_Items_Attachment_ParticlePlaceholder,
+    TM_OT_Items_Attachment_HidePlaceholder,
 
     # Export Options V2
     # TM_PT_Items_ItemPlacement,

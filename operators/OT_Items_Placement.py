@@ -1,6 +1,9 @@
 from bpy.types import (Operator)
 from ..utils.Placement import load_placement_class_template, placement_class_template_items
 from ..properties.PlacementProperties import PlacementProperties
+from ..properties.AttachmentProperties import ATTACHMENT_PRESETS, ATTACHMENTS_PRESETS, apply_attachment_preset
+from ..properties.PropertyIdentifiers import CollectionProp
+from ..utils.Constants import COLLECTION_GROUP_ATTACHMENT
 from ..properties.Functions import *
 from ..utils.Functions import *
 from ..utils.NadeoXML import * 
@@ -229,6 +232,137 @@ class TM_OT_Items_ItemConfig_LoadPlacementClassTemplate(_PlacementTemplatePicker
     def load(self, placement):
         load_placement_class_template(placement, self.template_name)
 
+
+class TM_OT_Items_Attachment_LoadPreset(Operator):
+    bl_idname = "view3d.tm_load_attachment_preset"
+    bl_label = "Insert Attachment Preset"
+    bl_description = "Choose a predefined attachment config and add its options"
+    bl_options = {"REGISTER", "UNDO"}
+
+    preset: bpy.props.StringProperty(default="", options={'SKIP_SAVE'})
+
+    def invoke(self, context, event):
+        attachment = getattr(context, "tm_attachment", None)
+        if attachment is None:
+            self.report({'ERROR'}, "No attachment in context")
+            return {'CANCELLED'}
+        if self.preset:
+            return self.execute(context)
+
+        def draw(menu, _context):
+            menu.layout.context_pointer_set("tm_attachment", attachment)
+            for name in ATTACHMENT_PRESETS:
+                menu.layout.operator(self.bl_idname, text=name).preset = name
+
+        context.window_manager.popup_menu(draw, title="Insert Attachment Preset")
+        return {'FINISHED'}
+
+    def execute(self, context):
+        attachment = getattr(context, "tm_attachment", None)
+        if attachment is None or not apply_attachment_preset(attachment, self.preset):
+            self.report({'ERROR'}, "Preset could not be applied")
+            return {'CANCELLED'}
+        return {'FINISHED'}
+
+
+class TM_OT_Items_Attachment_HidePlaceholder(Operator):
+    bl_idname = "view3d.tm_attachment_hide_placeholder"
+    bl_label = "Hide Placeholder"
+    bl_description = "Hide the placeholder models of this attachment (viewport preview and particle render objects)"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        col = getattr(context, "tm_attachment_collection", None)
+        if col is None:
+            self.report({'ERROR'}, "No attachment collection in context")
+            return {'CANCELLED'}
+        from ..utils.Attachments import PLACEHOLDER_OBJECT_PREFIX
+        col["tm_placeholder_hidden"] = True
+        for obj in col.objects:
+            for psys in obj.particle_systems:
+                settings = psys.settings
+                inst = settings.instance_object
+                if settings.render_type == 'OBJECT' and inst is not None and inst.name.startswith(PLACEHOLDER_OBJECT_PREFIX):
+                    settings.instance_object = None
+                    settings.render_type = 'NONE'
+        for area in context.screen.areas:
+            area.tag_redraw()
+        return {'FINISHED'}
+
+
+class TM_OT_Items_Attachment_ParticlePlaceholder(Operator):
+    bl_idname = "view3d.tm_attachment_particle_placeholder"
+    bl_label = "Show Placeholder on Particles"
+    bl_description = "Show the placeholder model matching the attachment type (Spectator for PilotSlot, car for Slot) at the attachment points"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        col = getattr(context, "tm_attachment_collection", None)
+        if col is None:
+            self.report({'ERROR'}, "No attachment collection in context")
+            return {'CANCELLED'}
+        from ..utils.Attachments import apply_particle_placeholder, get_particle_placeholder, get_attachment_placeholder_kind
+        from ..utils.FunctionsV2 import is_attachment_collection
+        # create the placeholders of all attachments of the scene (the viewport preview of empties needs them)
+        for c in [col, *context.scene.collection.children_recursive]:
+            if is_attachment_collection(c):
+                kind = get_attachment_placeholder_kind(getattr(c, CollectionProp.ATTACHMENT, None))
+                if kind:
+                    get_particle_placeholder(kind)
+        kind = get_attachment_placeholder_kind(getattr(col, CollectionProp.ATTACHMENT, None))
+        if kind is None:
+            self.report({'INFO'}, "No placeholder model for this attachment type")
+        apply_particle_placeholder([o for o in col.objects if o.particle_systems], kind)
+        col["tm_placeholder_hidden"] = False
+        for area in context.screen.areas:
+            area.tag_redraw()
+        return {'FINISHED'}
+
+
+class TM_OT_Items_Attachments_LoadPreset(Operator):
+    bl_idname = "view3d.tm_load_attachments_preset"
+    bl_label = "Insert Attachments Preset"
+    bl_description = "Choose a predefined set of attachments and create one attachment sub-collection for each"
+    bl_options = {"REGISTER", "UNDO"}
+
+    preset: bpy.props.StringProperty(default="", options={'SKIP_SAVE'})
+
+    def invoke(self, context, event):
+        parent = getattr(context, "tm_attachments_collection", None)
+        if parent is None:
+            self.report({'ERROR'}, "No attachments collection in context")
+            return {'CANCELLED'}
+        if self.preset:
+            return self.execute(context)
+
+        def draw(menu, _context):
+            menu.layout.context_pointer_set("tm_attachments_collection", parent)
+            for name in ATTACHMENTS_PRESETS:
+                menu.layout.operator(self.bl_idname, text=name).preset = name
+
+        context.window_manager.popup_menu(draw, title="Insert Attachments Preset")
+        return {'FINISHED'}
+
+    def execute(self, context):
+        parent = getattr(context, "tm_attachments_collection", None)
+        names = ATTACHMENTS_PRESETS.get(self.preset)
+        if parent is None or names is None:
+            self.report({'ERROR'}, "Preset could not be applied")
+            return {'CANCELLED'}
+        for preset_name, slot in names:
+            name = f"{preset_name} {slot:02d}" if slot is not None else preset_name
+            col = bpy.data.collections.new(name)
+            parent.children.link(col)
+            setattr(col, CollectionProp.COLLECTION_TYPE, COLLECTION_GROUP_ATTACHMENT)   # also adds the name infix
+            attachment = getattr(col, CollectionProp.ATTACHMENT)
+            apply_attachment_preset(attachment, preset_name, slot)
+            # attachment point at the 3D cursor, move/rotate it afterwards
+            empty = bpy.data.objects.new(f"{name} Point", None)
+            empty.empty_display_type = 'ARROWS'
+            empty.empty_display_size = 1.0
+            empty.location = context.scene.cursor.location
+            col.objects.link(empty)
+        return {'FINISHED'}
 
 
 

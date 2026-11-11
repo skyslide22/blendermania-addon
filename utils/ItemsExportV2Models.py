@@ -405,6 +405,7 @@ class ItemConfig:
     Attachments: list[AttachmentConfig] = field(default_factory=list)
     Scale: float = 1.0
     ScaleOptions: ScaleConfig | None = None
+    DisableAutoCreateSound: bool | None = False
     Materials: list[MaterialConfig] = field(default_factory=list)
     Meshes: list[MeshConfig] = field(default_factory=list)
     Lights: list[LightConfig] = field(default_factory=list)

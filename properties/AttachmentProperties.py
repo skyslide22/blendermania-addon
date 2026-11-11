@@ -82,7 +82,7 @@ class AttachmentOptionEntryProperties(bpy.types.PropertyGroup):
     intValue: IntProperty(
         name="Value",
         description="Slot number, written as 01, 02, ...",
-        default=1, min=0, max=99,
+        default=1, soft_min=1, soft_max=99,
     )
 
 
@@ -101,6 +101,71 @@ class AttachmentProperties(bpy.types.PropertyGroup):
     )
     options: CollectionProperty(name="Options", type=AttachmentOptionProperties)
     options_index: IntProperty(name="Options Index", default=-1)
+
+
+ATTACHMENT_PODIUM_REQUIRED_SLOTS = (1, 2, 3)
+
+def get_podium_slots(attachment: AttachmentProperties) -> tuple[set[int], set[int]] | None:
+    """(pilot slots, slots) of the Podium options of an attachment, None if it has no Podium option.
+    A podium is built from separate attachments, each with one option (Type=Podium + PilotSlot or Slot)."""
+    pilot: set[int] = set()
+    slot: set[int] = set()
+    is_podium = False
+    for option in attachment.options:
+        if not any(e.key.strip() == ATTACHMENT_KEY_TYPE and e.value.strip().lower() == "podium" for e in option.entries):
+            continue
+        is_podium = True
+        for e in option.entries:
+            key = e.key.strip()
+            if key == ATTACHMENT_KEY_PILOT_SLOT:
+                pilot.add(e.intValue)
+            elif key == ATTACHMENT_KEY_SLOT:
+                slot.add(e.intValue)
+    return (pilot, slot) if is_podium else None
+
+
+# predefined attachment configs: name -> list of options (key -> value, slots as int)
+ATTACHMENT_PRESETS: dict[str, list[dict[str, str | int]]] = {
+   "Podium Pilot": [
+        {ATTACHMENT_KEY_TYPE: "Podium", ATTACHMENT_KEY_PILOT_SLOT: 1},
+    ],
+    "Podium Car": [
+        {ATTACHMENT_KEY_TYPE: "Podium", ATTACHMENT_KEY_SLOT: 1},
+    ],
+    "Spectator": [
+        {ATTACHMENT_KEY_TYPE: "Spectator"},
+    ],
+    "Rig 4m": [
+        {ATTACHMENT_KEY_TYPE: "Rig", ATTACHMENT_KEY_SIZE: "4m"},
+    ],
+    "Show Full 4m": [
+        {ATTACHMENT_KEY_TYPE: "Show", ATTACHMENT_KEY_SIZE: "Small", ATTACHMENT_KEY_PLACEMENT: "ShowFull", ATTACHMENT_KEY_VARIANT: "Light"},
+    ],
+    "Vegetation Big": [
+        {ATTACHMENT_KEY_SIZE: "Big", ATTACHMENT_KEY_PLACEMENT: "Synthetic", ATTACHMENT_KEY_MAT_MODIFIER: "Dirt"},
+    ],
+}
+
+# presets for an _attachments_ collection: name -> (ATTACHMENT_PRESETS name, slot number) per attachment sub-collection
+ATTACHMENTS_PRESETS: dict[str, list[tuple[str, int | None]]] = {
+    "Podium": [(preset, n) for preset in ("Podium Pilot", "Podium Car") for n in ATTACHMENT_PODIUM_REQUIRED_SLOTS],
+}
+
+def apply_attachment_preset(attachment: AttachmentProperties, name: str, slot: int | None = None) -> bool:
+    """append the options of a preset to the attachment; slot overrides the slot number of Slot/PilotSlot entries"""
+    preset = ATTACHMENT_PRESETS.get(name)
+    if preset is None:
+        return False
+    for option_def in preset:
+        option = attachment.options.add()
+        for key, value in option_def.items():
+            entry = option.entries.add()
+            entry.key = key
+            if key in ATTACHMENT_INT_KEYS:
+                entry.intValue = int(slot if slot is not None else value)
+            else:
+                entry.value = str(value)
+    return True
 
 
 def get_attachment_option_dicts(attachment: AttachmentProperties) -> list[dict[str, str]]:

@@ -377,6 +377,9 @@ def register_collection_properties():
     setattr(bpy.types.Collection, CollectionProp.SCALE_LIGHTMAP_SIZE, BoolProperty(
         name="Scale Lightmap Size", default=True))
 
+    setattr(bpy.types.Collection, CollectionProp.DISABLE_AUTO_CREATE_SOUND, BoolProperty(
+        name="Disable Auto Create Sound", default=False, description="Disable automatic creation of 'woosh' sound fx when driving past."))
+
 
     subscribe_to_msgbus(_msgbus_owner, bpy.types.Collection, "name", _on_collection_renamed)
     if _on_load_post not in bpy.app.handlers.load_post:

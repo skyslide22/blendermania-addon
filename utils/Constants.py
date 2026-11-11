@@ -153,6 +153,7 @@ ICON_LIGHT                = "LIGHT"
 ICON_SHADOW               = "GHOST_ENABLED"
 ICON_INVERTED             = "IMAGE_ALPHA"
 ICON_SPECULAR            = "NODE_MATERIAL"
+ICON_SOUND_FX            = "PLAY_SOUND"
 
 
 
@@ -596,6 +597,10 @@ ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_STADIUM    = get_addon_assets_path() + "/ite
 ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_LAGOON     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_LagoonCar_Lowpoly.fbx"
 ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_CANYON     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_CanyonCar_Lowpoly.fbx"
 ADDON_ITEM_FILEPATH_CAR_MANIAPLANET_VALLEY     = get_addon_assets_path() + "/item_cars/CAR_Maniaplanet_ValleyCar_Lowpoly.fbx"
+
+ADDON_ITEM_FILEPATH_SPECTATOR                  = get_addon_assets_path() + "/item_placeholders/Spectator.fbx"
+ADDON_ITEM_FILEPATH_LAMP                       = get_addon_assets_path() + "/item_placeholders/Lamp.fbx"
+
 
 DEFAULT_MATERIAL_LIB_FILEPATH_TM2020 = get_default_material_lib_path()
 

@@ -851,9 +851,7 @@ def _generate_item_config(item: ExportedItem) -> ItemConfig:
     _apply_plan_lightmap_overrides(cfg.Meshes, collection)
     cfg.ScaleOptions = _get_scale_config_from_collection(collection)
 
-    #TODO: conversion options
-
-
+    cfg.DisableAutoCreateSound = getattr(collection, CollectionProp.DISABLE_AUTO_CREATE_SOUND, False)
 
     return cfg
 
