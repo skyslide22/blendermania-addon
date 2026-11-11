@@ -62,8 +62,12 @@ def register_object_properties():
     subscribe_to_msgbus(_msgbus_owner, bpy.types.Object, "name", _on_object_renamed)
     if _on_load_post not in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.append(_on_load_post)
+    if _on_depsgraph_new_objects not in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.append(_on_depsgraph_new_objects)
 
 def unregister_object_properties():
+    if _on_depsgraph_new_objects in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.remove(_on_depsgraph_new_objects)
     if _on_load_post in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.remove(_on_load_post)
     bpy.msgbus.clear_by_owner(_msgbus_owner)
@@ -163,6 +167,20 @@ def _on_object_renamed():
                 setattr(obj, ObjectProp.NO_MERGE, has_infix(obj.name, SPECIAL_NAME_INFIX_NOMERGE))
     finally:
         _syncing = False
+
+_known_object_names = set()
+
+@persistent
+def _on_depsgraph_new_objects(*_):
+    """new objects (new/duplicate/import) do not trigger the name msgbus, sync them here"""
+    global _known_object_names
+    names = {o.name for o in bpy.data.objects}
+    if names == _known_object_names:
+        return
+    added = names - _known_object_names
+    _known_object_names = names
+    if added:
+        _on_object_renamed()
 
 @persistent
 def _on_load_post(_):

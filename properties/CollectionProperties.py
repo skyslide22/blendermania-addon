@@ -380,9 +380,13 @@ def register_collection_properties():
     subscribe_to_msgbus(_msgbus_owner, bpy.types.Collection, "name", _on_collection_renamed)
     if _on_load_post not in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.append(_on_load_post)
+    if _on_depsgraph_new_collections not in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.append(_on_depsgraph_new_collections)
 
 
 def unregister_collection_properties():
+    if _on_depsgraph_new_collections in bpy.app.handlers.depsgraph_update_post:
+        bpy.app.handlers.depsgraph_update_post.remove(_on_depsgraph_new_collections)
     if _on_load_post in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.remove(_on_load_post)
     bpy.msgbus.clear_by_owner(_msgbus_owner)
@@ -525,6 +529,20 @@ def _on_collection_renamed():
     finally:
         _syncing = False
 
+
+_known_collection_names = set()
+
+@persistent
+def _on_depsgraph_new_collections(*_):
+    """new collections (new/duplicate/import) do not trigger the name msgbus, sync them here"""
+    global _known_collection_names
+    names = {c.name for c in bpy.data.collections}
+    if names == _known_collection_names:
+        return
+    added = names - _known_collection_names
+    _known_collection_names = names
+    if added:
+        _on_collection_renamed()
 
 @persistent
 def _on_load_post(_):
