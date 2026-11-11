@@ -106,14 +106,23 @@ def pivot_object(col):
     """Object whose rest position is the rotation pivot."""
     return getattr(col, CollectionProp.MOVING_ANCHOR) or item_origin_object(col)
 
+def anchor_orientation(col):
+    """Rotation (3x3) of the moving anchor at rest; identity if no anchor is set."""
+    anchor = getattr(col, CollectionProp.MOVING_ANCHOR)
+    if not anchor:
+        return Matrix.Identity(3)
+    return rest_matrix(anchor).to_3x3().normalized()
+
 def local_matrix(col, t_ms, rot=True):
     g = lambda k: getattr(col, k)
-    # translation
+    orient = anchor_orientation(col)
+    # translation (axis is in anchor local space)
     loc = Vector()
     tdefs = read_defs(g(CollectionProp.KINEMATIC_TRANS_ANIMS))
     if tdefs:
         idx, sign = AXIS_MAP[g(CollectionProp.KINEMATIC_TRANS_AXIS)]
-        loc[idx] = sign * eval_channel(tdefs, t_ms, g(CollectionProp.KINEMATIC_TRANS_MIN), g(CollectionProp.KINEMATIC_TRANS_MAX))
+        local = Vector(); local[idx] = sign * eval_channel(tdefs, t_ms, g(CollectionProp.KINEMATIC_TRANS_MIN), g(CollectionProp.KINEMATIC_TRANS_MAX))
+        loc = orient @ local
     # rotation about the anchor point = rest position of the anchor object (angles are already radians via subtype ANGLE)
     rdefs = read_defs(g(CollectionProp.KINEMATIC_ROT_ANIMS))
     R = Matrix.Identity(4)
@@ -121,6 +130,7 @@ def local_matrix(col, t_ms, rot=True):
         idx, sign = AXIS_MAP[g(CollectionProp.KINEMATIC_ROT_AXIS)]
         ang = sign * eval_channel(rdefs, t_ms, g(CollectionProp.KINEMATIC_ROT_MIN), g(CollectionProp.KINEMATIC_ROT_MAX))
         axis = Vector(); axis[idx] = 1.0
+        axis = orient @ axis
         pv = pivot_object(col)
         p = rest_matrix(pv).translation if pv else Vector()
         R = Matrix.Translation(p) @ Matrix.Rotation(ang, 4, axis) @ Matrix.Translation(-p)
