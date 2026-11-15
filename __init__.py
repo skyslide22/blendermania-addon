@@ -125,6 +125,7 @@ from .ui.widgets.panels import register_panel_widgets, unregister_panel_widgets
 from .ui.widgets.progress import register as register_progress, unregister as unregister_progress
 
 from .NICE.nice import NICE_register, NICE_unregister
+from . import FX as TM_FX
 
 
 # owner of the object eventlistener
@@ -484,6 +485,7 @@ def register():
     register_gameplay_dir()
     
     NICE_register()
+    TM_FX.register()
 
     register_keymaps()
     register_outliner_menus()
@@ -555,6 +557,7 @@ def unregister():
     from .ui.drawers.gameplay_dir import unregister_gameplay_dir
     unregister_gameplay_dir()
 
+    TM_FX.unregister()
     NICE_unregister()
     unregister_keymaps()
     unregister_outliner_menus()

@@ -317,6 +317,7 @@ SPECIAL_NAME_INFIXES = (
     SPECIAL_NAME_INFIX_MAGNET           := "_magnet_",
     
     SPECIAL_NAME_INFIX_NOMERGE           := "_noMerge_",
+    SPECIAL_NAME_INFIX_PARTICLEFX        := "_particleFX_",
 
     SPECIAL_NAME_INFIX_TRIGGERWAYPOINT  := "_triggerWaypoint_",
     SPECIAL_NAME_INFIX_TRIGGEREFFECT   := "_triggerEffect_",

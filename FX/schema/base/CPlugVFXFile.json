@@ -1,0 +1,1318 @@
+{
+ "schema_format": 1,
+ "class": "CPlugVFXFile",
+ "kind": "node",
+ "id": "0x09153000",
+ "game": "TM2020",
+ "source": "Engines/Plug/CPlugVFXFile.chunkl",
+ "chunks": [
+  {
+   "id": "0x09153000",
+   "offset": "0x000",
+   "version": 3,
+   "attrs": [],
+   "comment": "effect parameters and mappings",
+   "fields": [
+    {
+     "key": "ParameterVersion",
+     "member": "ParameterVersion",
+     "scope": "node",
+     "name": "ParameterVersion",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "default": 6,
+     "line": 6
+    },
+    {
+     "key": "Parameters",
+     "member": "Parameters",
+     "scope": "node",
+     "name": "Parameters",
+     "type": "struct",
+     "ref": "CPlugVFXFile.Parameter",
+     "array": "list",
+     "line": 7
+    },
+    {
+     "key": "ClassId",
+     "member": "ClassId",
+     "scope": "node",
+     "name": "ClassId",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 11
+    },
+    {
+     "key": "Mappings",
+     "member": "Mappings",
+     "scope": "node",
+     "name": "Mappings",
+     "type": "struct",
+     "ref": "CPlugVFXFile.Mapping",
+     "array": "list",
+     "line": 13
+    }
+   ]
+  }
+ ],
+ "archives": {
+  "Parameter": {
+   "version": null,
+   "caller_version": 6,
+   "fields": [
+    {
+     "key": "Type",
+     "member": "Type",
+     "scope": "archive",
+     "name": "Type",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "default": -1,
+     "line": 16
+    },
+    {
+     "key": "Name",
+     "member": "Name",
+     "scope": "archive",
+     "name": "Name",
+     "type": "string",
+     "sub": "id",
+     "array": null,
+     "when": [
+      "bin",
+      ">=",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       0
+      ]
+     ],
+     "line": 18
+    },
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      ">=",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       0
+      ]
+     ],
+     "line": 19
+    },
+    {
+     "key": "U02",
+     "member": "U02",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      ">=",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       0
+      ]
+     ],
+     "line": 20
+    },
+    {
+     "key": "U03",
+     "member": "U03",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      ">=",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       0
+      ]
+     ],
+     "line": 21
+    },
+    {
+     "key": "U04",
+     "member": "U04",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ]
+     ],
+     "line": 23
+    },
+    {
+     "key": "U05",
+     "member": "U05",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ]
+     ],
+     "line": 24
+    },
+    {
+     "key": "U06",
+     "member": "U06",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ]
+     ],
+     "line": 25
+    },
+    {
+     "key": "U07",
+     "member": "U07",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ]
+     ],
+     "line": 26
+    },
+    {
+     "key": "U08",
+     "member": "U08",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ]
+     ],
+     "line": 27
+    },
+    {
+     "key": "U09",
+     "member": "U09",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "sub": "id",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ]
+     ],
+     "line": 28
+    },
+    {
+     "key": "Emitter",
+     "member": "Emitter",
+     "scope": "archive",
+     "name": "Emitter",
+     "type": "node",
+     "ref": "CPlugParticleEmitterModel",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        1
+       ]
+      ]
+     ],
+     "line": 32
+    },
+    {
+     "key": "U16",
+     "member": "U16",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        1
+       ]
+      ]
+     ],
+     "line": 42
+    },
+    {
+     "key": "U17",
+     "member": "U17",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        1
+       ]
+      ]
+     ],
+     "line": 43
+    },
+    {
+     "key": "U18",
+     "member": "U18",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        1
+       ]
+      ]
+     ],
+     "line": 44
+    },
+    {
+     "key": "U19",
+     "member": "U19",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        1
+       ]
+      ]
+     ],
+     "line": 45
+    },
+    {
+     "key": "Children",
+     "member": "Children",
+     "scope": "archive",
+     "name": "Children",
+     "type": "struct",
+     "ref": "CPlugVFXFile.Parameter",
+     "array": "list",
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        2
+       ]
+      ]
+     ],
+     "line": 47
+    },
+    {
+     "key": "Mappings",
+     "member": "Mappings",
+     "scope": "archive",
+     "name": "Mappings",
+     "type": "struct",
+     "ref": "CPlugVFXFile.Mapping",
+     "array": "list",
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        2
+       ]
+      ]
+     ],
+     "line": 48
+    },
+    {
+     "key": "EmitterModel",
+     "member": "EmitterModel",
+     "scope": "archive",
+     "name": "EmitterModel",
+     "type": "node",
+     "ref": "CPlugParticleEmitterModel",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        3
+       ]
+      ]
+     ],
+     "attrs": [
+      "direct"
+     ],
+     "line": 50
+    },
+    {
+     "key": "EmitterSubModel",
+     "member": "EmitterSubModel",
+     "scope": "archive",
+     "name": "EmitterSubModel",
+     "type": "node",
+     "ref": "CPlugParticleEmitterSubModel",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        3
+       ]
+      ]
+     ],
+     "attrs": [
+      "direct"
+     ],
+     "line": 51
+    },
+    {
+     "key": "U21",
+     "member": "U21",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 56
+    },
+    {
+     "key": "U22",
+     "member": "U22",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 57
+    },
+    {
+     "key": "U23",
+     "member": "U23",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 58
+    },
+    {
+     "key": "U24",
+     "member": "U24",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 59
+    },
+    {
+     "key": "U25",
+     "member": "U25",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 60
+    },
+    {
+     "key": "U26",
+     "member": "U26",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 61
+    },
+    {
+     "key": "U27",
+     "member": "U27",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 62
+    },
+    {
+     "key": "U28",
+     "member": "U28",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 63
+    },
+    {
+     "key": "U29",
+     "member": "U29",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 65
+    },
+    {
+     "key": "U30",
+     "member": "U30",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        5
+       ]
+      ]
+     ],
+     "line": 67
+    },
+    {
+     "key": "U31",
+     "member": "U31",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        5
+       ]
+      ]
+     ],
+     "line": 68
+    },
+    {
+     "key": "U32",
+     "member": "U32",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        5
+       ]
+      ]
+     ],
+     "line": 69
+    },
+    {
+     "key": "U33",
+     "member": "U33",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        5
+       ]
+      ]
+     ],
+     "line": 70
+    },
+    {
+     "key": "U34",
+     "member": "U34",
+     "scope": "archive",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        5
+       ]
+      ]
+     ],
+     "line": 72
+    }
+   ]
+  },
+  "Mapping": {
+   "version": null,
+   "caller_version": 6,
+   "fields": [
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 75
+    },
+    {
+     "key": "U02",
+     "member": "U02",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 76
+    },
+    {
+     "key": "U03",
+     "member": "U03",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 77
+    },
+    {
+     "key": "U04",
+     "member": "U04",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 78
+    }
+   ]
+  }
+ },
+ "enums": {},
+ "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af"
+}

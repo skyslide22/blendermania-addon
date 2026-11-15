@@ -452,10 +452,15 @@ def get_instanced_template_objects(objs) -> list[bpy.types.Object]:
             result.setdefault(o.name, o)
     return list(result.values())
 
+def _is_particle_fx_node(obj: bpy.types.Object) -> bool:
+    s = getattr(obj, "tm_fx", None)
+    return bool(s and s.enabled)
+
 def is_object_exportable(obj: bpy.types.Object)-> bool:
     if obj.visible_get() is False:
         return False
-    if not (obj.type == EXPORTABLE_OBJECT_MESH or obj.type == EXPORTABLE_OBJECT_LIGHT or is_collection_instance(obj)):
+    if not (obj.type == EXPORTABLE_OBJECT_MESH or obj.type == EXPORTABLE_OBJECT_LIGHT or is_collection_instance(obj)
+            or _is_particle_fx_node(obj)):
         return False
 
     if getattr(obj, ObjectProp.IGNORE, False):

@@ -1,0 +1,688 @@
+{
+ "schema_format": 1,
+ "class": "CPlugParticleGpuModel",
+ "kind": "node",
+ "id": "0x090C6000",
+ "game": "TM2020",
+ "source": "Engines/Plug/CPlugParticleGpuModel.chunkl",
+ "chunks": [
+  {
+   "id": "0x090C6000",
+   "offset": "0x000",
+   "version": 6,
+   "attrs": [],
+   "comment": "lifetime and size",
+   "fields": [
+    {
+     "key": "LifeMax",
+     "member": "LifeMax",
+     "scope": "node",
+     "name": "LifeMax",
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 15
+    },
+    {
+     "key": "LifeVar01",
+     "member": "LifeVar01",
+     "scope": "node",
+     "name": "LifeVar01",
+     "type": "float",
+     "array": null,
+     "line": 16
+    },
+    {
+     "key": "SizeMax",
+     "member": "SizeMax",
+     "scope": "node",
+     "name": "SizeMax",
+     "type": "float",
+     "array": null,
+     "default": 0.2,
+     "line": 17
+    },
+    {
+     "key": "SizeVar01",
+     "member": "SizeVar01",
+     "scope": "node",
+     "name": "SizeVar01",
+     "type": "float",
+     "array": null,
+     "default": 0.4,
+     "line": 18
+    },
+    {
+     "key": "c000_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 22
+    },
+    {
+     "key": "c000_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 23
+    },
+    {
+     "key": "SizeEndScale",
+     "member": "SizeEndScale",
+     "scope": "node",
+     "name": "SizeEndScale",
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 25
+    },
+    {
+     "key": "c000_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 27
+    },
+    {
+     "key": "c000_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 29
+    }
+   ]
+  },
+  {
+   "id": "0x090C6001",
+   "offset": "0x001",
+   "version": 3,
+   "attrs": [],
+   "comment": "weight and viscosity",
+   "fields": [
+    {
+     "key": "Weight",
+     "member": "Weight",
+     "scope": "node",
+     "name": "Weight",
+     "type": "float",
+     "array": null,
+     "default": -5.0,
+     "line": 33
+    },
+    {
+     "key": "Viscosity",
+     "member": "Viscosity",
+     "scope": "node",
+     "name": "Viscosity",
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 34
+    },
+    {
+     "key": "c001_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 36
+    },
+    {
+     "key": "c001_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 37
+    },
+    {
+     "key": "c001_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 39
+    },
+    {
+     "key": "c001_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 41
+    }
+   ]
+  },
+  {
+   "id": "0x090C6002",
+   "offset": "0x002",
+   "version": 22,
+   "attrs": [],
+   "comment": "textures, intensity and color",
+   "fields": [
+    {
+     "key": "Persistence",
+     "member": "Persistence",
+     "scope": "node",
+     "name": "Persistence",
+     "type": "float",
+     "array": null,
+     "default": 0.1,
+     "line": 49
+    },
+    {
+     "key": "BitmapIsFile",
+     "member": "BitmapIsFile",
+     "scope": "node",
+     "name": "BitmapIsFile",
+     "type": "bool",
+     "array": null,
+     "line": 53
+    },
+    {
+     "key": "Bitmap",
+     "member": "Bitmap",
+     "scope": "node",
+     "name": "Bitmap",
+     "type": "node",
+     "ref": "CPlugBitmap",
+     "array": null,
+     "when": [
+      "un",
+      "!",
+      [
+       "key",
+       "BitmapIsFile"
+      ]
+     ],
+     "line": 55
+    },
+    {
+     "key": "BitmapFile",
+     "member": "BitmapFile",
+     "scope": "node",
+     "name": "BitmapFile",
+     "type": "string",
+     "array": null,
+     "when": [
+      "key",
+      "BitmapIsFile"
+     ],
+     "line": 57
+    },
+    {
+     "key": "c002_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 59
+    },
+    {
+     "key": "c002_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 0.2,
+     "line": 60
+    },
+    {
+     "key": "Intensity",
+     "member": "Intensity",
+     "scope": "node",
+     "name": "Intensity",
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 61
+    },
+    {
+     "key": "IntensityVariation",
+     "member": "IntensityVariation",
+     "scope": "node",
+     "name": "IntensityVariation",
+     "type": "float",
+     "array": null,
+     "line": 62
+    },
+    {
+     "key": "TextureAtlasDimX",
+     "member": "TextureAtlasDimX",
+     "scope": "node",
+     "name": "TextureAtlasDimX",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "default": 1,
+     "line": 63
+    },
+    {
+     "key": "TextureAtlasDimY",
+     "member": "TextureAtlasDimY",
+     "scope": "node",
+     "name": "TextureAtlasDimY",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "default": 1,
+     "line": 64
+    },
+    {
+     "key": "IntensityPower",
+     "member": "IntensityPower",
+     "scope": "node",
+     "name": "IntensityPower",
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 75
+    },
+    {
+     "key": "IntensityFadeIn",
+     "member": "IntensityFadeIn",
+     "scope": "node",
+     "name": "IntensityFadeIn",
+     "type": "float",
+     "array": null,
+     "default": 0.01,
+     "line": 76
+    },
+    {
+     "key": "IntensityFadeOut",
+     "member": "IntensityFadeOut",
+     "scope": "node",
+     "name": "IntensityFadeOut",
+     "type": "float",
+     "array": null,
+     "default": 0.75,
+     "line": 80
+    },
+    {
+     "key": "Rotation",
+     "member": "Rotation",
+     "scope": "node",
+     "name": "Rotation",
+     "type": "float",
+     "array": null,
+     "default": 0.5,
+     "line": 81
+    },
+    {
+     "key": "RotationVariation",
+     "member": "RotationVariation",
+     "scope": "node",
+     "name": "RotationVariation",
+     "type": "float",
+     "array": null,
+     "default": 0.45,
+     "line": 82
+    },
+    {
+     "key": "UseHueShift",
+     "member": "UseHueShift",
+     "scope": "node",
+     "name": "UseHueShift",
+     "type": "bool",
+     "array": null,
+     "line": 83
+    },
+    {
+     "key": "c002_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 85
+    },
+    {
+     "key": "c002_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 87
+    },
+    {
+     "key": "UseEmitterHue",
+     "member": "UseEmitterHue",
+     "scope": "node",
+     "name": "UseEmitterHue",
+     "type": "bool",
+     "array": null,
+     "default": true,
+     "line": 92
+    },
+    {
+     "key": "Hue",
+     "member": "Hue",
+     "scope": "node",
+     "name": "Hue",
+     "type": "float",
+     "array": null,
+     "line": 93
+    },
+    {
+     "key": "BitmapOverLife",
+     "member": "BitmapOverLife",
+     "scope": "node",
+     "name": "BitmapOverLife",
+     "type": "node",
+     "ref": "CPlugBitmap",
+     "array": null,
+     "line": 95
+    },
+    {
+     "key": "c002_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 96
+    },
+    {
+     "key": "c002_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 97
+    },
+    {
+     "key": "c002_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 98
+    },
+    {
+     "key": "UseColorOverLife",
+     "member": "UseColorOverLife",
+     "scope": "node",
+     "name": "UseColorOverLife",
+     "type": "bool",
+     "array": null,
+     "line": 99
+    },
+    {
+     "key": "c002_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 0.5,
+     "line": 100
+    },
+    {
+     "key": "c002_U09",
+     "member": "U09",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 102
+    },
+    {
+     "key": "UseEnergyOverLife",
+     "member": "UseEnergyOverLife",
+     "scope": "node",
+     "name": "UseEnergyOverLife",
+     "type": "bool",
+     "array": null,
+     "line": 103
+    },
+    {
+     "key": "c002_U10",
+     "member": "U10",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 105
+    },
+    {
+     "key": "c002_U11",
+     "member": "U11",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 106
+    },
+    {
+     "key": "c002_U12",
+     "member": "U12",
+     "scope": "chunk",
+     "name": null,
+     "type": "node",
+     "ref": "CPlugBitmap",
+     "array": null,
+     "line": 108
+    },
+    {
+     "key": "c002_U13",
+     "member": "U13",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "default": 1,
+     "line": 110
+    },
+    {
+     "key": "c002_U14",
+     "member": "U14",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 112
+    },
+    {
+     "key": "c002_U15",
+     "member": "U15",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 113
+    },
+    {
+     "key": "c002_U16",
+     "member": "U16",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 115
+    },
+    {
+     "key": "c002_U17",
+     "member": "U17",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 117
+    },
+    {
+     "key": "c002_U18",
+     "member": "U18",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 118
+    },
+    {
+     "key": "c002_U19",
+     "member": "U19",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 0.99,
+     "line": 120
+    },
+    {
+     "key": "c002_U20",
+     "member": "U20",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 121
+    },
+    {
+     "key": "c002_U21",
+     "member": "U21",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 122
+    },
+    {
+     "key": "c002_U22",
+     "member": "U22",
+     "scope": "chunk",
+     "name": null,
+     "type": "node",
+     "ref": "CPlugBitmap",
+     "array": null,
+     "line": 124
+    },
+    {
+     "key": "c002_U23",
+     "member": "U23",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 126
+    },
+    {
+     "key": "c002_U24",
+     "member": "U24",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 0.1,
+     "line": 128
+    },
+    {
+     "key": "c002_U25",
+     "member": "U25",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 0.015,
+     "line": 129
+    },
+    {
+     "key": "c002_U26",
+     "member": "U26",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 130
+    },
+    {
+     "key": "c002_U27",
+     "member": "U27",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 131
+    },
+    {
+     "key": "c002_U28",
+     "member": "U28",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 0.5,
+     "line": 133
+    }
+   ]
+  },
+  {
+   "id": "0x090C6003",
+   "offset": "0x003",
+   "version": 2,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c003_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 0.75,
+     "line": 137
+    },
+    {
+     "key": "c003_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 0.75,
+     "line": 139
+    },
+    {
+     "key": "c003_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 140
+    }
+   ]
+  }
+ ],
+ "archives": {},
+ "enums": {},
+ "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af"
+}

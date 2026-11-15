@@ -1,0 +1,21 @@
+{
+ "class": "CPlugParticleEmitterSubModel",
+ "title": "Sub-model",
+ "modules": {
+  "0x090B2031": {
+   "label": "Mesh particle"
+  },
+  "0x090B2033": {
+   "label": "Sprite curves & gradient"
+  },
+  "0x090B2034": {
+   "label": "Light"
+  },
+  "0x090B2037": {
+   "label": "Curves"
+  },
+  "0x090B203A": {
+   "label": "GPU particles"
+  }
+ }
+}

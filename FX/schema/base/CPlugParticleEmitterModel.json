@@ -1,0 +1,206 @@
+{
+ "schema_format": 1,
+ "class": "CPlugParticleEmitterModel",
+ "kind": "node",
+ "id": "0x090B3000",
+ "game": "TM2020",
+ "source": "Engines/Plug/CPlugParticleEmitterModel.chunkl",
+ "chunks": [
+  {
+   "id": "0x090B3000",
+   "offset": "0x000",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "ParticleEmitterSubModels",
+     "member": "ParticleEmitterSubModels",
+     "scope": "node",
+     "name": "ParticleEmitterSubModels",
+     "type": "node",
+     "ref": "CPlugParticleEmitterSubModel",
+     "array": "list",
+     "attrs": [
+      "deprec"
+     ],
+     "line": 4
+    }
+   ]
+  },
+  {
+   "id": "0x090B3001",
+   "offset": "0x001",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c001_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "string",
+     "sub": "id",
+     "array": null,
+     "line": 7
+    }
+   ]
+  },
+  {
+   "id": "0x090B3002",
+   "offset": "0x002",
+   "version": 4,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "IsSplashMode",
+     "member": "IsSplashMode",
+     "scope": "node",
+     "name": "IsSplashMode",
+     "type": "bool",
+     "array": null,
+     "line": 11
+    },
+    {
+     "key": "ShadowMapTexelSize",
+     "member": "ShadowMapTexelSize",
+     "scope": "node",
+     "name": "ShadowMapTexelSize",
+     "type": "float",
+     "array": null,
+     "line": 17
+    }
+   ]
+  },
+  {
+   "id": "0x090B3003",
+   "offset": "0x003",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c003_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "string",
+     "array": "list",
+     "line": 21
+    }
+   ]
+  },
+  {
+   "id": "0x090B3004",
+   "offset": "0x004",
+   "version": 6,
+   "attrs": [],
+   "comment": "vortex emitter",
+   "fields": [
+    {
+     "key": "Radius",
+     "member": "Radius",
+     "scope": "node",
+     "name": "Radius",
+     "type": "float",
+     "array": null,
+     "line": 33
+    },
+    {
+     "key": "VortexCountPerCircle",
+     "member": "VortexCountPerCircle",
+     "scope": "node",
+     "name": "VortexCountPerCircle",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 34
+    },
+    {
+     "key": "Strength",
+     "member": "Strength",
+     "scope": "node",
+     "name": "Strength",
+     "type": "float",
+     "array": null,
+     "line": 35
+    },
+    {
+     "key": "LifeTime",
+     "member": "LifeTime",
+     "scope": "node",
+     "name": "LifeTime",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 36
+    },
+    {
+     "key": "Coef",
+     "member": "Coef",
+     "scope": "node",
+     "name": "Coef",
+     "type": "float",
+     "array": null,
+     "line": 37
+    },
+    {
+     "key": "Randomness",
+     "member": "Randomness",
+     "scope": "node",
+     "name": "Randomness",
+     "type": "float",
+     "array": null,
+     "line": 38
+    },
+    {
+     "key": "EmitPeriod",
+     "member": "EmitPeriod",
+     "scope": "node",
+     "name": "EmitPeriod",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 41
+    },
+    {
+     "key": "EnableVortexEmitter",
+     "member": "EnableVortexEmitter",
+     "scope": "node",
+     "name": "EnableVortexEmitter",
+     "type": "bool",
+     "array": null,
+     "line": 42
+    },
+    {
+     "key": "CircleNormal",
+     "member": "CircleNormal",
+     "scope": "node",
+     "name": "CircleNormal",
+     "type": "vec",
+     "kind": "float",
+     "size": 3,
+     "array": null,
+     "line": 44
+    },
+    {
+     "key": "Lod_cPixelMin",
+     "member": "Lod_cPixelMin",
+     "scope": "node",
+     "name": "Lod_cPixelMin",
+     "type": "float",
+     "array": null,
+     "line": 46
+    }
+   ]
+  }
+ ],
+ "archives": {},
+ "enums": {},
+ "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af"
+}

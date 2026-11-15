@@ -1,0 +1,287 @@
+{
+ "schema_format": 1,
+ "class": "CPlugParticleSplashModel",
+ "kind": "node",
+ "id": "0x090B5000",
+ "game": "TM2020",
+ "source": "Engines/Plug/CPlugParticleSplashModel.chunkl",
+ "chunks": [
+  {
+   "id": "0x090B5000",
+   "offset": "0x000",
+   "version": 5,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c000_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 5
+    },
+    {
+     "key": "c000_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 6
+    },
+    {
+     "key": "c000_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 7
+    },
+    {
+     "key": "c000_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 8
+    },
+    {
+     "key": "c000_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 9
+    },
+    {
+     "key": "c000_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 10
+    },
+    {
+     "key": "c000_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 11
+    },
+    {
+     "key": "c000_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 12
+    },
+    {
+     "key": "c000_U09",
+     "member": "U09",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 14
+    },
+    {
+     "key": "c000_U10",
+     "member": "U10",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 15
+    },
+    {
+     "key": "c000_U11",
+     "member": "U11",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 16
+    },
+    {
+     "key": "c000_U12",
+     "member": "U12",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 17
+    },
+    {
+     "key": "c000_U13",
+     "member": "U13",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 18
+    },
+    {
+     "key": "c000_U14",
+     "member": "U14",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 19
+    },
+    {
+     "key": "c000_U15",
+     "member": "U15",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 20
+    },
+    {
+     "key": "c000_U16",
+     "member": "U16",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 21
+    },
+    {
+     "key": "c000_U17",
+     "member": "U17",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 22
+    },
+    {
+     "key": "c000_U18",
+     "member": "U18",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 23
+    },
+    {
+     "key": "c000_U19",
+     "member": "U19",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 24
+    },
+    {
+     "key": "c000_U20",
+     "member": "U20",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 25
+    },
+    {
+     "key": "c000_U21",
+     "member": "U21",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 26
+    },
+    {
+     "key": "c000_U22",
+     "member": "U22",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 27
+    },
+    {
+     "key": "c000_U23",
+     "member": "U23",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 28
+    },
+    {
+     "key": "c000_U24",
+     "member": "U24",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 30
+    },
+    {
+     "key": "c000_U25",
+     "member": "U25",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 31
+    },
+    {
+     "key": "c000_U27",
+     "member": "U27",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 35
+    },
+    {
+     "key": "c000_U28",
+     "member": "U28",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 37
+    },
+    {
+     "key": "c000_U29",
+     "member": "U29",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 38
+    },
+    {
+     "key": "c000_U30",
+     "member": "U30",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 39
+    }
+   ]
+  }
+ ],
+ "archives": {},
+ "enums": {},
+ "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af"
+}

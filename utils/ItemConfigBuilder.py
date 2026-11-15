@@ -51,6 +51,7 @@ def generate_item_config(item: ExportedItem) -> ItemConfig:
     all_objs = list(item.objects) + get_instanced_template_objects(item.objects)
     cfg.Materials = _get_material_configs(all_objs)
     cfg.Lights = _get_light_configs(all_objs, variants)
+    cfg.ParticleSystems = _get_particle_system_configs(item.objects, variants)
     cfg.Meshes = _get_mesh_configs(all_objs, collection, variants)
     cfg.Instances = _get_instance_configs(item.objects, variants)
     cfg.InstanceCollections = _get_instance_collection_configs(item.objects)
@@ -127,6 +128,29 @@ def _apply_plan_lightmap_overrides(meshes: list[MeshConfig], collection: bpy.typ
             mesh = by_name.get(node.original_node or node.name)
             if mesh is not None:
                 mesh.LightmapSize = group.lightmap_size
+
+
+# -----------------------------
+# particle systems
+# -----------------------------
+def _get_particle_system_configs(objs, variants: VariantResolver) -> list[ParticleSystemConfig]:
+    from ..FX import api as fx_api
+
+    configs = []
+    for obj in sorted(objs, key=lambda o: o.name):
+        if not fx_api.is_fx_node(obj):
+            continue
+        doc = fx_api.export_fx(obj)
+        if doc is None:
+            continue
+        moving_group = get_object_moving_group(obj)
+        configs.append(ParticleSystemConfig(
+            Name=obj.name,
+            MovingGroup=moving_group.name if moving_group else None,
+            Variant=variants.of_object(obj),
+            Config=doc,
+        ))
+    return configs
 
 
 # -----------------------------

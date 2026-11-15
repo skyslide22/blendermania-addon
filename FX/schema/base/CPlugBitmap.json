@@ -1,0 +1,1294 @@
+{
+ "schema_format": 1,
+ "class": "CPlugBitmap",
+ "kind": "node",
+ "id": "0x09011000",
+ "game": "TM2020",
+ "source": "Engines/Plug/CPlugBitmap.chunkl",
+ "chunks": [
+  {
+   "id": "0x09011019",
+   "offset": "0x019",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "BumpScaleMipLevel",
+     "member": "BumpScaleMipLevel",
+     "scope": "node",
+     "name": "BumpScaleMipLevel",
+     "type": "float",
+     "array": null,
+     "default": 0.5,
+     "line": 259
+    }
+   ]
+  },
+  {
+   "id": "0x09011020",
+   "offset": "0x020",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "MipMapFadeAlphas",
+     "member": "MipMapFadeAlphas",
+     "scope": "node",
+     "name": "MipMapFadeAlphas",
+     "type": "float",
+     "array": "list",
+     "line": 285
+    }
+   ]
+  },
+  {
+   "id": "0x09011023",
+   "offset": "0x023",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "Additional",
+     "member": "Additional",
+     "scope": "node",
+     "name": "Additional",
+     "type": "struct",
+     "ref": "CPlugBitmap.AdditionalParameters",
+     "array": null,
+     "line": 293
+    }
+   ]
+  },
+  {
+   "id": "0x09011025",
+   "offset": "0x025",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "DefaultRenderClearColor",
+     "member": "DefaultRenderClearColor",
+     "scope": "node",
+     "name": "DefaultRenderClearColor",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 4278190080,
+     "line": 300
+    }
+   ]
+  },
+  {
+   "id": "0x09011028",
+   "offset": "0x028",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "RenderSizeMul",
+     "member": "RenderSizeMul",
+     "scope": "node",
+     "name": "RenderSizeMul",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 1,
+     "line": 309
+    },
+    {
+     "key": "RenderSizeDiv",
+     "member": "RenderSizeDiv",
+     "scope": "node",
+     "name": "RenderSizeDiv",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 1,
+     "line": 310
+    }
+   ]
+  },
+  {
+   "id": "0x0901102A",
+   "offset": "0x02A",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "SpriteParam",
+     "member": "SpriteParam",
+     "scope": "node",
+     "name": "SpriteParam",
+     "type": "opaque",
+     "ref": "CPlugSpriteParam",
+     "array": null,
+     "line": 316
+    }
+   ]
+  },
+  {
+   "id": "0x0901102C",
+   "offset": "0x02C",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "Decals",
+     "member": "Decals",
+     "scope": "node",
+     "name": "Decals",
+     "type": "opaque",
+     "ref": "CPlugBitmapDecals",
+     "array": null,
+     "line": 322
+    }
+   ]
+  },
+  {
+   "id": "0x0901102D",
+   "offset": "0x02D",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "Flags3",
+     "member": "Flags3",
+     "scope": "node",
+     "name": "Flags3",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 15360,
+     "line": 326
+    }
+   ]
+  },
+  {
+   "id": "0x09011030",
+   "offset": "0x030",
+   "version": 5,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "Image",
+     "member": "Image",
+     "scope": "node",
+     "name": "Image",
+     "type": "ref",
+     "ref": "CPlugFileImg",
+     "array": null,
+     "line": 336
+    },
+    {
+     "key": "Flags",
+     "member": "Flags",
+     "scope": "node",
+     "name": "Flags",
+     "type": "opaque",
+     "ref": "ulong",
+     "array": null,
+     "line": 338
+    },
+    {
+     "key": "FlagsHigh",
+     "member": "FlagsHigh",
+     "scope": "node",
+     "name": "FlagsHigh",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 134219410,
+     "line": 339
+    },
+    {
+     "key": "MipMapLowerAlpha",
+     "member": "MipMapLowerAlpha",
+     "scope": "node",
+     "name": "MipMapLowerAlpha",
+     "type": "float",
+     "array": null,
+     "default": 0.0,
+     "line": 342
+    },
+    {
+     "key": "BumpScaleFactor",
+     "member": "BumpScaleFactor",
+     "scope": "node",
+     "name": "BumpScaleFactor",
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 343
+    },
+    {
+     "key": "MipMapLodBiasDefault",
+     "member": "MipMapLodBiasDefault",
+     "scope": "node",
+     "name": "MipMapLodBiasDefault",
+     "type": "float",
+     "array": null,
+     "default": 0.0,
+     "line": 344
+    },
+    {
+     "key": "BorderRGB",
+     "member": "BorderRGB",
+     "scope": "node",
+     "name": "BorderRGB",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "default": 0,
+     "line": 345
+    },
+    {
+     "key": "BitmapRender",
+     "member": "BitmapRender",
+     "scope": "node",
+     "name": "BitmapRender",
+     "type": "opaque",
+     "ref": "CPlugBitmapRender",
+     "array": null,
+     "when_unresolved": [
+      "(PixelUpdate == 4)"
+     ],
+     "line": 347
+    },
+    {
+     "key": "BitmapShader",
+     "member": "BitmapShader",
+     "scope": "node",
+     "name": "BitmapShader",
+     "type": "opaque",
+     "ref": "CPlugBitmapShader",
+     "array": null,
+     "when_unresolved": [
+      "(PixelUpdate == 5)"
+     ],
+     "attrs": [
+      "direct"
+     ],
+     "line": 349
+    },
+    {
+     "key": "SpecularSubMapCats",
+     "member": "SpecularSubMapCats",
+     "scope": "node",
+     "name": "SpecularSubMapCats",
+     "type": "struct",
+     "ref": "CPlugBitmap.SpecularSubMapCat",
+     "array": "list",
+     "when_unresolved": [
+      "(PixelUpdate == 7)"
+     ],
+     "line": 351
+    },
+    {
+     "key": "ClearColor",
+     "member": "ClearColor",
+     "scope": "node",
+     "name": "ClearColor",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "when_unresolved": [
+      "(PixelUpdate == 8)"
+     ],
+     "line": 353
+    }
+   ]
+  },
+  {
+   "id": "0x09011032",
+   "offset": "0x032",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "Flags2",
+     "member": "Flags2",
+     "scope": "node",
+     "name": "Flags2",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 1224738816,
+     "line": 362
+    }
+   ]
+  },
+  {
+   "id": "0x09011033",
+   "offset": "0x033",
+   "version": null,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "HeightInMeters",
+     "member": "HeightInMeters",
+     "scope": "node",
+     "name": "HeightInMeters",
+     "type": "float",
+     "array": null,
+     "default": 1.0,
+     "line": 365
+    }
+   ]
+  },
+  {
+   "id": "0x09011034",
+   "offset": "0x034",
+   "version": 4,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "ImageArray",
+     "member": "ImageArray",
+     "scope": "node",
+     "name": "ImageArray",
+     "type": "opaque",
+     "ref": "CPlugImageArray",
+     "array": null,
+     "line": 369
+    },
+    {
+     "key": "ImageArraySuffix",
+     "member": "ImageArraySuffix",
+     "scope": "node",
+     "name": "ImageArraySuffix",
+     "type": "string",
+     "array": null,
+     "default": "",
+     "line": 371
+    },
+    {
+     "key": "ImageArrayFids",
+     "member": "ImageArrayFids",
+     "scope": "node",
+     "name": "ImageArrayFids",
+     "type": "ref",
+     "ref": "CPlugFileImg",
+     "array": "list",
+     "line": 373
+    },
+    {
+     "key": "BitmapArray",
+     "member": "BitmapArray",
+     "scope": "node",
+     "name": "BitmapArray",
+     "type": "opaque",
+     "ref": "CPlugBitmapArray",
+     "array": null,
+     "line": 375
+    },
+    {
+     "key": "BitmapArrayElemName",
+     "member": "BitmapArrayElemName",
+     "scope": "node",
+     "name": "BitmapArrayElemName",
+     "type": "string",
+     "array": null,
+     "default": "",
+     "line": 376
+    },
+    {
+     "key": "ImageArrayAdditional",
+     "member": "ImageArrayAdditional",
+     "scope": "node",
+     "name": "ImageArrayAdditional",
+     "type": "struct",
+     "ref": "CPlugBitmap.AdditionalParameters",
+     "array": null,
+     "line": 378
+    }
+   ]
+  },
+  {
+   "id": "0x09011035",
+   "offset": "0x035",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "TextureInfo",
+     "member": "TextureInfo",
+     "scope": "node",
+     "name": "TextureInfo",
+     "type": "struct",
+     "ref": "CPlugBitmap.TextureSettings",
+     "array": null,
+     "line": 382
+    }
+   ]
+  },
+  {
+   "id": "0x09011036",
+   "offset": "0x036",
+   "version": 1,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "GrassIdImage",
+     "member": "GrassIdImage",
+     "scope": "node",
+     "name": "GrassIdImage",
+     "type": "ref",
+     "ref": "CPlugFileImg",
+     "array": null,
+     "line": 386
+    },
+    {
+     "key": "GrassId",
+     "member": "GrassId",
+     "scope": "node",
+     "name": "GrassId",
+     "type": "string",
+     "sub": "id",
+     "array": null,
+     "default": "",
+     "when": [
+      "bin",
+      "==",
+      [
+       "key",
+       "GrassIdImage"
+      ],
+      [
+       "null"
+      ]
+     ],
+     "line": 388
+    },
+    {
+     "key": "GrassIdTexCoordSize",
+     "member": "GrassIdTexCoordSize",
+     "scope": "node",
+     "name": "GrassIdTexCoordSize",
+     "type": "vec",
+     "kind": "float",
+     "size": 2,
+     "array": null,
+     "default": [
+      1,
+      1
+     ],
+     "when": [
+      "un",
+      "!",
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "GrassIdImage"
+       ],
+       [
+        "null"
+       ]
+      ]
+     ],
+     "line": 390
+    },
+    {
+     "key": "GrassIdTexCoordTrans",
+     "member": "GrassIdTexCoordTrans",
+     "scope": "node",
+     "name": "GrassIdTexCoordTrans",
+     "type": "vec",
+     "kind": "float",
+     "size": 2,
+     "array": null,
+     "default": [
+      0,
+      0
+     ],
+     "when": [
+      "un",
+      "!",
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "GrassIdImage"
+       ],
+       [
+        "null"
+       ]
+      ]
+     ],
+     "line": 391
+    },
+    {
+     "key": "GrassIdTexCoordRotate",
+     "member": "GrassIdTexCoordRotate",
+     "scope": "node",
+     "name": "GrassIdTexCoordRotate",
+     "type": "float",
+     "array": null,
+     "default": 0.0,
+     "when": [
+      "un",
+      "!",
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "GrassIdImage"
+       ],
+       [
+        "null"
+       ]
+      ]
+     ],
+     "line": 392
+    },
+    {
+     "key": "GrassMatterArray",
+     "member": "GrassMatterArray",
+     "scope": "node",
+     "name": "GrassMatterArray",
+     "type": "opaque",
+     "ref": "CMwNod",
+     "array": null,
+     "line": 393
+    }
+   ]
+  },
+  {
+   "id": "0x09011037",
+   "offset": "0x037",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "ArraySettings",
+     "member": "ArraySettings",
+     "scope": "node",
+     "name": "ArraySettings",
+     "type": "struct",
+     "ref": "CPlugBitmap.ImageArraySettings",
+     "array": null,
+     "line": 397
+    }
+   ]
+  },
+  {
+   "id": "0x09011038",
+   "offset": "0x038",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "Atlas",
+     "member": "Atlas",
+     "scope": "node",
+     "name": "Atlas",
+     "type": "ref",
+     "ref": "CPlugBitmapAtlas",
+     "array": null,
+     "line": 401
+    },
+    {
+     "key": "AtlasCubeFlags",
+     "member": "AtlasCubeFlags",
+     "scope": "node",
+     "name": "AtlasCubeFlags",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 402
+    },
+    {
+     "key": "AtlasCubeIn",
+     "member": "AtlasCubeIn",
+     "scope": "node",
+     "name": "AtlasCubeIn",
+     "type": "struct",
+     "ref": "CPlugBitmap.CubeAtlasInput",
+     "array": null,
+     "when": [
+      "bin",
+      "!=",
+      [
+       "bin",
+       "&",
+       [
+        "key",
+        "AtlasCubeFlags"
+       ],
+       [
+        "num",
+        1
+       ]
+      ],
+      [
+       "num",
+       0
+      ]
+     ],
+     "line": 404
+    }
+   ]
+  }
+ ],
+ "archives": {
+  "AdditionalParameters": {
+   "version": null,
+   "caller_version": 0,
+   "fields": [
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 505
+    }
+   ]
+  },
+  "SpecularSubMapCat": {
+   "version": null,
+   "caller_version": 5,
+   "fields": [
+    {
+     "key": "SpecularRGB",
+     "member": "SpecularRGB",
+     "scope": "archive",
+     "name": "SpecularRGB",
+     "type": "vec",
+     "kind": "float",
+     "size": 3,
+     "array": null,
+     "line": 497
+    },
+    {
+     "key": "SpecularExp",
+     "member": "SpecularExp",
+     "scope": "archive",
+     "name": "SpecularExp",
+     "type": "float",
+     "array": null,
+     "line": 498
+    }
+   ]
+  },
+  "TextureSettings": {
+   "version": null,
+   "caller_version": 0,
+   "fields": [
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 16,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 511
+    }
+   ]
+  },
+  "ImageArraySettings": {
+   "version": null,
+   "caller_version": 0,
+   "fields": [
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 514
+    },
+    {
+     "key": "U02",
+     "member": "U02",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 515
+    },
+    {
+     "key": "U03",
+     "member": "U03",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 516
+    },
+    {
+     "key": "U04",
+     "member": "U04",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 517
+    },
+    {
+     "key": "U05",
+     "member": "U05",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 518
+    },
+    {
+     "key": "U06",
+     "member": "U06",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 519
+    },
+    {
+     "key": "U07",
+     "member": "U07",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 520
+    },
+    {
+     "key": "U08",
+     "member": "U08",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 0,
+     "line": 521
+    }
+   ]
+  },
+  "CubeAtlasInput": {
+   "version": 2,
+   "caller_version": 0,
+   "fields": [
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 2,
+     "line": 526
+    },
+    {
+     "key": "SizeX",
+     "member": "SizeX",
+     "scope": "archive",
+     "name": "SizeX",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 4096,
+     "line": 529
+    },
+    {
+     "key": "SizeY",
+     "member": "SizeY",
+     "scope": "archive",
+     "name": "SizeY",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "default": 4096,
+     "line": 530
+    },
+    {
+     "key": "Entries",
+     "member": "Entries",
+     "scope": "archive",
+     "name": "Entries",
+     "type": "struct",
+     "ref": "CPlugBitmap.CubeAtlasEntry",
+     "array": "list",
+     "line": 531
+    },
+    {
+     "key": "Image",
+     "member": "Image",
+     "scope": "archive",
+     "name": "Image",
+     "type": "ref",
+     "ref": "CPlugFileImg",
+     "array": null,
+     "line": 533
+    }
+   ]
+  },
+  "CubeAtlasEntry": {
+   "version": null,
+   "caller_version": 2,
+   "fields": [
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 540
+    },
+    {
+     "key": "U02",
+     "member": "U02",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 541
+    },
+    {
+     "key": "U03",
+     "member": "U03",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 542
+    },
+    {
+     "key": "U04",
+     "member": "U04",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 543
+    },
+    {
+     "key": "U05",
+     "member": "U05",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 544
+    },
+    {
+     "key": "U06",
+     "member": "U06",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 545
+    },
+    {
+     "key": "U07",
+     "member": "U07",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 546
+    },
+    {
+     "key": "U08",
+     "member": "U08",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 547
+    }
+   ]
+  }
+ },
+ "enums": {
+  "EUsage": [
+   [
+    "Color",
+    0
+   ],
+   [
+    "Light",
+    1
+   ],
+   [
+    "Height2DuDv",
+    2
+   ],
+   [
+    "Render",
+    3
+   ],
+   [
+    "Height2DuDvLumi",
+    4
+   ],
+   [
+    "Height2NxNyNz",
+    5
+   ],
+   [
+    "Height2NxNy",
+    6
+   ],
+   [
+    "Depth",
+    7
+   ],
+   [
+    "DispH01",
+    8
+   ],
+   [
+    "Height2NormPal8b",
+    9
+   ],
+   [
+    "NxNyNz",
+    10
+   ],
+   [
+    "NxNy",
+    11
+   ],
+   [
+    "NormPal8b",
+    12
+   ],
+   [
+    "NormPal16b",
+    13
+   ],
+   [
+    "ColorFloat",
+    14
+   ],
+   [
+    "RenderFloat",
+    15
+   ],
+   [
+    "Height2DuDv1",
+    16
+   ],
+   [
+    "Alpha",
+    17
+   ],
+   [
+    "LightAlpha",
+    18
+   ],
+   [
+    "Height2RxG0BzAy",
+    19
+   ],
+   [
+    "NormRxG0BzAy",
+    20
+   ],
+   [
+    "TexCoord",
+    21
+   ],
+   [
+    "Render16b",
+    22
+   ],
+   [
+    "Vertex",
+    23
+   ],
+   [
+    "Height2BumpTxTy",
+    24
+   ],
+   [
+    "BumpTxTy",
+    25
+   ],
+   [
+    "Height2R0GyBzAx",
+    26
+   ],
+   [
+    "NormR0GyBzAx",
+    27
+   ],
+   [
+    "NormXYZ0YZX",
+    28
+   ]
+  ],
+  "EColorDepth": [
+   [
+    "DefaultColorDepth",
+    0
+   ],
+   [
+    "Color16b",
+    1
+   ],
+   [
+    "Color32b",
+    2
+   ]
+  ],
+  "ECubeFace": [
+   [
+    "None",
+    0
+   ],
+   [
+    "XPos",
+    1
+   ],
+   [
+    "XNeg",
+    2
+   ],
+   [
+    "YPos",
+    3
+   ],
+   [
+    "YNeg",
+    4
+   ],
+   [
+    "ZPos",
+    5
+   ],
+   [
+    "ZNeg",
+    6
+   ]
+  ],
+  "EGxTexFilter": [
+   [
+    "Point",
+    0
+   ],
+   [
+    "Bilinear",
+    1
+   ],
+   [
+    "Trilinear",
+    2
+   ],
+   [
+    "Anisotropic",
+    3
+   ]
+  ],
+  "EGxTexAddress": [
+   [
+    "Wrap",
+    0
+   ],
+   [
+    "Mirror",
+    1
+   ],
+   [
+    "Clamp",
+    2
+   ],
+   [
+    "BorderSM3",
+    3
+   ]
+  ],
+  "EGxUVGenerate": [
+   [
+    "NoGenerate",
+    0
+   ],
+   [
+    "CameraVertex",
+    1
+   ],
+   [
+    "WorldVertex",
+    2
+   ],
+   [
+    "WorldVertexXY",
+    3
+   ],
+   [
+    "WorldVertexXZ",
+    4
+   ],
+   [
+    "WorldVertexYZ",
+    5
+   ],
+   [
+    "CameraNormal",
+    6
+   ],
+   [
+    "WorldNormal",
+    7
+   ],
+   [
+    "CameraReflectionVector",
+    8
+   ],
+   [
+    "WorldReflectionVector",
+    9
+   ],
+   [
+    "WorldNormalNeg",
+    10
+   ],
+   [
+    "WaterReflectionVector",
+    11
+   ],
+   [
+    "Hack1Vertex",
+    12
+   ],
+   [
+    "MapTexel",
+    13
+   ],
+   [
+    "FogPlane0",
+    14
+   ],
+   [
+    "Vsk3SeaFoam",
+    15
+   ],
+   [
+    "ImageSpace",
+    16
+   ],
+   [
+    "LightDir0Reflect",
+    17
+   ],
+   [
+    "EyeNormal",
+    18
+   ],
+   [
+    "ShadowB1Pw01",
+    19
+   ],
+   [
+    "Tex3AsPosPrCamera",
+    20
+   ],
+   [
+    "FlatWaterReflect",
+    21
+   ],
+   [
+    "FlatWaterRefract",
+    22
+   ],
+   [
+    "FlatWaterFresnel",
+    23
+   ],
+   [
+    "WorldPosXYblendZY",
+    24
+   ],
+   [
+    "DisableVshOutput",
+    25
+   ],
+   [
+    "WorldPos_PyPxz",
+    26
+   ]
+  ]
+ },
+ "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af"
+}

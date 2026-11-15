@@ -405,6 +405,15 @@ class VariantConfig:
 
 
 @dataclass
+class ParticleSystemConfig:
+    # one per object marked as particle effect node (FX package); Name is the object name (contains _particleFX_) as in the fbx
+    Name: str = ""
+    MovingGroup: str | None = None
+    Variant: str | None = None       # variant (ItemConfig.Variants[].Name) it belongs to, None: part of every variant
+    Config: dict[str, Any] = field(default_factory=dict)   # FX.api.export_fx document
+
+
+@dataclass
 class ItemConfig:
     Version: int = 1
     Type: str = "StaticObject"
@@ -422,6 +431,7 @@ class ItemConfig:
     Materials: list[MaterialConfig] = field(default_factory=list)
     Meshes: list[MeshConfig] = field(default_factory=list)
     Lights: list[LightConfig] = field(default_factory=list)
+    ParticleSystems: list[ParticleSystemConfig] = field(default_factory=list)
     Instances: list[InstanceConfig] = field(default_factory=list)
     InstanceCollections: list[InstanceCollectionConfig] = field(default_factory=list)
     MovingGroups: list[MovingGroupConfig] = field(default_factory=list)

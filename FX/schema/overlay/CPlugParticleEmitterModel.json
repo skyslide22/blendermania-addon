@@ -1,0 +1,38 @@
+{
+ "class": "CPlugParticleEmitterModel",
+ "title": "Emitter model",
+ "modules": {
+  "0x090B3000": {
+   "label": "Sub-models"
+  },
+  "0x090B3004": {
+   "label": "Vortex emitter"
+  }
+ },
+ "fields": {
+  "Radius": {
+   "visible_if": "EnableVortexEmitter"
+  },
+  "VortexCountPerCircle": {
+   "visible_if": "EnableVortexEmitter"
+  },
+  "Strength": {
+   "visible_if": "EnableVortexEmitter"
+  },
+  "LifeTime": {
+   "visible_if": "EnableVortexEmitter"
+  },
+  "Coef": {
+   "visible_if": "EnableVortexEmitter"
+  },
+  "Randomness": {
+   "visible_if": "EnableVortexEmitter"
+  },
+  "EmitPeriod": {
+   "visible_if": "EnableVortexEmitter"
+  },
+  "CircleNormal": {
+   "visible_if": "EnableVortexEmitter"
+  }
+ }
+}

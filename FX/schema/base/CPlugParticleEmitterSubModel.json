@@ -1,0 +1,1459 @@
+{
+ "schema_format": 1,
+ "class": "CPlugParticleEmitterSubModel",
+ "kind": "node",
+ "id": "0x090B2000",
+ "game": "TM2020",
+ "source": "Engines/Plug/CPlugParticleEmitterSubModel.chunkl",
+ "chunks": [
+  {
+   "id": "0x090B202D",
+   "offset": "0x02D",
+   "version": 4,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c02D_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 126
+    },
+    {
+     "key": "c02D_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 128
+    },
+    {
+     "key": "c02D_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 129
+    },
+    {
+     "key": "c02D_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 130
+    },
+    {
+     "key": "c02D_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 131
+    },
+    {
+     "key": "c02D_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 132
+    },
+    {
+     "key": "c02D_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 133
+    },
+    {
+     "key": "c02D_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 134
+    },
+    {
+     "key": "c02D_U10",
+     "member": "U10",
+     "scope": "chunk",
+     "name": null,
+     "type": "string",
+     "sub": "id",
+     "array": null,
+     "line": 138
+    },
+    {
+     "key": "c02D_U11",
+     "member": "U11",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 140
+    }
+   ]
+  },
+  {
+   "id": "0x090B202E",
+   "offset": "0x02E",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c02E_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "node",
+     "ref": "CPlugParticleSplashModel",
+     "array": null,
+     "line": 145
+    }
+   ]
+  },
+  {
+   "id": "0x090B202F",
+   "offset": "0x02F",
+   "version": 3,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c02F_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 149
+    },
+    {
+     "key": "c02F_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 150
+    },
+    {
+     "key": "c02F_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 151
+    },
+    {
+     "key": "c02F_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "iso4",
+     "array": null,
+     "line": 153
+    },
+    {
+     "key": "c02F_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 157
+    }
+   ]
+  },
+  {
+   "id": "0x090B2030",
+   "offset": "0x030",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c030_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 161
+    },
+    {
+     "key": "c030_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 162
+    },
+    {
+     "key": "c030_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 163
+    }
+   ]
+  },
+  {
+   "id": "0x090B2031",
+   "offset": "0x031",
+   "version": 14,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c031_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 167
+    },
+    {
+     "key": "c031_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 168
+    },
+    {
+     "key": "c031_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 169
+    },
+    {
+     "key": "c031_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 170
+    },
+    {
+     "key": "Material",
+     "member": "Material",
+     "scope": "node",
+     "name": "Material",
+     "type": "ref",
+     "ref": "CPlugMaterial",
+     "array": null,
+     "line": 171
+    },
+    {
+     "key": "Shader",
+     "member": "Shader",
+     "scope": "node",
+     "name": "Shader",
+     "type": "ref",
+     "ref": "CPlugShader",
+     "array": null,
+     "when": [
+      "bin",
+      "==",
+      [
+       "key",
+       "Material"
+      ],
+      [
+       "null"
+      ]
+     ],
+     "line": 173
+    },
+    {
+     "key": "MeshRef",
+     "member": "MeshRef",
+     "scope": "node",
+     "name": "MeshRef",
+     "type": "string",
+     "array": null,
+     "line": 177
+    },
+    {
+     "key": "Solid2Model",
+     "member": "Solid2Model",
+     "scope": "node",
+     "name": "Solid2Model",
+     "type": "ref",
+     "ref": "CPlugSolid2Model",
+     "array": null,
+     "when": [
+      "bin",
+      "||",
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "MeshRef"
+       ],
+       [
+        "null"
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "MeshRef"
+       ],
+       [
+        "str",
+        ""
+       ]
+      ]
+     ],
+     "line": 180
+    },
+    {
+     "key": "c031_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "iso4",
+     "array": null,
+     "line": 182
+    },
+    {
+     "key": "c031_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "vec",
+     "kind": "float",
+     "size": 2,
+     "array": null,
+     "line": 183
+    },
+    {
+     "key": "c031_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 184
+    },
+    {
+     "key": "c031_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 185
+    },
+    {
+     "key": "c031_U09",
+     "member": "U09",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 186
+    },
+    {
+     "key": "c031_U10",
+     "member": "U10",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 188
+    },
+    {
+     "key": "c031_U11",
+     "member": "U11",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 190
+    },
+    {
+     "key": "c031_U12",
+     "member": "U12",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "default": true,
+     "line": 192
+    },
+    {
+     "key": "c031_U13",
+     "member": "U13",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 194
+    },
+    {
+     "key": "c031_U14",
+     "member": "U14",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 196
+    },
+    {
+     "key": "c031_U15",
+     "member": "U15",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 198
+    },
+    {
+     "key": "c031_U16",
+     "member": "U16",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 200
+    },
+    {
+     "key": "c031_U17",
+     "member": "U17",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 202
+    },
+    {
+     "key": "c031_U18",
+     "member": "U18",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 203
+    }
+   ]
+  },
+  {
+   "id": "0x090B2032",
+   "offset": "0x032",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c032_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 207
+    },
+    {
+     "key": "c032_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 208
+    },
+    {
+     "key": "c032_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 209
+    },
+    {
+     "key": "c032_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 210
+    },
+    {
+     "key": "c032_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 211
+    },
+    {
+     "key": "c032_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 212
+    },
+    {
+     "key": "c032_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 213
+    },
+    {
+     "key": "c032_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 214
+    }
+   ]
+  },
+  {
+   "id": "0x090B2033",
+   "offset": "0x033",
+   "version": 5,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c033_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 218
+    },
+    {
+     "key": "c033_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 219
+    },
+    {
+     "key": "c033_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 220
+    },
+    {
+     "key": "c033_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 221
+    },
+    {
+     "key": "c033_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 222
+    },
+    {
+     "key": "c033_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 223
+    },
+    {
+     "key": "c033_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 227
+    },
+    {
+     "key": "c033_U09",
+     "member": "U09",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 228
+    },
+    {
+     "key": "c033_U11",
+     "member": "U11",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 232
+    },
+    {
+     "key": "c033_U12",
+     "member": "U12",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 233
+    },
+    {
+     "key": "c033_U13",
+     "member": "U13",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 234
+    },
+    {
+     "key": "c033_U14",
+     "member": "U14",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 235
+    },
+    {
+     "key": "c033_U16",
+     "member": "U16",
+     "scope": "chunk",
+     "name": null,
+     "type": "struct",
+     "ref": "CPlugParticleEmitterSubModel.InlineColorGradient",
+     "array": null,
+     "line": 239
+    },
+    {
+     "key": "c033_U17",
+     "member": "U17",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 240
+    },
+    {
+     "key": "c033_U18",
+     "member": "U18",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 241
+    },
+    {
+     "key": "c033_U21",
+     "member": "U21",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 248
+    },
+    {
+     "key": "c033_U22",
+     "member": "U22",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 249
+    },
+    {
+     "key": "c033_U23",
+     "member": "U23",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 250
+    },
+    {
+     "key": "c033_U24",
+     "member": "U24",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 251
+    },
+    {
+     "key": "c033_U26",
+     "member": "U26",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 255
+    },
+    {
+     "key": "c033_U27",
+     "member": "U27",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 256
+    },
+    {
+     "key": "c033_U28",
+     "member": "U28",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 257
+    },
+    {
+     "key": "c033_U29",
+     "member": "U29",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 259
+    },
+    {
+     "key": "c033_U30",
+     "member": "U30",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 260
+    }
+   ]
+  },
+  {
+   "id": "0x090B2034",
+   "offset": "0x034",
+   "version": 3,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c034_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "opaque",
+     "ref": "GxLightBall",
+     "array": null,
+     "line": 264
+    },
+    {
+     "key": "c034_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 269
+    },
+    {
+     "key": "c034_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "struct",
+     "ref": "CPlugParticleEmitterSubModel.InlineColorGradient",
+     "array": null,
+     "line": 270
+    },
+    {
+     "key": "c034_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 272
+    },
+    {
+     "key": "c034_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 274
+    }
+   ]
+  },
+  {
+   "id": "0x090B2035",
+   "offset": "0x035",
+   "version": 1,
+   "attrs": [],
+   "comment": "",
+   "fields": []
+  },
+  {
+   "id": "0x090B2036",
+   "offset": "0x036",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c036_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 284
+    },
+    {
+     "key": "c036_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 285
+    },
+    {
+     "key": "c036_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 286
+    }
+   ]
+  },
+  {
+   "id": "0x090B2037",
+   "offset": "0x037",
+   "version": 1,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c037_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 290
+    },
+    {
+     "key": "c037_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 291
+    },
+    {
+     "key": "c037_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 292
+    },
+    {
+     "key": "c037_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 293
+    },
+    {
+     "key": "c037_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 294
+    },
+    {
+     "key": "c037_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 295
+    },
+    {
+     "key": "c037_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 296
+    },
+    {
+     "key": "c037_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 297
+    },
+    {
+     "key": "c037_U09",
+     "member": "U09",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 298
+    },
+    {
+     "key": "c037_U10",
+     "member": "U10",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 299
+    },
+    {
+     "key": "c037_U11",
+     "member": "U11",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 300
+    },
+    {
+     "key": "c037_U12",
+     "member": "U12",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 301
+    },
+    {
+     "key": "c037_U13",
+     "member": "U13",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 302
+    },
+    {
+     "key": "c037_U14",
+     "member": "U14",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 303
+    },
+    {
+     "key": "c037_U15",
+     "member": "U15",
+     "scope": "chunk",
+     "name": null,
+     "type": "curve",
+     "array": null,
+     "line": 304
+    },
+    {
+     "key": "c037_U16",
+     "member": "U16",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 305
+    },
+    {
+     "key": "c037_U17",
+     "member": "U17",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 306
+    },
+    {
+     "key": "c037_U18",
+     "member": "U18",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 307
+    }
+   ]
+  },
+  {
+   "id": "0x090B2038",
+   "offset": "0x038",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c038_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 311
+    },
+    {
+     "key": "c038_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 312
+    }
+   ]
+  },
+  {
+   "id": "0x090B2039",
+   "offset": "0x039",
+   "version": 0,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c039_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 316
+    },
+    {
+     "key": "c039_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 317
+    },
+    {
+     "key": "c039_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 318
+    },
+    {
+     "key": "c039_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 319
+    },
+    {
+     "key": "c039_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 320
+    },
+    {
+     "key": "c039_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 321
+    },
+    {
+     "key": "c039_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 322
+    },
+    {
+     "key": "c039_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 323
+    },
+    {
+     "key": "c039_U09",
+     "member": "U09",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 324
+    },
+    {
+     "key": "c039_U10",
+     "member": "U10",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 325
+    },
+    {
+     "key": "c039_U11",
+     "member": "U11",
+     "scope": "chunk",
+     "name": null,
+     "type": "bool",
+     "array": null,
+     "line": 326
+    }
+   ]
+  },
+  {
+   "id": "0x090B203A",
+   "offset": "0x03A",
+   "version": 1,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c03A_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "node",
+     "ref": "CPlugParticleGpuSpawn",
+     "array": null,
+     "line": 331
+    },
+    {
+     "key": "c03A_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "node",
+     "ref": "CPlugParticleGpuModel",
+     "array": null,
+     "line": 332
+    }
+   ]
+  },
+  {
+   "id": "0x090B203B",
+   "offset": "0x03B",
+   "version": 1,
+   "attrs": [],
+   "comment": "",
+   "fields": [
+    {
+     "key": "c03B_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 336
+    },
+    {
+     "key": "c03B_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 337
+    },
+    {
+     "key": "c03B_U03",
+     "member": "U03",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 338
+    },
+    {
+     "key": "c03B_U04",
+     "member": "U04",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 339
+    },
+    {
+     "key": "c03B_U05",
+     "member": "U05",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 340
+    },
+    {
+     "key": "c03B_U06",
+     "member": "U06",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 341
+    },
+    {
+     "key": "c03B_U07",
+     "member": "U07",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 342
+    },
+    {
+     "key": "c03B_U08",
+     "member": "U08",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 343
+    },
+    {
+     "key": "c03B_U09",
+     "member": "U09",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 344
+    },
+    {
+     "key": "c03B_U10",
+     "member": "U10",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 345
+    },
+    {
+     "key": "c03B_U11",
+     "member": "U11",
+     "scope": "chunk",
+     "name": null,
+     "type": "float",
+     "array": null,
+     "line": 347
+    }
+   ]
+  }
+ ],
+ "archives": {
+  "InlineColorGradient": {
+   "version": null,
+   "caller_version": 5,
+   "fields": [
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 8,
+     "signed": false,
+     "array": null,
+     "line": 361
+    },
+    {
+     "key": "U02",
+     "member": "U02",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 362
+    },
+    {
+     "key": "U03",
+     "member": "U03",
+     "scope": "archive",
+     "name": null,
+     "type": "blob",
+     "length": 16,
+     "array": null,
+     "line": 363
+    },
+    {
+     "key": "U04",
+     "member": "U04",
+     "scope": "archive",
+     "name": null,
+     "type": "blob",
+     "length": 48,
+     "array": null,
+     "line": 364
+    }
+   ]
+  }
+ },
+ "enums": {
+  "EPlugParticleEmitterSubModel": [
+   [
+    "Standard",
+    0
+   ],
+   [
+    "MultiState",
+    1
+   ],
+   [
+    "OneParticle",
+    2
+   ],
+   [
+    "VortexSim_Particle",
+    3
+   ],
+   [
+    "VortexSim_VortexFilament",
+    4
+   ],
+   [
+    "VortexSim_Repulsor",
+    5
+   ],
+   [
+    "Chain",
+    6
+   ],
+   [
+    "Gpu",
+    7
+   ],
+   [
+    "Energy",
+    8
+   ]
+  ]
+ },
+ "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af"
+}

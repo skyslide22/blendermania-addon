@@ -1,0 +1,21 @@
+{
+ "schema_format": 1,
+ "game": "TM2020",
+ "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af",
+ "roots": [
+  "CPlugVFXFile"
+ ],
+ "classes": [
+  "CPlugBitmap",
+  "CPlugParticleEmitterModel",
+  "CPlugParticleEmitterSubModel",
+  "CPlugParticleGpuModel",
+  "CPlugParticleGpuSpawn",
+  "CPlugParticleSplashModel",
+  "CPlugVFXFile"
+ ],
+ "warnings": [
+  "CPlugBitmap chunk 0x025 has base 0x01C: base fields not merged",
+  "CPlugBitmap.Flags: 64-bit integer treated as opaque"
+ ]
+}

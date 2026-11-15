@@ -1,0 +1,47 @@
+{
+ "class": "CPlugVFXFile",
+ "title": "VFX file",
+ "archives": {
+  "Parameter": {
+   "title": "Parameter",
+   "title_fields": [
+    "Type",
+    "Name"
+   ],
+   "fields": {
+    "Type": {
+     "label": "Type",
+     "status": "guess",
+     "default": 1,
+     "choices": [
+      [
+       0,
+       "Value (0)"
+      ],
+      [
+       1,
+       "Emitter (1)"
+      ],
+      [
+       2,
+       "Group (2)"
+      ],
+      [
+       3,
+       "Emitter direct (3)"
+      ],
+      [
+       4,
+       "Type 4 (unknown)"
+      ],
+      [
+       5,
+       "Type 5 (unknown)"
+      ]
+     ],
+     "tooltip": "Switches which members exist. 1/3 hold an emitter, 2 holds children + mappings. Labels are inferred from the layout, not tested in game."
+    }
+   }
+  }
+ }
+}
