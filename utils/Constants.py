@@ -12,6 +12,7 @@ DOTNET_COMMANDS = (
     PLACE_MEDIATRACKER_CLIPS_ON_MAP  := "place-mediatracker-clips-on-map",
     CONVERT_FBX_TO_GBX               := "convert-fbx-to-gbx",
     PLAN_FBX_TO_GBX                  := "plan-fbx-to-gbx",
+    CONVERT_ASSET                    := "convert-asset",
 
 )
 

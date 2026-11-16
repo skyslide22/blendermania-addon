@@ -109,3 +109,12 @@ class LightProp(StrEnum):
     LIGHT_ATTENUATION_DERIVATIVE_AT_ZERO = "tm_light_attenuation_derivative_at_zero"
     LIGHT_ATTENUATION_HDR_RADIUS_COEFF = "tm_light_attenuation_hdr_radius_coefficient"
     LIGHT_INVERTED = "tm_light_inverted"
+
+@unique
+class AssetProp(StrEnum):
+
+    IS_ASSET = "is_asset"
+    TYPE = "asset_type"
+    RELATIVE_PATH = "relative_path"
+    SOURCE_PATH = "image"
+    PREVIEW_OBJECT = "preview_object"
