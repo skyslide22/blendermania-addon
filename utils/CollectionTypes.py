@@ -65,6 +65,12 @@ COLLECTION_TYPE_DEFS: tuple[CollectionTypeDef, ...] = (
         toggle_prop=CollectionProp.VARIANT_GROUP, toggle_icon="DUPLICATE",
         allowed_parents=(C.COLLECTION_TYPE_DEFAULT,),   # directly below an item collection
     ),
+    CollectionTypeDef(
+        C.COLLECTION_GROUP_TREE_MODEL, "Tree Model", "Vegetation tree model: meshes use texture set materials and the collection defines the veget tree",
+        infix="_treeModel_", color_tag=C.COLLECTION_COLOR_TAG_GREEN,
+        toggle_prop=CollectionProp.TREE_MODEL_GROUP, toggle_icon="OUTLINER_OB_GREASEPENCIL",
+        allowed_parents=(C.COLLECTION_TYPE_DEFAULT, C.COLLECTION_GROUP_VARIANT, C.COLLECTION_GROUP_CONTAINER),   # item (or instanced) collection, variant, container
+    ),
 )
 
 _DEFS_BY_ID: dict[str, CollectionTypeDef] = {d.id: d for d in COLLECTION_TYPE_DEFS}

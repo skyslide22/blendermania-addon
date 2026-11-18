@@ -7,6 +7,7 @@ from ..properties.ItemPlanProperties import FbxGbxPlanProperties
 from ..properties.ItemConfigProperties import ItemConfigProperties
 from ..properties.AttachmentProperties import AttachmentProperties
 from ..properties.VariantProperties import VariantProperties
+from ..properties.VegetTreeProperties import VegetTreeProperties
 from .Functions import has_infix, has_prefix, apply_collection_type, toggle_infix, toggleNameSpecialPrefix
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
 from .PropertyIdentifiers import CollectionProp
@@ -151,6 +152,11 @@ def register_collection_properties():
         name="Variant",
         description="Variant definition (tags and options)",
         type=VariantProperties
+    ))
+    setattr(bpy.types.Collection, CollectionProp.VEGET_TREE, PointerProperty(
+        name="Veget Tree",
+        description="Veget tree definition of a tree model",
+        type=VegetTreeProperties
     ))
     setattr(bpy.types.Collection, CollectionProp.ITEM_MODE, EnumProperty(
         name="Item Mode",

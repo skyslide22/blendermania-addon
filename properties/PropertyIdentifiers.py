@@ -26,6 +26,10 @@ class ObjectProp(StrEnum):
 
     ICON_ONLY = "tm_icon_only"
 
+    OVERRIDE_MATERIAL = "tm_override_material"
+    SURFACE_MATERIAL_TYPE = "tm_surface_material"
+
+
 @unique
 class CollectionProp(StrEnum):
     CONFIG = "tm_item_config"
@@ -38,6 +42,8 @@ class CollectionProp(StrEnum):
     ATTACHMENT = "tm_attachment"    # attachment settings (layout, options) of a collection inside an attachments collection
     VARIANT_GROUP = "tm_variant_group"            # read-only bool derived from COLLECTION_TYPE
     VARIANT = "tm_variant"          # variant settings (tags, ...) of a collection of type Variant
+    TREE_MODEL_GROUP = "tm_tree_model_group"      # read-only bool derived from COLLECTION_TYPE
+    VEGET_TREE = "tm_veget_tree"    # veget tree settings of a collection of type TreeModel
     ITEM_MODE = "tm_item_mode"      # SINGLE or VARIANTS, how an item collection is split into variants
     
     LODS = "tm_lods"
@@ -117,4 +123,3 @@ class AssetProp(StrEnum):
     TYPE = "asset_type"
     RELATIVE_PATH = "relative_path"
     SOURCE_PATH = "image"
-    PREVIEW_OBJECT = "preview_object"

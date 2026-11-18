@@ -14,6 +14,7 @@ from ..utils.AssetLibraryFunctions import (
     blend_dir,
     collect_export_data,
     gbx_rel_path,
+    get_preview_object,
     import_image_file,
     remove_asset_data,
     resolve_abs,
@@ -22,7 +23,7 @@ from ..utils.AssetLibraryFunctions import (
     sync_preview,
 )
 from ..properties.AssetProperties import ASSET_TYPES
-from ..utils.AssetLibraryImporter import make_jobs, convert_assets_steps, last_errors
+from ..utils.AssetLibraryImporter import make_jobs, convert_assets_steps, apply_results, last_errors
 from ..ui.widgets.progress import ProgressTaskMixin
 from ..properties.PropertyIdentifiers import AssetProp
 
@@ -60,7 +61,7 @@ class TM_OT_CreateMaterialAsset(Operator):
             mat.asset_mark()
             mat.asset_generate_preview()
 
-        props.preview_object = spawn_preview_plane(context, mat)
+        spawn_preview_plane(context, mat)
 
         context.scene.tm_active_material = mat
         self.report({"INFO"}, f"Created {self.asset_type} asset '{mat.name}'")
@@ -87,6 +88,7 @@ class TM_OT_RenameMaterialAsset(Operator):
         mat = active_asset(context)
         props = mat.tm_asset_properties
         old = mat.name
+        obj = get_preview_object(mat)
 
         mat.name = self.new_name
         new = mat.name  # may differ if the name was taken
@@ -97,8 +99,8 @@ class TM_OT_RenameMaterialAsset(Operator):
 
         # the image record is NOT renamed: it is shared and identified by its hash
 
-        obj = props.preview_object
         if obj:
+            obj["gbx_preview_for"] = new
             obj.name = f"Preview_{new}"
             if obj.data:
                 obj.data.name = f"{new}_mesh"
@@ -224,6 +226,7 @@ class TM_OT_ExportAssetLibrary(ProgressTaskMixin, Operator):
 
     def task_steps(self, context):
         jobs = yield from convert_assets_steps(self._jobs)
+        apply_results(jobs)
 
         for job in jobs:
             if job.convert_has_failed:

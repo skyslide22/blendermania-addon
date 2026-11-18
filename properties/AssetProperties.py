@@ -12,13 +12,16 @@ from bpy.props import (
     StringProperty,
 )
 from bpy.types import PropertyGroup
-from ..utils.AssetLibraryFunctions import DEFAULT_REL_BITMAP_DIR, heal_image_paths, image_poll, on_image_changed, on_render_prop_changed
+from ..properties.PropertyFunctions import enum_items
+from ..utils.ItemsExportV2Models import LegacyGameplayId, MaterialId
+from ..utils.AssetLibraryFunctions import DEFAULT_REL_BITMAP_DIR, heal_image_paths, image_poll, on_image_changed, on_render_prop_changed, poll_asset
 from .PropertyIdentifiers import AssetProp
 
 
 ASSET_TYPES = [
     ("BITMAP", "Bitmap", "Bitmap Asset"),
     ("IMAGE", "Image", "Image Asset"),
+    ("TEXTURESET", "TextureSet", "Material for Tree Models"),
 ]
 
 USAGE_NAMES = [
@@ -92,6 +95,22 @@ class AssetImgFileProperties(PropertyGroup):
     pass
 
 
+class AssetTextureSetProperties(PropertyGroup):
+    """Pure container: references other assets, writes no file and needs no conversion."""
+
+    use_gameplay_effect: BoolProperty(name="Use Gameplay Effect", default=False)
+    use_surface_material: BoolProperty(name="Use Material Type", default=False)
+    gameplay_effect: EnumProperty(name="Gameplay Effect", description="Gameplay effect for this texture set", items=enum_items(LegacyGameplayId), default=LegacyGameplayId.None_.value)
+    surface_material: EnumProperty(name="Material Type", description="Type of material", items=enum_items(MaterialId), default=MaterialId.Concrete.value)
+
+    color_image: PointerProperty(type=bpy.types.Material, name="Color Image", poll=poll_asset("IMAGE"), update=on_render_prop_changed)
+    normal_image: PointerProperty(type=bpy.types.Material, name="Normal Image", poll=poll_asset("IMAGE"), update=on_render_prop_changed)
+    roughness_image: PointerProperty(type=bpy.types.Material, name="Roughness Image", poll=poll_asset("IMAGE"), update=on_render_prop_changed)
+    color_texture: PointerProperty(type=bpy.types.Material, name="Color Texture", poll=poll_asset("BITMAP"), update=on_render_prop_changed)
+    normal_texture: PointerProperty(type=bpy.types.Material, name="Normal Texture", poll=poll_asset("BITMAP"), update=on_render_prop_changed)
+    roughness_texture: PointerProperty(type=bpy.types.Material, name="Roughness Texture", poll=poll_asset("BITMAP"), update=on_render_prop_changed)
+
+
 class AssetImageProperties(PropertyGroup):
     """Record stored on bpy.types.Image as img.tm_image_asset."""
     is_managed: BoolProperty(default=False)
@@ -108,11 +127,10 @@ class AssetProperties(PropertyGroup):
         items=ASSET_TYPES,
         default="BITMAP",
     )
-
+    
     image: PointerProperty(type=bpy.types.Image, name="Image",
                            poll=image_poll, update=on_image_changed)
 
-    preview_object: PointerProperty(type=bpy.types.Object)
 
     relative_path: StringProperty(
         name="Target (relative)",
@@ -120,10 +138,11 @@ class AssetProperties(PropertyGroup):
         default="",
     )
 
-    exported_path: StringProperty(description="Where the gbx was last exported to, relative to the library. Empty = not exported yet",)
+    exported_path: StringProperty(description="Absolute path of the file the asset was last exported/imported to. Empty = not exported yet",)
 
     bitmap: PointerProperty(type=AssetBitmapProperties)
     imageFile: PointerProperty(type=AssetImgFileProperties)
+    texture_set: PointerProperty(type=AssetTextureSetProperties)
 
 
 # --------------------------------------------------------------------------
@@ -154,6 +173,20 @@ def bitmap_to_config(bmp):
         "GrassIdTexCoordRotate": bmp.grass_uv.rotate,
         "GrassIdTexCoordSize": DotnetVec2(*bmp.grass_uv.scale),
         "GrassIdTexCoordTrans": DotnetVec2(*bmp.grass_uv.trans),
+    }
+
+
+def texture_set_to_config(ts):
+    """Asset names of the referenced assets (None where unset)."""
+    def n(m):
+        return m.name if m else None
+    return {
+        "ColorImage": n(ts.color_image),
+        "NormalImage": n(ts.normal_image),
+        "RoughnessImage": n(ts.roughness_image),
+        "ColorTexture": n(ts.color_texture),
+        "NormalTexture": n(ts.normal_texture),
+        "RoughnessTexture": n(ts.roughness_texture),
     }
 
 
@@ -227,6 +260,7 @@ classes = (
     TM_FloatItem,
     AssetBitmapProperties,
     AssetImgFileProperties,
+    AssetTextureSetProperties,
     AssetImageProperties,
     AssetProperties,
 )

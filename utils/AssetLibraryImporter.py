@@ -23,6 +23,8 @@ class AssetConvert(threading.Thread):
         super().__init__()
         props = mat.tm_asset_properties
 
+        self.mat = mat                                  # only touched on the main thread
+        self.exported_path = ""
         self.name = mat.name
         self.asset_type = props.asset_type
         self.image_path = ""
@@ -31,7 +33,9 @@ class AssetConvert(threading.Thread):
         self._init_error = ""
 
         img = props.image
-        if img is None or not img.tm_image_asset.is_managed:
+        if self.asset_type == "TEXTURESET":
+            pass                                        # container only: nothing to resolve
+        elif img is None or not img.tm_image_asset.is_managed:
             self._init_error = "no image assigned"
         else:
             try:
@@ -48,6 +52,8 @@ class AssetConvert(threading.Thread):
         self.message = ""
 
     def validate(self) -> str:
+        if self.asset_type == "TEXTURESET":
+            return ""
         if self._init_error:
             return self._init_error
         if not Path(self.image_path).is_file():
@@ -63,8 +69,10 @@ class AssetConvert(threading.Thread):
             self.message = error
             return
 
-        if self.asset_type == "IMAGE":
-            # plain image asset: the dds is already in the store, nothing to write or convert
+        if self.asset_type in ("IMAGE", "TEXTURESET"):
+            # IMAGE: the dds is already in the store. TEXTURESET: pure reference container.
+            if self.asset_type == "IMAGE":
+                self.exported_path = self.image_path
             return
 
         try:
@@ -82,6 +90,13 @@ class AssetConvert(threading.Thread):
         if res.success:
             self.exported_path = self.gbx_path
         self.message = res.message
+
+
+def apply_results(jobs: list[AssetConvert]) -> None:
+    """Main thread: store the final output path on each asset (empty when it failed)."""
+    for job in jobs:
+        props = job.mat.tm_asset_properties
+        props.exported_path = "" if job.convert_has_failed else job.exported_path
 
 
 def make_jobs(materials: list[bpy.types.Material], base_dir: Path) -> list[AssetConvert]:

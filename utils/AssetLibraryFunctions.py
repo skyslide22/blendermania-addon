@@ -129,12 +129,86 @@ def _node(nt, idname, name, loc):
     return n
 
 
+def _channel_image(image_asset, texture_asset):
+    """Image for one TextureSet channel: the Image asset wins, else the Bitmap asset's image."""
+    for m in (image_asset, texture_asset):
+        if m is not None and m.tm_asset_properties.image is not None:
+            return m.tm_asset_properties.image
+    return None
+
+
+def _private_image(mat, channel, src, colorspace):
+    """Per-material copy of src, so its color space never changes the shared image
+    (and thereby other assets' previews)."""
+    key = f"GBX_TS_{mat.name}_{channel}"
+    img = bpy.data.images.get(key)
+    if src is None:
+        if img is not None and img.users == 0:
+            bpy.data.images.remove(img)
+        return None
+    if img is not None and img.filepath != src.filepath:
+        bpy.data.images.remove(img)
+        img = None
+    if img is None:
+        img = src.copy()
+        img.name = key
+        img.tm_image_asset.is_managed = False     # not a store record
+        img.use_fake_user = False
+    try:
+        img.colorspace_settings.name = colorspace
+    except (TypeError, RuntimeError):
+        pass
+    return img
+
+
+def _sync_textureset_preview(mat):
+    nt = mat.node_tree
+    if "GBX_TS_BSDF" not in nt.nodes:
+        nt.nodes.clear()
+    ts = mat.tm_asset_properties.texture_set
+
+    coord = _node(nt, "ShaderNodeTexCoord", "GBX_TS_TexCoord", (-900, 0))
+    bsdf = _node(nt, "ShaderNodeBsdfPrincipled", "GBX_TS_BSDF", (150, 0))
+    out = _node(nt, "ShaderNodeOutputMaterial", "GBX_TS_Output", (450, 0))
+    nmap = _node(nt, "ShaderNodeNormalMap", "GBX_TS_NormalMap", (-150, -450))
+
+    L = nt.links
+    L.clear()
+    L.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+
+    channels = (
+        ("Color", ts.color_image, ts.color_texture, "sRGB", 200),
+        ("Normal", ts.normal_image, ts.normal_texture, "Non-Color", -100),
+        ("Roughness", ts.roughness_image, ts.roughness_texture, "Non-Color", -400),
+    )
+    for name, image_asset, texture_asset, cs, y in channels:
+        tex = _node(nt, "ShaderNodeTexImage", f"GBX_TS_{name}", (-450, y))
+        img = _private_image(mat, name, _channel_image(image_asset, texture_asset), cs)
+        tex.image = img
+        if img is None:
+            continue
+        L.new(coord.outputs["UV"], tex.inputs["Vector"])
+        if name == "Color":
+            L.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+        elif name == "Normal":
+            L.new(tex.outputs["Color"], nmap.inputs["Color"])
+            L.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+        else:
+            L.new(tex.outputs["Color"], bsdf.inputs["Roughness"])
+
+
 def sync_preview(mat):
-    """Idempotent: (re)builds the preview node tree from mat.tm_asset_properties."""
+    """Idempotent: (re)builds the preview node tree from mat.tm_asset_properties.
+    The builder is chosen by asset type in PREVIEW_BUILDERS (below)."""
     if mat is None:
         return
     if mat.node_tree is None:          # Blender 5.x materials normally have one already
         mat.use_nodes = True
+    PREVIEW_BUILDERS.get(mat.tm_asset_properties.asset_type, _sync_image_preview)(mat)
+
+
+def _sync_image_preview(mat):
+    """Preview for BITMAP / IMAGE: one image texture, shaded according to the bitmap usage."""
     nt = mat.node_tree
     if IMAGE_NODE_NAME not in nt.nodes:
         nt.nodes.clear()               # first build: drop the default nodes
@@ -184,6 +258,14 @@ def sync_preview(mat):
     elif mode == "HEIGHT":
         L.new(tex.outputs["Color"], bump.inputs["Height"])
         L.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+
+
+# asset type -> preview builder(mat). Add new asset types here; unknown types use the image preview.
+PREVIEW_BUILDERS = {
+    "BITMAP": _sync_image_preview,
+    "IMAGE": _sync_image_preview,
+    "TEXTURESET": _sync_textureset_preview,
+}
 
 
 def assign_image(mat, img):
@@ -253,7 +335,15 @@ def spawn_preview_plane(context, mat):
     obj.location = find_free_location(scene)
     obj["gbx_preview_for"] = mat.name
     get_preview_collection(scene).objects.link(obj)
-    return obj      # store it: mat.tm_asset_properties.preview_object = obj
+    return obj      # found again via get_preview_object(mat)
+
+
+def get_preview_object(mat):
+    """Preview plane of a local asset. Looked up by name instead of an ID pointer: a pointer
+    makes drag/drop from the asset browser drag the object (and its mesh) along, which
+    duplicates the library."""
+    return next((o for o in bpy.data.objects
+                 if o.library is None and o.get("gbx_preview_for") == mat.name), None)
 
 
 # --------------------------------------------------------------------------
@@ -369,7 +459,7 @@ def remove_asset_data(mat, delete_files=False):
     Returns the number of purged image records.
     """
     p = mat.tm_asset_properties
-    obj = p.preview_object
+    obj = get_preview_object(mat)
     if obj:
         mesh = obj.data
         bpy.data.objects.remove(obj, do_unlink=True)
@@ -395,6 +485,13 @@ def collect_export_data(assets, config_fns, verify=True):
 
     for mat in assets:
         p = mat.tm_asset_properties
+        if p.asset_type == "TEXTURESET":          # container only: no image, no files
+            fn = config_fns.get(p.asset_type)
+            out_assets.append({"name": mat.name, "type": p.asset_type, "image_id": "",
+                               "gbx_out": "", "gbx_game_path": "",
+                               "config": fn(p) if fn else {}})
+            continue
+
         img = p.image
         if img is None or not img.tm_image_asset.is_managed:
             problems.append(f"'{mat.name}': no image assigned")
@@ -415,11 +512,12 @@ def collect_export_data(assets, config_fns, verify=True):
         if verify and sha256_file(file) != rec.sha256:
             problems.append(f"'{mat.name}': image changed on disk since import: {file}")
 
-        key = os.path.normcase(gbx_rel)
-        if key in seen:
-            problems.append(f"'{mat.name}' and '{seen[key]}' write the same file: {gbx_rel}")
-            continue
-        seen[key] = mat.name
+        if gbx_rel:     # IMAGE assets write no gbx (empty path), so they can't collide
+            key = os.path.normcase(gbx_rel)
+            if key in seen:
+                problems.append(f"'{mat.name}' and '{seen[key]}' write the same file: {gbx_rel}")
+                continue
+            seen[key] = mat.name
 
         image_id = rec.sha256[:16]
         images.setdefault(image_id, {
@@ -462,6 +560,7 @@ CATALOG_NS = uuid.UUID("6f1c2a7e-3b54-4d0e-9a47-5d2f8a1c9e10")
 CATALOGS = {
     "BITMAP": "Textures/Bitmaps",
     "IMAGE": "Textures/Images",
+    "TEXTURESET": "Textures/TextureSets",
 }
 
 HEADER = (

@@ -66,6 +66,7 @@ from .properties.PannelsPropertyGroup       import *
 from .properties.PlacementProperties        import *
 from .properties.AttachmentProperties       import AttachmentOptionEntryProperties, AttachmentOptionProperties, AttachmentProperties
 from .properties.VariantProperties          import VariantProperties
+from .properties.VegetTreeProperties        import PositionProperties, VegetTreeProperties
 from .properties.CollectionProperties       import *
 from .properties.ObjectProperties           import *
 from .properties.PlacementPatchProperties   import *
@@ -127,6 +128,7 @@ from .ui.drawers.attachments import register_attachment_callbacks, unregister_at
 from .ui.widgets.panels import register_panel_widgets, unregister_panel_widgets
 from .ui.widgets.progress import register as register_progress, unregister as unregister_progress
 from .ui.drawers.bitmap import register as register_bitmap_drawers, unregister as unregister_bitmap_drawers
+from .ui.drawers.tree_model import register as register_tree_model_drawers, unregister as unregister_tree_model_drawers
 
 from .NICE.nice import NICE_register, NICE_unregister
 
@@ -141,6 +143,8 @@ classes = (
     AttachmentOptionProperties,
     AttachmentProperties,
     VariantProperties,
+    PositionProperties,
+    VegetTreeProperties,
     MapObjectProperties,
     #CubeCenterProperties,
 
@@ -447,7 +451,7 @@ def register():
     register_attachment_callbacks()
     register_animation_preview()
     register_bitmap_drawers()
-
+    register_tree_model_drawers()
     # templates
     register_placement_templates()
 
@@ -538,6 +542,7 @@ def unregister():
     unregister_attachment_callbacks()
     unregister_animation_preview()
     unregister_bitmap_drawers()
+    unregister_tree_model_drawers()
 
     unregister_placement_templates()
 

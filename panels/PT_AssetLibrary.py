@@ -131,6 +131,42 @@ class TM_PT_AssetLibrary_Image(AssetLibrary_TypePanel, Panel):
 
 
 
+class TM_PT_AssetLibrary_TextureSet(AssetLibrary_TypePanel, Panel):
+    bl_idname = "TM_PT_AssetLibrary_TextureSet"
+    bl_label = "TextureSet"
+    asset_type = "TEXTURESET"
+
+    def draw(self, context):
+        layout = self.layout
+        mat = active_asset(context)
+        row = layout.row(align=True)
+        row.label(text=mat.name, icon="MATERIAL")
+        row.operator(TM_OT_RenameMaterialAsset.bl_idname, text="", icon="GREASEPENCIL")
+        if mat.library:
+            layout.label(text="Linked (read-only)", icon="LINKED")
+        col = layout.column()
+        col.enabled = mat.library is None
+        ts = mat.tm_asset_properties.texture_set
+        row = col.row(align=True)
+        row.prop(ts, "use_gameplay_effect", toggle=True)
+        row = row.row(align=True)
+        row.enabled = ts.use_gameplay_effect
+        row.prop(ts, "gameplay_effect",text="")
+        row = col.row(align=True)
+        row.prop(ts, "use_surface_material", toggle=True)
+        row = row.row(align=True)
+        row.enabled = ts.use_surface_material
+        row.prop(ts, "surface_material", text="")
+        col.label(text="Images")
+        col.prop(ts, "color_image")
+        col.prop(ts, "normal_image")
+        col.prop(ts, "roughness_image")
+        col.label(text="Textures (optional)")
+        col.prop(ts, "color_texture")
+        col.prop(ts, "normal_texture")
+        col.prop(ts, "roughness_texture")
+
+
 class TM_PT_AssetLibraryExport(GBXPanelBase, Panel):
     bl_idname = "TM_PT_AssetLibraryExport"
     bl_label = "Export"
@@ -155,6 +191,7 @@ classes = (
     TM_PT_AssetLibrary_Main,
     TM_PT_AssetLibrary_Bitmap,
     TM_PT_AssetLibrary_Image,
+    TM_PT_AssetLibrary_TextureSet,
     TM_PT_AssetLibraryExport,
 )
 
