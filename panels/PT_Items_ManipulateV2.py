@@ -365,6 +365,11 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
             row.prop(obj, ObjectProp.PIVOT, text="Pivot", icon=ICON_PIVOTS)
             row.prop(obj, ObjectProp.MAGNET, text="Magnet", icon=ICON_MAGNET)
 
+            if not is_collection_instance(obj):
+                row = col.row(align=True)
+                row.enabled = not getattr(obj, ObjectProp.IGNORE)
+                row.prop(obj, ObjectProp.PARTICLE_FX, text="Particle FX", icon="PARTICLES", toggle=True)
+
             if is_collection_instance(obj):
                 col = col.column()
                 col.enabled = not getattr(obj, ObjectProp.IGNORE)

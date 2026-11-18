@@ -8,6 +8,9 @@ what the GBX layout can represent.  Child nodes and structs are attached in a
 second pass *after* registration, which also makes recursive structures (a
 ``Parameter`` containing ``Parameter`` children) trivial.
 
+Bitmap references (``Field.asset_type``) are pointers to addon asset materials
+(``tm_asset_properties``, type BITMAP), exported as asset id like the veget tree bitmaps.
+
 Per-group bookkeeping properties (not part of the GBX data):
     en_<chunk>   module (chunk) enabled   ui_<chunk>   panel expanded state
     on_<key>     optional child node present
@@ -22,9 +25,11 @@ from bpy.props import (BoolProperty, BoolVectorProperty, CollectionProperty, Enu
 
 from . import expr
 from . import schema as S
+from .codec import ROOT_CLASS
+from ..properties.PropertyIdentifiers import ObjectProp
+from ..utils.AssetLibraryFunctions import poll_asset
 
-ROOT_CLASS = "CPlugVFXFile"
-OBJECT_ATTR = "tm_fx"   # bpy.types.Object.tm_fx ; ``enabled`` marks the object as particle effect node
+OBJECT_ATTR = "tm_fx"   # bpy.types.Object.tm_fx ; ObjectProp.PARTICLE_FX marks the object as particle fx node
 
 _state = {"schema": None, "classes": {}, "reverse": {}, "registered": [], "suspend": 0}
 
@@ -45,10 +50,15 @@ def pg_class(cname: str):
     return _state["classes"][cname]
 
 
+def is_fx_node(obj) -> bool:
+    """Empty marked as particle fx node (name infix ``_particleFX_``)."""
+    return obj is not None and obj.type == "EMPTY" and bool(getattr(obj, ObjectProp.PARTICLE_FX, False))
+
+
 def settings_of(context):
-    """FX settings of the active object, or None."""
+    """FX settings of the active object when it is a particle fx node, else None."""
     ob = getattr(context, "object", None)
-    return getattr(ob, OBJECT_ATTR, None) if ob else None
+    return getattr(ob, OBJECT_ATTR, None) if is_fx_node(ob) else None
 
 
 def class_name_of(pg) -> str:
@@ -106,17 +116,6 @@ def _structure_changed(self, context):
         print("tm_fx: outline rebuild failed:", e)
 
 
-def _enabled_changed(self, context):
-    _structure_changed(self, context)
-    try:
-        from . import naming
-        owner = getattr(self, "id_data", None)
-        if isinstance(owner, bpy.types.Object):
-            naming.apply_enabled(owner)
-    except Exception as e:
-        print("tm_fx: rename failed:", e)
-
-
 def _cond_keys(cs: S.ClassSchema) -> set:
     keys = set()
 
@@ -151,6 +150,8 @@ def make_prop(f: S.Field, structural: bool):
     t = f.type
     if f.is_list and t in ("int", "float", "bool", "string", "enum"):
         return None  # collection of items, 2nd pass
+    if f.asset_type:
+        return PointerProperty(type=bpy.types.Material, poll=poll_asset(f.asset_type), **kw)
     if is_enum_like(f):
         items = enum_items(f)
         d = S.type_default(f)
@@ -160,10 +161,13 @@ def make_prop(f: S.Field, structural: bool):
     if t == "bool":
         return BoolProperty(default=bool(S.type_default(f)), **kw)
     if t == "int":
-        lo, hi = S.int_range(f)
+        if S.is_uint32(f):   # stored as signed bit pattern, full range
+            lo, hi = -(2**31), 2**31 - 1
+        else:
+            lo, hi = S.int_range(f)
         mn = lo if f.min is None else int(f.min)
         mx = hi if f.max is None else int(f.max)
-        d = max(mn, min(mx, int(S.type_default(f))))
+        d = max(mn, min(mx, S.to_blender_int(f, S.type_default(f))))
         extra = {}
         if f.soft_min is not None:
             extra["soft_min"] = int(f.soft_min)
@@ -294,7 +298,7 @@ def register():
                                              description=f"Write chunk {m.id}")
             ann[m.open_key] = BoolProperty(default=(i == 0), options={"HIDDEN"})
             for f in m.fields:
-                if f.type == "node" and not f.is_list:
+                if f.type == "node" and not f.is_list and not f.boxed:
                     ann[on_key(f)] = BoolProperty(name=f.label, default=False, update=_structure_changed,
                                                   description=description(f))
                 p = make_prop(f, structural=(f.key in cond[cname]))
@@ -311,7 +315,7 @@ def register():
         for f in cs.fields:
             if f.type in ("node", "struct"):
                 target = _state["classes"][f.ref]
-                if f.is_list:
+                if f.is_list or f.boxed:    # boxed: 0..1 items, closes a pointer cycle
                     setattr(cls, f.key, CollectionProperty(type=target, name=f.label))
                 elif f.type == "struct":
                     setattr(cls, f.key, PointerProperty(type=target, name=f.label))
@@ -327,9 +331,6 @@ def register():
                                                        description=description(f)))
 
     root = type("FXRoot", (bpy.types.PropertyGroup,), {"__annotations__": {
-        "enabled": BoolProperty(name="Particle effect node", default=False,
-                                description="Mark this object as particle effect node: shows the FX editor and exports the FX data",
-                                update=_enabled_changed),
         "vfx": PointerProperty(type=_state["classes"][ROOT_CLASS]),
         "outline": CollectionProperty(type=st["outline"]),
         "outline_index": IntProperty(update=_selected_changed),

@@ -64,6 +64,8 @@ try
             return await ConvertFbxToGbx.ExecutePlanning(payload);
         case ConvertAsset.COMMAND_NAME:
             return await ConvertAsset.Execute(payload);
+        case ConvertFxToJson.COMMAND_NAME:
+            return await ConvertFxToJson.Execute(payload);
 
         default:
             throw new Exception("No such command: " + command);

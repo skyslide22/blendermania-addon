@@ -1,0 +1,150 @@
+{
+ "class": "CPlugFxSystem",
+ "title": "FX system",
+ "modules": {
+  "0x0915C000": {
+   "label": "Effect graph"
+  }
+ },
+ "archives": {
+  "EffectNode": {
+   "title": "Effect node",
+   "title_fields": [
+    "Type",
+    "Name"
+   ],
+   "fields": {
+    "Type": {
+     "status": "guess",
+     "choices": [
+      [
+       -1,
+       "None (-1)"
+      ],
+      [
+       0,
+       "Group (0)"
+      ],
+      [
+       1,
+       "Condition (1)"
+      ],
+      [
+       2,
+       "Sub system (2)"
+      ],
+      [
+       3,
+       "Variable (3)"
+      ],
+      [
+       4,
+       "Emitter (4)"
+      ],
+      [
+       5,
+       "Sound (5)"
+      ]
+     ],
+     "tooltip": "Switches which members exist. Labels are taken from the members GBX.NET reads for each type (Children, Condition/Child, SubSystem, VariableName/Expression, Emitter, Sound)."
+    },
+    "U02": {
+     "default": "float3(0)",
+     "label": "Position offset (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke). Nadeo end sparklers use float3(0,0,5) / float3(0,0,10)."
+    },
+    "U03": {
+     "default": "float3(0,0,0)",
+     "label": "Offset 2 (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U04": {
+     "default": "1",
+     "label": "Factor A (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U05": {
+     "default": "1",
+     "label": "Intensity / rate (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke). Sparklers animate it: cos(Time/500), cos(Time/500)*Freq."
+    },
+    "U06": {
+     "default": "1",
+     "label": "Factor C (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U07": {
+     "default": "1",
+     "label": "Factor D (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U08": {
+     "default": "float3(0,1,0)",
+     "label": "Up axis (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U09": {
+     "default": "float3(0,0,-1)",
+     "label": "Forward axis (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U10": {
+     "default": "1",
+     "label": "Factor E (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U11": {
+     "default": "1",
+     "label": "Factor F (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U12": {
+     "default": 1,
+     "label": "Flag (int)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+    },
+    "U14": {
+     "default": "-1.0",
+     "label": "Hue (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke). -1.0 = none; sparklers use the variable Hue."
+    },
+    "U15": {
+     "default": "0.5",
+     "label": "Strength (expr)",
+     "status": "guess",
+     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke). TorchSmoke uses 0.2."
+    }
+   }
+  },
+  "Variable": {
+   "title": "Variable",
+   "title_fields": [
+    "Name"
+   ]
+  }
+ },
+ "fields": {
+  "InputClassId": {
+   "default": 4294967295,
+   "status": "guess",
+   "tooltip": "Class id of the input/output object. Nadeo's fx systems use 0xFFFFFFFF (none); 0 is not a valid class."
+  },
+  "OutputClassId": {
+   "default": 4294967295,
+   "status": "guess",
+   "tooltip": "Class id of the input/output object. Nadeo's fx systems use 0xFFFFFFFF (none); 0 is not a valid class."
+  }
+ }
+}

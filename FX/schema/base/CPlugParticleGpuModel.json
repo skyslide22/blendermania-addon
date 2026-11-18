@@ -197,7 +197,7 @@
      "member": "Bitmap",
      "scope": "node",
      "name": "Bitmap",
-     "type": "node",
+     "type": "ref",
      "ref": "CPlugBitmap",
      "array": null,
      "when": [
@@ -386,7 +386,7 @@
      "member": "BitmapOverLife",
      "scope": "node",
      "name": "BitmapOverLife",
-     "type": "node",
+     "type": "ref",
      "ref": "CPlugBitmap",
      "array": null,
      "line": 95
@@ -479,7 +479,7 @@
      "member": "U12",
      "scope": "chunk",
      "name": null,
-     "type": "node",
+     "type": "ref",
      "ref": "CPlugBitmap",
      "array": null,
      "line": 108
@@ -578,7 +578,7 @@
      "member": "U22",
      "scope": "chunk",
      "name": null,
-     "type": "node",
+     "type": "ref",
      "ref": "CPlugBitmap",
      "array": null,
      "line": 124
@@ -684,5 +684,5 @@
  ],
  "archives": {},
  "enums": {},
- "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af"
+ "gbxnet_commit": "50d37854865457d3280b27e80b4ec13c2fd2f3ee"
 }

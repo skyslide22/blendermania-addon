@@ -45,6 +45,7 @@ def register_object_properties():
 
     setattr(bpy.types.Object, ObjectProp.ORIGIN, _bool("Origin", "Object is an origin point", ObjectProp.ORIGIN, _update_tm_origin))
     setattr(bpy.types.Object, ObjectProp.NO_MERGE, _bool("No Merge", "Object handled as separate entity within the item receiving its own lightmap", ObjectProp.NO_MERGE, _update_tm_no_merge))
+    setattr(bpy.types.Object, ObjectProp.PARTICLE_FX, _bool("Particle FX", "Empty places a particle effect, edited in the Particle FX panel", ObjectProp.PARTICLE_FX, _update_tm_particle_fx))
 
     setattr(bpy.types.Object, ObjectProp.TRIGGER_EFFECT_TYPE, EnumProperty(name="Trigger Effect Type", description="Type of trigger effect", items=enum_items(LegacyGameplayId), default=LegacyGameplayId.None_.value,))
     setattr(bpy.types.Object, ObjectProp.GAMEPLAY_MAIN_DIR, FloatVectorProperty(name="Gameplay Main Dir", description="Main direction for gameplay", subtype='XYZ', size=3, default=(0.0, -1.0, 0.0)))
@@ -94,6 +95,13 @@ def _update_tm_origin(self, context):
 def _update_tm_no_merge(self, context):
     if _syncing: return
     toggle_infix(self, SPECIAL_NAME_INFIX_NOMERGE)
+
+def _update_tm_particle_fx(self, context):
+    if not _syncing:
+        toggle_infix(self, SPECIAL_NAME_INFIX_PARTICLEFX)
+    if getattr(self, ObjectProp.PARTICLE_FX):
+        from ..FX import api as fx_api
+        fx_api.init_fx(self)
 
 def _update_tm_pivot(self, context):
     if _syncing: return
@@ -166,6 +174,8 @@ def _on_object_renamed():
                 setattr(obj, ObjectProp.INVISIBLE, has_infix(obj.name, SPECIAL_NAME_INFIX_NOTVISIBLE))
             if getattr(obj, ObjectProp.NO_MERGE) != has_infix(obj.name, SPECIAL_NAME_INFIX_NOMERGE):
                 setattr(obj, ObjectProp.NO_MERGE, has_infix(obj.name, SPECIAL_NAME_INFIX_NOMERGE))
+            if getattr(obj, ObjectProp.PARTICLE_FX) != has_infix(obj.name, SPECIAL_NAME_INFIX_PARTICLEFX):
+                setattr(obj, ObjectProp.PARTICLE_FX, has_infix(obj.name, SPECIAL_NAME_INFIX_PARTICLEFX))
     finally:
         _syncing = False
 

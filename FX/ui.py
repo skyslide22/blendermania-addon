@@ -1,10 +1,9 @@
-import copy
-
 import bpy
 
-from . import bridge, curves, layout
+from . import api, bridge, curves
 from . import schema as S
-from .props import ROOT_CLASS, class_name_of, get_schema, is_enum_like, on_key, settings_of
+from .props import ROOT_CLASS, class_name_of, get_schema, on_key, settings_of
+from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS
 
 ICON = {"verified": "CHECKMARK", "guess": "QUESTION"}
 
@@ -30,6 +29,18 @@ def draw_field(layout, pg, f, settings, path):
     p = f"{path}.{f.key}"
     if t == "opaque":
         layout.label(text=f"{f.label}: not editable ({f.ref}), omitted", icon="LOCKED")
+    elif f.asset_type:
+        row = layout.row(align=True)
+        row.prop(pg, f.key, text=label, icon="TEXTURE")
+        if bridge.is_changed(settings, path, pg, f):
+            _op(row, "tm_fx.reset", "", "LOOP_BACK", path=path, key=f.key)
+    elif t in ("node", "struct") and f.boxed:   # optional single child stored as 0..1 collection
+        row = layout.row(align=True)
+        row.label(text=label + ("" if bridge.has_child(pg, f) else " (default)" if t == "struct" else ": none"))
+        if bridge.has_child(pg, f):
+            _op(row, "tm_fx.goto", "Edit", "RIGHTARROW", path=f"{p}[0]")
+        else:
+            _op(row, "tm_fx.add", "Add", "ADD", path=path, key=f.key)
     elif t == "node" and not f.is_list:
         row = layout.row(align=True)
         row.prop(pg, on_key(f), text=label)
@@ -39,12 +50,12 @@ def draw_field(layout, pg, f, settings, path):
         row = layout.row(align=True)
         row.label(text=f"{label}: {len(getattr(pg, f.key))}")
         _op(row, "tm_fx.add", "Add", "ADD", path=path, key=f.key)
-        if f.ref == "CPlugVFXFile.Parameter":
-            _op(row, "tm_fx.add", "GPU emitter", "PARTICLES", path=path, key=f.key, preset=True)
-    elif t == "struct":
-        box = layout.box()
-        box.label(text=label)
-        draw_node(box, getattr(pg, f.key), settings, p)
+        if f.ref == f"{ROOT_CLASS}.EffectNode":
+            _op(row, "tm_fx.add", "Emitter", "PARTICLES", path=path, key=f.key, preset=True)
+    elif t == "struct":   # inline struct: its own outline row (may be recursive)
+        row = layout.row(align=True)
+        row.label(text=bridge.row_title(getattr(pg, f.key), get_schema()[f.ref], label))
+        _op(row, "tm_fx.goto", "Edit", "RIGHTARROW", path=p)
     elif t == "curve":
         c = getattr(pg, f.key)
         box = layout.box()
@@ -129,59 +140,6 @@ def draw_node(layout, pg, settings, path):
         layout.label(text=f"{hidden} field(s) hidden by filter", icon="HIDE_ON")
 
 
-def _find_field(cs, key):
-    for m in cs.modules:
-        for f in m.fields:
-            if f.key == key:
-                return m, f
-    return None, None
-
-
-def draw_layout_section(layout_ui, pg, cs, settings, path, sec):
-    """One box of layout.json for the node ``pg``."""
-    box = layout_ui.box()
-    box.label(text=sec["title"])
-    lookup = bridge.make_lookup(pg, cs)
-    col = box.column(align=True)
-    chunks_off = set()
-    for spec in sec["fields"]:
-        m, f = _find_field(cs, spec["key"])
-        if f is None:
-            col.label(text=f"layout.json: unknown field {spec['key']}", icon="ERROR")
-            continue
-        if not S.is_visible(f, lookup):
-            continue
-        if not getattr(pg, m.en_key) and m.id not in chunks_off:
-            chunks_off.add(m.id)
-            col.prop(pg, m.en_key, text=f"Enable chunk: {m.label}", toggle=True)
-        f2 = copy.copy(f)
-        if spec.get("label"):
-            f2.label = spec["label"]
-        row = col.row(align=True)
-        row.enabled = bool(getattr(pg, m.en_key))
-        if spec.get("widget") == "texture" and f.type in ("ref", "string"):
-            row.prop(pg, f.key, text=f2.label)
-            _op(row, "tm_fx.pick_texture", "", "FILEBROWSER", path=path, key=f.key)
-        else:
-            draw_field(row, pg, f2, settings, path)
-
-
-class TMFX_UL_targets(bpy.types.UIList):
-    """Outline filtered to the classes that layout.json has sections for."""
-
-    def draw_item(self, context, layout_ui, data, item, icon, active_data, active_propname):
-        try:
-            title = bridge.row_title(bridge.resolve(data, item.path), get_schema()[item.cls], item.label)
-        except Exception:
-            title = item.cls
-        layout_ui.label(text=title, icon="PARTICLES")
-
-    def filter_items(self, context, data, propname):
-        wanted = layout.targets()
-        flags = [self.bitflag_filter_item if it.cls in wanted else 0 for it in getattr(data, propname)]
-        return flags, []
-
-
 class TMFX_UL_outline(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
         row = layout.row(align=True)
@@ -195,7 +153,7 @@ class TMFX_UL_outline(bpy.types.UIList):
 
 
 class _Panel:
-    bl_category, bl_space_type, bl_region_type = "Blendermania", "VIEW_3D", "UI"
+    locals().update(PANEL_CLASS_COMMON_DEFAULT_PROPS)
 
     @classmethod
     def poll(cls, context):
@@ -203,19 +161,22 @@ class _Panel:
 
 
 class TMFX_PT_main(_Panel, bpy.types.Panel):
-    bl_label, bl_idname = "TM Item FX", "TMFX_PT_main"
-    bl_options = {"DEFAULT_CLOSED"}
+    """Particle fx of the active empty, written to ItemConfig.ParticleFx on export"""
+    bl_label, bl_idname = "Particle FX", "TMFX_PT_main"
+    bl_parent_id = "TM_PT_ObjectManipulationsV2"
+    bl_order = 15
+
+    def draw_header(self, context):
+        self.layout.label(icon="PARTICLES")
 
     def draw(self, context):
         s = settings_of(context)
+        obj = context.object
         lay = self.layout
-        lay.prop(s, "enabled", text="Particle effect node")
-        if not s.enabled:
-            lay.label(text="Tick to edit/export FX on this object", icon="INFO")
-            return
         row = lay.row(align=True)
-        row.operator("tm_fx.import_json", text="Import", icon="IMPORT")
-        row.operator("tm_fx.export_json", text="Export", icon="EXPORT")
+        row.operator("tm_fx.import_gbx", text="Import GBX", icon="IMPORT")
+        row.operator("tm_fx.import_json", text="Import JSON", icon="IMPORT")
+        row.operator("tm_fx.export_json", text="Export JSON", icon="EXPORT")
         row = lay.row(align=True)
         row.label(text="Template: " + ("set" if s.template_json else "none"))
         _op(row, "tm_fx.template", "Use current", action="SET")
@@ -224,58 +185,17 @@ class TMFX_PT_main(_Panel, bpy.types.Panel):
         row.prop(s, "mode", expand=True)
         lay.prop(s, "search", icon="VIEWZOOM")
 
-
-class TMFX_PT_particle(_Panel, bpy.types.Panel):
-    """Simple UI, driven by layout.json."""
-    bl_label, bl_idname, bl_parent_id = "Particle", "TMFX_PT_particle", "TMFX_PT_main"
-
-    @classmethod
-    def poll(cls, context):
-        s = settings_of(context)
-        return False
-        return s is not None and s.enabled
-
-    def draw(self, context):
-        s = settings_of(context)
-        lay = self.layout
-        data = layout.load()
-
-        row = lay.row()
-        row.template_list("TMFX_UL_targets", "", s, "outline", s, "outline_index", rows=4)
-        col = row.column(align=True)
-        plist = next((f for f in get_schema()[ROOT_CLASS].fields if f.ref == "CPlugVFXFile.Parameter"), None)
-        if plist is not None:
-            _op(col, "tm_fx.add", "", "ADD", path="vfx", key=plist.key, preset=True)
-        for a, ic in (("REMOVE", "REMOVE"), ("DUPLICATE", "DUPLICATE")):
-            _op(col, "tm_fx.item", "", ic, action=a)
-        col.separator()
-        _op(col, "tm_fx.reload_layout", "", "FILE_REFRESH")
-
-        if data["error"]:
-            lay.label(text=data["error"], icon="ERROR")
-            return
-        try:
-            pg = bridge.resolve(s, s.selected_path)
-            cls = class_name_of(pg)
-        except (AttributeError, IndexError, KeyError):
-            lay.label(text="Add or select an emitter", icon="INFO")
-            return
-        cs = get_schema()[cls]
-        secs = [x for x in data["sections"] if x["target"] == cls]
-        if not secs:
-            lay.label(text=f"No layout for {cls}: select an item in the list", icon="INFO")
-        for sec in secs:
-            draw_layout_section(lay, pg, cs, s, s.selected_path, sec)
+        issues = api.get_fx_issues(obj)
+        if issues:
+            box = lay.box()
+            box.alert = True
+            for msg in issues:
+                box.label(text=msg, icon="CANCEL")
 
 
 class TMFX_PT_tree(_Panel, bpy.types.Panel):
-    bl_label, bl_idname, bl_parent_id = "Advanced: structure", "TMFX_PT_tree", "TMFX_PT_main"
-    bl_options = {"DEFAULT_CLOSED"}
-
-    @classmethod
-    def poll(cls, context):
-        s = settings_of(context)
-        return s is not None and s.enabled
+    bl_label, bl_idname, bl_parent_id = "Structure", "TMFX_PT_tree", "TMFX_PT_main"
+    bl_options = set()
 
     def draw(self, context):
         s = settings_of(context)
@@ -287,25 +207,28 @@ class TMFX_PT_tree(_Panel, bpy.types.Panel):
 
 
 class TMFX_PT_node(_Panel, bpy.types.Panel):
-    bl_label, bl_idname, bl_parent_id = "Advanced: selected node (all fields)", "TMFX_PT_node", "TMFX_PT_main"
-    bl_options = {"DEFAULT_CLOSED"}
+    bl_label, bl_idname, bl_parent_id = "Selected node", "TMFX_PT_node", "TMFX_PT_main"
+    bl_options = set()
 
-    @classmethod
-    def poll(cls, context):
+    def draw_header_preset(self, context):
         s = settings_of(context)
-        return s is not None and s.enabled
+        try:
+            pg = bridge.resolve(s, s.selected_path)
+            self.layout.label(text=bridge.row_title(pg, get_schema()[class_name_of(pg)]))
+        except (AttributeError, IndexError, KeyError):
+            pass
 
     def draw(self, context):
         s = settings_of(context)
         try:
             pg = bridge.resolve(s, s.selected_path)
-        except (AttributeError, IndexError):
-            s.selected_path = "vfx"
+        except (AttributeError, IndexError):   # stale selection (no writes allowed while drawing)
+            self.layout.label(text="Select a node in the structure list", icon="INFO")
             return
         draw_node(self.layout, pg, s, s.selected_path)
 
 
-_CLASSES = (TMFX_UL_outline, TMFX_UL_targets, TMFX_PT_main, TMFX_PT_particle, TMFX_PT_tree, TMFX_PT_node)
+_CLASSES = (TMFX_UL_outline, TMFX_PT_main, TMFX_PT_tree, TMFX_PT_node)
 
 
 def register():

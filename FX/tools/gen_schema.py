@@ -38,23 +38,25 @@ import expr  # noqa: E402  (FX/expr.py, pure python)
 GAME = "TM2020"
 SCHEMA_FORMAT = 1
 
-DEFAULT_ROOTS = ["CPlugVFXFile"]
+#: Item prefab ents reference a CPlugFxSystem (Nadeo's *.FxSys.Gbx); it is also the root the
+#: TM_GenericMapping ParticleFxConverter expects.
+DEFAULT_ROOTS = ["CPlugFxSystem"]
 
 #: Classes that become editable child nodes in the UI.  Everything else that
 #: looks like a class reference is a file reference or opaque (passthrough).
 DEFAULT_MODELED = [
-    "CPlugVFXFile",
+    "CPlugFxSystem",
     "CPlugParticleEmitterModel",
     "CPlugParticleEmitterSubModel",
     "CPlugParticleGpuSpawn",
     "CPlugParticleGpuModel",
     "CPlugParticleSplashModel",
     "CFuncEnvelope",
-    "CPlugBitmap",
     "CPlugFuncColorGradient",
 ]
 
-#: Class references that are authored as an external file path (or empty).
+#: Class references that are authored as a string (or empty): an asset id for CPlugBitmap
+#: members (see FX/schema.py ASSET_REFS), otherwise a .Gbx path.
 REF_CLASSES = {
     "CPlugMaterial", "CPlugBitmap", "CPlugShader", "CPlugSound", "CPlugDecalModel",
     "CPlugSoundSurface", "CPlugSolid2Model", "CPlugFileImg", "CPlugBitmapAtlas",
@@ -381,10 +383,9 @@ class Resolver:
         when, unresolved = None, []
         if allc:
             bound, unresolved = self._bind(self._and(allc))
-            # drop sub-expressions we could not bind (keep the field always visible instead)
-            if unresolved:
-                when = None
-            elif bound != ["bool", True]:
+            # unbound identifiers stay as "id" nodes: evaluating one raises expr.Unresolved, which
+            # counts as visible, so e.g. "Type == 5 && IsSoundSurface" still hides the field for Type 0
+            if bound != ["bool", True]:
                 when = bound
         fld = {
             "key": self.key_of(d),

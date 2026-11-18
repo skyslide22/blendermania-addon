@@ -36,6 +36,12 @@ from . import expr
 SCHEMA_DIR = Path(__file__).resolve().parent / "schema"
 
 STATUSES = ("verified", "named", "guess", "unknown")
+
+#: ``ref`` targets authored as an addon asset (``Material.tm_asset_properties.asset_type``).
+#: Only named node members: the converter writes those as file references
+#: (``node.References.<Member>``), anonymous chunk members can not hold one and stay .Gbx paths.
+#: Materials/shaders are plain path strings until custom particle materials are needed.
+ASSET_REFS = {"CPlugBitmap": "BITMAP"}
 SCALAR_TYPES = {"int", "float", "bool", "string", "enum"}
 
 
@@ -83,6 +89,8 @@ class Field:
     choices: Optional[list] = None
     note: str = ""
     subtype: Optional[str] = None
+    # derived ----------------------------------------------------------------
+    boxed: bool = False           # single child closing a pointer cycle: stored as a 0..1 collection
 
     # convenience ------------------------------------------------------------
     @property
@@ -95,8 +103,15 @@ class Field:
 
     @property
     def is_child(self) -> bool:
-        """Fields that are children in the outline tree (nodes, and lists of structs)."""
-        return self.type == "node" or (self.type == "struct" and self.is_list)
+        """Fields that are children in the outline tree (nodes and structs)."""
+        return self.type in ("node", "struct")
+
+    @property
+    def asset_type(self) -> Optional[str]:
+        """Addon asset type for ref fields that are authored as asset (see ASSET_REFS), else None."""
+        if self.type == "ref" and self.scope == "node" and not self.array:
+            return ASSET_REFS.get(self.ref)
+        return None
 
     @property
     def is_known(self) -> bool:
@@ -281,10 +296,39 @@ def load_schema(base_dir: Path = None, overlay_dir: Path = None) -> Schema:
         for f in cs.fields:
             if f.type in ("node", "struct") and f.ref not in classes:
                 warnings.append(f"{cs.name}.{f.key} references unknown class {f.ref}")
+    _mark_boxed(classes, meta.get("roots") or [])
     import hashlib
     meta = dict(meta)
     meta["overlay_hash"] = hashlib.sha1("".join(overlay_blob).encode()).hexdigest()[:8]
     return Schema(classes=classes, meta=meta, warnings=warnings)
+
+
+def _mark_boxed(classes: dict, roots: list) -> None:
+    """Single node/struct children that close a cycle (``EffectNode.Child``, ``EffectNode.SubSystem``)
+    are marked ``boxed``: Blender stores them as 0..1 collections instead of a pointer back into
+    a group that is still being expanded. Found as DFS back edges starting at the roots."""
+    state: dict = {}   # name -> 1 visiting, 2 done
+
+    def dfs(name):
+        state[name] = 1
+        cs = classes.get(name)
+        for f in (cs.fields if cs else ()):
+            if f.type not in ("node", "struct") or f.is_list or f.ref not in classes:
+                continue
+            if state.get(f.ref) == 1:
+                f.boxed = True
+            elif f.ref not in state:
+                dfs(f.ref)
+        state[name] = 2
+
+    for r in list(roots) + sorted(classes):
+        if r in classes and r not in state:
+            dfs(r)
+
+
+def child_path(path: str, f: Field) -> str:
+    """Path of a single child field (boxed ones live in item 0 of their collection)."""
+    return f"{path}.{f.key}[0]" if f.boxed else f"{path}.{f.key}"
 
 
 # ----------------------------------------------------------------- value helpers
@@ -337,6 +381,7 @@ def field_default(f: Field):
 
 
 def int_range(f: Field):
+    """Value range of an int field on the wire (uint32: 0..0xFFFFFFFF)."""
     bits = f.bits or 32
     if f.type != "int":
         return (-(2**31), 2**31 - 1)
@@ -344,7 +389,23 @@ def int_range(f: Field):
         lo, hi = -(2 ** (bits - 1)), 2 ** (bits - 1) - 1
     else:
         lo, hi = 0, 2 ** bits - 1
-    return (max(lo, -(2**31)), min(hi, 2**31 - 1))
+    return (max(lo, -(2**31)), min(hi, 2**32 - 1))
+
+
+def is_uint32(f: Field) -> bool:
+    """Unsigned 32-bit ints do not fit Blender's signed IntProperty: Blender keeps the same bit pattern
+    as signed value (0xFFFFFFFF <-> -1), see to_blender_int / from_blender_int."""
+    return f.type == "int" and not f.signed and (f.bits or 32) == 32
+
+
+def to_blender_int(f: Field, v: int) -> int:
+    v = int(v)
+    return v - 2**32 if is_uint32(f) and v >= 2**31 else v
+
+
+def from_blender_int(f: Field, v: int) -> int:
+    v = int(v)
+    return v & 0xFFFFFFFF if is_uint32(f) else v
 
 
 def is_visible(f: Field, lookup) -> bool:

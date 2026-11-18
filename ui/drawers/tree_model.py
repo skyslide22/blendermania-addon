@@ -24,14 +24,15 @@ def draw_tree_model_collection(layout, collection: bpy.types.Collection) -> None
     layout.prop(tree, "force_no_collision")
     layout.prop(tree, "impostor_all_planes_visible")
     layout.prop(tree, "lod_dist_at_fov90")
+    layout.prop(tree, "propagation_max_random_scale_reduction_per_instance", slider=True)
     layout.prop(tree, "receive_pssm")
     layout.prop(tree, "plane_compute_mode")
 
     layout.prop(tree, "enable_propagation")
     col = layout.column(align=True)
     col.enabled = tree.enable_propagation
-    col.prop(tree, "propagation_base_color")
-    col.prop(tree, "propagation_normal")
+    col.prop(tree, "propagation_base_color", icon="TEXTURE")
+    col.prop(tree, "propagation_normal", icon="TEXTURE")
     row = col.row(align=True)
     row.prop(tree, "propagation_atlas_grid")
     col.prop(tree, "propagation_cone_half_angle_degree")
@@ -39,7 +40,6 @@ def draw_tree_model_collection(layout, collection: bpy.types.Collection) -> None
     col.prop(tree, "propagation_ground_gen_point_count")
     col.prop(tree, "propagation_leaf_per_second")
     col.prop(tree, "propagation_leaf_size")
-    col.prop(tree, "propagation_max_random_scale_reduction_per_instance")
     col.label(text="Emission Positions")
     list_inspector(col, 
                    tree,
@@ -49,6 +49,9 @@ def draw_tree_model_collection(layout, collection: bpy.types.Collection) -> None
                    # show_clipboard=True, 
                    copy_on_add='SELECTED')
 
+    if tree.enable_propagation:
+        from ...FX.preview import draw_tree_preview   # viewport overlay of the falling leaves
+        draw_tree_preview(layout, bpy.context, collection)
 
 
     item = get_item_root(collection, bpy.context.scene)

@@ -415,13 +415,13 @@ class VegetTreeConfig:
     PropagationBaseColorBitmap: str | None = None
     PropagationNormalBitmap: str | None = None
     PropagationAtlasGrid: Int2 | None = None
-    PropagationConeHalfAngleDegree: float | None = None
+    PropagationConeHalfAngleDeg: float | None = None
     PropagationEmissionPositions: list[Vec3] | None = None
     PropagationEmissionSpawnRadius: float | None = None
     PropagationGroundGenPointCount: int | None = None
-    PropagationLeafPerSecond: int | None = None
+    PropagationLeafPerSecondCount: int | None = None
     PropagationLeafSize: float | None = None
-    PropagationMaxRandomScaleReductionPerInstance: float | None = None
+    MaxRandomScaleReductionPerInstance: float | None = None
     ReceivePSSM: bool | None = None
 
 
@@ -577,12 +577,11 @@ class VariantConfig:
 
 
 @dataclass
-class ParticleSystemConfig:
-    # one per object marked as particle effect node (FX package); Name is the object name (contains _particleFX_) as in the fbx
+class ParticleFxConfig:
+    # one per particle fx empty (FX package); placed at the fbx node named Name (object name, contains _particleFX_)
     Name: str = ""
-    MovingGroup: str | None = None
     Variant: str | None = None       # variant (ItemConfig.Variants[].Name) it belongs to, None: part of every variant
-    Config: dict[str, Any] = field(default_factory=dict)   # FX.api.export_fx document
+    Fx: dict[str, Any] = field(default_factory=dict)   # tm-fx/1 document, root CPlugFxSystem (FX.api.export_fx)
 
 
 @dataclass
@@ -603,12 +602,12 @@ class ItemConfig:
     Materials: list[MaterialConfig] = field(default_factory=list)
     Meshes: list[MeshConfig] = field(default_factory=list)
     Lights: list[LightConfig] = field(default_factory=list)
-    ParticleSystems: list[ParticleSystemConfig] = field(default_factory=list)
     Instances: list[InstanceConfig] = field(default_factory=list)
     InstanceCollections: list[InstanceCollectionConfig] = field(default_factory=list)
     MovingGroups: list[MovingGroupConfig] = field(default_factory=list)
     Assets: list[AssetConfig] = field(default_factory=list)
     VegetTrees: list[VegetTreeConfig] = field(default_factory=list)
+    ParticleFx: list[ParticleFxConfig] = field(default_factory=list)
     LodParameters: LodParameters | None = None
     ConversionOptions: ItemConversionOptions = ItemConversionOptions.None_
 
@@ -682,6 +681,8 @@ def item_config_to_dict(item: ItemConfig, drop_none: bool = True) -> dict[str, A
         data.pop("Assets", None)
     if not item.VegetTrees:
         data.pop("VegetTrees", None)
+    if not item.ParticleFx:
+        data.pop("ParticleFx", None)
 
     return _drop_nones(data) if drop_none else data
 

@@ -13,6 +13,7 @@ DOTNET_COMMANDS = (
     CONVERT_FBX_TO_GBX               := "convert-fbx-to-gbx",
     PLAN_FBX_TO_GBX                  := "plan-fbx-to-gbx",
     CONVERT_ASSET                    := "convert-asset",
+    CONVERT_FX_TO_JSON               := "convert-fx-to-json",
 
 )
 

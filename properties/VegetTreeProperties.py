@@ -1,3 +1,5 @@
+import math
+
 import bpy
 from bpy.props import *
 from ..utils.AssetLibraryFunctions import poll_asset
@@ -10,7 +12,7 @@ class PositionProperties(bpy.types.PropertyGroup):
 class VegetTreeProperties(bpy.types.PropertyGroup):
     """veget tree settings of a collection of type TreeModel, written to ItemConfig.VegetTrees on export (lod distances come from the item)"""
 
-    angle_max_rot_xz_deg: FloatProperty(name="Max Rotation XZ", subtype='ANGLE', description="Maximum tilt in degrees", default=0.0, soft_min=0.0, soft_max=360.0, unit='ROTATION')
+    angle_max_rot_xz_deg: FloatProperty(name="Max Rotation XZ", subtype='ANGLE', description="Maximum tilt (exported in degrees)", default=0.0, soft_min=0.0, soft_max=math.radians(360.0), unit='ROTATION')
     enable_random_rotation_y: BoolProperty(name="Random Rotation Y", default=False, description="Randomly rotate the tree around the Y axis when placing")
     force_no_collision: BoolProperty(name="Force No Collision", default=False)
     impostor_all_planes_visible: BoolProperty(name="Impostor All Planes Visible", default=False)
@@ -21,7 +23,7 @@ class VegetTreeProperties(bpy.types.PropertyGroup):
     propagation_base_color: PointerProperty(name="BaseColor", type=bpy.types.Material, poll=poll_asset("BITMAP"), description="Base color image for the propagation atlas")
     propagation_normal: PointerProperty(name="Normal", type=bpy.types.Material, poll=poll_asset("BITMAP"), description="Normal image for the propagation atlas")
     propagation_atlas_grid: IntVectorProperty(name="Atlas Grid", default=(1, 1), size=2, subtype='XYZ', soft_min=1, description="Number of cells in the propagation atlas")
-    propagation_cone_half_angle_degree: FloatProperty(name="Cone Half Angle", subtype='ANGLE', description="Half angle of the propagation cone in degrees", default=45.0, soft_min=0.0, soft_max=180.0, unit='ROTATION')
+    propagation_cone_half_angle_degree: FloatProperty(name="Cone Half Angle", subtype='ANGLE', description="Half angle of the propagation cone (exported in degrees)", default=math.radians(45.0), soft_min=0.0, soft_max=math.radians(180.0), unit='ROTATION')
     propagation_emission_positions: CollectionProperty(name="Emission Positions", type=PositionProperties, description="Emission positions for the propagation")
     propagation_emission_position_index: IntProperty(name="Emission Position Index", description="Index of the selected emission position", default=0)
 
@@ -29,7 +31,8 @@ class VegetTreeProperties(bpy.types.PropertyGroup):
     propagation_ground_gen_point_count: IntProperty(name="Ground Point Count", description="Number of ground generation points for the propagation", default=300, min=0)
     propagation_leaf_per_second: IntProperty(name="Leaves Per Second", description="Number of leaves emitted per second", default=20, min=0)
     propagation_leaf_size: FloatProperty(name="Leaf Size", description="Size of the leaves emitted", default=0.1, min=0.0)
-    propagation_max_random_scale_reduction_per_instance: FloatProperty(name="Max Scale Reduction Per Instance", default=0.1, soft_min=0.0, description="Scale variation parameter 01")
+    # identifier kept for saved files: this is the tree's random size (CPlugVegetTreeModel.ScaleVar01), not a propagation setting
+    propagation_max_random_scale_reduction_per_instance: FloatProperty(name="Scale Variation", default=0.1, min=0.0, max=1.0, subtype='FACTOR', description="Random size reduction of each placed tree (0 = all the same size, 1 = up to 100% smaller)")
 
     receive_pssm: BoolProperty(name="Receive PSSM", default=True, description="Whether the tree should receive PSSM shadows")
 

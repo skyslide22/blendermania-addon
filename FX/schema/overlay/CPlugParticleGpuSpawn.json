@@ -1,0 +1,30 @@
+{
+ "class": "CPlugParticleGpuSpawn",
+ "title": "GPU spawn",
+ "archives": {
+  "ParticleGpuSpawn": {
+   "title": "Spawn",
+   "fields": {
+    "U04": {
+     "label": "Rate",
+     "unit": "1/s",
+     "min": 0.0,
+     "status": "guess",
+     "tooltip": "Particles per second (or pulses), found by testing in game. Nadeo: Fogger8M 50, TorchSmoke 10, Sparkler8m 200."
+    },
+    "U11": {
+     "label": "Speed",
+     "unit": "m/s",
+     "status": "guess",
+     "tooltip": "Initial velocity, found by testing in game. Nadeo: Fogger8M 8, TorchSmoke 0, Sparkler8m 20."
+    },
+    "U12": {
+     "label": "Speed variation",
+     "unit": "m/s",
+     "status": "guess",
+     "tooltip": "Also speed related, probably its random variation, found by testing in game. Nadeo: Fogger8M 1, TorchSmoke 0, Sparkler8m 10."
+    }
+   }
+  }
+ }
+}

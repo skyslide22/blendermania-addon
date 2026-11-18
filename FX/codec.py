@@ -1,5 +1,10 @@
 """The FX wire format and the pure-Python rules around it (no ``bpy``).
 
+The root is a ``CPlugFxSystem`` (what item prefab ents reference, see Nadeo's
+*.FxSys.Gbx).  The document ``{"format": "tm-fx/1", "vfx": <root>}`` is embedded in the
+item config (``ItemConfig.ParticleFx[].Fx``) and converted by TM_GenericMapping's
+``ParticleFxConverter``.
+
 A *node* (a GBX class instance, e.g. ``CPlugParticleGpuModel``) is exported as::
 
     {
@@ -10,9 +15,9 @@ A *node* (a GBX class instance, e.g. ``CPlugParticleGpuModel``) is exported as::
       "extra":  { ... }                                         # optional, unknown data passed through
     }
 
-A *struct* (an inline GBX archive, e.g. a ``CPlugVFXFile.Parameter``) is::
+A *struct* (an inline GBX archive, e.g. a ``CPlugFxSystem.EffectNode``) is::
 
-    { "$struct": "CPlugVFXFile.Parameter", "props": { "Type": 1, "Name": "fog", "U16": 0 } }
+    { "$struct": "CPlugFxSystem.EffectNode", "props": { "Type": 4, "Name": "fog", "Emitter": {...} } }
 
 Child nodes/structs are nested in place of the member value; a null node reference
 is ``null``; lists are JSON arrays.  Member names are the real GBX.NET C# member
@@ -23,8 +28,8 @@ names, so a converter can apply them by reflection:
     archive members     ->  archive.<Name or Unn>
 
 Value encodings: int/float/bool/string as JSON; enums as their integer value;
-vectors as arrays; ``blob`` as lower-case hex; ``ref`` as a file path string
-(or ``""`` for none); ``curve`` as ``{"version":3,"flags":int,"points":[[t,v],...]}``.
+vectors as arrays; ``blob`` as lower-case hex; ``ref`` as a string (``""`` for none):
+an asset id (``ItemConfig.Assets[].Id``) for asset refs (``Field.asset_type``), else a .Gbx path; ``curve`` as ``{"version":3,"flags":int,"points":[[t,v],...]}``.
 """
 from __future__ import annotations
 
@@ -34,10 +39,11 @@ import re
 from typing import Any, Optional
 
 from . import expr
-from .schema import (ClassSchema, Field, Schema, field_default, int_range, is_visible,
+from .schema import (ClassSchema, Field, Schema, child_path, field_default, int_range, is_visible,
                      type_default)
 
 FORMAT = "tm-fx/1"
+ROOT_CLASS = "CPlugFxSystem"
 MISSING = object()
 CURVE_VERSION = 3
 
@@ -95,15 +101,13 @@ def normalize_curve(v) -> dict:
 def default_values(schema: Schema, cs: ClassSchema) -> dict:
     """key -> default value for every field of a class/struct.
 
-    Single inline structs are always present (they are not nullable); node
-    references are null and lists are empty until something is added.
+    Single inline structs are ``None`` here and built lazily when they are written
+    (they can be recursive, e.g. ``EffectNode.Child``); node references are null and
+    lists are empty until something is added.
     """
     out = {}
     for f in cs.fields:
-        if f.type == "struct" and not f.is_list:
-            out[f.key] = default_struct(schema, f.ref)
-        else:
-            out[f.key] = copy.deepcopy(field_default(f))
+        out[f.key] = None if (f.type == "struct" and not f.is_list) else copy.deepcopy(field_default(f))
     return out
 
 
@@ -127,12 +131,14 @@ def _elem_to_wire(f: Field, v):
     return normalize_scalar(f, v)
 
 
-def _field_to_wire(f: Field, v):
+def _field_to_wire(schema: Schema, f: Field, v):
     if f.type == "opaque":
         return None
     if f.type in ("node", "struct"):
         if f.is_list:
             return list(v or [])
+        if f.type == "struct" and v is None:      # inline structs are not nullable
+            return default_struct(schema, f.ref)
         return v
     if f.is_list:
         return [normalize_scalar(f, x) for x in (v or [])]
@@ -165,7 +171,7 @@ def node_to_wire(schema: Schema, cname: str, values: dict, enabled, extra: Optio
         for f in m.fields:
             if f.type == "opaque" or not is_visible(f, lookup):
                 continue
-            v = _field_to_wire(f, values.get(f.key, field_default(f)))
+            v = _field_to_wire(schema, f, values.get(f.key, field_default(f)))
             if f.scope == "node":
                 props.setdefault(f.member, v)
             else:
@@ -184,7 +190,7 @@ def struct_to_wire(schema: Schema, qname: str, values: dict, extra: Optional[dic
     for f in cs.fields:
         if f.type == "opaque" or not is_visible(f, lookup):
             continue
-        props[f.member] = _field_to_wire(f, values.get(f.key, field_default(f)))
+        props[f.member] = _field_to_wire(schema, f, values.get(f.key, field_default(f)))
     out = {"$struct": qname, "props": props}
     if extra:
         out["extra"] = extra
@@ -308,13 +314,13 @@ def flatten(schema: Schema, cname: str, wire: dict, path: str, out: Optional[dic
                 else:
                     out[f"{p}@on"] = v is not None
                     if v is not None:
-                        flatten(schema, f.ref, v, p, out)
+                        flatten(schema, f.ref, v, child_path(path, f), out)
             elif f.type == "struct":
                 if f.is_list:
                     for i, child in enumerate(v):
                         flatten(schema, f.ref, child, f"{p}[{i}]", out, is_struct=True)
                 elif v is not None:
-                    flatten(schema, f.ref, v, p, out, is_struct=True)
+                    flatten(schema, f.ref, v, child_path(path, f), out, is_struct=True)
             else:
                 out[p] = v
     return out
@@ -372,6 +378,7 @@ def validate(schema: Schema, wire: dict, cname: Optional[str] = None, path: str 
 
 
 # ------------------------------------------------------------------------ presets
+# Structure only: every value comes from the generated schema defaults.
 def _find_node_field(cs: ClassSchema, ref: str):
     for f in cs.fields:
         if f.type == "node" and f.ref == ref:
@@ -391,22 +398,20 @@ def preset_gpu_submodel(schema: Schema) -> dict:
     return node_to_wire(schema, "CPlugParticleEmitterSubModel", sv, {m.id for m in cs.modules})
 
 
-def preset_gpu_emitter(schema: Schema, name: str = "Emitter") -> dict:
-    """A structurally complete GPU emitter: Parameter(Type=1) -> EmitterModel -> SubModel
-    -> GpuSpawn + GpuModel.  This is a *skeleton* with schema defaults, not a tuned effect:
-    load a template exported from a working item for realistic values."""
+def preset_emitter_node(schema: Schema, name: str = "Emitter") -> dict:
+    """EffectNode(Type=4) -> EmitterModel -> SubModel -> GpuSpawn + GpuModel, schema defaults."""
     em_cs = schema["CPlugParticleEmitterModel"]
     ev = default_values(schema, em_cs)
     lst = next(f for f in em_cs.fields if f.type == "node" and f.ref == "CPlugParticleEmitterSubModel")
     ev[lst.key] = [preset_gpu_submodel(schema)]
     emitter = node_to_wire(schema, "CPlugParticleEmitterModel", ev, {m.id for m in em_cs.modules})
 
-    p_cs = schema["CPlugVFXFile.Parameter"]
-    pv = default_values(schema, p_cs)
-    pv["Type"] = 1
-    pv["Name"] = name
-    pv["Emitter"] = emitter
-    return struct_to_wire(schema, "CPlugVFXFile.Parameter", pv)
+    qname = f"{ROOT_CLASS}.EffectNode"
+    nv = default_values(schema, schema[qname])
+    nv["Type"] = 4
+    nv["Name"] = name
+    nv["Emitter"] = emitter
+    return struct_to_wire(schema, qname, nv)
 
 
 def new_item_wire(schema: Schema, ref: str) -> dict:
@@ -417,11 +422,29 @@ def new_item_wire(schema: Schema, ref: str) -> dict:
     return default_node(schema, ref) if cs.kind == "node" else default_struct(schema, ref)
 
 
-def root_wire(schema: Schema, parameters: Optional[list] = None) -> dict:
-    cs = schema["CPlugVFXFile"]
+def root_wire(schema: Schema) -> dict:
+    """Empty fx system: the root effect node is a group (Type 0) without children."""
+    cs = schema[ROOT_CLASS]
     v = default_values(schema, cs)
-    v["Parameters"] = parameters or []
-    return node_to_wire(schema, "CPlugVFXFile", v, {m.id for m in cs.modules})
+    qname = f"{ROOT_CLASS}.EffectNode"
+    rv = default_values(schema, schema[qname])
+    rv["Type"] = 0
+    rv["Name"] = "Root"
+    v["Root"] = struct_to_wire(schema, qname, rv)
+    return node_to_wire(schema, ROOT_CLASS, v, {m.id for m in cs.modules})
+
+
+def wrap_emitter(schema: Schema, emitter: dict, name: str = "Emitter") -> dict:
+    """fx system whose group root holds one emitter node (Type 4) with ``emitter``
+    (a CPlugParticleEmitterModel wire, e.g. read from a Nadeo *.ParticleModel.Gbx)."""
+    qname = f"{ROOT_CLASS}.EffectNode"
+    nv = default_values(schema, schema[qname])
+    nv["Type"] = 4
+    nv["Name"] = name
+    nv["Emitter"] = emitter
+    root = root_wire(schema)
+    root["props"]["Root"]["props"]["Children"] = [struct_to_wire(schema, qname, nv)]
+    return root
 
 
 def document(schema: Schema, root: dict) -> dict:

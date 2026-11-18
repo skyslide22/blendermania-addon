@@ -1,68 +1,124 @@
 {
  "schema_format": 1,
- "class": "CPlugVFXFile",
+ "class": "CPlugFxSystem",
  "kind": "node",
- "id": "0x09153000",
+ "id": "0x0915C000",
  "game": "TM2020",
- "source": "Engines/Plug/CPlugVFXFile.chunkl",
+ "source": "Engines/Plug/CPlugFxSystem.chunkl",
  "chunks": [
   {
-   "id": "0x09153000",
+   "id": "0x0915C000",
    "offset": "0x000",
-   "version": 3,
+   "version": 2,
    "attrs": [],
-   "comment": "effect parameters and mappings",
+   "comment": "effect graph and variables",
    "fields": [
     {
-     "key": "ParameterVersion",
-     "member": "ParameterVersion",
+     "key": "NodeVersion",
+     "member": "NodeVersion",
      "scope": "node",
-     "name": "ParameterVersion",
+     "name": "NodeVersion",
      "type": "int",
      "bits": 32,
      "signed": true,
      "array": null,
-     "default": 6,
+     "default": 10,
+     "line": 5
+    },
+    {
+     "key": "Root",
+     "member": "Root",
+     "scope": "node",
+     "name": "Root",
+     "type": "struct",
+     "ref": "CPlugFxSystem.EffectNode",
+     "array": null,
      "line": 6
     },
     {
-     "key": "Parameters",
-     "member": "Parameters",
+     "key": "InputClassId",
+     "member": "InputClassId",
      "scope": "node",
-     "name": "Parameters",
-     "type": "struct",
-     "ref": "CPlugVFXFile.Parameter",
-     "array": "list",
-     "line": 7
-    },
-    {
-     "key": "ClassId",
-     "member": "ClassId",
-     "scope": "node",
-     "name": "ClassId",
+     "name": "InputClassId",
      "type": "int",
      "bits": 32,
      "signed": false,
      "array": null,
+     "line": 7
+    },
+    {
+     "key": "OutputClassId",
+     "member": "OutputClassId",
+     "scope": "node",
+     "name": "OutputClassId",
+     "type": "int",
+     "bits": 32,
+     "signed": false,
+     "array": null,
+     "line": 8
+    },
+    {
+     "key": "VariableVersion",
+     "member": "VariableVersion",
+     "scope": "node",
+     "name": "VariableVersion",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "default": 55,
      "line": 11
     },
     {
-     "key": "Mappings",
-     "member": "Mappings",
+     "key": "Variables",
+     "member": "Variables",
      "scope": "node",
-     "name": "Mappings",
+     "name": "Variables",
      "type": "struct",
-     "ref": "CPlugVFXFile.Mapping",
+     "ref": "CPlugFxSystem.Variable",
      "array": "list",
-     "line": 13
+     "line": 12
+    },
+    {
+     "key": "HasSource",
+     "member": "HasSource",
+     "scope": "node",
+     "name": "HasSource",
+     "type": "bool",
+     "array": null,
+     "line": 14
+    },
+    {
+     "key": "c000_U01",
+     "member": "U01",
+     "scope": "chunk",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "line": 15
+    },
+    {
+     "key": "c000_U02",
+     "member": "U02",
+     "scope": "chunk",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "key",
+      "HasSource"
+     ],
+     "line": 17
     }
    ]
   }
  ],
  "archives": {
-  "Parameter": {
+  "EffectNode": {
    "version": null,
-   "caller_version": 6,
+   "caller_version": 10,
    "fields": [
     {
      "key": "Type",
@@ -74,7 +130,7 @@
      "signed": true,
      "array": null,
      "default": -1,
-     "line": 16
+     "line": 20
     },
     {
      "key": "Name",
@@ -96,121 +152,16 @@
        0
       ]
      ],
-     "line": 18
+     "line": 22
     },
     {
-     "key": "U01",
-     "member": "U01",
+     "key": "Children",
+     "member": "Children",
      "scope": "archive",
-     "name": null,
-     "type": "int",
-     "bits": 32,
-     "signed": true,
-     "array": null,
-     "when": [
-      "bin",
-      ">=",
-      [
-       "key",
-       "Type"
-      ],
-      [
-       "num",
-       0
-      ]
-     ],
-     "line": 19
-    },
-    {
-     "key": "U02",
-     "member": "U02",
-     "scope": "archive",
-     "name": null,
-     "type": "int",
-     "bits": 32,
-     "signed": true,
-     "array": null,
-     "when": [
-      "bin",
-      ">=",
-      [
-       "key",
-       "Type"
-      ],
-      [
-       "num",
-       0
-      ]
-     ],
-     "line": 20
-    },
-    {
-     "key": "U03",
-     "member": "U03",
-     "scope": "archive",
-     "name": null,
-     "type": "int",
-     "bits": 32,
-     "signed": true,
-     "array": null,
-     "when": [
-      "bin",
-      ">=",
-      [
-       "key",
-       "Type"
-      ],
-      [
-       "num",
-       0
-      ]
-     ],
-     "line": 21
-    },
-    {
-     "key": "U04",
-     "member": "U04",
-     "scope": "archive",
-     "name": null,
-     "type": "float",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ]
-     ],
-     "line": 23
-    },
-    {
-     "key": "U05",
-     "member": "U05",
-     "scope": "archive",
-     "name": null,
-     "type": "float",
-     "array": null,
+     "name": "Children",
+     "type": "struct",
+     "ref": "CPlugFxSystem.EffectNode",
+     "array": "list",
      "when": [
       "bin",
       "&&",
@@ -242,47 +193,10 @@
      "line": 24
     },
     {
-     "key": "U06",
-     "member": "U06",
+     "key": "Condition",
+     "member": "Condition",
      "scope": "archive",
-     "name": null,
-     "type": "float",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ]
-     ],
-     "line": 25
-    },
-    {
-     "key": "U07",
-     "member": "U07",
-     "scope": "archive",
-     "name": null,
+     "name": "Condition",
      "type": "string",
      "array": null,
      "when": [
@@ -309,18 +223,19 @@
        ],
        [
         "num",
-        0
+        1
        ]
       ]
      ],
      "line": 26
     },
     {
-     "key": "U08",
-     "member": "U08",
+     "key": "Child",
+     "member": "Child",
      "scope": "archive",
-     "name": null,
-     "type": "string",
+     "name": "Child",
+     "type": "struct",
+     "ref": "CPlugFxSystem.EffectNode",
      "array": null,
      "when": [
       "bin",
@@ -346,17 +261,55 @@
        ],
        [
         "num",
-        0
+        1
        ]
       ]
      ],
      "line": 27
     },
     {
-     "key": "U09",
-     "member": "U09",
+     "key": "SubSystem",
+     "member": "SubSystem",
      "scope": "archive",
-     "name": null,
+     "name": "SubSystem",
+     "type": "node",
+     "ref": "CPlugFxSystem",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        2
+       ]
+      ]
+     ],
+     "line": 29
+    },
+    {
+     "key": "VariableName",
+     "member": "VariableName",
+     "scope": "archive",
+     "name": "VariableName",
      "type": "string",
      "sub": "id",
      "array": null,
@@ -384,11 +337,87 @@
        ],
        [
         "num",
-        0
+        3
        ]
       ]
      ],
-     "line": 28
+     "line": 31
+    },
+    {
+     "key": "U01",
+     "member": "U01",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        3
+       ]
+      ]
+     ],
+     "line": 32
+    },
+    {
+     "key": "Expression",
+     "member": "Expression",
+     "scope": "archive",
+     "name": "Expression",
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        3
+       ]
+      ]
+     ],
+     "line": 33
     },
     {
      "key": "Emitter",
@@ -422,15 +451,423 @@
        ],
        [
         "num",
-        1
+        4
        ]
       ]
      ],
-     "line": 32
+     "line": 35
     },
     {
-     "key": "U16",
-     "member": "U16",
+     "key": "Target",
+     "member": "Target",
+     "scope": "archive",
+     "name": "Target",
+     "type": "string",
+     "sub": "id",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 36
+    },
+    {
+     "key": "U02",
+     "member": "U02",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 37
+    },
+    {
+     "key": "U03",
+     "member": "U03",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 38
+    },
+    {
+     "key": "U04",
+     "member": "U04",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 40
+    },
+    {
+     "key": "U05",
+     "member": "U05",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 41
+    },
+    {
+     "key": "U06",
+     "member": "U06",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 42
+    },
+    {
+     "key": "U07",
+     "member": "U07",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 43
+    },
+    {
+     "key": "U08",
+     "member": "U08",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 45
+    },
+    {
+     "key": "U09",
+     "member": "U09",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 46
+    },
+    {
+     "key": "U10",
+     "member": "U10",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 48
+    },
+    {
+     "key": "U11",
+     "member": "U11",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        4
+       ]
+      ]
+     ],
+     "line": 50
+    },
+    {
+     "key": "U12",
+     "member": "U12",
      "scope": "archive",
      "name": null,
      "type": "int",
@@ -461,284 +898,15 @@
        ],
        [
         "num",
-        1
+        4
        ]
       ]
      ],
-     "line": 42
+     "line": 52
     },
     {
-     "key": "U17",
-     "member": "U17",
-     "scope": "archive",
-     "name": null,
-     "type": "float",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        1
-       ]
-      ]
-     ],
-     "line": 43
-    },
-    {
-     "key": "U18",
-     "member": "U18",
-     "scope": "archive",
-     "name": null,
-     "type": "float",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        1
-       ]
-      ]
-     ],
-     "line": 44
-    },
-    {
-     "key": "U19",
-     "member": "U19",
-     "scope": "archive",
-     "name": null,
-     "type": "float",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        1
-       ]
-      ]
-     ],
-     "line": 45
-    },
-    {
-     "key": "Children",
-     "member": "Children",
-     "scope": "archive",
-     "name": "Children",
-     "type": "struct",
-     "ref": "CPlugVFXFile.Parameter",
-     "array": "list",
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        2
-       ]
-      ]
-     ],
-     "line": 47
-    },
-    {
-     "key": "Mappings",
-     "member": "Mappings",
-     "scope": "archive",
-     "name": "Mappings",
-     "type": "struct",
-     "ref": "CPlugVFXFile.Mapping",
-     "array": "list",
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        2
-       ]
-      ]
-     ],
-     "line": 48
-    },
-    {
-     "key": "EmitterModel",
-     "member": "EmitterModel",
-     "scope": "archive",
-     "name": "EmitterModel",
-     "type": "node",
-     "ref": "CPlugParticleEmitterModel",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        3
-       ]
-      ]
-     ],
-     "attrs": [
-      "direct"
-     ],
-     "line": 50
-    },
-    {
-     "key": "EmitterSubModel",
-     "member": "EmitterSubModel",
-     "scope": "archive",
-     "name": "EmitterSubModel",
-     "type": "node",
-     "ref": "CPlugParticleEmitterSubModel",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        3
-       ]
-      ]
-     ],
-     "attrs": [
-      "direct"
-     ],
-     "line": 51
-    },
-    {
-     "key": "U21",
-     "member": "U21",
+     "key": "U14",
+     "member": "U14",
      "scope": "archive",
      "name": null,
      "type": "string",
@@ -774,8 +942,8 @@
      "line": 56
     },
     {
-     "key": "U22",
-     "member": "U22",
+     "key": "U15",
+     "member": "U15",
      "scope": "archive",
      "name": null,
      "type": "string",
@@ -811,11 +979,12 @@
      "line": 57
     },
     {
-     "key": "U23",
-     "member": "U23",
+     "key": "Sound",
+     "member": "Sound",
      "scope": "archive",
-     "name": null,
-     "type": "string",
+     "name": "Sound",
+     "type": "ref",
+     "ref": "CPlugSound",
      "array": null,
      "when": [
       "bin",
@@ -841,52 +1010,92 @@
        ],
        [
         "num",
-        4
-       ]
-      ]
-     ],
-     "line": 58
-    },
-    {
-     "key": "U24",
-     "member": "U24",
-     "scope": "archive",
-     "name": null,
-     "type": "string",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        4
+        5
        ]
       ]
      ],
      "line": 59
     },
     {
-     "key": "U25",
-     "member": "U25",
+     "key": "U16",
+     "member": "U16",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "sub": "id",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        5
+       ]
+      ]
+     ],
+     "line": 60
+    },
+    {
+     "key": "U17",
+     "member": "U17",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       ">=",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        0
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        5
+       ]
+      ]
+     ],
+     "line": 61
+    },
+    {
+     "key": "U19",
+     "member": "U19",
      "scope": "archive",
      "name": null,
      "type": "string",
@@ -915,15 +1124,15 @@
        ],
        [
         "num",
-        4
+        5
        ]
       ]
      ],
-     "line": 60
+     "line": 64
     },
     {
-     "key": "U26",
-     "member": "U26",
+     "key": "U20",
+     "member": "U20",
      "scope": "archive",
      "name": null,
      "type": "int",
@@ -954,133 +1163,18 @@
        ],
        [
         "num",
-        4
+        5
        ]
       ]
      ],
-     "line": 61
+     "line": 66
     },
     {
-     "key": "U27",
-     "member": "U27",
+     "key": "U21",
+     "member": "U21",
      "scope": "archive",
      "name": null,
-     "type": "float",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        4
-       ]
-      ]
-     ],
-     "line": 62
-    },
-    {
-     "key": "U28",
-     "member": "U28",
-     "scope": "archive",
-     "name": null,
-     "type": "int",
-     "bits": 32,
-     "signed": true,
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        4
-       ]
-      ]
-     ],
-     "line": 63
-    },
-    {
-     "key": "U29",
-     "member": "U29",
-     "scope": "archive",
-     "name": null,
-     "type": "int",
-     "bits": 32,
-     "signed": true,
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        4
-       ]
-      ]
-     ],
-     "line": 65
-    },
-    {
-     "key": "U30",
-     "member": "U30",
-     "scope": "archive",
-     "name": null,
-     "type": "float",
+     "type": "string",
      "array": null,
      "when": [
       "bin",
@@ -1113,48 +1207,11 @@
      "line": 67
     },
     {
-     "key": "U31",
-     "member": "U31",
+     "key": "U22",
+     "member": "U22",
      "scope": "archive",
      "name": null,
-     "type": "float",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        5
-       ]
-      ]
-     ],
-     "line": 68
-    },
-    {
-     "key": "U32",
-     "member": "U32",
-     "scope": "archive",
-     "name": null,
-     "type": "float",
+     "type": "string",
      "array": null,
      "when": [
       "bin",
@@ -1187,48 +1244,13 @@
      "line": 69
     },
     {
-     "key": "U33",
-     "member": "U33",
+     "key": "U24",
+     "member": "U24",
      "scope": "archive",
      "name": null,
-     "type": "float",
-     "array": null,
-     "when": [
-      "bin",
-      "&&",
-      [
-       "bin",
-       ">=",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        0
-       ]
-      ],
-      [
-       "bin",
-       "==",
-       [
-        "key",
-        "Type"
-       ],
-       [
-        "num",
-        5
-       ]
-      ]
-     ],
-     "line": 70
-    },
-    {
-     "key": "U34",
-     "member": "U34",
-     "scope": "archive",
-     "name": null,
-     "type": "float",
+     "type": "int",
+     "bits": 32,
+     "signed": true,
      "array": null,
      "when": [
       "bin",
@@ -1259,23 +1281,246 @@
       ]
      ],
      "line": 72
+    },
+    {
+     "key": "U25",
+     "member": "U25",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       "&&",
+       [
+        "bin",
+        ">=",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         0
+        ]
+       ],
+       [
+        "bin",
+        "==",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         5
+        ]
+       ]
+      ],
+      [
+       "id",
+       "IsSoundSurface"
+      ]
+     ],
+     "when_unresolved": [
+      "(((Type >= 0) && (Type == 5)) && IsSoundSurface)"
+     ],
+     "line": 74
+    },
+    {
+     "key": "U26",
+     "member": "U26",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       "&&",
+       [
+        "bin",
+        ">=",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         0
+        ]
+       ],
+       [
+        "bin",
+        "==",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         5
+        ]
+       ]
+      ],
+      [
+       "id",
+       "IsSoundSurface"
+      ]
+     ],
+     "when_unresolved": [
+      "(((Type >= 0) && (Type == 5)) && IsSoundSurface)"
+     ],
+     "line": 75
+    },
+    {
+     "key": "U27",
+     "member": "U27",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       "&&",
+       [
+        "bin",
+        ">=",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         0
+        ]
+       ],
+       [
+        "bin",
+        "==",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         5
+        ]
+       ]
+      ],
+      [
+       "id",
+       "IsSoundSurface"
+      ]
+     ],
+     "when_unresolved": [
+      "(((Type >= 0) && (Type == 5)) && IsSoundSurface)"
+     ],
+     "line": 76
+    },
+    {
+     "key": "U28",
+     "member": "U28",
+     "scope": "archive",
+     "name": null,
+     "type": "string",
+     "array": null,
+     "when": [
+      "bin",
+      "&&",
+      [
+       "bin",
+       "&&",
+       [
+        "bin",
+        ">=",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         0
+        ]
+       ],
+       [
+        "bin",
+        "==",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         5
+        ]
+       ]
+      ],
+      [
+       "id",
+       "IsSoundSurface"
+      ]
+     ],
+     "when_unresolved": [
+      "(((Type >= 0) && (Type == 5)) && IsSoundSurface)"
+     ],
+     "line": 77
     }
    ]
   },
-  "Mapping": {
+  "Variable": {
    "version": null,
-   "caller_version": 6,
+   "caller_version": 55,
    "fields": [
+    {
+     "key": "Name",
+     "member": "Name",
+     "scope": "archive",
+     "name": "Name",
+     "type": "string",
+     "sub": "id",
+     "array": null,
+     "line": 80
+    },
+    {
+     "key": "Type",
+     "member": "Type",
+     "scope": "archive",
+     "name": "Type",
+     "type": "int",
+     "bits": 8,
+     "signed": false,
+     "array": null,
+     "line": 81
+    },
     {
      "key": "U01",
      "member": "U01",
      "scope": "archive",
      "name": null,
-     "type": "int",
-     "bits": 32,
-     "signed": true,
+     "type": "bool",
      "array": null,
-     "line": 75
+     "when": [
+      "bin",
+      "==",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       0
+      ]
+     ],
+     "line": 87
     },
     {
      "key": "U02",
@@ -1286,18 +1531,90 @@
      "bits": 32,
      "signed": true,
      "array": null,
-     "line": 76
+     "when": [
+      "bin",
+      "||",
+      [
+       "bin",
+       "||",
+       [
+        "bin",
+        "==",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         1
+        ]
+       ],
+       [
+        "bin",
+        "==",
+        [
+         "key",
+         "Type"
+        ],
+        [
+         "num",
+         2
+        ]
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        5
+       ]
+      ]
+     ],
+     "line": 89
     },
     {
      "key": "U03",
      "member": "U03",
      "scope": "archive",
      "name": null,
-     "type": "int",
-     "bits": 32,
-     "signed": true,
+     "type": "vec",
+     "kind": "int",
+     "size": 3,
      "array": null,
-     "line": 77
+     "when": [
+      "bin",
+      "||",
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        3
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        10
+       ]
+      ]
+     ],
+     "line": 91
     },
     {
      "key": "U04",
@@ -1305,14 +1622,184 @@
      "scope": "archive",
      "name": null,
      "type": "int",
+     "bits": 8,
+     "signed": false,
+     "array": null,
+     "when": [
+      "bin",
+      "||",
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        6
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        8
+       ]
+      ]
+     ],
+     "line": 93
+    },
+    {
+     "key": "U05",
+     "member": "U05",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 16,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      "||",
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        7
+       ]
+      ],
+      [
+       "bin",
+       "==",
+       [
+        "key",
+        "Type"
+       ],
+       [
+        "num",
+        9
+       ]
+      ]
+     ],
+     "line": 95
+    },
+    {
+     "key": "U06",
+     "member": "U06",
+     "scope": "archive",
+     "name": null,
+     "type": "vec",
+     "kind": "int",
+     "size": 2,
+     "array": null,
+     "when": [
+      "bin",
+      "==",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       11
+      ]
+     ],
+     "line": 97
+    },
+    {
+     "key": "U07",
+     "member": "U07",
+     "scope": "archive",
+     "name": null,
+     "type": "vec",
+     "kind": "int",
+     "size": 4,
+     "array": null,
+     "when": [
+      "bin",
+      "==",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       12
+      ]
+     ],
+     "line": 99
+    },
+    {
+     "key": "U08",
+     "member": "U08",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 8,
+     "signed": false,
+     "array": null,
+     "line": 101
+    },
+    {
+     "key": "U09",
+     "member": "U09",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
      "bits": 32,
      "signed": true,
      "array": null,
-     "line": 78
+     "when": [
+      "bin",
+      "==",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       2
+      ]
+     ],
+     "line": 104
+    },
+    {
+     "key": "U10",
+     "member": "U10",
+     "scope": "archive",
+     "name": null,
+     "type": "int",
+     "bits": 32,
+     "signed": true,
+     "array": null,
+     "when": [
+      "bin",
+      "==",
+      [
+       "key",
+       "Type"
+      ],
+      [
+       "num",
+       2
+      ]
+     ],
+     "line": 105
     }
    ]
   }
  },
  "enums": {},
- "gbxnet_commit": "d47006a19a9fc9bc7bf876a82138267b9d08d4af"
+ "gbxnet_commit": "50d37854865457d3280b27e80b4ec13c2fd2f3ee"
 }

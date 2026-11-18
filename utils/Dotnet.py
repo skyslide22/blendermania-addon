@@ -416,6 +416,11 @@ def run_convert_asset(
     payload = ConvertAssetPayload(asset_type, asset_path, bitmap_payload)
     return _run_dotnet(CONVERT_ASSET, json.dumps(payload, cls=ComplexEncoder, ensure_ascii=False))
 
+def run_convert_fx_to_json(gbx_path: str, output_path: str) -> DotnetExecResult:
+    """particle GBX (*.ParticleModel.Gbx / *.FxSys.Gbx) -> "tm-fx/1" json for the FX editor"""
+    payload = {"GbxPath": gbx_path, "OutputPath": output_path}
+    return _run_dotnet(CONVERT_FX_TO_JSON, json.dumps(payload, ensure_ascii=False))
+
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     dotnet_exe = get_blendermania_dotnet_path()
 

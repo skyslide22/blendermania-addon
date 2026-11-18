@@ -158,13 +158,13 @@ class TM_PT_AssetLibrary_TextureSet(AssetLibrary_TypePanel, Panel):
         row.enabled = ts.use_surface_material
         row.prop(ts, "surface_material", text="")
         col.label(text="Images")
-        col.prop(ts, "color_image")
-        col.prop(ts, "normal_image")
-        col.prop(ts, "roughness_image")
+        col.prop(ts, "color_image", icon="IMAGE_DATA")
+        col.prop(ts, "normal_image", icon="IMAGE_DATA")
+        col.prop(ts, "roughness_image", icon="IMAGE_DATA")
         col.label(text="Textures (optional)")
-        col.prop(ts, "color_texture")
-        col.prop(ts, "normal_texture")
-        col.prop(ts, "roughness_texture")
+        col.prop(ts, "color_texture", icon="TEXTURE")
+        col.prop(ts, "normal_texture", icon="TEXTURE")
+        col.prop(ts, "roughness_texture", icon="TEXTURE")
 
 
 class TM_PT_AssetLibraryExport(GBXPanelBase, Panel):

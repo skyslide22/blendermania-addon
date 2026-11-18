@@ -13,6 +13,7 @@ from ..utils.FunctionsV2 import get_exportable_collections, get_offset_from_item
 from .Materials import is_material_exportable, save_mat_props_json
 from .Variants import get_variant_issues
 from .TreeModels import get_tree_model_issues
+from .ParticleFx import get_particle_fx_issues
 from .ItemsIconV2 import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
 from ..utils.CustomImporter import is_collection_exportable, start_batch_convert, get_convert_items_failed_props
@@ -158,6 +159,14 @@ def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False)
             show_report_popup("Invalid tree models", (
                 f"<{coll.name}> skipped:",
                 *(f"  - {msg}" for msg in tree_errors),
+            ))
+            continue
+
+        fx_errors = get_particle_fx_issues(objs)
+        if fx_errors:
+            show_report_popup("Invalid particle fx", (
+                f"<{coll.name}> skipped:",
+                *(f"  - {msg}" for msg in fx_errors),
             ))
             continue
 

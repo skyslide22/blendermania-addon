@@ -54,7 +54,7 @@ def generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.Materials = _get_material_configs(all_objs, assets)
     cfg.VegetTrees = _get_veget_tree_configs(collection, all_objs, assets)
     cfg.Lights = _get_light_configs(all_objs, variants)
-    cfg.ParticleSystems = _get_particle_system_configs(item.objects, variants)
+    cfg.ParticleFx = _get_particle_fx_configs(item.objects, variants, assets)
     cfg.Meshes = _get_mesh_configs(all_objs, collection, variants)
     cfg.Instances = _get_instance_configs(item.objects, variants)
     cfg.InstanceCollections = _get_instance_collection_configs(item.objects)
@@ -134,24 +134,21 @@ def _apply_plan_lightmap_overrides(meshes: list[MeshConfig], collection: bpy.typ
 
 
 # -----------------------------
-# particle systems
+# particle fx
 # -----------------------------
-def _get_particle_system_configs(objs, variants: VariantResolver) -> list[ParticleSystemConfig]:
+def _get_particle_fx_configs(objs, variants: VariantResolver, assets: dict[str, AssetConfig]) -> list[ParticleFxConfig]:
+    """one entry per particle fx empty of the item (not of instanced collections), placed at the fbx node of the same name.
+    Bitmaps of the fx are Bitmap assets of the item, referenced by asset id like the veget tree bitmaps."""
     from ..FX import api as fx_api
 
     configs = []
     for obj in sorted(objs, key=lambda o: o.name):
-        if not fx_api.is_fx_node(obj):
+        if not is_particle_fx_node(obj):
             continue
-        doc = fx_api.export_fx(obj)
-        if doc is None:
-            continue
-        moving_group = get_object_moving_group(obj)
-        configs.append(ParticleSystemConfig(
+        configs.append(ParticleFxConfig(
             Name=obj.name,
-            MovingGroup=moving_group.name if moving_group else None,
             Variant=variants.of_object(obj),
-            Config=doc,
+            Fx=fx_api.export_fx(obj, lambda mat: _asset_ref(mat, assets)),
         ))
     return configs
 
@@ -403,7 +400,7 @@ def _get_material_configs(objs: list[bpy.types.Object], assets: dict[str, AssetC
                 mat_config.PhysicsId = mat_physic_id
             if mat.useGameplayId:
                 mat_config.GameplayId = mat.gameplayId
-            if mat_use_gamplay_effect:
+            if mat_is_asset and mat_use_gamplay_effect:
                 mat_config.GameplayId = mat_gameplay_effect
         elif mat_game_is_maniaplanet:
             mat_config.Model = mat.model
@@ -461,7 +458,8 @@ def _veget_tree_name(tree_model: bpy.types.Collection) -> str:
     return tree_model.name
 
 def _get_veget_tree_configs(collection: bpy.types.Collection, objs, assets: dict[str, AssetConfig]) -> list[VegetTreeConfig]:
-    """one entry per tree model of the item, the lod distances are the ones of the item"""
+    """one entry per tree model of the item, the lod distances are the ones of the item.
+    emission positions are relative to the tree model (its mesh) and written unchanged"""
     configs: dict[str, VegetTreeConfig] = {}
     for tree_model in get_item_tree_models(collection, objs):
         tree = getattr(tree_model, CollectionProp.VEGET_TREE)
@@ -474,6 +472,8 @@ def _get_veget_tree_configs(collection: bpy.types.Collection, objs, assets: dict
         cfg.PlaneComputeMode = EPlaneComputeMode(getattr(tree, "plane_compute_mode", 'ZERO'))
         cfg.EnablePropagation = getattr(tree, "enable_propagation", False)
         cfg.ReceivePSSM = getattr(tree, "receive_pssm", True)
+        # tree random size (ScaleVar01), independent of propagation despite the config name
+        cfg.MaxRandomScaleReductionPerInstance = getattr(tree, "propagation_max_random_scale_reduction_per_instance", 0.1)
 
         if cfg.EnablePropagation:
             base_color_mat = getattr(tree, "propagation_base_color", None)
@@ -484,14 +484,13 @@ def _get_veget_tree_configs(collection: bpy.types.Collection, objs, assets: dict
                 cfg.PropagationNormalBitmap = _asset_ref(normal_mat, assets)
             x, y = getattr(tree, "propagation_atlas_grid", (1, 1))
             cfg.PropagationAtlasGrid = Int2(int(x), int(y))
-            cfg.PropagationConeHalfAngleDegree = math.degrees(getattr(tree, "propagation_cone_half_angle_degree", 45.0))
+            cfg.PropagationConeHalfAngleDeg = math.degrees(getattr(tree, "propagation_cone_half_angle_degree", 45.0))
 
             cfg.PropagationEmissionPositions = [Vec3(pos.value[0], pos.value[1], pos.value[2]) for pos in getattr(tree, "propagation_emission_positions", [])]
             cfg.PropagationEmissionSpawnRadius = getattr(tree, "propagation_emission_spawn_radius", 2.5)
             cfg.PropagationGroundGenPointCount = getattr(tree, "propagation_ground_gen_point_count", 300)
-            cfg.PropagationLeafPerSecond = getattr(tree, "propagation_leaf_per_second", 20)
+            cfg.PropagationLeafPerSecondCount = getattr(tree, "propagation_leaf_per_second", 20)
             cfg.PropagationLeafSize = getattr(tree, "propagation_leaf_size", 0.1)
-            cfg.PropagationMaxRandomScaleReductionPerInstance = getattr(tree, "propagation_max_random_scale_reduction_per_instance", 0.1)
         
   
 

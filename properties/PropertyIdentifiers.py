@@ -13,6 +13,7 @@ class ObjectProp(StrEnum):
     MAGNET           = "tm_magnet"
     ORIGIN           = "tm_origin"
     NO_MERGE         = "tm_no_merge"
+    PARTICLE_FX      = "tm_particle_fx"   # empty is a particle fx node (FX package, ItemConfig.ParticleFx)
 
     #other
     TRIGGER_EFFECT_TYPE = "tm_trigger_effect_type"
