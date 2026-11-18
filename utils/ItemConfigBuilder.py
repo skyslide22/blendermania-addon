@@ -18,6 +18,7 @@ from mathutils import Matrix, Quaternion, Vector
 
 from . import Constants
 from .Attachments import get_attachment_configs
+from .AssetLibraryFunctions import blend_dir, gbx_rel_path, resolve_image_file
 from .FunctionsV2 import *
 from .ItemsExportV2Models import *
 from .Variants import VariantResolver, get_variant_configs
@@ -49,7 +50,9 @@ def generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.Scale = item.scale
     # objects living in instanced collections share the flat Materials/Lights/Meshes lists (object names are unique in blender)
     all_objs = list(item.objects) + get_instanced_template_objects(item.objects)
-    cfg.Materials = _get_material_configs(all_objs)
+    assets: dict[str, AssetConfig] = {}
+    cfg.Materials = _get_material_configs(all_objs, assets)
+    cfg.VegetTrees = _get_veget_tree_configs(collection, all_objs, assets)
     cfg.Lights = _get_light_configs(all_objs, variants)
     cfg.ParticleSystems = _get_particle_system_configs(item.objects, variants)
     cfg.Meshes = _get_mesh_configs(all_objs, collection, variants)
@@ -60,7 +63,7 @@ def generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.ScaleOptions = _get_scale_config(collection)
 
     cfg.DisableAutoCreateSound = getattr(collection, CollectionProp.DISABLE_AUTO_CREATE_SOUND, False)
-
+    cfg.Assets = list(assets.values())
     return cfg
 
 
@@ -333,7 +336,7 @@ def _get_light_configs(objs: list[bpy.types.Object], variants: VariantResolver) 
 # -----------------------------
 # materials
 # -----------------------------
-def _get_material_configs(objs: list[bpy.types.Object]) -> list[MaterialConfig]:
+def _get_material_configs(objs: list[bpy.types.Object], assets: dict[str, AssetConfig]) -> list[MaterialConfig]:
     material_configs = []
 
     materials = set()
@@ -346,7 +349,9 @@ def _get_material_configs(objs: list[bpy.types.Object]) -> list[MaterialConfig]:
     for mat in materials:
         if mat is None:
             continue
-        mat_game_is_tm2020      = mat.gameType.lower() == "trackmania2020"
+
+        mat_is_asset = getattr(mat, "tm_asset_properties", None) is not None and mat.tm_asset_properties.is_asset
+        mat_game_is_tm2020      = mat.gameType.lower() == "trackmania2020" or mat_is_asset
         mat_game_is_maniaplanet = mat.gameType.lower() == "maniaplanet"
         mat_physic_id           = mat.physicsId
         mat_use_physicid        = mat.usePhysicsId and mat_physic_id # can be empty
@@ -355,7 +360,18 @@ def _get_material_configs(objs: list[bpy.types.Object]) -> list[MaterialConfig]:
         mat_basetexture         = re.sub(r"(?i)items/(?:_+|\-+)", r"Items/", mat_basetexture)
         mat_color               = mat.diffuse_color     # extract diffuse collor by default
 
-        if mat.use_nodes: # replace with BSDF color
+
+        if mat_is_asset and mat.tm_asset_properties.asset_type == "TEXTURESET":
+            ts = mat.tm_asset_properties.texture_set
+            mat_physic_id = ts.surface_material
+            mat_use_physicid = ts.use_surface_material
+
+            mat_use_gamplay_effect = ts.use_gameplay_effect
+            mat_gameplay_effect = ts.gameplay_effect
+
+
+        nodes = mat.node_tree.nodes if mat.use_nodes else {}
+        if "cus_color" in nodes or "Principled BSDF" in nodes: # replace with BSDF color (texture sets have neither)
             if "cus_color" in mat.node_tree.nodes:
                 mat_color = mat.node_tree.nodes["cus_color"].outputs[0].default_value
             else:
@@ -387,14 +403,100 @@ def _get_material_configs(objs: list[bpy.types.Object]) -> list[MaterialConfig]:
                 mat_config.PhysicsId = mat_physic_id
             if mat.useGameplayId:
                 mat_config.GameplayId = mat.gameplayId
+            if mat_use_gamplay_effect:
+                mat_config.GameplayId = mat_gameplay_effect
         elif mat_game_is_maniaplanet:
             mat_config.Model = mat.model
             mat_config.BaseTexture = mat_basetexture
             mat_config.PhysicsId = mat_physic_id
 
+        _add_texture_set_assets(mat, mat_config, assets)
         material_configs.append(mat_config)
 
     return material_configs
+
+def _asset_ref(asset_mat: bpy.types.Material | None, assets: dict[str, AssetConfig]) -> str | None:
+    """asset id (the asset name) of an Image/Bitmap asset, registers it in the assets of the item"""
+    if asset_mat is None:
+        return None
+    props = asset_mat.tm_asset_properties
+    # The path is derived from the current asset state (same rules as the exporter), so it can never be stale.
+    # exported_path is only a fallback: it can be outdated after a rename / moved .blend.
+    try:
+        if props.asset_type == "IMAGE":
+            img = props.image
+            if img is None:
+                return None
+            path = str(resolve_image_file(img))
+            asset = AssetConfig(Id=asset_mat.name, Path=path, Type=AssetType.ImgFile)
+        elif props.asset_type == "BITMAP":
+            path = str(blend_dir(asset_mat) / gbx_rel_path(asset_mat))
+            asset = AssetConfig(Id=asset_mat.name, Path=path, Type=AssetType.Bitmap)
+        else:
+            return None
+    except (RuntimeError, ValueError):
+        if not props.exported_path:
+            return None
+        asset = AssetConfig(
+            Id=asset_mat.name,
+            Path=props.exported_path,
+            Type=AssetType.ImgFile if props.asset_type == "IMAGE" else AssetType.Bitmap,
+        )
+    assets.setdefault(asset.Id, asset)
+    return asset.Id
+
+def _add_texture_set_assets(mat: bpy.types.Material, mat_config: MaterialConfig, assets: dict[str, AssetConfig]) -> None:
+    props = getattr(mat, "tm_asset_properties", None)
+    if props is None or not props.is_asset or props.asset_type != "TEXTURESET":
+        return
+    ts = props.texture_set
+    mat_config.ColorImage     = _asset_ref(ts.color_image, assets)
+    mat_config.NormalImage    = _asset_ref(ts.normal_image, assets)
+    mat_config.RoughnessImage = _asset_ref(ts.roughness_image, assets)
+    mat_config.DiffuseBitmap   = _asset_ref(ts.color_texture, assets)
+    mat_config.NormalBitmap    = _asset_ref(ts.normal_texture, assets)
+    mat_config.RoughnessBitmap = _asset_ref(ts.roughness_texture, assets)
+
+def _veget_tree_name(tree_model: bpy.types.Collection) -> str:
+    return tree_model.name
+
+def _get_veget_tree_configs(collection: bpy.types.Collection, objs, assets: dict[str, AssetConfig]) -> list[VegetTreeConfig]:
+    """one entry per tree model of the item, the lod distances are the ones of the item"""
+    configs: dict[str, VegetTreeConfig] = {}
+    for tree_model in get_item_tree_models(collection, objs):
+        tree = getattr(tree_model, CollectionProp.VEGET_TREE)
+        cfg = VegetTreeConfig(Name=_veget_tree_name(tree_model))
+        cfg.AngleMaxRotXZDeg = math.degrees(getattr(tree, "angle_max_rot_xz_deg", 0.0))
+        cfg.EnableRandomRotationY = getattr(tree, "enable_random_rotation_y", False)
+        cfg.ForceNoCollision = getattr(tree, "force_no_collision", False)
+        cfg.ImpostorAllPlanesVisible = getattr(tree, "impostor_all_planes_visible", False)
+        cfg.LodDistAtFov90 = getattr(tree, "lod_dist_at_fov90", 100.0)
+        cfg.PlaneComputeMode = EPlaneComputeMode(getattr(tree, "plane_compute_mode", 'ZERO'))
+        cfg.EnablePropagation = getattr(tree, "enable_propagation", False)
+        cfg.ReceivePSSM = getattr(tree, "receive_pssm", True)
+
+        if cfg.EnablePropagation:
+            base_color_mat = getattr(tree, "propagation_base_color", None)
+            if base_color_mat is not None:
+                cfg.PropagationBaseColorBitmap = _asset_ref(base_color_mat, assets)
+            normal_mat = getattr(tree, "propagation_normal", None)
+            if normal_mat is not None:
+                cfg.PropagationNormalBitmap = _asset_ref(normal_mat, assets)
+            x, y = getattr(tree, "propagation_atlas_grid", (1, 1))
+            cfg.PropagationAtlasGrid = Int2(int(x), int(y))
+            cfg.PropagationConeHalfAngleDegree = math.degrees(getattr(tree, "propagation_cone_half_angle_degree", 45.0))
+
+            cfg.PropagationEmissionPositions = [Vec3(pos.value[0], pos.value[1], pos.value[2]) for pos in getattr(tree, "propagation_emission_positions", [])]
+            cfg.PropagationEmissionSpawnRadius = getattr(tree, "propagation_emission_spawn_radius", 2.5)
+            cfg.PropagationGroundGenPointCount = getattr(tree, "propagation_ground_gen_point_count", 300)
+            cfg.PropagationLeafPerSecond = getattr(tree, "propagation_leaf_per_second", 20)
+            cfg.PropagationLeafSize = getattr(tree, "propagation_leaf_size", 0.1)
+            cfg.PropagationMaxRandomScaleReductionPerInstance = getattr(tree, "propagation_max_random_scale_reduction_per_instance", 0.1)
+        
+  
+
+        configs.setdefault(cfg.Name, cfg)
+    return list(configs.values())
 
 
 # -----------------------------
@@ -426,6 +528,11 @@ def _get_mesh_configs(objs: list[bpy.types.Object], collection: bpy.types.Collec
         mesh_cfg.Variant = variants.of_object(obj)
 
         mesh_flags = _get_mesh_flags(obj)
+
+        tree_model = get_object_tree_model(obj)
+        if tree_model is not None:   # trees can not be triggers, spawns or single meshes
+            mesh_flags &= ~(MeshFlags.TriggerWaypoint | MeshFlags.TriggerEffect | MeshFlags.Socket | MeshFlags.SingleMesh)
+            mesh_cfg.VegetTree = _veget_tree_name(tree_model)
 
         gameplay_dir = Vector(getattr(obj, ObjectProp.GAMEPLAY_MAIN_DIR, None))
         gameplay_dir.normalize()

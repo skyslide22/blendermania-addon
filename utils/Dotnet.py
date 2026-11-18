@@ -95,6 +95,32 @@ class DotnetVector3:
         return self.__dict__
 
 
+class DotnetVec2:
+    """GBX.NET Vec2, serialized as [x, y] (see Vec2ArrayConverter)."""
+    def __init__(self, X: float = 0, Y: float = 0) -> None:
+        self.X = X
+        self.Y = Y
+
+    def jsonable(self):
+        return [self.X, self.Y]
+
+
+class DotnetColor:
+    """System.Drawing.Color, components 0..1, serialized as [r, g, b, a] (see ColorArrayConverter)."""
+    def __init__(self, R: float = 0, G: float = 0, B: float = 0, A: float = 1) -> None:
+        self.R = R
+        self.G = G
+        self.B = B
+        self.A = A
+
+    @classmethod
+    def from_seq(cls, values):
+        return cls(*values)
+
+    def jsonable(self):
+        return [self.R, self.G, self.B, self.A]
+
+
 class DotnetInt3:
     def __init__(self, X: int = 0, Y: int = 0, Z: int = 0) -> None:
         self.X = X
@@ -247,6 +273,23 @@ class ConvertFbxToGbxPayload:
         d["Optimization"] = int(d["Optimization"])  # works if it's an IntEnum or plain int
         return d
 
+
+
+class ConvertAssetPayload:
+    # must match the AssetType enum order in ConvertAsset.cs
+    _ASSET_TYPE_TO_INT = {"BITMAP": 0}
+
+    def __init__(self, AssetType: str, AssetPath: str, BitmapPayload: dict | None = None):
+        self.AssetType = AssetType
+        self.AssetPath = AssetPath
+        self.BitmapPayload = BitmapPayload
+
+    def jsonable(self):
+        d = dict(self.__dict__)
+        d["AssetType"] = self._ASSET_TYPE_TO_INT[d["AssetType"]]
+        return d
+
+
 # Dotnet commands
 def run_place_objects_on_map(
     map_path: str,
@@ -364,6 +407,14 @@ def run_plan_fbx_to_gbx(
     )
     res = _run_dotnet(PLAN_FBX_TO_GBX, json.dumps(payload, cls=ComplexEncoder, ensure_ascii=False))
     return res
+
+def run_convert_asset(
+    asset_type: str,
+    asset_path: str,
+    bitmap_payload: dict | None = None,
+) -> DotnetExecResult:
+    payload = ConvertAssetPayload(asset_type, asset_path, bitmap_payload)
+    return _run_dotnet(CONVERT_ASSET, json.dumps(payload, cls=ComplexEncoder, ensure_ascii=False))
 
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     dotnet_exe = get_blendermania_dotnet_path()

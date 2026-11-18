@@ -28,6 +28,89 @@ MaterialId = str
 GameplayId = str
 PlacementPatchGroup = str
 
+class MaterialId(str, Enum):
+    Concrete = "Concrete"
+    Pavement = "Pavement"
+    Grass = "Grass"
+    Ice = "Ice"
+    Metal = "Metal"
+    Sand = "Sand"
+    Dirt = "Dirt"
+    Turbo_Deprecated = "Turbo_Deprecated"
+    DirtRoad = "DirtRoad"
+    Rubber = "Rubber"
+    SlidingRubber = "SlidingRubber"
+    Test = "Test"
+    Rock = "Rock"
+    Water = "Water"
+    Wood = "Wood"
+    Danger = "Danger"
+    Asphalt = "Asphalt"
+    WetDirtRoad = "WetDirtRoad"
+    WetAsphalt = "WetAsphalt"
+    WetPavement = "WetPavement"
+    WetGrass = "WetGrass"
+    Snow = "Snow"
+    ResonantMetal = "ResonantMetal"
+    GolfBall = "GolfBall"
+    GolfWall = "GolfWall"
+    GolfGround = "GolfGround"
+    Turbo2_Deprecated = "Turbo2_Deprecated"
+    Bumper_Deprecated = "Bumper_Deprecated"
+    NotCollidable = "NotCollidable"
+    FreeWheeling_Deprecated = "FreeWheeling_Deprecated"
+    TurboRoulette_Deprecated = "TurboRoulette_Deprecated"
+    WallJump = "WallJump"
+    MetalTrans = "MetalTrans"
+    Stone = "Stone"
+    Player = "Player"
+    Trunk = "Trunk"
+    TechLaser = "TechLaser"
+    SlidingWood = "SlidingWood"
+    PlayerOnly = "PlayerOnly"
+    Tech = "Tech"
+    TechArmor = "TechArmor"
+    TechSafe = "TechSafe"
+    OffZone = "OffZone"
+    Bullet = "Bullet"
+    TechHook = "TechHook"
+    TechGround = "TechGround"
+    TechWall = "TechWall"
+    TechArrow = "TechArrow"
+    TechHook2 = "TechHook2"
+    Forest = "Forest"
+    Wheat = "Wheat"
+    TechTarget = "TechTarget"
+    PavementStair = "PavementStair"
+    TechTeleport = "TechTeleport"
+    Energy = "Energy"
+    TechMagnetic = "TechMagnetic"
+    TurboTechMagnetic_Deprecated = "TurboTechMagnetic_Deprecated"
+    Turbo2TechMagnetic_Deprecated = "Turbo2TechMagnetic_Deprecated"
+    TurboWood_Deprecated = "TurboWood_Deprecated"
+    Turbo2Wood_Deprecated = "Turbo2Wood_Deprecated"
+    FreeWheelingTechMagnetic_Deprecated = "FreeWheelingTechMagnetic_Deprecated"
+    FreeWheelingWood_Deprecated = "FreeWheelingWood_Deprecated"
+    TechSuperMagnetic = "TechSuperMagnetic"
+    TechNucleus = "TechNucleus"
+    TechMagneticAccel = "TechMagneticAccel"
+    MetalFence = "MetalFence"
+    TechGravityChange = "TechGravityChange"
+    TechGravityReset = "TechGravityReset"
+    RubberBand = "RubberBand"
+    Gravel = "Gravel"
+    Hack_NoGrip_Deprecated = "Hack_NoGrip_Deprecated"
+    Bumper2_Deprecated = "Bumper2_Deprecated"
+    NoSteering_Deprecated = "NoSteering_Deprecated"
+    NoBrakes_Deprecated = "NoBrakes_Deprecated"
+    RoadIce = "RoadIce"
+    RoadSynthetic = "RoadSynthetic"
+    Green = "Green"
+    Plastic = "Plastic"
+    DevDebug = "DevDebug"
+    Free3 = "Free3"
+    XXX_Null = "XXX_Null"
+    
 class LegacyGameplayId(str, Enum):
     None_ = "None"
     Turbo = "Turbo"
@@ -129,6 +212,16 @@ class LightType(int, Enum):
     Point = 0
     Spot = 1
 
+class AssetType(str, Enum):
+    ImgFile = "ImgFile"
+    Bitmap = "Bitmap"
+
+class EPlaneComputeMode(str, Enum):
+    BoundingBoxBorder = "BoundingBoxBorder"
+    BoundingBoxCenter = "BoundingBoxCenter"
+    TrunkBoundingBoxCenter = "TrunkBoundingBoxCenter"
+    Zero = "Zero"
+    HorizontalPlaneBottom = "HorizontalPlaneBottom"
 
 class ItemConversionOptions(IntFlag):
     None_ = 0
@@ -149,7 +242,49 @@ class MeshFlags(IntFlag):
     SingleMesh = 1 << 6  # [ItemConfig.md](http://_vscodecontentref_/1) calls this "NoMerge"
     Skip = 1 << 7
 
+@dataclass
+class Int2:
+    X: int = 0
+    Y: int = 0
 
+    @staticmethod
+    def from_string(value: str) -> "Int2":
+        x, y = value.strip().split()
+        return Int2(int(x), int(y))
+
+    def to_string(self) -> str:
+        return f"{self.X} {self.Y}"
+
+    @staticmethod
+    def from_seq(seq) -> "Int2":
+        x, y = seq
+        return Int2(int(x), int(y))
+    
+    def to_tuple(self) -> tuple:
+        return (self.X, self.Y)
+
+    
+@dataclass
+class Vec2:
+    X: float = 0.0
+    Y: float = 0.0
+
+    @staticmethod
+    def from_string(value: str) -> "Vec2":
+        x, y = value.strip().split()
+        return Vec2(float(x), float(y))
+
+    def to_string(self) -> str:
+        return f"{self.X:.9g} {self.Y:.9g}"
+
+    @staticmethod
+    def from_seq(seq) -> "Vec2":
+        x, y = seq
+        return Vec2(float(x), float(y))
+    
+    def to_tuple(self) -> tuple:
+        return (self.X, self.Y)
+    
 @dataclass
 class Vec3:
     X: float = 0.0
@@ -252,6 +387,42 @@ class MaterialConfig:
     GameplayId: GameplayId | None = None
     BaseTexture: str | None = None
     Model: str | None = None
+    ColorImage: str | None = None       # asset ids (ItemConfig.Assets) of a texture set material
+    NormalImage: str | None = None
+    RoughnessImage: str | None = None
+    DiffuseBitmap: str | None = None
+    NormalBitmap: str | None = None
+    RoughnessBitmap: str | None = None
+
+
+@dataclass
+class AssetConfig:
+    Id: str = ""
+    Path: str = ""
+    Type: AssetType = AssetType.ImgFile   # ImgFile | Bitmap
+
+
+@dataclass
+class VegetTreeConfig:
+    Name: str = ""
+    AngleMaxRotXZDeg: float | None = None
+    EnableRandomRotationY: bool | None = None
+    ForceNoCollision: bool | None = None
+    ImpostorAllPlanesVisible: bool | None = None
+    LodDistAtFov90: float | None = None
+    PlaneComputeMode: EPlaneComputeMode | None = None
+    EnablePropagation: bool | None = None
+    PropagationBaseColorBitmap: str | None = None
+    PropagationNormalBitmap: str | None = None
+    PropagationAtlasGrid: Int2 | None = None
+    PropagationConeHalfAngleDegree: float | None = None
+    PropagationEmissionPositions: list[Vec3] | None = None
+    PropagationEmissionSpawnRadius: float | None = None
+    PropagationGroundGenPointCount: int | None = None
+    PropagationLeafPerSecond: int | None = None
+    PropagationLeafSize: float | None = None
+    PropagationMaxRandomScaleReductionPerInstance: float | None = None
+    ReceivePSSM: bool | None = None
 
 
 @dataclass
@@ -292,6 +463,7 @@ class MeshConfig:
     LightmapSize: float | None = None
     Lods: list[int] = field(default_factory=list)
     Variant: str | None = None       # variant (ItemConfig.Variants[].Name) it belongs to, None: part of every variant
+    VegetTree: str | None = None     # ItemConfig.VegetTrees[].Name, set for meshes of a tree model
 
 
 @dataclass
@@ -435,6 +607,8 @@ class ItemConfig:
     Instances: list[InstanceConfig] = field(default_factory=list)
     InstanceCollections: list[InstanceCollectionConfig] = field(default_factory=list)
     MovingGroups: list[MovingGroupConfig] = field(default_factory=list)
+    Assets: list[AssetConfig] = field(default_factory=list)
+    VegetTrees: list[VegetTreeConfig] = field(default_factory=list)
     LodParameters: LodParameters | None = None
     ConversionOptions: ItemConversionOptions = ItemConversionOptions.None_
 
@@ -504,6 +678,10 @@ def item_config_to_dict(item: ItemConfig, drop_none: bool = True) -> dict[str, A
         data.pop("LodParameters", None)
     if not item.Variants:
         data.pop("Variants", None)
+    if not item.Assets:
+        data.pop("Assets", None)
+    if not item.VegetTrees:
+        data.pop("VegetTrees", None)
 
     return _drop_nones(data) if drop_none else data
 

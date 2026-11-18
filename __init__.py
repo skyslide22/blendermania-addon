@@ -66,12 +66,14 @@ from .properties.PannelsPropertyGroup       import *
 from .properties.PlacementProperties        import *
 from .properties.AttachmentProperties       import AttachmentOptionEntryProperties, AttachmentOptionProperties, AttachmentProperties
 from .properties.VariantProperties          import VariantProperties
+from .properties.VegetTreeProperties        import PositionProperties, VegetTreeProperties
 from .properties.CollectionProperties       import *
 from .properties.ObjectProperties           import *
 from .properties.PlacementPatchProperties   import *
 from .properties.LightProperties            import *
 from .properties.ItemConfigProperties       import *
 from .properties.ItemPlanProperties       import *
+from .properties.AssetProperties            import register_asset_properties, unregister_asset_properties
 
 from .operators.OT_Map_Manipulate          import *
 from .operators.OT_NinjaRipper             import *
@@ -93,6 +95,7 @@ from .operators.OT_Items_Placement          import *
 from .operators.OT_Items_ExportV2           import *
 from .operators.OT_Items_IconV2             import *
 from .operators.OT_Items_AnalyzeGroups import *
+from .operators.OT_AssetLibrary         import register as register_asset_library_operators, unregister as unregister_asset_library_operators
 
 
 from .panels.PT_Map_Manipulate          import *
@@ -113,6 +116,7 @@ from .panels.PT_VisibilitySelection     import *
 from .panels.PT_EditorTrails            import *
 from .panels.PT_Items_Placement         import *
 from .panels.PT_Animation               import *
+from .panels.PT_AssetLibrary             import register as register_asset_library_panels, unregister as unregister_asset_library_panels
 
 from .utils.Placement import register_placement_templates, unregister_placement_templates
 
@@ -123,6 +127,8 @@ from .ui.drawers.placement import register_placement_callbacks, unregister_place
 from .ui.drawers.attachments import register_attachment_callbacks, unregister_attachment_callbacks
 from .ui.widgets.panels import register_panel_widgets, unregister_panel_widgets
 from .ui.widgets.progress import register as register_progress, unregister as unregister_progress
+from .ui.drawers.bitmap import register as register_bitmap_drawers, unregister as unregister_bitmap_drawers
+from .ui.drawers.tree_model import register as register_tree_model_drawers, unregister as unregister_tree_model_drawers
 
 from .NICE.nice import NICE_register, NICE_unregister
 from . import FX as TM_FX
@@ -138,6 +144,8 @@ classes = (
     AttachmentOptionProperties,
     AttachmentProperties,
     VariantProperties,
+    PositionProperties,
+    VegetTreeProperties,
     MapObjectProperties,
     #CubeCenterProperties,
 
@@ -443,10 +451,15 @@ def register():
     register_placement_callbacks()
     register_attachment_callbacks()
     register_animation_preview()
-
+    register_bitmap_drawers()
+    register_tree_model_drawers()
     # templates
     register_placement_templates()
 
+    register_asset_properties()
+    register_asset_library_operators()
+
+    register_asset_library_panels()
 
 
 
@@ -530,8 +543,14 @@ def unregister():
     unregister_placement_callbacks()
     unregister_attachment_callbacks()
     unregister_animation_preview()
+    unregister_bitmap_drawers()
+    unregister_tree_model_drawers()
 
     unregister_placement_templates()
+
+    unregister_asset_properties()
+    unregister_asset_library_panels()
+    unregister_asset_library_operators()
 
     bpy.types.DATA_PT_EEVEE_light.remove(draw_nightonly_option)
     bpy.types.VIEW3D_MT_add.remove(OT_ItemsCarsTemplates.add_menu_item)

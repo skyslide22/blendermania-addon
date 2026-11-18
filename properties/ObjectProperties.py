@@ -4,7 +4,7 @@ from .Functions import has_infix, has_prefix, toggle_infix, toggleNameSpecialPre
 from .PropertyFunctions import enum_items, subscribe_to_msgbus
 from .PropertyIdentifiers import ObjectProp
 from ..utils.Constants import *
-from ..utils.ItemsExportV2Models import LegacyGameplayId
+from ..utils.ItemsExportV2Models import LegacyGameplayId, MaterialId
 
 # when prop A is turned ON, these props are turned OFF
 EXCLUSIVE_PROPERTIES = {
@@ -50,7 +50,6 @@ def register_object_properties():
     setattr(bpy.types.Object, ObjectProp.GAMEPLAY_MAIN_DIR, FloatVectorProperty(name="Gameplay Main Dir", description="Main direction for gameplay", subtype='XYZ', size=3, default=(0.0, -1.0, 0.0)))
     setattr(bpy.types.Object, ObjectProp.GAMEPLAY_STRENGTH, FloatProperty(name="Gameplay Strength", description="Strength for gameplay effect", default=1.0, min=0.0,  step=100))
 
-
     setattr(bpy.types.Object, ObjectProp.ENABLE_LODS, BoolProperty(name="LODs", description="Enable Level of Detail for this object", default=False))
     setattr(bpy.types.Object, ObjectProp.LOD_INDEXES, CollectionProperty(type=TM_LodIndex)) 
     
@@ -58,6 +57,8 @@ def register_object_properties():
     setattr(bpy.types.Object, ObjectProp.LIGHTMAP_SIZE, FloatProperty(name="Lightmap Size", description="Lightmap size", default=100.0, soft_min=0.0))
 
     setattr(bpy.types.Object, ObjectProp.ICON_ONLY, _bool("Icon Only", "Object is only for icon generation", ObjectProp.ICON_ONLY, update=_update_tm_icon_only))
+
+
     
     subscribe_to_msgbus(_msgbus_owner, bpy.types.Object, "name", _on_object_renamed)
     if _on_load_post not in bpy.app.handlers.load_post:

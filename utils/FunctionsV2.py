@@ -240,7 +240,7 @@ def can_convert_to_collection_type(col: bpy.types.Collection, type_id: str) -> b
     type_def = get_type_def(type_id)
     if type_def.allowed_parents is not None:
         parent = get_parent_collection(col, bpy.context.scene)
-        if parent is None or is_group_collection(parent) or get_collection_type_id(parent) not in type_def.allowed_parents:
+        if parent is None or get_collection_type_id(parent) not in type_def.allowed_parents:
             return False
     if not type_def.exported:
         return len(col.objects) == 0   # helper types only hold collections / empties
@@ -312,6 +312,38 @@ def get_object_moving_group(obj: bpy.types.Object) -> bpy.types.Collection | Non
             return col
         col = get_parent_collection(col, scene)
     return None
+
+def is_tree_model_collection(col: bpy.types.Collection | None) -> bool:
+    return is_collection_of_type(col, COLLECTION_GROUP_TREE_MODEL)
+
+def get_object_tree_model(obj: bpy.types.Object) -> bpy.types.Collection | None:
+    """nearest tree model collection of the object, containers are transparent"""
+    col = obj.users_collection[0] if obj.users_collection else None
+    scene = bpy.context.scene
+    while col is not None and is_group_collection(col):
+        if is_tree_model_collection(col):
+            return col
+        col = get_parent_collection(col, scene)
+    return None
+
+def get_item_tree_models(item: bpy.types.Collection, objs=()) -> list[bpy.types.Collection]:
+    """tree models of the item and of the collections it instances (objs: objects of the item), found through containers and variants"""
+    trees: dict[str, bpy.types.Collection] = {}
+
+    def walk(col: bpy.types.Collection) -> None:
+        for child in col.children:
+            if is_collection_ignored(child):
+                continue
+            if is_tree_model_collection(child):
+                trees.setdefault(child.name, child)
+            elif is_container_collection(child) or is_variant_collection(child):
+                walk(child)
+
+    walk(item)
+    for col in get_instanced_collections(objs):
+        if not is_collection_ignored(col):
+            walk(col)
+    return list(trees.values())
 
 def get_invalid_group_children(item: bpy.types.Collection) -> list[bpy.types.Collection]:
     """item (default) collections inside moving groups/containers below the item, which is not allowed"""

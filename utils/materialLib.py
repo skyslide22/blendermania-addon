@@ -6,6 +6,7 @@ it only reads ST_materialLibPath and never writes to any tm_props or legacy link
 """
 import re
 import bpy
+from ..properties.PropertyIdentifiers import ObjectProp
 
 from ..utils.Functions import get_global_props, is_file_existing, debug, redraw_all_panels
 
@@ -99,6 +100,14 @@ def has_material_with_gameplay_effect(obj: bpy.types.Object) -> str | None:
     for mat in obj.data.materials:
         if mat and getattr(mat, "useGameplayId", False):
             return getattr(mat, "gameplayId", None)
+    return None
+
+def has_material_with_material_override(obj: bpy.types.Object) -> str | None:
+    """True if the object has any material with a gameplay effect."""
+    if not obj or not obj.data or not hasattr(obj.data, "materials"):
+        return None
+    if getattr(obj, ObjectProp.OVERRIDE_MATERIAL, False):
+        return getattr(obj, ObjectProp.SURFACE_MATERIAL_TYPE, None)
     return None
 
 def parse_materiallibrary() -> dict:

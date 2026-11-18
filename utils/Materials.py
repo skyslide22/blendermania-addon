@@ -427,7 +427,11 @@ def is_material_exportable(mat) -> bool:
     if mat is None:
         return False
 
-    # link or baseTexture needs to have a value
+    # texture set assets are described by their assets, not by link/baseTexture
+    props = getattr(mat, "tm_asset_properties", None)
+    if props is not None and props.is_asset and props.asset_type == "TEXTURESET":
+        return True
+
     # if not, material has not been modified with the addon
     if not mat.link and not mat.baseTexture:
         valid = False

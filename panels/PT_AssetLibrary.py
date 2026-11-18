@@ -1,0 +1,204 @@
+import textwrap
+
+import bpy
+from bpy.types import Panel
+from ..ui.drawers.bitmap import draw_bitmap
+from ..properties.AssetProperties import ASSET_TYPES
+from ..operators.OT_AssetLibrary import TM_OT_CreateMaterialAsset, TM_OT_ExportAssetLibrary, TM_OT_RemoveMaterialAsset, TM_OT_RenameMaterialAsset, TM_OT_ImportImage, TM_OT_CopyAssetErrors, TM_OT_OpenLibraryFolder
+
+from ..utils.AssetLibraryFunctions import active_asset, all_assets
+from ..utils.AssetLibraryImporter import last_errors
+from ..ui.widgets.progress import draw_task_status, get_state
+
+
+def _wrapped_labels(layout, text, width=48):
+    for line in text.splitlines() or [""]:
+        for chunk in textwrap.wrap(line, width) or [""]:
+            layout.label(text=chunk)
+
+
+def draw_errors(layout, context):
+    """Per-asset error list of the last export; hidden once the result is cleared or a run is active."""
+    state = get_state(TM_OT_ExportAssetLibrary.bl_idname)
+    if state.running or not state.message or not last_errors:
+        return
+
+    box = layout.box()
+    row = box.row()
+    row.label(text="Errors", icon="ERROR")
+    row.operator(TM_OT_CopyAssetErrors.bl_idname, text="", icon="COPYDOWN")
+    for name, message in last_errors:
+        col = box.column(align=True)
+        col.label(text=name, icon="MATERIAL")
+        _wrapped_labels(col, message)
+
+class GBXPanelBase:
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "TM Asset"
+
+
+
+class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
+    bl_idname = "TM_PT_AssetLibrary_Main"
+    bl_label = "TM Assets Library"
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+
+        layout.operator(TM_OT_OpenLibraryFolder.bl_idname, icon="FILE_FOLDER")
+
+        box = layout.box()
+        box.label(text="Create")
+        box.prop(scene, "tm_new_asset_name")
+        # operator props are editable via the redo panel; expose type quickly:
+        row = box.row(align=True)
+        for ident, label, _ in ASSET_TYPES:
+            o = row.operator(TM_OT_CreateMaterialAsset.bl_idname, text=label)
+            o.asset_type = ident
+            o.asset_name = scene.tm_new_asset_name
+
+        layout.separator()
+        layout.prop(scene, "tm_active_material", text="Active")
+
+        row = layout.row()
+        row.operator(TM_OT_RemoveMaterialAsset.bl_idname, text="Remove", icon="TRASH")
+
+
+def draw_common(layout, mat):
+    props = mat.tm_asset_properties
+   
+
+    row = layout.row(align=True)
+    row.label(text=mat.name, icon="MATERIAL")
+    row.operator(TM_OT_RenameMaterialAsset.bl_idname, text="", icon="GREASEPENCIL")
+
+    if mat.library:
+        layout.label(text="Linked (read-only)", icon="LINKED")
+    col = layout.column()
+    col.enabled = mat.library is None
+    row = col.row(align=True)
+    row.enabled = False
+    img = getattr(props, "image", None)
+    if img:
+        row.label(text=img.name, icon="IMAGE_DATA")
+    else:
+        row.label(text="No image assigned", icon="ERROR")
+
+    col.operator(TM_OT_ImportImage.bl_idname, icon="IMPORT")
+    col.prop(props, "relative_path")
+    #col.prop(props, "game_path")
+
+class AssetLibrary_TypePanel(GBXPanelBase):
+    asset_type = None
+    
+    @classmethod
+    def poll(cls, context):
+        mat = active_asset(context)
+        return mat is not None and mat.tm_asset_properties.asset_type == cls.asset_type
+
+    def draw(self, context):
+        mat = active_asset(context)
+        draw_common(self.layout, mat)
+        self.draw_type(self.layout, mat.tm_asset_properties)
+
+    def draw_type(self, layout, props):
+        pass
+
+
+
+class TM_PT_AssetLibrary_Bitmap(AssetLibrary_TypePanel, Panel):
+    bl_idname = "TM_PT_AssetLibrary_Bitmap"
+    bl_label = "Bitmap"
+    asset_type = "BITMAP"
+
+    def draw_type(self, layout, props):
+        bmp = props.bitmap
+        layout.label(text="Bitmap Settings")
+        draw_bitmap(layout, bmp)
+
+            
+
+class TM_PT_AssetLibrary_Image(AssetLibrary_TypePanel, Panel):
+    bl_idname = "TM_PT_AssetLibrary_Image"
+    bl_label = "Image"
+    asset_type = "IMAGE"
+
+    def draw_type(self, layout, props):
+        layout.label(text="Image Settings")
+        #layout.prop(props, "img_note")
+
+
+
+class TM_PT_AssetLibrary_TextureSet(AssetLibrary_TypePanel, Panel):
+    bl_idname = "TM_PT_AssetLibrary_TextureSet"
+    bl_label = "TextureSet"
+    asset_type = "TEXTURESET"
+
+    def draw(self, context):
+        layout = self.layout
+        mat = active_asset(context)
+        row = layout.row(align=True)
+        row.label(text=mat.name, icon="MATERIAL")
+        row.operator(TM_OT_RenameMaterialAsset.bl_idname, text="", icon="GREASEPENCIL")
+        if mat.library:
+            layout.label(text="Linked (read-only)", icon="LINKED")
+        col = layout.column()
+        col.enabled = mat.library is None
+        ts = mat.tm_asset_properties.texture_set
+        row = col.row(align=True)
+        row.prop(ts, "use_gameplay_effect", toggle=True)
+        row = row.row(align=True)
+        row.enabled = ts.use_gameplay_effect
+        row.prop(ts, "gameplay_effect",text="")
+        row = col.row(align=True)
+        row.prop(ts, "use_surface_material", toggle=True)
+        row = row.row(align=True)
+        row.enabled = ts.use_surface_material
+        row.prop(ts, "surface_material", text="")
+        col.label(text="Images")
+        col.prop(ts, "color_image")
+        col.prop(ts, "normal_image")
+        col.prop(ts, "roughness_image")
+        col.label(text="Textures (optional)")
+        col.prop(ts, "color_texture")
+        col.prop(ts, "normal_texture")
+        col.prop(ts, "roughness_texture")
+
+
+class TM_PT_AssetLibraryExport(GBXPanelBase, Panel):
+    bl_idname = "TM_PT_AssetLibraryExport"
+    bl_label = "Export"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text=f"{len(all_assets())} asset(s) in this file")
+
+        op = layout.operator(TM_OT_ExportAssetLibrary.bl_idname, text="Export Active", icon="EXPORT")
+        op.only_active = True
+        op = layout.operator(TM_OT_ExportAssetLibrary.bl_idname, text="Export All", icon="EXPORT")
+        op.only_active = False
+
+        draw_task_status(layout, TM_OT_ExportAssetLibrary.bl_idname)
+        draw_errors(layout, context)
+
+
+
+
+
+classes = (
+    TM_PT_AssetLibrary_Main,
+    TM_PT_AssetLibrary_Bitmap,
+    TM_PT_AssetLibrary_Image,
+    TM_PT_AssetLibrary_TextureSet,
+    TM_PT_AssetLibraryExport,
+)
+
+def register():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+def unregister():
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)

@@ -24,6 +24,7 @@ from ..ui.drawers.placement import draw_item_placement_editor, draw_item_placeme
 from ..ui.drawers.attachments import draw_attachments_collection, draw_attachment_collection
 from ..ui.drawers.collection_types import draw_collection_type_toggles
 from ..ui.drawers.variants import draw_item_mode, draw_variant_collection
+from ..ui.drawers.tree_model import draw_tree_model_collection
 
 
     
@@ -170,12 +171,15 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
             row.prop(obj, ObjectProp.INVISIBLE, text="Not Visible", icon=ICON_HIDDEN, toggle=True)
             row.prop(obj, ObjectProp.NON_COLLIDABLE, text="Not Collidable", icon=ICON_GHOSTMODE, toggle=True)
 
+            is_tree_object = get_object_tree_model(obj) is not None   # trees: no trigger/waypoint/no merge/spawn
+
             row = col.row(align=True)
             row.prop(obj, ObjectProp.TRIGGER_EFFECT, text="Trigger Effect", toggle=True)
             row.prop(obj, ObjectProp.TRIGGER_WAYPOINT, text="Trigger Waypoint", toggle=True)
+            row.enabled = not is_tree_object
 
             mat_gameplay_effect = has_material_with_gameplay_effect(obj)
-            if getattr(obj, ObjectProp.TRIGGER_EFFECT):
+            if getattr(obj, ObjectProp.TRIGGER_EFFECT) and not is_tree_object:
                 #col = row.column(align=True)
                 row = col.row(align=True)
                 row.prop(obj, ObjectProp.TRIGGER_EFFECT_TYPE, text="Effect")
@@ -192,11 +196,13 @@ class TM_PT_Items_ObjectManipulationV2(Panel):
                 row = col.row(align=True)
                 row.label(text=f"Effect Strength ({mat_gameplay_effect})", icon=ICON_FORCE)
                 row.prop(obj, ObjectProp.GAMEPLAY_STRENGTH, text="")
-            
+
+                
 
             row = col.row(align=True)
             row.prop(obj, ObjectProp.NO_MERGE, text="No Merge", toggle=True)
             row.prop(obj, ObjectProp.SOCKET, text="Spawn", toggle=True)
+            row.enabled = not is_tree_object
 
             row = col.row(align=True)
             row.prop(obj, ObjectProp.ENABLE_LODS, text="LODs", toggle=True)
@@ -954,6 +960,9 @@ class TM_PT_Items_SpecialCollectionManipulationV2(Panel):
 
         if is_variant_collection(current_collection):
             draw_variant_collection(col, current_collection)
+
+        if is_tree_model_collection(current_collection):
+            draw_tree_model_collection(col, current_collection)
 
         if is_attachments:
             draw_attachments_collection(col, current_collection)
