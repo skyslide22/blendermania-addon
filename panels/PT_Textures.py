@@ -189,6 +189,9 @@ class TM_PT_Textures_Install(Panel):
             col.label(text=f"Installed: {info.get('edition', '?')} {info.get('version', '?')} ({info.get('materials', '?')} materials)", icon=ICON_CHECKED)
             col.operator("view3d.tm_open_folder", text="Open Folder", icon=ICON_FOLDER).folder = info["path"]
             col.label(text="Its textures fill gaps of the game textures above", icon=ICON_TEXTURE)
+            col.operator("tm.check_asset_updates", text="Check for Updates", icon="FILE_REFRESH").library = "material"
+            from ..operators.OT_AssetLibrary import draw_update_check
+            draw_update_check(col, "material")
         else:
             col.label(text="Not installed (V2 materials use the addon shaders)", icon=ICON_INFO)
 

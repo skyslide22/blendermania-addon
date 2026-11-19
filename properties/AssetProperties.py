@@ -31,7 +31,20 @@ USAGE_NAMES = [
     "LightAlpha", "Height2RxG0BzAy", "NormRxG0BzAy", "TexCoord", "Render16b", "Vertex",
     "Height2BumpTxTy", "BumpTxTy", "Height2R0GyBzAx", "NormR0GyBzAx", "NormXYZ0YZX",
 ]
-USAGE_ITEMS = [(n, n, "") for n in USAGE_NAMES]
+# TM2020 usages GBX.NET has no name for (found in the game's Texture.Gbx): list index == game value
+_TM2020_USAGE_LABELS = {31: "Normal (TM2020)", 36: "Roughness/Metal (TM2020)"}
+USAGE_NAMES += [f"Usage{i}" for i in range(len(USAGE_NAMES), 39)]
+USAGE_ITEMS = [(n, _TM2020_USAGE_LABELS.get(i, n), f"game value {i}" if n.startswith("Usage") else "")
+               for i, n in enumerate(USAGE_NAMES)]
+
+
+def usage_to_config(name):
+    """enum name for GBX.NET, plain number for usages GBX.NET can't name"""
+    return int(name[5:]) if name.startswith("Usage") else name
+
+
+def usage_from_config(value):
+    return USAGE_NAMES[value] if isinstance(value, int) else value
 
 
 # --------------------------------------------------------------------------
@@ -153,7 +166,7 @@ def bitmap_to_config(bmp):
     from ..utils.Dotnet import DotnetColor, DotnetVec2
 
     return {
-        "Usage": bmp.usage,
+        "Usage": usage_to_config(bmp.usage),
         "RenderSizeMul": bmp.render_size_mul,
         "RenderSizeDiv": bmp.render_size_div,
         "PixelUpdate": bmp.pixel_update,

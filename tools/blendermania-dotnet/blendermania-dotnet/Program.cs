@@ -66,6 +66,10 @@ try
             return await ConvertAsset.Execute(payload);
         case ConvertFxToJson.COMMAND_NAME:
             return await ConvertFxToJson.Execute(payload);
+        case ConvertAssetsBatch.COMMAND_NAME:
+            return await ConvertAssetsBatch.Execute(payload);
+        case ReadPakAssets.COMMAND_NAME:
+            return await ReadPakAssets.Execute(payload);
 
         default:
             throw new Exception("No such command: " + command);

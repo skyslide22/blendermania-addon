@@ -405,6 +405,7 @@ def getDefaultSettingsJSON() -> dict:
             SETTINGS_ITEM_XML_TEMPLATES:        [],
             SETTINGS_NEW_BLEND_PREFERRED_GAME:  "",
             SETTINGS_MATERIALLIB:                "",
+            SETTINGS_PAK_EXTRACT:                "",
             SETTINGS_ITEM_PLACEMENT_TEMPLATES:  []
         }
 
@@ -441,6 +442,7 @@ def loadDefaultSettingsJSON() -> None:
     fromjson_itemplacement_templates  = data.get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, [])
     fromjson_new_blend_pref_game= data.get(SETTINGS_NEW_BLEND_PREFERRED_GAME)
     fromjson_material_lib_path  = data.get(SETTINGS_MATERIALLIB)
+    tm_props["ST_pakExtractPath"] = data.get(SETTINGS_PAK_EXTRACT) or tm_props.ST_pakExtractPath  # item access: no save callback
 
     tm_props.ST_author                  = fromjson_author_name   or tm_props.ST_author
     tm_props.LI_blenderGridSize         = fromjson_grid_size     or tm_props.LI_blenderGridSize 
@@ -542,6 +544,7 @@ def saveDefaultSettingsJSON() -> None:
             SETTINGS_ITEM_PLACEMENT_TEMPLATES   : old_data.get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, []),  # blend templates are not merged into local ones
 
             SETTINGS_MATERIALLIB                : tm_props.ST_materialLibPath or old_data[SETTINGS_MATERIALLIB],
+            SETTINGS_PAK_EXTRACT                : tm_props.ST_pakExtractPath or old_data.get(SETTINGS_PAK_EXTRACT, ""),
             SETTINGS_NEW_BLEND_PREFERRED_GAME   : get_game()
         }
 

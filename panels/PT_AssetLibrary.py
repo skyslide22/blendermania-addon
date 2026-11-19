@@ -8,7 +8,8 @@ from ..operators.OT_AssetLibrary import TM_OT_CreateMaterialAsset, TM_OT_ExportA
 
 from ..utils.AssetLibraryFunctions import active_asset, all_assets, is_reference_record
 from ..utils.AssetLibraryImporter import last_errors
-from ..ui.widgets.progress import draw_task_status, get_state
+from ..ui.widgets.progress import draw_task_status, get_state, is_running
+from ..ui.widgets.asset_picker import draw_asset_field
 
 
 def _wrapped_labels(layout, text, width=48):
@@ -43,6 +44,52 @@ class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
     bl_idname = "TM_PT_AssetLibrary_Main"
     bl_label = "TM Assets Library"
 
+    def draw_default_assets(self, layout, scene):
+        """all game bitmaps / images / tree texture sets as linkable assets: install a release or build from a pak extract"""
+        from pathlib import Path
+        from ..utils.DefaultAssetsLibrary import (get_default_assets_info, is_release_repository_configured,
+                                                  DEFAULT_ASSETS_LIB_NAME, DEFAULT_ASSETS_BLEND)
+        from ..operators.OT_AssetLibrary import DEFAULT_ASSETS_TASK_KEY, draw_update_check
+        box = layout.box()
+        box.label(text="Default Assets (game textures)")
+        info = get_default_assets_info()
+        col = box.column(align=True)
+        if info:
+            game = f", game {info['game_source']}" if info.get("game_source") else ""
+            col.label(text=f"Version {info.get('version', '?')}{game}", icon="CHECKMARK")
+            col.label(text=f"{info.get('bitmaps', '?')} bitmaps, {info.get('images', '?')} images, "
+                           f"{info.get('texture_sets', '?')} texture sets in '{DEFAULT_ASSETS_LIB_NAME}'")
+            row = col.row(align=True)
+            row.operator("wm.open_mainfile", text="Open Library .blend", icon="FILE_BLEND").filepath =                 str(Path(info["path"]) / DEFAULT_ASSETS_BLEND)
+            row.operator("wm.path_open", text="", icon="FILE_FOLDER").filepath = info["path"]
+            gbx = info.get("exported")
+            if gbx is not None and gbx < info.get("bitmaps", 0):
+                col.label(text=f"{gbx}/{info.get('bitmaps')} Texture.Gbx exported: open the .blend, Export Asset Library",
+                          icon="ERROR")
+        else:
+            col.label(text="Not installed", icon="INFO")
+
+        row = box.row(align=True)
+        row.scale_y = 1.3
+        sub = row.row(align=True)
+        sub.enabled = is_release_repository_configured()
+        sub.operator("tm.install_default_assets", text="Update" if info else "Install", icon="IMPORT")
+        row.operator("tm.check_asset_updates", text="", icon="FILE_REFRESH").library = "default"
+        if not is_release_repository_configured():
+            box.label(text="No release repository set (utils/Constants.py)", icon="ERROR")
+        draw_update_check(box, "default")
+
+        draw_task_status(box, DEFAULT_ASSETS_TASK_KEY)
+        if is_running(DEFAULT_ASSETS_TASK_KEY):
+            box.operator("tm.cancel_default_assets", icon="CANCEL")
+
+        sub = box.box().column(align=True)
+        sub.label(text="Build from game files")
+        sub.prop(scene.tm_props, "ST_pakExtractPath", text="Pak Extract")
+        row = sub.row(align=True)
+        row.operator("tm.build_default_assets", text="Build", icon="ADD")
+        row.operator("tm.package_default_assets", text="Package for Release", icon="PACKAGE")
+
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -52,6 +99,8 @@ class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
         box = layout.box()
         box.label(text="Settings")
         box.prop(scene, "tm_asset_copy_images")
+
+        self.draw_default_assets(layout, scene)
 
         box = layout.box()
         box.label(text="Create")
@@ -165,13 +214,11 @@ class TM_PT_AssetLibrary_TextureSet(AssetLibrary_TypePanel, Panel):
         row.enabled = ts.use_surface_material
         row.prop(ts, "surface_material", text="")
         col.label(text="Images")
-        col.prop(ts, "color_image", icon="IMAGE_DATA")
-        col.prop(ts, "normal_image", icon="IMAGE_DATA")
-        col.prop(ts, "roughness_image", icon="IMAGE_DATA")
+        for prop in ("color_image", "normal_image", "roughness_image"):
+            draw_asset_field(col, ts, prop, "IMAGE", icon="IMAGE_DATA")
         col.label(text="Textures (optional)")
-        col.prop(ts, "color_texture", icon="TEXTURE")
-        col.prop(ts, "normal_texture", icon="TEXTURE")
-        col.prop(ts, "roughness_texture", icon="TEXTURE")
+        for prop in ("color_texture", "normal_texture", "roughness_texture"):
+            draw_asset_field(col, ts, prop, "BITMAP", icon="TEXTURE")
 
 
 class TM_PT_AssetLibraryExport(GBXPanelBase, Panel):

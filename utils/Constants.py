@@ -261,6 +261,14 @@ MATERIAL_ASSETS_LIB_EDITIONS        = [
     ("complete",       "Complete",       "All materials incl. preview only assets (not exportable), ~3.3 GB download"),
 ]
 
+# Default asset library releases (game bitmaps/images/texture sets, see utils/DefaultAssetsLibrary.py).
+# TODO: put the GitHub repository ("owner/name") that hosts the releases here. Release tag: "default-assets-v<version>",
+# assets: release.json + the zip part(s) made by "Package for Release" (TM Asset tab > Default Assets).
+DEFAULT_ASSETS_RELEASE_REPOSITORY   = "AchimBunke/TM_DefaultAssets"
+DEFAULT_ASSETS_RELEASE_TAG_PREFIX   = "default-assets-v"
+DEFAULT_ASSETS_RELEASES_API         = "https://api.github.com/repos/" + DEFAULT_ASSETS_RELEASE_REPOSITORY + "/releases"
+DEFAULT_ASSETS_DOWNLOAD_BASE        = "https://github.com/" + DEFAULT_ASSETS_RELEASE_REPOSITORY + "/releases/download/"
+
 # Game materials with the native "TargetColor" parameter: the converter writes ItemConfig colors as TargetColor,
 # so only these can be colored. Source: tm_native_parameters of the TM2020 Material Assets Library (16 of 847),
 # matched by full link (DLibrary\DLinkFull) so aliases in other MaterialLib collections are covered as well.
@@ -593,6 +601,7 @@ SETTINGS_JSON_KEYS = (
     SETTINGS_ITEM_XML_TEMPLATES       := "itemxml_templates",
     SETTINGS_ITEM_PLACEMENT_TEMPLATES       := "itemplacement_templates",
     SETTINGS_MATERIALLIB                := "materiallib_path",
+    SETTINGS_PAK_EXTRACT                := "pak_extract_path",
 
     SETTINGS_NEW_BLEND_PREFERRED_GAME := "new_blend_game",
 )

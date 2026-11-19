@@ -37,6 +37,8 @@ for _n in ("Height2DuDv", "Height2DuDvLumi", "Height2NxNyNz", "Height2NxNy",
            "Height2NormPal8b", "Height2DuDv1", "Height2RxG0BzAy",
            "Height2BumpTxTy", "Height2R0GyBzAx", "DispH01"):
     USAGE_MODE[_n] = "HEIGHT"         # source image is a height map (converted on import)
+USAGE_MODE["Usage31"] = "NORMAL"      # TM2020 normal maps (_N)
+USAGE_MODE["Usage36"] = "DATA"        # TM2020 roughness/metal maps (_R)
 
 
 # --------------------------------------------------------------------------

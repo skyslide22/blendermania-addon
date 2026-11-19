@@ -42,6 +42,11 @@ def _sync_material_collection_library(self, context):
         sync_link_search_collection(str(self.LI_materialCollectionLibrary))
         redraw_all_panels()
 
+def _save_settings(self, context):
+    from ..operators.OT_Settings import saveDefaultSettingsJSON
+    saveDefaultSettingsJSON()
+
+
 def _update_materiallib_path(self, context):
     from ..utils.materialLib import reset_materiallibrary_cache
     reset_materiallibrary_cache()
@@ -183,6 +188,8 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     CB_useMultiScaleExport      : BoolProperty(default=True, name="Scale exports", description=DESC_MULTI_SCALE_EXPORT)
     CB_overwriteMultiScaleFactor: BoolProperty(default=False, name="Step factor" , description=DESC_MULTI_SCALE_EXPORT)
 
+    ST_pakExtractPath           : StringProperty(name="Pak Extract", default="", subtype="DIR_PATH", update=_save_settings,
+                                                 description="Folder of an extracted game pak (contains GameData/ and pak.index.json), used to build the default asset library")
     ST_materialLibPath          : StringProperty(name="MaterialLib Path", default=DEFAULT_MATERIAL_LIB_FILEPATH_TM2020,   subtype="FILE_PATH", update=_update_materiallib_path) #update=lambda self, context: makeItemsPathRelative("ST_exportFolder")
 
     LI_exportTargetType         : EnumProperty(items=[(ItemModel.Prefab, "Prefab", "Supports all features. Not editable in MeshModeler."), (ItemModel.MeshModeler, "MeshModeler", "Only Mesh and limited features. Can be edited in MeshModeler.")], name="Target Type", default=ItemModel.Prefab, description="Prefab = All features, MeshModeler = Only limited features, editable in MeshModeler.")

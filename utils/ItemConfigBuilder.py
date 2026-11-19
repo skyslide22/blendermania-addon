@@ -11,6 +11,7 @@ Variants: meshes, lights, instances and attachments get the Variant name of the 
 from __future__ import annotations
 
 import math
+import os
 import re
 
 import bpy
@@ -449,6 +450,9 @@ def _asset_ref(asset_mat: bpy.types.Material | None, assets: dict[str, AssetConf
             Path=props.exported_path,
             Type=AssetType.ImgFile if props.asset_type == "IMAGE" else AssetType.Bitmap,
         )
+    # resolve links (Documents/Trackmania -> real folder): the converter writes the item to its real path, and a
+    # gbx reference can only be made relative if the asset path is on the same real drive/folder tree
+    asset.Path = os.path.realpath(asset.Path)
     assets.setdefault(asset.Id, asset)
     return asset.Id
 

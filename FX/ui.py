@@ -4,6 +4,7 @@ from . import api, bridge, curves
 from . import schema as S
 from .props import ROOT_CLASS, class_name_of, get_schema, on_key, settings_of
 from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS
+from ..ui.widgets.asset_picker import draw_asset_field
 
 ICON = {"verified": "CHECKMARK", "guess": "QUESTION"}
 
@@ -30,8 +31,7 @@ def draw_field(layout, pg, f, settings, path):
     if t == "opaque":
         layout.label(text=f"{f.label}: not editable ({f.ref}), omitted", icon="LOCKED")
     elif f.asset_type:
-        row = layout.row(align=True)
-        row.prop(pg, f.key, text=label, icon="TEXTURE")
+        row = draw_asset_field(layout, pg, f.key, f.asset_type, text=label, icon="TEXTURE")
         if bridge.is_changed(settings, path, pg, f):
             _op(row, "tm_fx.reset", "", "LOOP_BACK", path=path, key=f.key)
     elif t in ("node", "struct") and f.boxed:   # optional single child stored as 0..1 collection

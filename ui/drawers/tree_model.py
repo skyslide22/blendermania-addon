@@ -5,6 +5,7 @@ from ...properties.VegetTreeProperties import PositionProperties
 from ...properties.PropertyIdentifiers import CollectionProp
 from ...utils.FunctionsV2 import get_item_root
 from ...utils.TreeModels import get_tree_model_issues
+from ..widgets.asset_picker import draw_asset_field
 
 
 def _override_row(layout, tree, override_prop: str, value_prop: str) -> None:
@@ -31,8 +32,8 @@ def draw_tree_model_collection(layout, collection: bpy.types.Collection) -> None
     layout.prop(tree, "enable_propagation")
     col = layout.column(align=True)
     col.enabled = tree.enable_propagation
-    col.prop(tree, "propagation_base_color", icon="TEXTURE")
-    col.prop(tree, "propagation_normal", icon="TEXTURE")
+    draw_asset_field(col, tree, "propagation_base_color", "BITMAP", icon="TEXTURE")
+    draw_asset_field(col, tree, "propagation_normal", "BITMAP", icon="TEXTURE")
     row = col.row(align=True)
     row.prop(tree, "propagation_atlas_grid")
     col.prop(tree, "propagation_cone_half_angle_degree")

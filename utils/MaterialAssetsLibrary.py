@@ -14,12 +14,10 @@ import os
 import re
 import json
 import shutil
-import hashlib
 import threading
 import urllib.request
 import urllib.error
 import uuid
-import zipfile
 from pathlib import Path
 
 import bpy
@@ -32,11 +30,12 @@ from .Constants import (
     MATERIAL_ASSETS_LIB_RELEASES_API,
 )
 from .Functions import debug, get_global_props
+from .ReleaseInstaller import (
+    Cancelled, download_and_extract, get_json, latest_version, long_path, version_key,
+)
 
 
 _HTTP_HEADERS = {"User-Agent": "blendermania-addon", "Accept": "application/vnd.github+json"}
-_CHUNK = 1024 * 1024
-_VALID_ARCHIVE = re.compile(r"^[A-Za-z0-9._-]+\.zip$")
 
 LIBRARY_ASSET_PROP = "libraryAsset"           # Material prop: library material the shader was copied from
 LIBRARY_DEFAULT_COLOR = "tm_library_default_color"  # custom prop: original cus_color of the library shader
@@ -345,52 +344,29 @@ def cancel_install() -> None:
         _state.cancel = True
 
 
-class _Cancelled(Exception):
-    pass
-
-
-def _get_json(url: str):
-    req = urllib.request.Request(url, headers=_HTTP_HEADERS)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.loads(r.read().decode("utf-8"))
+_Cancelled = Cancelled
+_get_json = get_json
+_long = long_path
 
 
 def _resolve_release(edition: str) -> tuple[str, str]:
     """(version, download base url) of the newest release of the edition, pinned version if the API fails"""
     version = MATERIAL_ASSETS_LIB_FALLBACK_VERSION
     try:
-        pattern = re.compile(r"^v(.+)-" + re.escape(edition) + r"$")
-        for release in _get_json(MATERIAL_ASSETS_LIB_RELEASES_API):
-            m = pattern.match(release.get("tag_name", ""))
-            if m and not release.get("draft") and not release.get("prerelease") \
-                    and any(a.get("name") == "release.json" for a in release.get("assets", [])):
-                version = m.group(1)
-                break  # API lists newest first
+        version = latest_version(MATERIAL_ASSETS_LIB_RELEASES_API, re.compile(r"^v(.+)-" + re.escape(edition) + r"$")) or version
     except (urllib.error.URLError, OSError, ValueError) as e:
         debug(f"material assets library: release lookup failed ({e}), using {version}")
     return version, f"{MATERIAL_ASSETS_LIB_DOWNLOAD_BASE}v{version}-{edition}/"
 
 
-def _long(path: Path) -> str:
-    """windows long path, texture paths of the library come close to MAX_PATH"""
-    s = str(path)
-    prefix = "\\\\?\\"
-    if os.name == "nt" and not s.startswith(prefix):
-        s = prefix + os.path.abspath(s)
-    return s
-
-
-def _sha256(path: Path, state: _InstallState) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        while True:
-            if state.cancel:
-                raise _Cancelled()
-            data = f.read(_CHUNK * 4)
-            if not data:
-                break
-            h.update(data)
-    return h.hexdigest()
+def check_for_update() -> dict:
+    """{"installed", "edition", "latest", "update"} for the installed edition; raises when GitHub can't be asked"""
+    info = get_installed_library_info() or {}
+    edition = info.get("edition") or get_global_props().LI_DL_MaterialAssetsEdition
+    latest = latest_version(MATERIAL_ASSETS_LIB_RELEASES_API, re.compile(r"^v(.+)-" + re.escape(edition) + r"$"))
+    installed = info.get("version")
+    return {"installed": installed, "edition": edition, "latest": latest,
+            "update": bool(latest and installed and version_key(latest) > version_key(installed))}
 
 
 def _install_worker(state: _InstallState, edition: str, root: Path) -> None:
@@ -398,7 +374,7 @@ def _install_worker(state: _InstallState, edition: str, root: Path) -> None:
         with state.lock:
             state.status = text
             if progress is not None:
-                state.progress = progress
+                state.progress = progress * 100
         debug(f"material assets library: {text}")
 
     staging = None
@@ -413,85 +389,14 @@ def _install_worker(state: _InstallState, edition: str, root: Path) -> None:
         cache = root / "Downloads" / f"{version}-{edition}"
 
         if _is_library_folder(dest):
-            status(f"{edition} {version} already installed", 100)
+            status(f"{edition} {version} already installed", 1)
             state.result = dest
             return
         if dest.exists():
             raise RuntimeError(f"folder exists but is no complete library, remove it: {dest}")
 
-        archives = manifest.get("archives", [])
-        for a in archives:
-            if not _VALID_ARCHIVE.match(a.get("name", "")):
-                raise RuntimeError("invalid archive name in release.json")
-
-        # download (90%)
-        cache.mkdir(parents=True, exist_ok=True)
-        total = sum(int(a["bytes"]) for a in archives) or 1
-        done_bytes = 0
-        for i, a in enumerate(archives, 1):
-            target = cache / a["name"]
-            label  = f"part {i}/{len(archives)}"
-            if target.is_file() and target.stat().st_size == int(a["bytes"]):
-                status(f"Checking cached {label}...")
-                if _sha256(target, state) == a["sha256"]:
-                    done_bytes += int(a["bytes"])
-                    continue
-            tmp = target.with_name(target.name + ".part")
-            h = hashlib.sha256()
-            req = urllib.request.Request(base_url + a["name"], headers={"User-Agent": _HTTP_HEADERS["User-Agent"]})
-            with urllib.request.urlopen(req, timeout=60) as r, open(tmp, "wb") as f:
-                got = 0
-                while True:
-                    if state.cancel:
-                        raise _Cancelled()
-                    data = r.read(_CHUNK)
-                    if not data:
-                        break
-                    f.write(data)
-                    h.update(data)
-                    got += len(data)
-                    status(f"Downloading {label} ({(done_bytes + got) // 2**20} / {total // 2**20} MB)",
-                           (done_bytes + got) / total * 90)
-            if h.hexdigest() != a["sha256"]:
-                tmp.unlink(missing_ok=True)
-                raise RuntimeError(f"checksum mismatch: {a['name']}")
-            tmp.replace(target)
-            done_bytes += int(a["bytes"])
-
-        # extract (10%) into a staging folder, moved to dest when complete
         staging = dest.with_name(dest.name + ".installing-" + uuid.uuid4().hex[:8])
-        staging.mkdir(parents=True)
-        staging_resolved = staging.resolve()
-        entries = []
-        for a in archives:
-            with zipfile.ZipFile(cache / a["name"]) as z:
-                entries.append(len([e for e in z.infolist() if not e.is_dir()]))
-        count_total, count, seen = sum(entries) or 1, 0, set()
-        for a in archives:
-            with zipfile.ZipFile(cache / a["name"]) as z:
-                for entry in z.infolist():
-                    if entry.is_dir():
-                        continue
-                    if state.cancel:
-                        raise _Cancelled()
-                    rel = entry.filename.replace("\\", "/")
-                    target = (staging / rel).resolve()
-                    if staging_resolved not in target.parents:
-                        raise RuntimeError(f"archive path escapes the installation folder: {rel}")
-                    if rel.lower() in seen:
-                        raise RuntimeError(f"duplicate archive entry: {rel}")
-                    seen.add(rel.lower())
-                    os.makedirs(_long(target.parent), exist_ok=True)
-                    with z.open(entry) as src, open(_long(target), "wb") as dst:
-                        shutil.copyfileobj(src, dst, _CHUNK)
-                    count += 1
-                    if count % 25 == 0:
-                        status(f"Extracting ({count} / {count_total} files)", 90 + count / count_total * 10)
-
-        expected = {k.replace("\\", "/").lower() for k in manifest.get("files", {})}
-        missing = expected - seen
-        if expected and missing:
-            raise RuntimeError(f"{len(missing)} files missing, e.g. {sorted(missing)[0]}")
+        download_and_extract(base_url, manifest, cache, staging, report=status, cancelled=lambda: state.cancel)
         if not _is_library_folder(staging):
             raise RuntimeError("extracted files are no library (blend or MaterialLib.txt missing)")
 
@@ -499,7 +404,7 @@ def _install_worker(state: _InstallState, edition: str, root: Path) -> None:
         staging = None
         shutil.rmtree(cache, ignore_errors=True)  # the zips are as large as the library itself
         state.result = dest
-        status(f"Installed {edition} {version}", 100)
+        status(f"Installed {edition} {version}", 1)
 
     except _Cancelled:
         state.error = "Cancelled"

@@ -24,7 +24,7 @@ from ..utils.AssetLibraryFunctions import (
     sync_preview,
 )
 from ..properties.AssetProperties import ASSET_TYPES
-from ..utils.AssetLibraryImporter import make_jobs, convert_assets_steps, apply_results, last_errors
+from ..utils.AssetLibraryImporter import make_jobs, convert_assets_steps, convert_assets_steps_batched, apply_results, last_errors
 from ..ui.widgets.progress import ProgressTaskMixin
 from ..properties.PropertyIdentifiers import AssetProp
 
@@ -208,6 +208,7 @@ class TM_OT_ExportAssetLibrary(ProgressTaskMixin, Operator):
 
         base_dir = blend_dir()
         assets = [active_asset(context)] if self.only_active else all_assets()
+        assets = [a for a in assets if a is not None and a.library is None]  # linked assets belong to their library (e.g. default assets)
         assets = [a for a in assets if a is not None]
         if not assets:
             self.report({"WARNING"}, "No assets to export")
@@ -227,7 +228,7 @@ class TM_OT_ExportAssetLibrary(ProgressTaskMixin, Operator):
         return True
 
     def task_steps(self, context):
-        jobs = yield from convert_assets_steps(self._jobs)
+        jobs = yield from convert_assets_steps_batched(self._jobs)
         apply_results(jobs)
 
         for job in jobs:
@@ -240,7 +241,9 @@ class TM_OT_ExportAssetLibrary(ProgressTaskMixin, Operator):
             self.set_result("INFO", f"Exported {len(jobs)} asset(s)")
 
     def task_finished(self, context):
-        sync_all_catalogs(blend_dir())
+        from ..utils.DefaultAssetsLibrary import DEFAULT_ASSETS_BLEND
+        if Path(bpy.data.filepath).name != DEFAULT_ASSETS_BLEND:   # keeps its per-environment catalogs
+            sync_all_catalogs(blend_dir())
 
 class TM_OT_CopyAssetErrors(Operator):
     bl_idname = "tm.copy_asset_errors"
@@ -278,7 +281,192 @@ class TM_OT_OpenLibraryFolder(Operator):
         return {"FINISHED"}
 
 
+DEFAULT_ASSETS_TASK_KEY = "tm.default_assets_job"
+
+
+class _DefaultAssetsJob(ProgressTaskMixin):
+    """runs one job of utils/DefaultAssetsLibrary in its thread and polls it: input stays free, the Cancel button stops it"""
+    task_key = DEFAULT_ASSETS_TASK_KEY
+    task_cancellable = False
+    task_block_input = False
+    task_wait_cursor = False
+    task_timer_interval = 0.25
+    task_status_hold = 10.0
+
+    _job = None
+    _sync = False
+
+    @classmethod
+    def poll(cls, context):
+        from ..utils.DefaultAssetsLibrary import is_build_running
+        return super().poll(context) and not is_build_running()
+
+    def execute(self, context):
+        if context.window is not None and not bpy.app.background:
+            return ProgressTaskMixin.invoke(self, context, None)
+        self._sync = True
+        return ProgressTaskMixin.execute(self, context)
+
+    def start_job(self, context):
+        raise NotImplementedError
+
+    def task_prepare(self, context):
+        try:
+            self._job = self.start_job(context)
+        except RuntimeError as e:
+            self.report({"ERROR"}, str(e))
+            return False
+        return True
+
+    def task_steps(self, context):
+        import time
+        state = self._job
+        while not state.done:
+            with state.lock:
+                progress, status = state.progress, state.status
+            yield progress, status or "Starting..."
+            if self._sync:
+                time.sleep(0.2)
+        if state.error:
+            self.set_result("WARNING" if state.error == "Cancelled" else "ERROR", f"{self.task_title}: {state.error}")
+            return
+        from ..utils.DefaultAssetsLibrary import finish_build
+        self.set_result("INFO", finish_build(state))
+        _update_check_results.pop("default", None)
+
+    def cancel(self, context):
+        from ..utils.DefaultAssetsLibrary import cancel_build
+        cancel_build()
+        super().cancel(context)
+
+
+class TM_OT_BuildDefaultAssets(_DefaultAssetsJob, Operator):
+    bl_idname = "tm.build_default_assets"
+    bl_label = "Build Default Assets"
+    bl_description = ("Build the default asset library (all game bitmaps, images and tree texture sets) from the pak extract "
+                      "into Items/_BlenderAssets/DefaultAssets and register it as asset library 'TM2020 Default Assets'")
+    task_title = "Building default assets"
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event, title="Build default assets?",
+                                                     message="Takes about a minute and ~2.5 GB in Items/_BlenderAssets/DefaultAssets",
+                                                     confirm_text="Build")
+
+    def start_job(self, context):
+        from ..utils.DefaultAssetsLibrary import start_build
+        return start_build(context.scene.tm_props.ST_pakExtractPath)
+
+
+class TM_OT_InstallDefaultAssets(_DefaultAssetsJob, Operator):
+    bl_idname = "tm.install_default_assets"
+    bl_label = "Install Default Assets"
+    bl_description = "Download the newest default assets release and install it into Items/_BlenderAssets/DefaultAssets"
+    task_title = "Installing default assets"
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event, title="Install default assets?",
+                                                     message="Downloads ~1.5 GB and replaces Items/_BlenderAssets/DefaultAssets",
+                                                     confirm_text="Install")
+
+    def start_job(self, context):
+        from ..utils.DefaultAssetsLibrary import start_release_install
+        return start_release_install()
+
+
+class TM_OT_PackageDefaultAssets(_DefaultAssetsJob, Operator):
+    bl_idname = "tm.package_default_assets"
+    bl_label = "Package Default Assets for Release"
+    bl_description = ("Write the built default assets as release files (zip + release.json) into a folder, "
+                      "to upload them to the release repository")
+    task_title = "Packaging default assets"
+
+    directory: StringProperty(name="Output Folder", subtype="DIR_PATH")
+    version: StringProperty(name="Version", default="1.0.0", description="Release version, the tag is default-assets-v<version>")
+
+    def invoke(self, context, event):
+        from ..utils.DefaultAssetsLibrary import get_default_assets_info
+        info = get_default_assets_info() or {}
+        if info.get("version") and not info["version"].startswith("local-"):
+            self.version = info["version"]
+        return context.window_manager.invoke_props_dialog(self, width=420)
+
+    def draw(self, context):
+        self.layout.prop(self, "directory")
+        self.layout.prop(self, "version")
+        self.layout.label(text=f"Creates <folder>/default-assets-v{self.version}/ (upload all files of it)")
+
+    def start_job(self, context):
+        from ..utils.DefaultAssetsLibrary import start_package
+        return start_package(self.directory, self.version)
+
+
+class TM_OT_CancelDefaultAssets(Operator):
+    bl_idname = "tm.cancel_default_assets"
+    bl_label = "Cancel"
+    bl_description = "Stop the running default assets job"
+
+    def execute(self, context):
+        from ..utils.DefaultAssetsLibrary import cancel_build
+        cancel_build()
+        return {"FINISHED"}
+
+
+# results of TM_OT_CheckAssetUpdates for the panels: {"material": {...} | {"error": str}, "default": ...}
+_update_check_results = {}
+
+
+def get_update_check_result(key):
+    return _update_check_results.get(key)
+
+
+class TM_OT_CheckAssetUpdates(Operator):
+    bl_idname = "tm.check_asset_updates"
+    bl_label = "Check for Updates"
+    bl_description = "Compare the installed asset libraries with their newest GitHub releases"
+
+    library: EnumProperty(items=[("ALL", "All", ""), ("material", "Material library", ""), ("default", "Default assets", "")],
+                          default="ALL", options={"SKIP_SAVE"})
+
+    def execute(self, context):
+        from ..utils import MaterialAssetsLibrary, DefaultAssetsLibrary
+        checks = {"material": MaterialAssetsLibrary.check_for_update, "default": DefaultAssetsLibrary.check_for_update}
+        for key, check in checks.items():
+            if self.library not in ("ALL", key):
+                continue
+            try:
+                _update_check_results[key] = check()
+            except Exception as e:  # offline, rate limit, no repository configured
+                _update_check_results[key] = {"error": str(e) or type(e).__name__}
+        for area in context.screen.areas if context.screen else []:
+            area.tag_redraw()
+        return {"FINISHED"}
+
+
+def draw_update_check(layout, key):
+    """one status line under a library: newer version available / up to date / error"""
+    result = get_update_check_result(key)
+    if result is None:
+        return
+    if "error" in result:
+        layout.label(text=f"Update check failed: {result['error']}", icon="ERROR")
+    elif result.get("update"):
+        layout.label(text=f"Update available: {result['latest']} (installed {result.get('installed') or '-'})", icon="IMPORT")
+    elif result.get("latest"):
+        layout.label(text=f"Up to date ({result['latest']})", icon="CHECKMARK")
+    else:
+        layout.label(text="No release found", icon="INFO")
+
+
+from ..ui.widgets.asset_picker import TM_OT_PickAsset, TM_OT_AssignSelectedAsset
+
 classes = (
+    TM_OT_PickAsset,
+    TM_OT_AssignSelectedAsset,
+    TM_OT_BuildDefaultAssets,
+    TM_OT_InstallDefaultAssets,
+    TM_OT_PackageDefaultAssets,
+    TM_OT_CancelDefaultAssets,
+    TM_OT_CheckAssetUpdates,
     TM_OT_CreateMaterialAsset,
     TM_OT_RenameMaterialAsset,
     TM_OT_RemoveMaterialAsset,
