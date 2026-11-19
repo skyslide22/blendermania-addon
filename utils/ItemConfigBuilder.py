@@ -36,7 +36,7 @@ def generate_item_config(item: ExportedItem) -> ItemConfig:
     collection = item.collection
     variants = VariantResolver(collection)
 
-    cfg.AuthorName = tm_props.ST_author or "blendermania"
+    cfg.AuthorName = tm_props.ST_author or ""
     cfg.Collection = tm_props.LI_materialCollection if getattr(tm_props, "LI_materialCollection", None) else cfg.Collection
     cfg.Name = collection.name
     cfg.Description = collection.get("description", "N/A")

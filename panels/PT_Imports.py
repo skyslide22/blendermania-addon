@@ -17,7 +17,7 @@ class TM_PT_Imports(ViewPanelMixin, Panel):
     bl_label = "Imports"
     bl_idname = "TM_PT_Imports"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_order = 100
+    bl_order = 90
 
     @classmethod
     def view_poll(self, context):

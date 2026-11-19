@@ -20,6 +20,7 @@ PATTERNS_TO_RELEASE = [
     "properties/**",
     "utils/**",
     "ui/**",
+    "FX/**",
 
     # NICE
     "NICE/nice.py",

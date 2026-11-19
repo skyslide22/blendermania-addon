@@ -20,7 +20,7 @@ class TM_PT_Items_ExportV2(ViewPanelMixin, Panel):
     bl_idname  = "TM_PT_Items_ExportV2"
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_order = 11
+    bl_order = 30
 
     @classmethod
     def view_poll(self, context):

@@ -12,6 +12,7 @@ from ..utils.Constants import *
 class TM_PT_UVManipulations(Panel):
     bl_label   = "UV Manipulation"
     bl_idname  = "TM_PT_UVManipulations"
+    bl_order = 25
     bl_context = "mesh_edit"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     

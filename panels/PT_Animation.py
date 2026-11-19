@@ -19,7 +19,7 @@ class TM_PT_Animation_Preview(ViewPanelMixin, Panel):
     bl_label   = "Moving Animation Preview"
     bl_idname  = "TM_PT_Animation_Preview"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_order = 12
+    bl_order = 10  # Blendermania tab: settings 0, anim preview 10, manipulations 20, export 30, map 40, materials 50, textures 60, editor trails 70, NICE 80, imports 90
 
     @classmethod
     def view_poll(self, context):

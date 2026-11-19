@@ -9,6 +9,7 @@ from ..utils.Functions      import *
 class TM_PT_Items_Export(Panel):
     bl_label   = "Export Items"
     bl_idname  = "TM_PT_Items_Export"
+    bl_order = 30
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 

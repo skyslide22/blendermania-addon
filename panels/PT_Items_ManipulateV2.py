@@ -35,7 +35,7 @@ class TM_PT_ObjectManipulationsV2(ViewPanelMixin, Panel):
     bl_label   = "ManipulationsV2"
     bl_idname  = "TM_PT_ObjectManipulationsV2"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_order = 10
+    bl_order = 20
     
     
     @classmethod

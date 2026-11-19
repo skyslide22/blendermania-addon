@@ -24,7 +24,7 @@ class TM_PT_UIEditorTrails(ViewPanelMixin, bpy.types.Panel):
     bl_context = "objectmode"
     # bl_parent_id = "TM_PT_Map_Manipulate"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_order = 100
+    bl_order = 70
 
     def draw_header(self, context):
         layout = self.layout

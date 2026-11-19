@@ -21,6 +21,7 @@ from ..utils.Constants  import *
 class TM_PT_Materials(Panel):
     bl_label = "Materials"
     bl_idname = "OBJECT_PT_TM_Materials"
+    bl_order = 50
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
 
     @classmethod
@@ -265,7 +266,7 @@ class TM_PT_Materials_Library(ViewPanelMixin, Panel):
     bl_label = "Materials V2"
     bl_idname = "OBJECT_PT_TM_Materials_V2"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_order = 13
+    bl_order = 50
 
     @classmethod
     def view_poll(self, context):

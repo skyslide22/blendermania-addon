@@ -34,7 +34,7 @@ class PT_UIMapManipulation(ViewPanelMixin, bpy.types.Panel):
     bl_idname  = "TM_PT_Map_Manipulate"
     bl_context = "objectmode"
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_order = 100
+    bl_order = 40
 
     @classmethod
     def view_poll(self, context):

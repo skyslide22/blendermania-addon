@@ -102,12 +102,21 @@ def get_game() -> str:
     return get_global_props().LI_gameType
 
 def get_documents_path() -> str:
+    # shell API: follows a relocated Documents folder (e.g. F:/WindowsFiles/Documents) and handles non-ascii paths
+    try:
+        import ctypes
+        buf = ctypes.create_unicode_buffer(32768)
+        if ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buf) == 0 and buf.value:  # 5 = CSIDL_PERSONAL
+            return fix_slash(buf.value)
+    except Exception:
+        pass
+
     process = subprocess.Popen([
         """Powershell.exe""",
         """[environment]::getfolderpath("mydocuments")"""
     ], stdout=subprocess.PIPE)
     result  = process.communicate() # (b"C:\Users\User\Documents\r\n", None)
-    path = result[0].decode("ascii").replace("\r\n",  "") 
+    path = result[0].decode("utf-8", errors="replace").replace("\r\n",  "")
     debug(path)
     return fix_slash(path)
     

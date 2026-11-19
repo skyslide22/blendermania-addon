@@ -14,6 +14,7 @@ from ..utils.Constants import *
 class TM_PT_ObjectManipulations(Panel):
     bl_label   = "Manipulations"
     bl_idname  = "TM_PT_ObjectManipulations"
+    bl_order = 20
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     
     

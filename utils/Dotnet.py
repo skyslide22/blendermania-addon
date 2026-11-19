@@ -370,6 +370,16 @@ def run_place_mediatracker_clips_on_map(
                 pass
         return res
 
+def _ensure_output_dir(item_output_path: str) -> None:
+    # TM_GenericMapping FileUtils.ResolveRealPath throws DirectoryNotFoundException
+    # for a not yet existing output folder (first export into a new folder)
+    if not item_output_path:
+        return
+    try:
+        os.makedirs(os.path.dirname(os.path.abspath(item_output_path)), exist_ok=True)
+    except OSError:
+        pass
+
 def run_convert_fbx_to_gbx(
     fbx_path: str,
     material_library_path: str,
@@ -378,6 +388,7 @@ def run_convert_fbx_to_gbx(
     target: ItemModel,
     optimization: OptimizationOptions,
 )-> DotnetExecResult:
+    _ensure_output_dir(item_output_path)
     payload = ConvertFbxToGbxPayload(
         fbx_path,
         material_library_path,
@@ -397,6 +408,7 @@ def run_plan_fbx_to_gbx(
     target: ItemModel,
     optimization: OptimizationOptions,
 ) -> DotnetExecResult:
+    _ensure_output_dir(item_output_path)
     payload = ConvertFbxToGbxPayload(
         fbx_path,
         material_library_path,

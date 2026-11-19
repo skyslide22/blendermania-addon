@@ -24,10 +24,10 @@ ADDON_ROOT_PATH = os.path.dirname(__file__)
 
 bl_info = {
     "name"          : "Blendermania",
-    "author"        : "skyslide22, juice & schadocalex",
+    "author"        : "Achioto, skyslide22, juice & schadocalex",
     "description"   : "Makes creating objects for Trackmania more easy and fun!",
     "blender"       : (5, 2, 3),
-    "version"       : (4, 4, 7),
+    "version"       : (4, 4, 8),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic",
