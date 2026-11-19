@@ -389,7 +389,9 @@ def _get_material_configs(objs: list[bpy.types.Object], assets: dict[str, AssetC
         mat_config.Name = mat.name
 
         if mat_game_is_tm2020:
-            if mat.isLibraryMaterial: # new materiallib flow: explicit "use color" checkbox
+            if mat.isLibraryMaterial or _is_asset_library_material(mat):
+                # new materiallib flow and materials assigned directly from an asset library: explicit "use color" only,
+                # otherwise every Custom* asset would export the library's default color
                 use_custom_color_attr = mat.useColor
             else:                     # legacy flow
                 use_custom_color_attr = mat_use_custom_color and mat_link.lower().startswith("custom")
@@ -411,6 +413,14 @@ def _get_material_configs(objs: list[bpy.types.Object], assets: dict[str, AssetC
         material_configs.append(mat_config)
 
     return material_configs
+
+_ASSET_LIBRARY_MATERIAL_NAME = re.compile(r"(?i)^TM_.+_asset(\.\d{3,})?$")
+
+
+def _is_asset_library_material(mat: bpy.types.Material) -> bool:
+    """material appended from the TM2020 Material Assets Library (tm_asset_id) or the old addon assets library (TM_<link>_asset)"""
+    return "tm_asset_id" in mat or bool(_ASSET_LIBRARY_MATERIAL_NAME.match(mat.name))
+
 
 def _asset_ref(asset_mat: bpy.types.Material | None, assets: dict[str, AssetConfig]) -> str | None:
     """asset id (the asset name) of an Image/Bitmap asset, registers it in the assets of the item"""

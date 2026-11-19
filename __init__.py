@@ -187,6 +187,8 @@ classes = (
     TM_OT_Settings_InstallNadeoImporter,
     TM_OT_Settings_InstallGameTextures,
     TM_OT_Settings_InstallGameAssetsLIbrary,
+    TM_OT_Settings_InstallMaterialAssetsLibrary,
+    TM_OT_Settings_CancelMaterialAssetsLibrary,
     TM_OT_Settings_InstallBlendermaniaDotnet,
     TM_OT_Settings_UpdateAddon,
     TM_OT_Settings_UpdateAddonResetSettings,
@@ -474,6 +476,7 @@ def register():
     bpy.types.Material.useColor         = BoolProperty(         name="Use Color",           default=False)
     bpy.types.Material.isLibraryMaterial = BoolProperty(        name="Created with materiallib (V2)", default=False)
     bpy.types.Material.libraryEnvironment = StringProperty(     name="Materiallib collection (V2)", default="")
+    bpy.types.Material.libraryAsset     = StringProperty(       name="TM2020 Material Assets Library material the shader was copied from (V2)", default="")
     bpy.types.Material.model            = EnumProperty(         name="Model",               default="TDSN",    items=getMaterialModelTypes())
     bpy.types.Material.environment      = EnumProperty(         name="Collection",          default="Stadium", items=getMaterialCollectionTypes())#Material."collection" not allowed
     # the size should be 4 (for BSDF) but to keep backward compability we have to keep it with size=3 (we convert it later in the code)

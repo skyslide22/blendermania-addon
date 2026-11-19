@@ -5,6 +5,7 @@ import webbrowser
 import addon_utils
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty
+from ..ui.widgets.progress import ProgressTaskMixin
 from ..utils.Constants      import *
 from ..utils.Functions      import *
 from ..utils.NadeoXML       import (
@@ -142,6 +143,90 @@ class TM_OT_Settings_InstallGameAssetsLIbrary(Operator):
     def draw(self, context):
         layout = self.layout
         layout.label(text="Are you sure you want to install the asset library?")
+
+class TM_OT_Settings_InstallMaterialAssetsLibrary(ProgressTaskMixin, Operator):
+    """the download runs in a thread (MaterialAssetsLibrary), the progress task only polls it: input stays free,
+    ESC does not cancel (a modal sees ESC everywhere), the Cancel button does"""
+    bl_idname = "view3d.tm_install_material_assets_library"
+    bl_description = "Download and install the TM2020 Material Assets Library (by BigthirstyTM): registers it in the Asset Browser and selects its MaterialLib.txt"
+    bl_label = "Install TM2020 Material Assets Library"
+
+    task_title = "Installing material library"
+    task_cancellable = False
+    task_block_input = False
+    task_wait_cursor = False
+    task_timer_interval = 0.25
+    task_status_hold = 10.0
+
+    _install = None
+    _sync = False
+
+    @classmethod
+    def poll(cls, context):
+        from ..utils.MaterialAssetsLibrary import is_install_running
+        return super().poll(context) and not is_install_running()
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=420)  # confirmed -> execute
+
+    def execute(self, context):
+        if context.window is not None and not bpy.app.background:
+            return ProgressTaskMixin.invoke(self, context, None)  # modal with progress
+        self._sync = True                                         # scripts / background: blocking
+        return ProgressTaskMixin.execute(self, context)
+
+    def task_prepare(self, context):
+        from ..utils.MaterialAssetsLibrary import start_install
+        try:
+            self._install = start_install(get_global_props().LI_DL_MaterialAssetsEdition)
+        except RuntimeError as e:
+            self.report({"ERROR"}, str(e))
+            return False
+        return True
+
+    def task_steps(self, context):
+        import time
+        state = self._install
+        while not state.done:
+            with state.lock:  # copy, never yield while holding the lock (would stall the download thread)
+                progress, status = state.progress, state.status
+            yield progress / 100, status or "Starting..."
+            if self._sync:
+                time.sleep(0.2)
+        if state.error:
+            level = "WARNING" if state.error == "Cancelled" else "ERROR"
+            self.set_result(level, f"Material library: {state.error}")
+            return
+        from ..utils.MaterialAssetsLibrary import finish_install
+        self.set_result("INFO", finish_install(state))
+
+    def cancel(self, context):
+        """Blender ends the modal (file load, quit): stop the download as well"""
+        from ..utils.MaterialAssetsLibrary import cancel_install
+        cancel_install()
+        super().cancel(context)
+
+    def draw(self, context):
+        from ..utils.MaterialAssetsLibrary import get_default_install_root
+        edition = get_global_props().LI_DL_MaterialAssetsEdition
+        size = "~2.3 GB" if edition == "materials-only" else "~3.3 GB"
+        col = self.layout.column(align=True)
+        col.label(text=f"Download the '{edition}' edition ({size}, twice the disk space during install)?")
+        col.label(text=f"Folder: {get_default_install_root() or 'Trackmania Items folder not found!'}")
+        col.label(text="The Material Lib setting is switched to the library's MaterialLib.txt.")
+        col.label(text="Game assets remain property of their owners (community project).")
+
+
+class TM_OT_Settings_CancelMaterialAssetsLibrary(Operator):
+    bl_idname = "view3d.tm_cancel_material_assets_library"
+    bl_description = "Cancel the running download/installation (finished downloads are kept for a retry)"
+    bl_label = "Cancel"
+
+    def execute(self, context):
+        from ..utils.MaterialAssetsLibrary import cancel_install
+        cancel_install()
+        return {"FINISHED"}
+
 
 class TM_OT_Settings_InstallBlendermaniaDotnet(Operator):
     bl_idname = "view3d.tm_install_blendermania_dotnet"

@@ -16,6 +16,7 @@ from ..utils.AssetLibraryFunctions import (
     gbx_rel_path,
     get_preview_object,
     import_image_file,
+    is_reference_record,
     remove_asset_data,
     resolve_abs,
     spawn_preview_plane,
@@ -168,7 +169,7 @@ class TM_OT_ImportImage(Operator, ImportHelper):
         props = mat.tm_asset_properties
         props.exported_path = ""
         try:
-            img, created = import_image_file(self.filepath)
+            img, created = import_image_file(self.filepath, copy=context.scene.tm_asset_copy_images)
         except (RuntimeError, FileNotFoundError, OSError) as e:
             self.report({"ERROR"}, str(e))
             return {"CANCELLED"}
@@ -183,7 +184,8 @@ class TM_OT_ImportImage(Operator, ImportHelper):
         if img.source == "GENERATED":
             self.report({"WARNING"}, f"Imported {rel}, but Blender could not load a preview of it")
         else:
-            self.report({"INFO"}, f"{'Imported' if created else 'Reused existing'}: {rel}")
+            how = "Referenced" if is_reference_record(img) else "Imported"
+            self.report({"INFO"}, f"{how if created else 'Reused existing'}: {rel}")
         props.exported_path = str(blend_dir() / rel)
         return {"FINISHED"}
 

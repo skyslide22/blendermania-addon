@@ -247,6 +247,42 @@ WEBSPACE_ASSETS_TM_STADIUM   = GITHUB_ASSETS_BASE_URL + "Assets_Library_TrackMan
 WEBSPACE_ASSETS_MP           = GITHUB_ASSETS_BASE_URL + "Assets_Library_Maniaplanet/Assets_Library_Maniaplanet.zip"
 WEBSPACE_DOTNET_EXECUTABLE   = GITHUB_ASSETS_BASE_URL + BLENDERMANIA_DOTNET+"/"+BLENDERMANIA_DOTNET+".zip"
 
+# TM2020 Material Assets Library (community library by BigthirstyTM, V2 material workflow)
+# release tags are "v<version>-<edition>", each release has release.json (archives + sha256, file list) and N zip parts
+MATERIAL_ASSETS_LIB_REPOSITORY      = "BigthirstyTM/TM2020-Material-Assets-Library"
+MATERIAL_ASSETS_LIB_URL             = "https://github.com/" + MATERIAL_ASSETS_LIB_REPOSITORY
+MATERIAL_ASSETS_LIB_RELEASES_API    = "https://api.github.com/repos/" + MATERIAL_ASSETS_LIB_REPOSITORY + "/releases"
+MATERIAL_ASSETS_LIB_DOWNLOAD_BASE   = MATERIAL_ASSETS_LIB_URL + "/releases/download/"
+MATERIAL_ASSETS_LIB_FALLBACK_VERSION= "1.0.0"   # used if the GitHub API is not reachable (rate limit)
+MATERIAL_ASSETS_LIB_NAME            = "TM2020 Material Assets Library"  # asset library name, same as the official installer
+MATERIAL_ASSETS_LIB_BLEND           = "Trackmania2020_assets.blend"
+MATERIAL_ASSETS_LIB_EDITIONS        = [
+    ("materials-only", "Materials Only", "Native-linked (exportable) materials only, ~2.3 GB download"),
+    ("complete",       "Complete",       "All materials incl. preview only assets (not exportable), ~3.3 GB download"),
+]
+
+# Game materials with the native "TargetColor" parameter: the converter writes ItemConfig colors as TargetColor,
+# so only these can be colored. Source: tm_native_parameters of the TM2020 Material Assets Library (16 of 847),
+# matched by full link (DLibrary\DLinkFull) so aliases in other MaterialLib collections are covered as well.
+LINKED_MATERIALS_WITH_TARGET_COLOR_LINKFULL = {
+    "stadium\\media\\material_blockcustom\\custombricks",
+    "stadium\\media\\material_blockcustom\\customconcrete",
+    "stadium\\media\\material_blockcustom\\customdirt",
+    "stadium\\media\\material_blockcustom\\customglass",
+    "stadium\\media\\material_blockcustom\\customgrass",
+    "stadium\\media\\material_blockcustom\\customice",
+    "stadium\\media\\material_blockcustom\\custommetal",
+    "stadium\\media\\material_blockcustom\\custommetalpainted",
+    "stadium\\media\\material_blockcustom\\customplastic",
+    "stadium\\media\\material_blockcustom\\customplasticshiny",
+    "stadium\\media\\material_blockcustom\\customrock",
+    "stadium\\media\\material_blockcustom\\customroughwood",
+    "stadium\\media\\material_blockcustom\\customsand",
+    "stadium\\media\\material_blockcustom\\customsnow",
+    "stadium\\media\\modifier\\platformdirt\\decograss",
+    "stadium\\media\\modifier\\platformice\\decograss",
+}
+
 
 # Used for collections in the outliner to define the waypoint type
 COLLECTION_COLOR_TAG_NONE   = "NONE" # real icon name is OUTLINER_COLLECTION

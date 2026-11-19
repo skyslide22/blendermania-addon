@@ -355,14 +355,45 @@ def local_records():
     return [i for i in bpy.data.images if i.library is None and i.tm_image_asset.is_managed]
 
 
-def find_record_by_sha(sha):
-    return next((i for i in local_records() if i.tm_image_asset.sha256 == sha), None)
+def is_reference_record(img):
+    """record pointing at a file outside this library (e.g. shared default assets in Items/_BlenderAssets):
+    used in place, never copied into or deleted from the store"""
+    rel = img.tm_image_asset.rel_path
+    return rel.startswith("../") or Path(rel).is_absolute()
+
+
+def find_record_by_sha(sha, copies_only=False):
+    return next((i for i in local_records()
+                 if i.tm_image_asset.sha256 == sha and not (copies_only and is_reference_record(i))), None)
+
+
+def _blender_path(rel):
+    """datablock path of a record: '//'-relative, absolute for references on another drive"""
+    return rel if Path(rel).is_absolute() else "//" + rel
+
+
+def _game_items_dir():
+    """Documents/Trackmania/Items (None if the game folder is unknown): files there can be referenced by gbx files"""
+    try:
+        from .Functions import get_game_doc_path_items
+        path = Path(get_game_doc_path_items())
+    except Exception:
+        return None
+    return path if path.is_absolute() and path.is_dir() else None
+
+
+def _reference_rel_path(root, src):
+    """rel_path of a referenced file: relative to the library ('../..'), absolute if on another drive"""
+    try:
+        return Path(os.path.relpath(src, root)).as_posix()
+    except ValueError:
+        return Path(os.path.abspath(src)).as_posix()
 
 
 def _make_record(dst, rel, sha, original_name):
     try:
         img = bpy.data.images.load(str(dst), check_existing=True)
-        img.filepath = "//" + rel                     # keep the datablock path relative
+        img.filepath = _blender_path(rel)             # keep the datablock path relative
     except RuntimeError:                              # Blender can't read this DDS variant
         img = bpy.data.images.new(dst.name, 8, 8)     # placeholder, record still valid
     img.use_fake_user = True
@@ -374,15 +405,21 @@ def _make_record(dst, rel, sha, original_name):
     return img
 
 
-def import_image_file(filepath):
-    """Copy into the store (once) and return (record_image, created_new)."""
+def import_image_file(filepath, copy=True):
+    """
+    Register an image in the store and return (record_image, created_new).
+    copy=True:  copied into the store (once), so it can be edited without touching the original.
+    copy=False: images inside the game Items folder (e.g. shared default assets in _BlenderAssets) are
+                referenced in place, no duplicate. Other images are still copied: gbx files can only
+                reference files inside Items.
+    """
     src = Path(filepath)
     if not src.is_file():
         raise FileNotFoundError(src)
     root = blend_dir()
     sha = sha256_file(src)
 
-    existing = find_record_by_sha(sha)
+    existing = find_record_by_sha(sha, copies_only=copy)
     if existing:                                      # dedupe: same content already registered
         dst = root / existing.tm_image_asset.rel_path
         if not dst.is_file():                         # file was deleted from the store -> restore
@@ -391,8 +428,12 @@ def import_image_file(filepath):
         return existing, False
 
     rel = _relative_inside(root, src)
+    items = _game_items_dir()
     if rel:                                           # already inside the library: register, don't copy
         dst = src
+    elif not copy and items is not None and _relative_inside(items, src):
+        dst = src                                     # reference in place (shared asset inside Items)
+        rel = _reference_rel_path(root, src)
     else:
         dst = _store_path(root, src.name, sha)
         if not dst.exists():
@@ -412,7 +453,7 @@ def heal_image_paths():
         want = os.path.normcase(os.path.normpath(str(root / rel)))
         have = os.path.normcase(os.path.normpath(bpy.path.abspath(img.filepath)))
         if want != have:
-            img.filepath = "//" + rel
+            img.filepath = _blender_path(rel)
             try:
                 img.reload()
             except RuntimeError:
@@ -429,7 +470,7 @@ def purge_unused_images(delete_files=False):
     for img in local_records():
         if users_of(img):
             continue
-        if delete_files and bpy.data.filepath:
+        if delete_files and bpy.data.filepath and not is_reference_record(img):  # never delete shared originals
             f = resolve_image_file(img)
             if f.is_file():
                 f.unlink()

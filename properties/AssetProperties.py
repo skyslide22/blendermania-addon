@@ -277,6 +277,11 @@ def register_asset_properties():
         type=bpy.types.Material,
         poll=lambda s, m: getattr(m.tm_asset_properties, AssetProp.IS_ASSET, False))
     bpy.types.Image.tm_image_asset = PointerProperty(type=AssetImageProperties)
+    bpy.types.Scene.tm_asset_copy_images = BoolProperty(
+        name="Copy Images", default=False,
+        description="Copy imported images into this library's image store, so they can be changed without touching "
+                    "the original (e.g. default assets in Items/_BlenderAssets). Off: images inside the game Items "
+                    "folder are referenced in place (no duplicate), other images are copied anyway")
 
     register_active_sync()
 
@@ -284,6 +289,7 @@ def register_asset_properties():
 def unregister_asset_properties():
     unregister_active_sync()
 
+    del bpy.types.Scene.tm_asset_copy_images
     del bpy.types.Image.tm_image_asset
     del bpy.types.Scene.tm_active_material
     del bpy.types.Scene.tm_new_asset_name

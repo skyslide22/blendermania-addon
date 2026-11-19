@@ -6,7 +6,7 @@ from ..ui.drawers.bitmap import draw_bitmap
 from ..properties.AssetProperties import ASSET_TYPES
 from ..operators.OT_AssetLibrary import TM_OT_CreateMaterialAsset, TM_OT_ExportAssetLibrary, TM_OT_RemoveMaterialAsset, TM_OT_RenameMaterialAsset, TM_OT_ImportImage, TM_OT_CopyAssetErrors, TM_OT_OpenLibraryFolder
 
-from ..utils.AssetLibraryFunctions import active_asset, all_assets
+from ..utils.AssetLibraryFunctions import active_asset, all_assets, is_reference_record
 from ..utils.AssetLibraryImporter import last_errors
 from ..ui.widgets.progress import draw_task_status, get_state
 
@@ -50,6 +50,10 @@ class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
         layout.operator(TM_OT_OpenLibraryFolder.bl_idname, icon="FILE_FOLDER")
 
         box = layout.box()
+        box.label(text="Settings")
+        box.prop(scene, "tm_asset_copy_images")
+
+        box = layout.box()
         box.label(text="Create")
         box.prop(scene, "tm_new_asset_name")
         # operator props are editable via the redo panel; expose type quickly:
@@ -82,7 +86,10 @@ def draw_common(layout, mat):
     row.enabled = False
     img = getattr(props, "image", None)
     if img:
-        row.label(text=img.name, icon="IMAGE_DATA")
+        if is_reference_record(img):  # shared original (e.g. _BlenderAssets), not a copy in this library
+            row.label(text=f"{img.name} (shared, not copied)", icon="LINKED")
+        else:
+            row.label(text=img.name, icon="IMAGE_DATA")
     else:
         row.label(text="No image assigned", icon="ERROR")
 

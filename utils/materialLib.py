@@ -9,6 +9,7 @@ import bpy
 from ..properties.PropertyIdentifiers import ObjectProp
 
 from ..utils.Functions import get_global_props, is_file_existing, debug, redraw_all_panels
+from ..utils.Constants import LINKED_MATERIALS_WITH_TARGET_COLOR_LINKFULL
 
 
 materiallib_materials: dict = {}
@@ -67,6 +68,7 @@ def request_link_search_sync() -> None:
 _REGEX_DLIBRARY   = re.compile(r"DLibrary\t*\(([\w-]+)")
 _REGEX_DMATERIAL  = re.compile(r"DMaterial\t*\(([\w+-]+)\)")
 _REGEX_DSURFACEID = re.compile(r"DSurfaceId(?:\t*|\s*)\(([\w-]+)\)")
+_REGEX_DLINKFULL  = re.compile(r"DLinkFull\s*\(([^)]*)\)")
 _REGEX_DTEXTURE   = re.compile(r"DTexture(?:\t*|\s*)\((?:\t*|\s*)([\w\-\.]+)\)")
 
 
@@ -85,13 +87,25 @@ def get_materiallibrary_materials() -> dict:
 
 
 def material_supports_color(material_name: str, collection_name: str) -> bool:
-    """True if the material has a color entry (DColor0) in the material library."""
-    can_use_custom_color = material_name.lower().startswith("custom")
-    return can_use_custom_color
+    """
+    True if the linked game material has the native TargetColor parameter (the converter writes colors as TargetColor).
+    DColor0 is NOT the right indicator (it marks vertex color usage), "Custom*" by name is too broad (CustomMod* use color tables).
+    """
     material = get_materiallibrary_materials().get(collection_name, {}).get(material_name)
-    if material is None:
-        return False
-    return material.get("Color", False) is True
+    if material is not None and material.get("LinkFull"):
+        return material["LinkFull"].lower() in LINKED_MATERIALS_WITH_TARGET_COLOR_LINKFULL
+    # not in the selected materiallib: compare by name (aliases like Stadium_CustomConcrete are prefixed)
+    name = material_name.lower()
+    return any(name == n or name.endswith("_" + n) for n in _TARGET_COLOR_NAMES)
+
+
+def _target_color_name(linkfull: str) -> str:
+    """stadium/media/material_blockcustom/customice -> customice, .../modifier/platformice/decograss -> platformice_decograss"""
+    parts = linkfull.split("\\")
+    return "_".join(parts[3:]) if len(parts) > 3 and parts[2] == "modifier" else parts[-1]
+
+
+_TARGET_COLOR_NAMES = {_target_color_name(full) for full in LINKED_MATERIALS_WITH_TARGET_COLOR_LINKFULL}
 
 def has_material_with_gameplay_effect(obj: bpy.types.Object) -> str | None:
     """True if the object has any material with a gameplay effect."""
@@ -120,15 +134,17 @@ def parse_materiallibrary() -> dict:
 
     lib = {}
     currentLib = ""
+    currentLibRaw = ""
     currentMat = ""
 
     try:
-        with open(nadeolibfile, "r") as f:
+        with open(nadeolibfile, "r", encoding="utf-8", errors="replace") as f:
             for line in f:
                 if "DLibrary" in line:
                     m = _REGEX_DLIBRARY.search(line)
                     if m:
                         currentLib = m.group(1)
+                        currentLibRaw = currentLib  # LinkFull keeps the real library (Stadium256)
                         if currentLib == "Stadium256":  # same as Stadium for addon needs
                             currentLib = "Stadium"
                         currentMat = ""
@@ -153,6 +169,11 @@ def parse_materiallibrary() -> dict:
                     continue
 
                 mat = lib[currentLib][currentMat]
+
+                if "DLinkFull" in line:
+                    m = _REGEX_DLINKFULL.search(line)
+                    if m:
+                        mat["LinkFull"] = currentLibRaw + "\\" + m.group(1).strip()
 
                 if "DSurfaceId" in line:
                     m = _REGEX_DSURFACEID.search(line)

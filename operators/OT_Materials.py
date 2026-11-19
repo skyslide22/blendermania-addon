@@ -7,6 +7,10 @@ from bpy.types import (Operator)
 from ..utils.Materials import create_material_shader
 from ..utils.Functions  import *
 from ..utils.materialLib import material_supports_color
+from ..utils.MaterialAssetsLibrary import (
+    find_library_material, new_material_from_library, replace_material_with_library,
+    is_library_shader_material, apply_library_material_color,
+)
 from ..properties.Functions import revertMaterialCustomColorLiveChanges, applyMaterialLiveChanges
 from ..utils.Constants  import * 
 
@@ -96,10 +100,22 @@ def _create_or_update_material(action)->None:
         debug(f"Material {matNameNew} creation failed")
         return
 
+    # V2: shader copied from the TM2020 Material Assets Library material with the same link (if installed)
+    library_material = None
+    if use_v2_library_flow and tm_props.CB_materialUseAssetLibraryShader:
+        library_material = find_library_material(matLink, matCollection)
+
     if action == "CREATE":
-        MAT = bpy.data.materials.new(name=matNameNew)
+        MAT = new_material_from_library(library_material, matNameNew) if library_material else None
+        if MAT is None:
+            MAT = bpy.data.materials.new(name=matNameNew)
     else:
         MAT = bpy.data.materials[matName]
+        if library_material and MAT.libraryAsset != library_material:
+            # link changed (or switched to the library shader): new shader copy, users are remapped
+            MAT = replace_material_with_library(MAT, library_material) or MAT  # keeps the name
+        elif not library_material and MAT.libraryAsset:
+            MAT.libraryAsset = ""  # back to the addon shader, rebuilt below
 
     MAT.gameType      = matGameType
     if use_v2_library_flow:
@@ -135,8 +151,11 @@ def _create_or_update_material(action)->None:
         )
         debug(f"Material {matName} updated")
 
-    create_material_shader(MAT)
-    applyMaterialLiveChanges()
+    if is_library_shader_material(MAT):
+        apply_library_material_color(MAT, matColor, MAT.useColor)
+    else:
+        create_material_shader(MAT)
+        applyMaterialLiveChanges()
 
     if action == "CREATE":
         keep_name = tm_props.ST_materialAddName

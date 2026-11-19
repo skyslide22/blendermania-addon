@@ -9,6 +9,7 @@ from bpy.types import (
 )
 from ..ui.widgets.panels import ViewPanelMixin
 from ..utils.materialLib import material_supports_color, is_link_search_synced, request_link_search_sync
+from ..utils.MaterialAssetsLibrary import get_installed_library_path, find_library_material
 
 from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 from ..utils.Functions  import *
@@ -296,6 +297,25 @@ class TM_PT_Materials_Library(ViewPanelMixin, Panel):
             "-> Materials can have custom, non game, textures (Maniaplanet only)",
         ) 
 
+    def draw_library_shader(self, left, right, tm_props, collection_name: str) -> None:
+        """TM2020 Material Assets Library: shader of the library material with the same link is copied on create/update"""
+        left.label(text="Shader")
+        row = right.row(align=True)
+        if get_installed_library_path() is None:
+            row.operator("view3d.tm_install_material_assets_library", text="Install Asset Library", icon=ICON_ASSETS)
+            return
+        library_material = find_library_material(str(tm_props.LI_materialLinkLibrary), collection_name)
+        use_library = tm_props.CB_materialUseAssetLibraryShader
+        col = row.column()
+        col.enabled = use_library and library_material is not None
+        if not use_library:
+            col.label(text="Addon shader")
+        elif library_material:
+            col.label(text=library_material, icon=ICON_ASSETS)
+        else:
+            col.label(text="No library match, addon shader")
+        row.prop(tm_props, "CB_materialUseAssetLibraryShader", text="", toggle=True, icon=ICON_CHECKED)
+
     def draw(self, context):
         layout = self.layout
         tm_props = get_global_props()
@@ -336,6 +356,8 @@ class TM_PT_Materials_Library(ViewPanelMixin, Panel):
             else:
                 request_link_search_sync()
                 right.row().prop(tm_props, "LI_materialLinkLibrary", text="")
+
+            self.draw_library_shader(left, right, tm_props, collection_name)
 
             left.label(text="Physic")
             row_physic = right.row(align=True)

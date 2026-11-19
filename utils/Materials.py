@@ -69,25 +69,53 @@ def _get_private_non_color_image(texname: str) -> str:
     imgs[privateName].colorspace_settings.name = "Non-Color"
     return privateName
 
+def get_texture_roots() -> list:
+    """
+    Texture roots (trailing slash, <root>/<environment>/<file>), in lookup order:
+    1. addon game textures (Items/_BlenderAssets/Textures, "Install Textures")
+    2. Textures of the installed TM2020 Material Assets Library (same layout, ~99% of the files the addon shaders need)
+    """
+    roots = [get_game_doc_path_items_assets_textures()]
+    try:
+        from .MaterialAssetsLibrary import get_installed_library_path
+        library = get_installed_library_path()
+    except Exception:
+        library = None
+    if library is not None and (library / "Textures").is_dir():
+        roots.append((library / "Textures").as_posix() + "/")
+    return roots
+
+
+def find_texture_folder(environment: str, filenames: list) -> str:
+    """first <root>/<environment>/ containing one of the files, the addon texture folder if none does"""
+    roots = get_texture_roots()
+    for root in roots:
+        folder = root + environment + "/"
+        if any(is_file_existing(folder + name) for name in filenames):
+            return folder
+    return roots[0] + environment + "/"
+
+
 def _find_v2_texture_folder(environment: str, filenames: list, custom_source: str) -> str:
     """
     V2 only: returns the folder (with trailing slash) containing one of the given files.
-    Order: Textures/<environment>/, other subfolders of Textures/, custom texture source.
+    Order per texture root (get_texture_roots): <root>/<environment>/, other subfolders of the root; then custom texture source.
     """
-    root = get_game_doc_path_items_assets_textures()
-    debug(f"V2 texture lookup, environment: '{environment}', root: {root}")
+    roots = get_texture_roots()
+    root = roots[0]
+    debug(f"V2 texture lookup, environment: '{environment}', roots: {roots}")
 
     folders = []
-    if environment:
-        folders.append(root + environment + "/")
-
-    try:
-        for entry in sorted(os.listdir(root)):
-            folder = root + entry + "/"
-            if os.path.isdir(folder) and folder not in folders:
-                folders.append(folder)
-    except OSError:
-        pass
+    for r in roots:
+        if environment:
+            folders.append(r + environment + "/")
+        try:
+            for entry in sorted(os.listdir(r)):
+                folder = r + entry + "/"
+                if os.path.isdir(folder) and folder not in folders:
+                    folders.append(folder)
+        except OSError:
+            pass
 
     if custom_source != "":
         folders.append(custom_source.rstrip("/\\") + "/")
@@ -212,10 +240,14 @@ def _create_material_shader_specific(mat: bpy.types.Material) -> bool:
             custom_tex_source_folder = get_global_props().ST_TextureSource
             v2_folder = _find_v2_texture_folder(_get_environment(mat), list(textures.values()), custom_tex_source_folder) if is_v2 else ""
             for texKey, texDDS in textures.items():
-                texPath = get_game_doc_path_items_assets_textures() + mat.environment + "/" + texDDS
+                texPath = find_texture_folder(mat.environment, [texDDS]) + texDDS
                 if is_v2:
                     # V2: game textures (environment folder first), custom source only as fallback
                     texPath = v2_folder + texDDS
+                    if not is_file_existing(texPath):  # single file missing there: other texture roots (library)
+                        alt = find_texture_folder(_get_environment(mat), [texDDS]) + texDDS
+                        if is_file_existing(alt):
+                            texPath = alt
                 elif custom_tex_source_folder != "":
                     texPath = custom_tex_source_folder + "/" + texDDS
 
@@ -328,7 +360,7 @@ def _create_default_material_nodes(mat: bpy.types.Material)->None:
     debug(f"material is a link: {isLinkedMat}")
 
     if isLinkedMat: 
-        tex = get_game_doc_path_items_assets_textures() + mat.environment + "/" + mat.link
+        tex = find_texture_folder(mat.environment, [mat.link + s for s in ("_D.dds", "D.dds", "_I.dds", "I.dds", ".dds")]) + mat.link
         
         tm_props = get_global_props()
         custom_tex_source_folder = tm_props.ST_TextureSource

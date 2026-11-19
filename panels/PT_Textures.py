@@ -8,6 +8,7 @@ from ..operators.OT_Settings import TM_OT_Settings_OpenMessageBox
 from ..operators.OT_Textures import is_selected_modwork_enabled
 
 from .PT_DownloadProgress import render_donwload_progress_bar
+from ..ui.widgets.progress import draw_task_status, is_running
 from ..utils.Functions      import *
 from ..utils.Dotnet         import *
 from ..utils.Constants      import *
@@ -167,6 +168,37 @@ class TM_PT_Textures_Install(Panel):
         row.scale_y = 1.5
         row.operator("view3d.tm_installgameassetslibrary", text=f"Install Complete Asset Library", icon=ICON_ASSETS)
 
+        if is_game_trackmania2020():
+            self.draw_material_assets_library(layout, tm_props)
+
         render_donwload_progress_bar(layout)
 
         layout.separator(factor=UI_SPACER_FACTOR)
+
+    def draw_material_assets_library(self, layout, tm_props) -> None:
+        from ..utils.MaterialAssetsLibrary import get_installed_library_info
+
+        box = layout.box()
+        col = box.column(align=True)
+        row = col.row()
+        row.label(text=MATERIAL_ASSETS_LIB_NAME)
+        row.operator("view3d.tm_open_url", text="", icon=ICON_WEBSITE).url = MATERIAL_ASSETS_LIB_URL
+
+        info = get_installed_library_info()
+        if info:
+            col.label(text=f"Installed: {info.get('edition', '?')} {info.get('version', '?')} ({info.get('materials', '?')} materials)", icon=ICON_CHECKED)
+            col.operator("view3d.tm_open_folder", text="Open Folder", icon=ICON_FOLDER).folder = info["path"]
+            col.label(text="Its textures fill gaps of the game textures above", icon=ICON_TEXTURE)
+        else:
+            col.label(text="Not installed (V2 materials use the addon shaders)", icon=ICON_INFO)
+
+        row = col.row(align=True)
+        row.prop(tm_props, "LI_DL_MaterialAssetsEdition", expand=True)
+        row = col.row(align=True)
+        row.scale_y = 1.5
+        row.operator("view3d.tm_install_material_assets_library", text="Update / Reinstall" if info else "Install Material Assets Library", icon=ICON_ASSETS)
+
+        key = "view3d.tm_install_material_assets_library"
+        draw_task_status(col, key)
+        if is_running(key):
+            col.operator("view3d.tm_cancel_material_assets_library", icon="CANCEL")
