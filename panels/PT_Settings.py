@@ -45,6 +45,8 @@ class TM_PT_Settings(Panel):
             "----> Use something like C:/Users/<YOU>/Program Files/Trackmania/Nadeo.ini",
             "2. To get started, install the Nadeoimporter for your game",
             "3. Set your author name, this name will be displayed on ItemExchange (IX)",
+            "4. TM2020: install the Material Library (Asset Libraries below), needed for exports",
+            "----> Default Assets (game textures) are optional and rarely needed",
         )
 
     def draw(self, context):
@@ -136,6 +138,43 @@ class TM_PT_Settings(Panel):
         nadeoini_invalid = draw_nadeoini_required_message(self)
         if nadeoini_invalid:
             return
+
+
+class TM_PT_Settings_AssetLibraries(Panel):
+    """downloads: material library (always needed) and default assets (rarely needed)"""
+    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
+    bl_label = "Asset Libraries (Downloads)"
+    bl_idname = "TM_PT_Settings_AssetLibraries"
+    bl_parent_id = "TM_PT_Settings"
+    bl_options = set()  # open by default, the material library is needed before the first export
+
+    @classmethod
+    def poll(self, context):
+        return is_selected_nadeoini_file_name_ok() and is_game_trackmania2020()
+
+    def draw_header_preset(self, context):
+        from .LibraryInstallUI import draw_info_button
+        draw_info_button(self.layout, "Asset Libraries", (
+            "Two downloadable libraries, both installed into <Trackmania>/Items/_BlenderAssets:",
+            "",
+            "1. Material Library - REQUIRED, used every time",
+            "-> game materials, shaders and MaterialLib.txt for materials and export",
+            "-> install it once before your first export",
+            "",
+            "2. Default Assets - OPTIONAL, rarely used",
+            "-> game textures (bitmaps, images, texture sets)",
+            "-> only for custom texture sets, vegetation trees and particle effects",
+            "-> needs one 'Export All' in its .blend after installing",
+            "",
+            "Use the ? of each library for details.",
+        ))
+
+    def draw(self, context):
+        from .LibraryInstallUI import draw_material_library, draw_default_assets
+        tm_props = get_global_props()
+        draw_material_library(self.layout, tm_props)
+        self.layout.separator()
+        draw_default_assets(self.layout, context.scene)
 
 
 class TM_PT_Settings_BlenderRelated(Panel):

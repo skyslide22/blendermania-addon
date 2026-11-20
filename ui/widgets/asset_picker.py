@@ -150,7 +150,7 @@ class TM_OT_PickAsset(Operator):
         else:
             blend, _names = _default_library_materials()
             if blend is None:
-                self.report({"ERROR"}, "Default asset library not installed")
+                self.report({"ERROR"}, "Default assets not installed (Settings > Asset Libraries)")
                 return {"CANCELLED"}
             with bpy.data.libraries.load(str(blend), link=True) as (_src, dst):
                 dst.materials = [name]

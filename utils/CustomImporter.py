@@ -37,6 +37,7 @@ class ConvertResult():
         self.convert_steps = ()
         self.config = None
         self.embed_size = 0.0
+        self.embed_refs: dict[str, float] = {}
 
 class ItemConvert(threading.Thread):
     def __init__(self, fbxfilepath: str, 
@@ -91,6 +92,7 @@ class ItemConvert(threading.Thread):
         self.convert_has_failed = False
 
         self.embed_size = 0.0
+        self.embed_refs: dict[str, float] = {}  # referenced files (textures, ...) -> compressed kB
 
     
     def add_progress_step(self, step: str, additional_infos: tuple=()) -> None:
@@ -134,7 +136,10 @@ class ItemConvert(threading.Thread):
             
         if not self.convert_has_failed:
             self.embed_size = self.get_item_embed_size()
-            self.add_progress_step(f"Convert succeeded - size = {self.embed_size}\n\n")
+            self.embed_refs = self.get_referenced_files_sizes()
+            refs_kb = sum(self.embed_refs.values())
+            self.add_progress_step(f"Convert succeeded - size = {self.embed_size:.1f} kB "
+                                   f"(+{refs_kb:.1f} kB in {len(self.embed_refs)} referenced files)\n\n")
         else:
             mesh_returncode = self.convert_returncode_mesh_shape_gbx
             mesh_error_msg  = bytes(self.convert_message_mesh_shape_gbx or "", "utf-8").decode("unicode_escape")
@@ -307,8 +312,19 @@ class ItemConvert(threading.Thread):
             self.add_progress_step(f"""Overwrite icon .Item.gbx failed""")
 
 
+    def get_referenced_files_sizes(self) -> dict[str, float]:
+        """files the item references (Texture.Gbx, images, ...), embedded into a map together with the item"""
+        from .EmbedSize import referenced_files_sizes
+        roots = [p for p in (self.gbx_item_filepath, self.gbx_mesh_filepath, self.gbx_shape_filepath,
+                             self.gbx_trigger_filepath) if is_file_existing(p)]
+        try:
+            return referenced_files_sizes(roots)
+        except Exception as err:  # never fail a convert because of the size estimate
+            debug(f"referenced files size failed: {err}")
+            return {}
+
     def get_item_embed_size(self):
-        
+
         files = []
 
         if is_file_existing(self.gbx_item_filepath):     files.append(self.gbx_item_filepath)
@@ -777,6 +793,7 @@ def convert_fbx(item: ExportedItem) -> None:
     result.convert_has_failed    = conversion.convert_has_failed
     result.config                = item.config
     result.embed_size            = conversion.embed_size
+    result.embed_refs            = conversion.embed_refs
 
     debug(f"convert done for index {item.assigned_index}, embed size: {result.embed_size}kb")
 
@@ -791,6 +808,8 @@ def convert_fbx(item: ExportedItem) -> None:
         "converted": True,
         "convert_duration": int(current_convert_timer.stop()),
         "embed_size": result.embed_size,
+        "embed_refs_size": sum(result.embed_refs.values()),
+        "embed_refs": "\n".join(f"{kb:.3f}|{path}" for path, kb in result.embed_refs.items()),
     }
 
     _CONVERT_QUEUE.put( (_CONVERT_STEP_UPDATE, item.assigned_index, update, result, next(iter(item.objects))) )

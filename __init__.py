@@ -179,6 +179,7 @@ classes = (
 
     # settings
     TM_PT_Settings,
+    TM_PT_Settings_AssetLibraries,
     TM_PT_Settings_BlenderRelated,
     TM_PT_Settings_NadeoImporter,
     TM_PT_Settings_Performance,
@@ -453,6 +454,8 @@ def register():
     register_placement_callbacks()
     register_attachment_callbacks()
     register_animation_preview()
+    from .utils import ObjectAnimation
+    ObjectAnimation.register()
     register_bitmap_drawers()
     register_tree_model_drawers()
     # templates
@@ -506,6 +509,8 @@ def register():
     register_keymaps()
     register_outliner_menus()
     register_header_menus()
+    from .panels.PT_Animation import register_preview_header
+    register_preview_header()
 
 
     # addon enabled in a running session: load_post did not run yet
@@ -546,6 +551,8 @@ def unregister():
     unregister_placement_callbacks()
     unregister_attachment_callbacks()
     unregister_animation_preview()
+    from .utils import ObjectAnimation
+    ObjectAnimation.unregister()
     unregister_bitmap_drawers()
     unregister_tree_model_drawers()
 
@@ -584,6 +591,8 @@ def unregister():
     unregister_keymaps()
     unregister_outliner_menus()
     unregister_header_menus()
+    from .panels.PT_Animation import unregister_preview_header
+    unregister_preview_header()
 
 @persistent
 def on_save_pre(what, idontknow) -> None:

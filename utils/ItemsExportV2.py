@@ -14,6 +14,7 @@ from .Materials import is_material_exportable, save_mat_props_json
 from .Variants import get_variant_issues
 from .TreeModels import get_tree_model_issues
 from .ParticleFx import get_particle_fx_issues
+from .ObjectAnimation import get_animated_objects, muted_transform_animation, show_animated_objects_popup
 from .ItemsIconV2 import generate_collection_icon, get_icon_path_from_fbx_path, generate_objects_icon
 from .ItemsUVs import generate_base_material_cube_projection, generate_lightmap
 from ..utils.CustomImporter import is_collection_exportable, start_batch_convert, get_convert_items_failed_props
@@ -220,31 +221,39 @@ def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False)
         # if tmp_socket:
         #     item_to_export.objects.add(tmp_socket)
 
-        # move collection to 0,0,0
-        offset = _move_collection_to(objs)
+        # Blender keyframes/drivers on the transform would override the move to 0,0,0 in the evaluated
+        # objects the fbx exporter writes: mute them for the export (Trackmania ignores them anyway)
+        anim_objs = list(objs) + template_objs
+        animated = get_animated_objects(anim_objs)
+        if animated:
+            show_animated_objects_popup(coll.name, animated)
 
-        scaled_items: list[ExportedItem] = []
-        try:
-            # export .fbx
-            _export_item_FBX(item_to_export)
+        with muted_transform_animation(animated):
+            # move collection to 0,0,0
+            offset = _move_collection_to(objs)
 
-            # generate icon
-            if not plan_only:
-                generate_collection_icon(coll, item_to_export.icon_path)
-        except (PermissionError, OSError, RuntimeError) as e:
-            if isinstance(e, RuntimeError) and "Permission denied" not in str(e) and "Errno 13" not in str(e):
+            scaled_items: list[ExportedItem] = []
+            try:
+                # export .fbx
+                _export_item_FBX(item_to_export)
+
+                # generate icon
+                if not plan_only:
+                    generate_collection_icon(coll, item_to_export.icon_path)
+            except (PermissionError, OSError, RuntimeError) as e:
+                if isinstance(e, RuntimeError) and "Permission denied" not in str(e) and "Errno 13" not in str(e):
+                    _move_collection_by(objs, offset)
+                    raise
                 _move_collection_by(objs, offset)
-                raise
-            _move_collection_by(objs, offset)
-            deselect_all_objects()
-            show_report_popup("Export failed", (
-                f"<{coll.name}> skipped: permission denied (file may be in use).",
-                f"  {e}",
-            ))
-            continue
+                deselect_all_objects()
+                show_report_popup("Export failed", (
+                    f"<{coll.name}> skipped: permission denied (file may be in use).",
+                    f"  {e}",
+                ))
+                continue
 
-        # move collection back to original position
-        _move_collection_by(objs, offset)
+            # move collection back to original position
+            _move_collection_by(objs, offset)
 
         try:
             scaled_items = _duplicate_scaled(item_to_export)

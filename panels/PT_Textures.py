@@ -153,8 +153,19 @@ class TM_PT_Textures_Install(Panel):
         envi    = tm_props.LI_DL_TextureEnvi
 
         col = layout.column(align=True)
-        row = col.row()
-        row.label(text="Game textures & assets library")
+        row = col.row(align=True)
+        row.label(text="Addon textures & asset library")
+        from .LibraryInstallUI import draw_info_button
+        draw_info_button(row, "Addon textures", (
+            "Install <Environment> Textures:",
+            "-> downloads the game textures used by the ADDON shaders (viewport only)",
+            "-> into Items/_BlenderAssets/Textures, nothing of it is exported",
+            "Install Complete Asset Library:",
+            "-> the old addon material asset library (pre-made materials)",
+            "",
+            "For TM2020 use the Material Library below (Settings > Asset Libraries)",
+            "-> it brings materials, shaders, textures and the MaterialLib.txt",
+        ))
 
         dlTexRunning = tm_props.CB_DL_ProgressRunning is False
 
@@ -176,32 +187,6 @@ class TM_PT_Textures_Install(Panel):
         layout.separator(factor=UI_SPACER_FACTOR)
 
     def draw_material_assets_library(self, layout, tm_props) -> None:
-        from ..utils.MaterialAssetsLibrary import get_installed_library_info
-
-        box = layout.box()
-        col = box.column(align=True)
-        row = col.row()
-        row.label(text=MATERIAL_ASSETS_LIB_NAME)
-        row.operator("view3d.tm_open_url", text="", icon=ICON_WEBSITE).url = MATERIAL_ASSETS_LIB_URL
-
-        info = get_installed_library_info()
-        if info:
-            col.label(text=f"Installed: {info.get('edition', '?')} {info.get('version', '?')} ({info.get('materials', '?')} materials)", icon=ICON_CHECKED)
-            col.operator("view3d.tm_open_folder", text="Open Folder", icon=ICON_FOLDER).folder = info["path"]
-            col.label(text="Its textures fill gaps of the game textures above", icon=ICON_TEXTURE)
-            col.operator("tm.check_asset_updates", text="Check for Updates", icon="FILE_REFRESH").library = "material"
-            from ..operators.OT_AssetLibrary import draw_update_check
-            draw_update_check(col, "material")
-        else:
-            col.label(text="Not installed (V2 materials use the addon shaders)", icon=ICON_INFO)
-
-        row = col.row(align=True)
-        row.prop(tm_props, "LI_DL_MaterialAssetsEdition", expand=True)
-        row = col.row(align=True)
-        row.scale_y = 1.5
-        row.operator("view3d.tm_install_material_assets_library", text="Update / Reinstall" if info else "Install Material Assets Library", icon=ICON_ASSETS)
-
-        key = "view3d.tm_install_material_assets_library"
-        draw_task_status(col, key)
-        if is_running(key):
-            col.operator("view3d.tm_cancel_material_assets_library", icon="CANCEL")
+        """same box as Settings > Asset Libraries; its textures also fill gaps of the game textures above"""
+        from .LibraryInstallUI import draw_material_library
+        draw_material_library(layout, tm_props)

@@ -55,7 +55,10 @@ class TM_PT_Items_ExportV2(ViewPanelMixin, Panel):
             "Keep in mind, collections are exported, not individual objects",
             "-> If you want to export objecs only, mark them as _item_",
             "",
-            "Embed size means the item file size, the total map maximums embed size are:",
+            "Embed size = compressed item size + referenced files (textures, Texture.Gbx, ...)",
+            "-> per item shown as '<item> +<files> kB', shared files count once in 'Embed all'",
+            "-> game files (Nadeo materials) are not embedded and not counted",
+            "The total map maximums embed size are:",
             f"-> {MAX_EMBED_SIZE_TRACKMANIA2020} kilobytes for trackmania2020",
             f"-> {MAX_EMBED_SIZE_MANIAPLANET} kilobytes for maniaplanet",
         )
@@ -267,19 +270,33 @@ def draw_convert_panel(self:Panel) -> None:
     box = layout.box()
     box.use_property_split = True
 
-    embed_space = 0
+    items_space = 0.0
+    shared_refs: dict[str, float] = {}  # files used by several items are embedded once per map
     for item in get_convert_items_props():
-        embed_space += item.embed_size
-    
+        items_space += item.embed_size
+        for line in item.embed_refs.splitlines():
+            kb, _, path = line.partition("|")
+            try:
+                shared_refs[path.lower()] = float(kb)
+            except ValueError:
+                pass
+    refs_space = sum(shared_refs.values())
+
     MAX_EMBED_SIZE = MAX_EMBED_SIZE_TRACKMANIA2020 if is_game_trackmania2020() else MAX_EMBED_SIZE_MANIAPLANET
-    
-    embed_space = int(embed_space)
+
+    embed_space = int(items_space + refs_space)
     embed_space_in_percent = int(embed_space / MAX_EMBED_SIZE * 100)
 
     row = box.row()
     row.scale_y = .7
+    row.alert = embed_space > MAX_EMBED_SIZE
     row.label(text="Embed all:")
     row.label(text=f"{embed_space} kB ({embed_space_in_percent}%)")
+    if shared_refs:
+        row = box.row()
+        row.scale_y = .7
+        row.label(text="Items / files:")
+        row.label(text=f"{int(items_space)} kB + {int(refs_space)} kB ({len(shared_refs)} files)")
 
     #progress bar
     convert_duration_since_start = tm_props.NU_convertDurationSinceStart
@@ -358,6 +375,8 @@ def draw_convert_panel(self:Panel) -> None:
         duration = str(int(item.convert_duration))+"s" if item.converted and not item.failed else ".."
         name = item.name 
         embed_size = f"{int(item.embed_size)}" if item.embed_size > 0 else ".."
+        if item.embed_refs_size > 0:
+            embed_size += f" +{int(item.embed_refs_size)}"  # + referenced textures etc.
         embed_size_percent = f" {int(item.embed_size / MAX_EMBED_SIZE * 100)}" if item.embed_size > 0 else ".."
 
         row = left.row()

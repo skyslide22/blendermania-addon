@@ -63,8 +63,21 @@ def _redraw(self=None, context=None):
                 area.tag_redraw()
 
 
+def _toggled(self=None, context=None):
+    """keep the shared preview clock (Blendermania > Preview) running when an overlay is switched on"""
+    from ..utils.Animations import on_preview_toggled
+    on_preview_toggled(bpy.context.scene)
+    _redraw()
+
+
+def preview_time_s(scene) -> float:
+    """shared preview clock (own clock or timeline, see utils.Animations.current_time_ms) in seconds"""
+    from ..utils.Animations import current_time_ms
+    return current_time_ms(scene) / 1000.0
+
+
 class FXPreview(bpy.types.PropertyGroup):
-    show: BoolProperty(name="Show Preview", default=False, update=_redraw,
+    show: BoolProperty(name="Particles", default=False, update=_toggled,
                        description="Draw an approximate particle preview in the viewport (overlay, adds nothing to the scene)")
     scope: EnumProperty(name="Show", items=SCOPES, default="ACTIVE", update=_redraw)
     shape: EnumProperty(name="Shape", items=SHAPES, default="POINT", update=_redraw)
@@ -87,7 +100,7 @@ class FXPreview(bpy.types.PropertyGroup):
     max_particles: IntProperty(name="Max particles", default=2000, min=10, soft_max=10000, update=_redraw,
                                description="Per GPU model / tree model, keeps the viewport responsive")
     # veget tree propagation
-    show_trees: BoolProperty(name="Show Propagation", default=False, update=_redraw,
+    show_trees: BoolProperty(name="Tree Leaves", default=False, update=_toggled,
                              description="Draw the falling leaves of every visible tree model with propagation enabled (overlay)")
     leaf_fall_speed: FloatProperty(name="Fall speed", default=1.0, min=0.01, soft_max=5.0, unit="VELOCITY",
                                    update=_redraw, description="Preview only: how fast leaves fall")
@@ -488,9 +501,8 @@ def _draw():
     rv3d = context.region_data
     if p is None or not (p.show or p.show_trees) or rv3d is None:
         return
-    fps = scene.render.fps / scene.render.fps_base
-    t = (scene.frame_current + scene.frame_subframe - scene.frame_start) / fps
-    pd = {k: getattr(p, k) for k in ("shape", "radius", "rate", "speed", "spread", "gravity",
+    t = preview_time_s(scene)
+    pd ={k: getattr(p, k) for k in ("shape", "radius", "rate", "speed", "spread", "gravity",
                                       "atlas", "fade", "max_particles", "use_spawn", "leaf_fall_speed", "leaf_spin", "leaf_life", "leaf_rate")}
     view_inv = rv3d.view_matrix.inverted()
     view_rot, view_pos = view_inv.to_3x3(), view_inv.translation
@@ -572,7 +584,8 @@ class TMFX_PT_preview(bpy.types.Panel):
     def draw(self, context):
         p = getattr(context.scene, PREVIEW_ATTR)
         lay = self.layout
-        lay.label(text="Overlay only, not the game. Press Play to animate.", icon="INFO")
+        lay.label(text="Overlay only, not the game.", icon="INFO")
+        lay.label(text="Play / time: Blendermania > Preview panel", icon="PLAY")
         if p.show and not gpu_models(settings_of(context)):
             lay.label(text="No GPU model in this effect: add an Emitter in Structure", icon="ERROR")
         lay.row().prop(p, "scope", expand=True)
@@ -617,7 +630,7 @@ def draw_tree_preview(layout, context, collection=None):
     """Propagation preview settings, drawn in the tree model collection panel."""
     p = getattr(context.scene, PREVIEW_ATTR)
     box = layout.box()
-    box.prop(p, "show_trees", icon="PLAY" if p.show_trees else "HIDE_ON")
+    box.prop(p, "show_trees", text="Show Propagation", icon="PLAY" if p.show_trees else "HIDE_ON")
     if p.show_trees and collection is not None:
         from ..properties.PropertyIdentifiers import CollectionProp
         for msg in tree_preview_issues(collection, getattr(collection, CollectionProp.VEGET_TREE)):
@@ -629,6 +642,7 @@ def draw_tree_preview(layout, context, collection=None):
     col.prop(p, "leaf_life")
     col.prop(p, "leaf_spin")
     col.label(text="Overlay only, these settings are not exported.", icon="INFO")
+    col.label(text="Play / time: Blendermania > Preview panel", icon="PLAY")
 
 
 _CLASSES = (FXPreview, TMFX_OT_preview_cleanup, TMFX_PT_preview)

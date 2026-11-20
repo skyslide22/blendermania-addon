@@ -228,10 +228,25 @@ def restore_rest():
 
 # ---------- evaluation ----------
 def current_time_ms(scene):
+    """shared preview clock (moving parts, particle fx, tree propagation): own clock in ms,
+    or the timeline (frame_start = 0 ms) when 'Sync with timeline' is on"""
     if scene.tm_preview_use_timeline:
         fps = scene.render.fps / scene.render.fps_base
-        return (scene.frame_current + scene.frame_subframe) / fps * 1000.0
+        return (scene.frame_current + scene.frame_subframe - scene.frame_start) / fps * 1000.0
     return scene.tm_preview_time
+
+
+def any_preview_active(scene) -> bool:
+    fx = getattr(scene, "tm_fx_preview", None)
+    return bool(scene.tm_preview_enabled or (fx is not None and (fx.show or fx.show_trees)))
+
+
+def redraw_viewports():
+    wm = bpy.context.window_manager
+    for win in wm.windows if wm else ():
+        for area in win.screen.areas:
+            if area.type == "VIEW_3D":
+                area.tag_redraw()
 
 def apply_preview(scene):
     if not scene.tm_preview_enabled or _busy[0]:
@@ -286,34 +301,57 @@ def tm_undo_redo(scene, depsgraph=None):
 _last = [0.0]
 
 def _tick():
+    """own clock: never touches the timeline (no frame changes -> no keyframe evaluation / auto keying)"""
     scene = bpy.context.scene
-    if not (scene.tm_preview_enabled and scene.tm_preview_playing):
+    if scene is None or not scene.tm_preview_playing or scene.tm_preview_use_timeline or not any_preview_active(scene):
         return None
     now = time.perf_counter()
     dt, _last[0] = now - _last[0], now
-    scene.tm_preview_time += dt * 1000.0 * scene.tm_preview_speed
+    scene.tm_preview_time += dt * 1000.0 * scene.tm_preview_speed   # moving parts update via _u_time
+    redraw_viewports()                                              # overlays (particles, trees) read the clock on draw
     return 1 / 60
+
+def _start_tick():
+    _last[0] = time.perf_counter()
+    if not bpy.app.timers.is_registered(_tick):
+        bpy.app.timers.register(_tick)
 
 # ---------- update callbacks ----------
 def _u_enabled(self, ctx):
     if self.tm_preview_enabled:
         capture_rest()
         apply_preview(self)
+        if self.tm_preview_playing and not self.tm_preview_use_timeline:
+            _start_tick()
     else:
-        self.tm_preview_playing = False
         restore_rest()
 
 def _u_time(self, ctx):
     if not self.tm_preview_use_timeline:
         apply_preview(self)
+        redraw_viewports()
 
 def _u_mode(self, ctx):
+    if self.tm_preview_use_timeline:
+        self.tm_preview_playing = False   # the timeline plays now (Space)
     apply_preview(self)
+    redraw_viewports()
 
 def _u_playing(self, ctx):
-    if self.tm_preview_playing and self.tm_preview_enabled and not self.tm_preview_use_timeline:
-        _last[0] = time.perf_counter()
-        bpy.app.timers.register(_tick)
+    if self.tm_preview_playing and not self.tm_preview_use_timeline:
+        _start_tick()
+
+def on_preview_toggled(scene):
+    """an overlay preview (particles / trees) was switched on: keep a running clock going"""
+    if scene.tm_preview_playing and not scene.tm_preview_use_timeline and any_preview_active(scene):
+        _start_tick()
+
+@persistent
+def tm_preview_load(_dummy=None):
+    """a saved 'playing' state has no timer after loading: restart it"""
+    scene = bpy.context.scene
+    if scene is not None and getattr(scene, "tm_preview_playing", False):
+        on_preview_toggled(scene)
 
 def disable_animation_preview(scene=None):
     """turn the preview off and restore all objects to their rest transforms"""
@@ -327,8 +365,13 @@ _PROPS = ("enabled", "use_timeline", "time", "speed", "playing", "show_range")
 
 def register_animation_preview():
     S = bpy.types.Scene
-    S.tm_preview_enabled = BoolProperty(name="Preview", default=False, update=_u_enabled)
-    S.tm_preview_use_timeline = BoolProperty(name="Use Timeline", default=False, update=_u_mode)
+    S.tm_preview_enabled = BoolProperty(name="Moving Parts", default=False, update=_u_enabled,
+                                        description="Preview moving groups (translation/rotation animations). "
+                                                    "Moves the objects while active, restored when switched off")
+    S.tm_preview_use_timeline = BoolProperty(name="Sync with Timeline", default=False, update=_u_mode,
+                                             description="Use the Blender timeline as preview clock (frame start = 0 s) "
+                                                         "instead of the own clock. Beware of Auto Keying when moving "
+                                                         "objects while scrubbing")
     S.tm_preview_time = FloatProperty(name="Time (ms)", default=0.0, min=0.0, step=1000, update=_u_time)
     S.tm_preview_speed = FloatProperty(name="Speed", default=1.0, min=0.0, soft_max=4.0)
     S.tm_preview_playing = BoolProperty(name="Play", default=False, update=_u_playing)
@@ -338,15 +381,19 @@ def register_animation_preview():
     H.depsgraph_update_post.append(tm_detect_edits)
     H.undo_post.append(tm_undo_redo)
     H.redo_post.append(tm_undo_redo)
+    H.load_post.append(tm_preview_load)
 
 def unregister_animation_preview():
     H = bpy.app.handlers
     for lst, fn in ((H.frame_change_post, tm_preview_handler),
                     (H.depsgraph_update_post, tm_detect_edits),
                     (H.undo_post, tm_undo_redo),
-                    (H.redo_post, tm_undo_redo)):
+                    (H.redo_post, tm_undo_redo),
+                    (H.load_post, tm_preview_load)):
         if fn in lst:
             lst.remove(fn)
+    if bpy.app.timers.is_registered(_tick):
+        bpy.app.timers.unregister(_tick)
     restore_rest()
     for n in _PROPS:
         delattr(bpy.types.Scene, "tm_preview_" + n)
