@@ -111,8 +111,8 @@ def updateINI(prop) -> None:
 def defaultINI(prop) -> str:
     """return nadeo.ini path from envi variable, or empty string"""
     ini = ""
-    if   prop.lower().endswith("TM"): ini = os.getenv("NADEO_INI_PATH_TM") or ""
-    elif prop.lower().endswith("MP"): ini = os.getenv("NADEO_INI_PATH_MP") or ""
+    if   prop.upper().endswith("TM"): ini = os.getenv("NADEO_INI_PATH_TM") or ""
+    elif prop.upper().endswith("MP"): ini = os.getenv("NADEO_INI_PATH_MP") or ""
     
     return ini
 

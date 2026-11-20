@@ -175,6 +175,9 @@ class TM_PT_Settings_AssetLibraries(Panel):
         draw_material_library(self.layout, tm_props)
         self.layout.separator()
         draw_default_assets(self.layout, context.scene)
+        self.layout.separator()
+        # shared .blend files: relink libraries/textures to this PC's install, list what is missing
+        self.layout.operator("tm.check_external_data", icon="LIBRARY_DATA_BROKEN")
 
 
 class TM_PT_Settings_BlenderRelated(Panel):

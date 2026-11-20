@@ -454,8 +454,9 @@ def register():
     register_placement_callbacks()
     register_attachment_callbacks()
     register_animation_preview()
-    from .utils import ObjectAnimation
+    from .utils import ObjectAnimation, ExternalData
     ObjectAnimation.register()
+    ExternalData.register()
     register_bitmap_drawers()
     register_tree_model_drawers()
     # templates
@@ -551,7 +552,8 @@ def unregister():
     unregister_placement_callbacks()
     unregister_attachment_callbacks()
     unregister_animation_preview()
-    from .utils import ObjectAnimation
+    from .utils import ObjectAnimation, ExternalData
+    ExternalData.unregister()
     ObjectAnimation.unregister()
     unregister_bitmap_drawers()
     unregister_tree_model_drawers()

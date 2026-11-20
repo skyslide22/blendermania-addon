@@ -1,5 +1,6 @@
 
 import bpy
+import os
 import re
 
 from bpy.types import (Operator)
@@ -73,7 +74,7 @@ def update_texture_folder(tex_src:str = ""):
 
         new_path = tex_src_new + "\\" + image_name + "." + pref_format.lower()
         if not is_file_existing(new_path):
-            new_path = new_path.split(".")[0] + ".dds"
+            new_path = os.path.splitext(new_path)[0] + ".dds"   # dots in folder names must survive
             if not is_file_existing(new_path):
                 continue 
         

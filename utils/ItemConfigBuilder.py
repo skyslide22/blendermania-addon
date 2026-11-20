@@ -30,6 +30,7 @@ from ..properties.PropertyIdentifiers import CollectionProp, LightProp, ObjectPr
 # entry point
 # -----------------------------
 def generate_item_config(item: ExportedItem) -> ItemConfig:
+    DROPPED_ASSETS.clear()
     cfg = ItemConfig()
     tm_props = get_global_props()
 
@@ -423,9 +424,23 @@ def _is_asset_library_material(mat: bpy.types.Material) -> bool:
     return "tm_asset_id" in mat or bool(_ASSET_LIBRARY_MATERIAL_NAME.match(mat.name))
 
 
+# assets that could not be resolved by the last generate_item_config(): (asset name, reason), shown after export
+DROPPED_ASSETS: list[tuple[str, str]] = []
+
+
+def _drop(asset_mat: bpy.types.Material, reason: str) -> None:
+    entry = (asset_mat.name, reason)
+    if entry not in DROPPED_ASSETS:
+        DROPPED_ASSETS.append(entry)
+
+
 def _asset_ref(asset_mat: bpy.types.Material | None, assets: dict[str, AssetConfig]) -> str | None:
     """asset id (the asset name) of an Image/Bitmap asset, registers it in the assets of the item"""
     if asset_mat is None:
+        return None
+    if getattr(asset_mat, "is_missing", False):
+        lib = asset_mat.library.filepath if asset_mat.library else "?"
+        _drop(asset_mat, f"library file missing ({lib})")
         return None
     props = asset_mat.tm_asset_properties
     # The path is derived from the current asset state (same rules as the exporter), so it can never be stale.
@@ -434,16 +449,20 @@ def _asset_ref(asset_mat: bpy.types.Material | None, assets: dict[str, AssetConf
         if props.asset_type == "IMAGE":
             img = props.image
             if img is None:
+                _drop(asset_mat, "no image assigned")
                 return None
             path = str(resolve_image_file(img))
             asset = AssetConfig(Id=asset_mat.name, Path=path, Type=AssetType.ImgFile)
         elif props.asset_type == "BITMAP":
             path = str(blend_dir(asset_mat) / gbx_rel_path(asset_mat))
             asset = AssetConfig(Id=asset_mat.name, Path=path, Type=AssetType.Bitmap)
+            if not os.path.isfile(path):
+                _drop(asset_mat, "Texture.Gbx not exported yet (Export All in its .blend)")
         else:
             return None
-    except (RuntimeError, ValueError):
+    except (RuntimeError, ValueError) as e:
         if not props.exported_path:
+            _drop(asset_mat, str(e) or "path can't be resolved")
             return None
         asset = AssetConfig(
             Id=asset_mat.name,

@@ -1687,9 +1687,24 @@ def get_export_path():
     export_work_path        = get_game_doc_path_work_items()
     if tm_props.LI_exportFolderType == "Custom":
         custom_path = tm_props.ST_exportFolder_MP if is_game_maniaplanet() else tm_props.ST_exportFolder_TM
-        export_work_path = fix_slash(get_abs_path(custom_path) + "/")
+        export_work_path = fix_slash(rebase_on_local_work_items(get_abs_path(bpy.path.abspath(custom_path))) + "/")
 
     return export_work_path
+
+
+def rebase_on_local_work_items(path: str) -> str:
+    """The custom export folder is saved in the .blend as an absolute path of the machine that saved it.
+    Map the part after .../Work/Items/ onto this machine's Work/Items, so shared files export into the
+    recipient's game folder instead of re-creating the sender's folders."""
+    if not path:
+        return path
+    norm = fix_slash(path)
+    m = re.search(r"/work/items(/|$)", norm, flags=re.IGNORECASE)
+    if m is None:
+        return path
+    local = get_game_doc_path_work_items().rstrip("/")
+    rebased = local + "/" + norm[m.end():].lstrip("/")
+    return rebased.rstrip("/")
 
 def get_obj_potential_item_path(obj: bpy.types.Object) -> str:
     if len(obj.users_collection) == 0:

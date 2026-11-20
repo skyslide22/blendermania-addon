@@ -489,6 +489,30 @@ def generate_and_save_item_config(item: ExportedItem) -> None:
     item.config = generate_item_config(item)
     cfg_save_path = item.fbx_path.replace(".fbx", ".json")
     _save_item_config(item.config, cfg_save_path)
+    _report_asset_problems(item.name_raw or item.name)
+
+
+def _report_asset_problems(item_name: str) -> None:
+    """assets (bitmaps/images of texture sets, trees, particle fx) the config could not resolve"""
+    from .ItemConfigBuilder import DROPPED_ASSETS
+    if not DROPPED_ASSETS:
+        return
+    problems = list(DROPPED_ASSETS)
+    for name, reason in problems:
+        debug(f"asset problem in {item_name}: {name}: {reason}")
+    if bpy.app.background:
+        return
+
+    def draw(self, context):
+        lay = self.layout
+        lay.label(text=f"<{item_name}>: {len(problems)} asset(s) can't be used in game:")
+        for name, reason in problems[:12]:
+            lay.label(text=f"  - {name}: {reason}", icon="ERROR")
+        if len(problems) > 12:
+            lay.label(text=f"  ... and {len(problems) - 12} more")
+        lay.label(text="Missing libraries: Settings > Asset Libraries > Check Missing Files")
+
+    bpy.context.window_manager.popup_menu(draw, title="Asset problems", icon="ERROR")
 
 def _save_item_config(config: ItemConfig, filepath: str) -> None:
     """save item config to json file"""

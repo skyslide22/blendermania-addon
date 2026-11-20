@@ -1,4 +1,5 @@
 from ast import main
+import re
 import bpy
 from bpy.types import (Panel)
 from ..ui.widgets.panels import ViewPanelMixin
@@ -130,6 +131,15 @@ def draw_export_panel(self:Panel) -> None:
             row.label(text="""Please use an absolute path!""", icon=ICON_ERROR)
 
         row_path.prop(tm_props, exportCustomFolderProp)
+
+        # folder saved on another machine (shared .blend): export goes to this machine's Work/Items
+        effective = get_export_path().rstrip("/")
+        if attr and fix_slash(bpy.path.abspath(attr)).rstrip("/").lower() != effective.lower():
+            col = layout.column(align=True)
+            col.scale_y = 0.8
+            col.label(text="Folder from another PC, exporting to:", icon=ICON_INFO)
+            parts = re.split(r"/work/items", effective, maxsplit=1, flags=re.IGNORECASE)
+            col.label(text=("Work/Items" + parts[1]) if len(parts) == 2 else effective)
 
 
 
