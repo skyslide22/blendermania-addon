@@ -6,7 +6,7 @@
    "label": "Sub-models"
   },
   "0x090B3004": {
-   "label": "Vortex emitter"
+   "label": "Vortex emitter (no visible effect in TM2020 tests)"
   }
  },
  "fields": {

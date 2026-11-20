@@ -123,6 +123,7 @@ from .utils.Placement import register_placement_templates, unregister_placement_
 
 from .ui.widgets.lists import *
 from .ui.widgets.foldouts import *
+from .ui.widgets.template_picker import classes as template_picker_classes
 from .ui.drawers.placement import register_placement_callbacks, unregister_placement_callbacks
 from .ui.drawers.attachments import register_attachment_callbacks, unregister_attachment_callbacks
 from .ui.widgets.panels import register_panel_widgets, unregister_panel_widgets
@@ -283,9 +284,9 @@ classes = (
     TM_OT_Items_ItemConfig_SaveItemPlacementTemplate,
     TM_OT_Items_ItemConfig_RemoveItemPlacementTemplate,
     TM_OT_Items_ItemConfig_CopyPlacementTemplateToLocal,
-    TM_OT_Items_ItemConfig_LoadPlacementTemplate,
-
-    TM_OT_Items_ItemConfig_LoadPlacementClassTemplate,
+    TM_OT_Items_ItemConfig_UpdateBlendPlacementTemplate,
+    TM_OT_Items_ItemConfig_RemoveUnusedBlendPlacementTemplates,
+    *template_picker_classes,
     TM_OT_Items_Attachment_LoadPreset,
     TM_OT_Items_Attachments_LoadPreset,
     TM_OT_Items_Attachment_ParticlePlaceholder,
@@ -635,7 +636,16 @@ def on_startup(dummy) -> None:
         pass # fails on first startup when open_mainfile used
 
     loadDefaultSettingsJSON()
-    
+
+    # placement templates were assigned through a dynamic enum (stored as an index): convert to names once
+    try:
+        from .utils.ItemsExportV2Models import migrate_placement_template_refs
+        n = migrate_placement_template_refs()
+        if n:
+            debug(f"placement templates: {n} assignment(s) converted to template names")
+    except Exception as e:
+        debug(f"converting placement template assignments failed: {e}")
+
     @in_new_thread
     def checkUpdate():
         AddonUpdate.check_for_new_release()

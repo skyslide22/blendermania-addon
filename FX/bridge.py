@@ -200,7 +200,7 @@ def _write_fields(pg, cs, values, warnings):
             if f.is_list:
                 coll = getattr(pg, f.key)
                 coll.clear()
-                for w in ([] if v is MISSING else v):
+                for w in ([] if v is MISSING or v is None else v):
                     write_node(coll.add(), f.ref, w, warnings)
             else:
                 on = v not in (MISSING, None)
@@ -211,7 +211,7 @@ def _write_fields(pg, cs, values, warnings):
             if f.is_list:
                 coll = getattr(pg, f.key)
                 coll.clear()
-                for w in ([] if v is MISSING else v):
+                for w in ([] if v is MISSING or v is None else v):
                     write_struct(coll.add(), f.ref, w, warnings)
             elif v not in (MISSING, None):
                 set_child(pg, f, True)

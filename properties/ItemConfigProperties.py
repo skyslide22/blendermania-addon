@@ -13,7 +13,11 @@ MODE_ITEMS = [
 
 class PlacementPropertiesRef(bpy.types.PropertyGroup):
     mode: EnumProperty(items=MODE_ITEMS)
-    template: EnumProperty(name="Template", items=get_item_config_template_names_enum)
+    # the template is referenced by NAME: dynamic enums store an index, which points to a different template
+    # on a machine with other local templates
+    template_name: StringProperty(name="Template", description="Name of the placement template used for this item")
+    # legacy (index into the dynamic list), only read once to fill template_name (migrate_placement_template_refs)
+    template: EnumProperty(name="Template (legacy)", items=get_item_config_template_names_enum)
     placement: PointerProperty(type=PlacementProperties)
 
 class ItemPlacementTemplate(bpy.types.PropertyGroup):

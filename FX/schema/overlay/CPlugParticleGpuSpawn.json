@@ -5,24 +5,185 @@
   "ParticleGpuSpawn": {
    "title": "Spawn",
    "fields": {
+    "U01": {
+     "label": "Rate mode",
+     "status": "guess",
+     "tooltip": "1: Rate is particles per second (all Nadeo effects). 0: the rate is ignored and far more particles are emitted (tested in game). 2 looked like 1.",
+     "default": 1
+    },
+    "U03": {
+     "status": "unknown",
+     "tooltip": "Integer. Nadeo: Fogger8M 5, Fogger16M/TorchSmoke 50, Sparkler 3, SparklerEnd 1, InFog 10. 1 and 50 showed no visible difference in game.",
+     "default": 5
+    },
     "U04": {
      "label": "Rate",
      "unit": "1/s",
      "min": 0.0,
-     "status": "guess",
-     "tooltip": "Particles per second (or pulses), found by testing in game. Nadeo: Fogger8M 50, TorchSmoke 10, Sparkler8m 200."
+     "status": "verified",
+     "tooltip": "Particles per second (with Rate mode 1), tested in game. Nadeo: Fogger8M 50, TorchSmoke 10, Sparkler8m 200.",
+     "default": 50.0
+    },
+    "U08": {
+     "label": "Max particles",
+     "min": 0.0,
+     "status": "verified",
+     "tooltip": "Particle pool size, tested in game: 10 gives slow emission with large gaps. Nadeo: Fogger 1000, Sparkler8m 100, InFog 300.",
+     "default": 1000.0
+    },
+    "U10": {
+     "label": "Vertical speed",
+     "unit": "m/s",
+     "status": "verified",
+     "tooltip": "Added upward velocity (negative = downward), tested in game. Unused by Nadeo."
     },
     "U11": {
      "label": "Speed",
      "unit": "m/s",
-     "status": "guess",
-     "tooltip": "Initial velocity, found by testing in game. Nadeo: Fogger8M 8, TorchSmoke 0, Sparkler8m 20."
+     "status": "verified",
+     "tooltip": "Initial velocity along the emission direction, tested in game. Nadeo: Fogger8M 8, TorchSmoke 0, Sparkler8m 20, Sparkler16m 40.",
+     "default": 8.0
     },
     "U12": {
      "label": "Speed variation",
      "unit": "m/s",
      "status": "guess",
-     "tooltip": "Also speed related, probably its random variation, found by testing in game. Nadeo: Fogger8M 1, TorchSmoke 0, Sparkler8m 10."
+     "tooltip": "Also speed related, probably its random variation, found by testing in game. Nadeo: Fogger8M 1, TorchSmoke 0, Sparkler8m 10.",
+     "default": 1.0
+    },
+    "U13": {
+     "label": "Cone angle",
+     "unit": "deg",
+     "min": 0.0,
+     "max": 180.0,
+     "status": "verified",
+     "tooltip": "Half angle of the emission cone, tested in game: 0 straight jet, 90 hemisphere, 180 full sphere. Nadeo: Fogger 0/3.8, Sparkler 6, SparklerEnd8m 180."
+    },
+    "U15": {
+     "label": "Emission shape",
+     "status": "verified",
+     "choices": [
+      [
+       0,
+       "None (0)"
+      ],
+      [
+       1,
+       "Point / line (1)"
+      ],
+      [
+       2,
+       "Ring / cylinder (2)"
+      ],
+      [
+       3,
+       "Box (3)"
+      ],
+      [
+       4,
+       "Unknown (4)"
+      ]
+     ],
+     "tooltip": "Selects the shape parameters below, tested in game. 1: foggers/smoke, 2: sparklers. 3 (box) and 4 are not used by Nadeo; 4 showed no particles in game.",
+     "default": 1
+    },
+    "U17": {
+     "label": "Axial spread",
+     "status": "guess",
+     "tooltip": "Shape 1. 20 gave a much longer jet that starts transparent and breaks up later (particles born further along the axis). Nadeo: TorchSmoke 0.15, Fogger16M 0.02, InFog 2."
+    },
+    "U16": {
+     "status": "unknown",
+     "tooltip": "Shape 1. 2, 20 and -20 showed no visible difference in game. Nadeo: TorchSmoke 0.15, InFog 1."
+    },
+    "U18": {
+     "status": "unknown",
+     "tooltip": "Shape 1. 5 and 20 showed no visible difference in game. Nadeo: InFog 94."
+    },
+    "U19": {
+     "status": "unknown",
+     "tooltip": "Shape 1. 5 and 20 showed no visible difference in game. Nadeo: InFog 94."
+    },
+    "U20": {
+     "label": "Ring radius",
+     "unit": "m",
+     "min": 0.0,
+     "status": "verified",
+     "tooltip": "Shape 2: particles spawn on a ring of this radius around the emission axis, tested in game."
+    },
+    "U21": {
+     "label": "Ring width",
+     "unit": "m",
+     "min": 0.0,
+     "status": "verified",
+     "tooltip": "Shape 2: radial thickness of the ring (radius 0 + width 1 = filled circle), tested in game. Nadeo: Sparkler 0.04, SparklerEnd 1."
+    },
+    "U22": {
+     "label": "Axial start",
+     "unit": "m",
+     "status": "guess",
+     "tooltip": "Shape 2: start of the spawn range along the emission axis (-6 spawns behind the emitter), tested in game. Nadeo: SparklerEnd -3/-6."
+    },
+    "U23": {
+     "label": "Axial end",
+     "unit": "m",
+     "status": "guess",
+     "tooltip": "Shape 2: end of the spawn range along the emission axis (4 spawns between 0 and +4 m), tested in game. Nadeo: SparklerEnd 4."
+    },
+    "U24": {
+     "status": "unknown",
+     "tooltip": "Shape 2. 2 and -2 showed no visible difference in game."
+    },
+    "U25": {
+     "label": "Arc angle",
+     "unit": "deg",
+     "min": 0.0,
+     "max": 360.0,
+     "status": "verified",
+     "tooltip": "Shape 2: part of the ring that emits (90 quarter, 180 half, 360 full), tested in game. Nadeo: 360."
+    },
+    "U26": {
+     "label": "Swirl",
+     "status": "guess",
+     "tooltip": "Shape 2: particles fly outwards and rotate around the axis, tested in game. Nadeo: SparklerEnd16m 0.5."
+    },
+    "U27": {
+     "label": "Outward speed",
+     "status": "guess",
+     "tooltip": "Shape 2: outward cone, slightly smaller than Swirl, tested in game."
+    },
+    "U28": {
+     "label": "Box (centre, size)",
+     "status": "verified",
+     "tooltip": "Shape 3: centre x y z then full size x y z in Trackmania axes, tested in game. Sideways centre offsets work, a centre height (y) was ignored in game."
+    },
+    "U29": {
+     "status": "unknown",
+     "tooltip": "Shape 4 showed no particles in game."
+    },
+    "U30": {
+     "status": "unknown",
+     "tooltip": "Shape 4 showed no particles in game."
+    },
+    "U31": {
+     "status": "unknown",
+     "tooltip": "Shape 4 showed no particles in game."
+    },
+    "U32": {
+     "status": "unknown",
+     "tooltip": "Shape 4 showed no particles in game."
+    },
+    "U06": {
+     "default": true,
+     "tooltip": "Default from Nadeo's Fogger8M; other values showed no visible difference in game."
+    },
+    "U07": {
+     "default": 50.0,
+     "tooltip": "Default from Nadeo's Fogger8M; other values showed no visible difference in game."
+    },
+    "U09": {
+     "default": 100.0,
+     "tooltip": "Default from Nadeo's Fogger8M; other values showed no visible difference in game."
     }
    }
   }

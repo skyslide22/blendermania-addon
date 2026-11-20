@@ -7,7 +7,8 @@
    "group": "Lifetime",
    "unit": "s",
    "min": 0.01,
-   "tooltip": "Particle life lies between LifeMax*(1-LifeVar01) and LifeMax (derived from GBX.NET's legacy conversion)."
+   "status": "verified",
+   "tooltip": "Particle life lies between LifeMax*(1-LifeVar01) and LifeMax (derived from GBX.NET's legacy conversion); short values fade fast in game."
   },
   "LifeVar01": {
    "label": "Life variation",
@@ -30,7 +31,174 @@
   "SizeEndScale": {
    "label": "Size at end of life",
    "group": "Size",
-   "tooltip": "Name from GBX.NET; exact semantics untested."
+   "status": "verified",
+   "tooltip": "Size multiplier at the end of the particle life (5 = particles grow huge), tested in game."
+  },
+  "c002_U21": {
+   "label": "Size growth curve",
+   "group": "Size",
+   "status": "guess",
+   "tooltip": "4 made particles grow (and maybe fade) faster, tested in game. Nadeo: 1 to 2."
+  },
+  "Weight": {
+   "label": "Gravity",
+   "group": "Motion",
+   "status": "verified",
+   "tooltip": "Gravity factor: negative falls, positive rises, tested in game. Nadeo: sparks -10/-5, TorchSmoke 8."
+  },
+  "Viscosity": {
+   "label": "Air drag",
+   "group": "Motion",
+   "min": 0.0,
+   "status": "verified",
+   "tooltip": "0: particles keep their speed, 10: they stop right after emission, tested in game."
+  },
+  "Persistence": {
+   "group": "Motion",
+   "status": "named",
+   "tooltip": "1 showed no visible difference in game. Nadeo: Fogger8M 0.1, sparks 0.02."
+  },
+  "Rotation": {
+   "label": "Rotation speed",
+   "group": "Rotation",
+   "status": "verified",
+   "tooltip": "Sprite spin speed, tested in game (2 = fast spinning)."
+  },
+  "RotationVariation": {
+   "label": "Rotation variation",
+   "group": "Rotation",
+   "status": "named"
+  },
+  "c002_U13": {
+   "label": "Rotate particles",
+   "group": "Rotation",
+   "status": "verified",
+   "tooltip": "1 = particles rotate; 0: all particles keep the same orientation and do not rotate, tested in game. Nadeo: smoke 1, sparks 0."
+  },
+  "IntensityPower": {
+   "label": "Fade curve",
+   "group": "Opacity",
+   "min": 0.0,
+   "status": "verified",
+   "tooltip": "Exponent of the opacity fade over life; 0 = no fade (end particles stay dense), tested in game. Nadeo: Fogger8M 4."
+  },
+  "IntensityFadeIn": {
+   "label": "Fade in",
+   "group": "Opacity",
+   "min": 0.0,
+   "max": 1.0,
+   "status": "verified",
+   "tooltip": "Fraction of the life spent fading in (1 = only visible at the end), tested in game."
+  },
+  "IntensityFadeOut": {
+   "label": "Fade out",
+   "group": "Opacity",
+   "min": 0.0,
+   "max": 1.0,
+   "status": "guess",
+   "tooltip": "Fraction of the life spent fading out (1 changed the end of life visibly in game)."
+  },
+  "TextureAtlasDimX": {
+   "label": "Atlas columns",
+   "group": "Texture",
+   "min": 1,
+   "status": "verified",
+   "tooltip": "Sprite sheet grid; must match the bitmap (wrong values show cut tiles), tested in game. Nadeo smoke 4x4, sparkler 4x2."
+  },
+  "TextureAtlasDimY": {
+   "label": "Atlas rows",
+   "group": "Texture",
+   "min": 1,
+   "status": "verified",
+   "tooltip": "Sprite sheet grid; must match the bitmap, tested in game."
+  },
+  "UseEnergyOverLife": {
+   "label": "Energy colour over life",
+   "group": "Colour",
+   "status": "verified",
+   "tooltip": "Colour goes white -> red over the life like cooling sparks, tested in game. Nadeo: main sparkler emitters. Colour over life (bitmap) wins over it."
+  },
+  "UseHueShift": {
+   "group": "Colour",
+   "status": "verified",
+   "tooltip": "Needed (with UseEmitterHue) for Hue and the effect node's LinearHue01, tested in game."
+  },
+  "UseEmitterHue": {
+   "group": "Colour",
+   "status": "verified",
+   "tooltip": "Use the hue set by the effect node (LinearHue01), tested in game."
+  },
+  "c002_U10": {
+   "label": "Additive (glow)",
+   "group": "Blending",
+   "status": "guess",
+   "tooltip": "Set together with the next flag (1 / true) particles turn bright yellow-white: additive glow like the sparklers, tested in game."
+  },
+  "c002_U11": {
+   "label": "Additive (glow) flag",
+   "group": "Blending",
+   "status": "guess",
+   "tooltip": "Set together with 'Additive (glow)', tested in game. Nadeo: sparks true, smoke false."
+  },
+  "c002_U04": {
+   "label": "Distortion (heat haze)",
+   "group": "Blending",
+   "status": "verified",
+   "tooltip": "Particles become see-through and blur what is behind them, tested in game."
+  },
+  "c002_U06": {
+   "group": "Blending",
+   "status": "unknown",
+   "tooltip": "True made particles darker in game."
+  },
+  "c002_U14": {
+   "group": "Blending",
+   "status": "unknown",
+   "tooltip": "True made particles darker in game."
+  },
+  "c002_U23": {
+   "group": "Blending",
+   "status": "unknown",
+   "tooltip": "True: particles appear at the spawn point and vanish immediately, tested in game. Guess: uses the c002_U22 lookup texture, which is empty."
+  },
+  "c002_U18": {
+   "status": "guess",
+   "tooltip": "Probably a computed value (Fogger16M 113.097 = 36*pi); 0 and 500 showed no visible difference in game."
+  },
+  "c000_U02": {
+   "label": "Loop period",
+   "unit": "s",
+   "status": "guess",
+   "tooltip": "Emission briefly stops at regular intervals (1: slight pulses, 10: short stops every few seconds), tested in game. 0 = continuous."
+  },
+  "c000_U04": {
+   "label": "Reverse direction",
+   "status": "verified",
+   "tooltip": "Emits the opposite way (-Z instead of +Z), tested in game. Nadeo: only InFogEmitter."
+  },
+  "c003_U03": {
+   "status": "unknown",
+   "tooltip": "1 looked like screen-space collision (particles stopped depending on the view), but the base effect shows similar blocking. Nadeo: InFogEmitter 1."
+  },
+  "BitmapOverLife": {
+   "label": "Colour over life (bitmap)",
+   "group": "Colour",
+   "status": "verified",
+   "tooltip": "Colour ramp read left to right over the particle life (around the middle row), only with 'Use colour over life'. Wins over energy colour and hue. A grey/transparent ramp gave plain white: only the colour is used, not brightness or opacity. Tested in game."
+  },
+  "UseColorOverLife": {
+   "label": "Use colour over life",
+   "group": "Colour",
+   "status": "verified",
+   "tooltip": "Required for 'Colour over life (bitmap)'; without a bitmap it changes nothing. Tested in game."
+  },
+  "c002_U12": {
+   "status": "unknown",
+   "tooltip": "Unnamed bitmap reference (probably another lookup texture). Not used by Nadeo; can't be tested yet: the converter writes unnamed members as text, not as texture references."
+  },
+  "c002_U22": {
+   "status": "unknown",
+   "tooltip": "Unnamed bitmap reference (probably another lookup texture, see c002_U23). Not used by Nadeo; can't be tested yet: the converter writes unnamed members as text, not as texture references."
   }
  }
 }

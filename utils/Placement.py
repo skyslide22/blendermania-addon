@@ -15,42 +15,42 @@ from ..utils.ItemsExportV2Models import FILL_ALIGN_MAP, FILL_DIR_MAP, PlacementC
 _template_cache = None
 
 
-def get_placement_class_template_path():
-    return get_addon_templates_path() + "placement_class/"
-
-def _scan_placement_class_templates():
-    found = []
-    placement_class_templates = get_placement_class_template_path()
-    if not os.path.isdir(placement_class_templates):
-        return found
-    for f in sorted(os.listdir(placement_class_templates)):
-        if f.endswith(".json"):
-            stem = f[:-5]
-            found.append((stem, stem.replace("_", " "), ""))
-    return found
+def placement_class_template_items(self, context):
+    """built-in and local placement class templates (utils/TemplateLibrary)"""
+    from . import TemplateLibrary as TL
+    global _template_cache
+    _template_cache = [(e.id, e.label, TL.SOURCE_LABELS[e.source]) for e in TL.file_entries(TL.KIND_PLACEMENT_CLASS)]
+    return _template_cache
 
 def invalidate_placement_class_templates():
     global _template_cache
     _template_cache = None
 
-def placement_class_template_items(self, context):
-    global _template_cache
-    if _template_cache is None:
-        _template_cache =_scan_placement_class_templates()
-    return _template_cache
 
+_FILL_DIR_NAMES = {0: "U", 1: "V"}            # numbers as written by get_placement_config_from_properties
+_FILL_ALIGN_NAMES = {0: "Center", 1: "Begin", 2: "End"}
 
+def placement_class_dict(placement_parameter: PlacementProperties) -> dict:
+    """attachment configuration as a template (same layout as assets/templates/placement_class/*.json)"""
+    from .ItemsExportV2Models import placement_class_from_properties, _encode
+    d = _encode(placement_class_from_properties(placement_parameter))
+    for pl in d.get("PatchLayouts") or []:
+        pl["FillDir"] = _FILL_DIR_NAMES.get(pl.get("FillDir"), pl.get("FillDir"))
+        pl["FillAlign"] = _FILL_ALIGN_NAMES.get(pl.get("FillAlign"), pl.get("FillAlign"))
+    d.pop("GroupCurPatchLayouts", None)
+    return d
+
+def apply_placement_class_dict(placement_parameter: PlacementProperties, data: dict):
+    if placement_parameter is None or not isinstance(data, dict):
+        return
+    apply_placement_class_template(placement_parameter, _decode(PlacementClass, data))
 
 def load_placement_class_template(placement_parameter: PlacementProperties, template_name: str):
-    if placement_parameter is None:
-        return
-    template_path = get_placement_class_template_path() + template_name + ".json"
-    if not os.path.isfile(template_path):
-        return
-    with open(template_path, "r") as f:
-        pc = _decode(PlacementClass, json.load(f))
-
-    apply_placement_class_template(placement_parameter, pc)
+    """insert a built-in template by file name (kept for callers of the old API)"""
+    from . import TemplateLibrary as TL
+    entry = TL.find_entry(TL.KIND_PLACEMENT_CLASS, f"{TL.SOURCE_BUILTIN}|{template_name}")
+    if entry is not None:
+        apply_placement_class_dict(placement_parameter, TL.read(entry))
 
 def apply_placement_class_template(placement_properties: PlacementProperties, placement_class: PlacementClass):    
     if placement_properties is None or placement_class is None:

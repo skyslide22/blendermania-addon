@@ -6,7 +6,9 @@ from ...utils.Functions import *
 from ...utils.Constants import * 
 from ...ui.widgets.lists import *
 from ...ui.widgets.foldouts import *
-from ...utils.ItemsExportV2Models import find_placement_template, TEMPLATE_SOURCE_BLEND
+from ...utils.ItemsExportV2Models import find_placement_template, TEMPLATE_SOURCE_BLEND, TEMPLATE_SOURCE_LOCAL
+from ...utils import TemplateLibrary as TL
+from ...ui.widgets.template_picker import draw_template_buttons
 
 
 # callbacks for list items
@@ -97,7 +99,7 @@ def draw_item_placement_editor(layout, context, placement, section):
 
     row = layout.row(align=True)
     row.context_pointer_set("tm_placement", placement)
-    row.operator("view3d.tm_load_item_config_placement_template", text="Insert from Template...", icon=ICON_IMPORT)
+    draw_template_buttons(row, TL.KIND_PLACEMENT, text="Insert from Template...", save=False)
 
     row = layout.row(align=True)
     row.prop(placement, "LI_simpleOrAdvanced", expand=True)
@@ -234,7 +236,7 @@ def draw_item_placement_editor(layout, context, placement, section):
         if attachment_body:
             row = attachment_body.row(align=True)
             row.context_pointer_set("tm_placement", placement)
-            row.operator("view3d.tm_load_item_config_placement_class_template", text="Insert Attachment Template...", icon=ICON_IMPORT)
+            draw_template_buttons(row, TL.KIND_PLACEMENT_CLASS, text="Insert Attachment Template...")
 
             row = attachment_body.row(align=True)
             size_group_row = row.row(align=True)
@@ -284,16 +286,32 @@ def draw_item_placement_editor(layout, context, placement, section):
     op = row.operator("view3d.tm_save_item_config_placement_template", text="Save as Template", icon=ICON_SAVE)
 
 def draw_item_placement_template_selection(layout, context, placement_ref, section):
-    tm_props = get_global_props()
-
-    selected_template_name = placement_ref.template
+    """template assigned BY NAME (stored in the blend); the template itself comes from the blend file, or from the
+    local templates until the file is saved (then it is embedded)"""
+    name = placement_ref.template_name
+    source, _ = find_placement_template(name) if name else (None, None)
 
     row = layout.row(align=True)
     row.label(text="Placement Template:")
-    row.prop(placement_ref, "template", text="")
-    row.operator("view3d.tm_remove_item_config_placement_template", text=f"", icon=ICON_REMOVE).template_name = selected_template_name
+    pick = row.row(align=True)
+    pick.context_pointer_set("tm_placement_ref", placement_ref)
+    pick.alert = bool(name) and source is None
+    icon = TL.SOURCE_ICONS.get(source, "ERROR" if name else "DOWNARROW_HLT")
+    op = pick.operator("tm.template_pick", text=name or "Choose...", icon=icon)
+    op.kind, op.action = TL.KIND_PLACEMENT, "ASSIGN"
+    if source is not None:
+        row.operator("view3d.tm_remove_item_config_placement_template", text="", icon=ICON_REMOVE).template_name = name
 
-    source, _ = find_placement_template(selected_template_name)
-    if source == TEMPLATE_SOURCE_BLEND:
-        layout.operator("view3d.tm_copy_item_config_placement_template_to_local", text="Save Blend Template to Local", icon=ICON_SAVE).template_name = selected_template_name
-
+    if name and source is None:
+        layout.label(text=f"Template '{name}' not found (not in this file, not local)", icon="ERROR")
+        return
+    if source == TEMPLATE_SOURCE_LOCAL:
+        layout.label(text="Local template: embedded into the blend file when saving", icon="INFO")
+    elif source == TEMPLATE_SOURCE_BLEND:
+        row = layout.row(align=True)
+        row.operator("view3d.tm_copy_item_config_placement_template_to_local", text="Save to Local", icon=ICON_SAVE).template_name = name
+        if find_placement_template(name + " (local)")[1] is not None:   # local one with the same name differs
+            row.operator("view3d.tm_update_blend_placement_template", text="Update from Local", icon="FILE_REFRESH").template_name = name
+    row = layout.row(align=True)
+    row.operator("view3d.tm_remove_unused_blend_placement_templates", icon="TRASH")
+    row.operator("tm.template_manage_local", text="", icon="PRESET").kind = TL.KIND_PLACEMENT

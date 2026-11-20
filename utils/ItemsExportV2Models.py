@@ -797,6 +797,36 @@ def load_itemconfig_placement_template(placement: PlacementProperties, template_
     copy_props(cfg, placement)
   
 
+def placement_class_from_properties(placement_props: PlacementProperties) -> PlacementClass:
+    """attachment configuration (placement class) of placement properties"""
+    pc = PlacementClass()
+    pc.SizeGroup = str(placement_props.ST_sizeGroup)
+    pc.AlwaysUp = bool(placement_props.CB_alwaysUp)
+    pc.AlignToInterior = bool(placement_props.CB_alignToInterior)
+    pc.AlignToWorldDir = bool(placement_props.CB_alignToWorldDir)
+    world_dir = placement_props.PT_worldDir
+    pc.WorldDir = Vec3.from_seq(world_dir)
+    pc.CompatibleGroupsIds = [
+            str(g.name) 
+            for g in placement_props.LI_compatibleGroups
+        ]
+    pc.PatchLayouts = []
+    for plp in placement_props.LI_patchLayouts:
+        patchLayout = PlacementPatchLayout()
+        patchLayout.ItemCount = int(plp.itemCount) if not plp.autoItemCount else 0
+        patchLayout.ItemSpacing = float(plp.itemSpacing)
+        patchLayout.FillDir = {"LEFT/RIGHT": 0, "FRONT/BACK": 1}.get(plp.fillDirection, 0)
+        patchLayout.FillAlign = {"FRONT": 1, "CENTER": 0, "BACK": 2}.get(plp.fillAlignment, 0)
+        patchLayout.FillOffsetU = float(plp.fillOffsetU)
+        patchLayout.FillOffsetV = float(plp.fillOffsetV)
+        patchLayout.NormedPos = float(plp.normedPos)
+        patchLayout.Altitude = float(plp.altitude)
+        patchLayout.OnlyOnGroups = [g.name for g in plp.validForGroups]
+
+        pc.PatchLayouts.append(patchLayout)
+    return pc
+
+
 def get_placement_config_from_properties(placement_props: PlacementProperties) -> PlacementConfig:
     
     pivots = placement_props.LI_pivots
@@ -844,31 +874,7 @@ def get_placement_config_from_properties(placement_props: PlacementProperties) -
     ]
 
     if bool(placement_props.CB_attachmentConfiguration):
-        placement.PlacementClass = PlacementClass()
-        placement.PlacementClass.SizeGroup = str(placement_props.ST_sizeGroup)
-        placement.PlacementClass.AlwaysUp = bool(placement_props.CB_alwaysUp)
-        placement.PlacementClass.AlignToInterior = bool(placement_props.CB_alignToInterior)
-        placement.PlacementClass.AlignToWorldDir = bool(placement_props.CB_alignToWorldDir)
-        world_dir = placement_props.PT_worldDir
-        placement.PlacementClass.WorldDir = Vec3.from_seq(world_dir)
-        placement.PlacementClass.CompatibleGroupsIds = [
-                str(g.name) 
-                for g in placement_props.LI_compatibleGroups
-            ]
-        placement.PlacementClass.PatchLayouts = []
-        for plp in placement_props.LI_patchLayouts:
-            patchLayout = PlacementPatchLayout()
-            patchLayout.ItemCount = int(plp.itemCount) if not plp.autoItemCount else 0
-            patchLayout.ItemSpacing = float(plp.itemSpacing)
-            patchLayout.FillDir = {"LEFT/RIGHT": 0, "FRONT/BACK": 1}.get(plp.fillDirection, 0)
-            patchLayout.FillAlign = {"FRONT": 1, "CENTER": 0, "BACK": 2}.get(plp.fillAlignment, 0)
-            patchLayout.FillOffsetU = float(plp.fillOffsetU)
-            patchLayout.FillOffsetV = float(plp.fillOffsetV)
-            patchLayout.NormedPos = float(plp.normedPos)
-            patchLayout.Altitude = float(plp.altitude)
-            patchLayout.OnlyOnGroups = [g.name for g in plp.validForGroups]
-
-            placement.PlacementClass.PatchLayouts.append(patchLayout)
+        placement.PlacementClass = placement_class_from_properties(placement_props)
 
     return placement
 
@@ -886,7 +892,7 @@ def generate_placement_config(collection: bpy.types.Collection) -> PlacementConf
 
     placement = placement_ref.placement
     if placement_ref.mode == "TEMPLATE":
-        selected_template = placement_ref.template
+        selected_template = placement_ref.template_name
         template_placement = get_item_placement_template(selected_template)
         placement = template_placement if template_placement is not None else placement
 
@@ -898,7 +904,7 @@ LOCAL_TEMPLATE_SUFFIX = " (local)"
 
 def list_placement_templates() -> list[tuple[str, str, Any]]:
     """All selectable placement templates as (id, source, template).
-    Blend-embedded templates (scene) keep their plain name; local ones (window manager, loaded from settings.json)
+    Blend-embedded templates (scene) keep their plain name; local ones (window manager, loaded from the local template folder)
     are skipped when identical to the blend one and get a ' (local)' suffix when their content differs."""
     result = []
     blend_by_name = {}
@@ -925,12 +931,66 @@ def get_item_placement_template(name: str) -> PlacementProperties | None:
     _, template = find_placement_template(name)
     return template.config if template is not None else None
 
+def _placement_refs():
+    """(owner label, PlacementPropertiesRef) of the export panel default and every collection's item config"""
+    tm_props = get_global_props()
+    export_cfg = getattr(tm_props, "PT_cfg_export_config", None)
+    if export_cfg is not None:
+        yield "Export default", export_cfg.placement
+    for col in bpy.data.collections:
+        cfg = getattr(col, CollectionProp.CONFIG, None)
+        if cfg is not None:
+            yield col.name, cfg.placement
+
+def referenced_placement_template_names() -> set[str]:
+    """template names assigned by name (mode Template) anywhere in this blend file"""
+    return {ref.template_name for _o, ref in _placement_refs() if ref.mode == "TEMPLATE" and ref.template_name}
+
 def embed_local_placement_templates() -> None:
-    """copy local templates missing in the blend file into it (run before saving); existing blend templates are kept"""
+    """before saving: copy the templates that are ASSIGNED by name and only exist locally into the blend file,
+    so the file exports the same on every machine. Unused local templates stay local, existing blend templates
+    are never changed here (see update_blend_placement_template)."""
     templates = bpy.context.scene.tm_props_cfg_placement_templates
-    for local in bpy.context.window_manager.tm_local_placement_templates:
-        if local.name in templates:
+    for name in sorted(referenced_placement_template_names()):
+        if name in templates:
             continue
-        props_from_dict(templates.add(), props_to_dict(local))
+        source, template = find_placement_template(name)
+        if source == TEMPLATE_SOURCE_LOCAL:
+            embedded = templates.add()
+            embedded.name = name                      # "X (local)" keeps its id: assignments stay valid
+            props_from_dict(embedded.config, props_to_dict(template.config))
 
+def update_blend_placement_template(name: str) -> bool:
+    """overwrite the blend copy ``name`` with the local template of the same name"""
+    templates = bpy.context.scene.tm_props_cfg_placement_templates
+    blend_t = templates.get(name)
+    local_t = bpy.context.window_manager.tm_local_placement_templates.get(name)
+    if blend_t is None or local_t is None:
+        return False
+    copy_props(local_t.config, blend_t.config)
+    return True
 
+def remove_unused_blend_placement_templates() -> list[str]:
+    """remove blend templates no item (or the export default) uses by name; returns the removed names"""
+    used = referenced_placement_template_names()
+    templates = bpy.context.scene.tm_props_cfg_placement_templates
+    removed = [t.name for t in templates if t.name not in used]
+    for name in removed:
+        templates.remove(templates.find(name))
+    return removed
+
+def migrate_placement_template_refs() -> int:
+    """fill template_name from the legacy dynamic enum (stored as an index; blend templates came first, in the
+    same order, so the index still resolves to the right blend template). Only refs in Template mode."""
+    n = 0
+    for _owner, ref in _placement_refs():
+        if ref.template_name or ref.mode != "TEMPLATE":
+            continue
+        try:
+            legacy = ref.template
+        except Exception:
+            continue
+        if legacy and find_placement_template(legacy)[1] is not None:
+            ref.template_name = legacy
+            n += 1
+    return n

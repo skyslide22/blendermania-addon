@@ -5,6 +5,8 @@ from . import schema as S
 from .props import ROOT_CLASS, class_name_of, get_schema, on_key, settings_of
 from ..utils.Constants import PANEL_CLASS_COMMON_DEFAULT_PROPS
 from ..ui.widgets.asset_picker import draw_asset_field
+from ..ui.widgets.template_picker import draw_template_buttons
+from ..utils import TemplateLibrary as TL
 
 ICON = {"verified": "CHECKMARK", "guess": "QUESTION"}
 
@@ -177,8 +179,11 @@ class TMFX_PT_main(_Panel, bpy.types.Panel):
         row.operator("tm_fx.import_gbx", text="Import GBX", icon="IMPORT")
         row.operator("tm_fx.import_json", text="Import JSON", icon="IMPORT")
         row.operator("tm_fx.export_json", text="Export JSON", icon="EXPORT")
+        row = draw_template_buttons(lay, TL.KIND_PARTICLE_FX, text="Insert Template...")
+        op = row.operator("tm.template_pick", text="Add as Emitter", icon="ADD")
+        op.kind, op.action = TL.KIND_PARTICLE_FX, "ADD"
         row = lay.row(align=True)
-        row.label(text="Template: " + ("set" if s.template_json else "none"))
+        row.label(text="Changes vs: " + ("baseline" if s.template_json else "defaults"))
         _op(row, "tm_fx.template", "Use current", action="SET")
         _op(row, "tm_fx.template", "", "X", action="CLEAR")
         row = lay.row(align=True)

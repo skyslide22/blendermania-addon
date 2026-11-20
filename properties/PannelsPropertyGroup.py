@@ -313,6 +313,7 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
 
     #
     CB_cfg_show_anim_texture_anims      : BoolProperty(name="Show Anim Texture Anims", default=True, description="Show or hide the animation texture animations section")
+    CB_cfg_show_leaf_animation   : BoolProperty(name="Show Leaf Animation", default=True, description="Show or hide the leaf animation settings of tree models")
     CB_cfg_show_trans_anims      : BoolProperty(name="Show Translation Anims", default=True, description="Show or hide the translation animations section")
     CB_cfg_show_rot_anims      : BoolProperty(name="Show Rotation Anims", default=True, description="Show or hide the rotation animations section")
 

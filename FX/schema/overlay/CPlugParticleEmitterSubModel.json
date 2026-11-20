@@ -1,21 +1,30 @@
 {
  "class": "CPlugParticleEmitterSubModel",
- "title": "Sub-model",
+ "title": "Sub-model (CPU part: no visible effect in TM2020)",
  "modules": {
   "0x090B2031": {
-   "label": "Mesh particle"
+   "label": "Mesh particle (CPU, no visible effect in TM2020 tests)"
   },
   "0x090B2033": {
-   "label": "Sprite curves & gradient"
+   "label": "Sprite curves & gradient (CPU, no visible effect in TM2020 tests)"
   },
   "0x090B2034": {
-   "label": "Light"
+   "label": "Light (CPU, no visible effect in TM2020 tests)"
   },
   "0x090B2037": {
-   "label": "Curves"
+   "label": "Curves (CPU, no visible effect in TM2020 tests)"
   },
   "0x090B203A": {
    "label": "GPU particles"
+  },
+  "0x090B202D": {
+   "label": "Base (CPU, no visible effect in TM2020 tests)"
+  },
+  "0x090B2039": {
+   "label": "Motion (CPU, no visible effect in TM2020 tests)"
+  },
+  "0x090B202F": {
+   "label": "Emission curve (CPU, no visible effect in TM2020 tests)"
   }
  }
 }

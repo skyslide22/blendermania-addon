@@ -15,7 +15,7 @@
    ],
    "fields": {
     "Type": {
-     "status": "guess",
+     "status": "verified",
      "choices": [
       [
        -1,
@@ -23,7 +23,7 @@
       ],
       [
        0,
-       "Group (0)"
+       "Parallel group (0)"
       ],
       [
        1,
@@ -31,100 +31,127 @@
       ],
       [
        2,
-       "Sub system (2)"
+       "Sub fx system (2)"
       ],
       [
        3,
-       "Variable (3)"
+       "Update variable (3)"
       ],
       [
        4,
-       "Emitter (4)"
+       "Particle emitter (4)"
       ],
       [
        5,
-       "Sound (5)"
+       "Sound emitter (5)"
       ]
      ],
-     "tooltip": "Switches which members exist. Labels are taken from the members GBX.NET reads for each type (Children, Condition/Child, SubSystem, VariableName/Expression, Emitter, Sound)."
+     "tooltip": "Node class (names from the game): 0 Parallel (children run together), 1 Condition (child runs while the expression is true), 2 SubFxSystem (did not render in items in game tests), 3 UpdateVar (assigns a variable), 4 ParticleEmitter, 5 SoundEmitter. Multiple emitters per system work in game."
     },
     "U02": {
      "default": "float3(0)",
-     "label": "Position offset (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke). Nadeo end sparklers use float3(0,0,5) / float3(0,0,10)."
+     "label": "Local offset",
+     "status": "verified",
+     "tooltip": "LocalOffsetExpr: float3 position offset that rotates with the item, tested in game. Nadeo end sparklers: float3(0,0,5) / float3(0,0,10)."
     },
     "U03": {
      "default": "float3(0,0,0)",
-     "label": "Offset 2 (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "World offset",
+     "status": "verified",
+     "tooltip": "WorldOffsetExpr: float3 position offset in world axes (ignores the item rotation), tested in game. Animated offsets work, e.g. float3(cos(Time/700)*5,0,sin(Time/700)*5)."
     },
     "U04": {
      "default": "1",
-     "label": "Factor A (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "Expression U04",
+     "status": "unknown",
+     "tooltip": "One of OpacityExpr, ScaleExpr, WaterTopExpr, LinearVelInWExpr (names from the game). 0, 3, 10, +-50 and cos(Time/500) showed no visible difference on GPU particles in game."
     },
     "U05": {
      "default": "1",
-     "label": "Intensity / rate (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke). Sparklers animate it: cos(Time/500), cos(Time/500)*Freq."
+     "label": "Spawn rate multiplier",
+     "status": "verified",
+     "tooltip": "SpawnFreqModifierExpr: multiplies the rate, <= 0 stops emission, tested in game. Nadeo sparklers pulse with cos(Time/500). Expression; Time is in milliseconds."
     },
     "U06": {
      "default": "1",
-     "label": "Factor C (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "Expression U06",
+     "status": "unknown",
+     "tooltip": "One of OpacityExpr, ScaleExpr, WaterTopExpr, LinearVelInWExpr (names from the game). 0, 3, 10, +-50 and cos(Time/500) showed no visible difference on GPU particles in game."
     },
     "U07": {
      "default": "1",
-     "label": "Factor D (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "Ambient light",
+     "status": "verified",
+     "tooltip": "LAmbientExpr (name order guessed): brightness, 0 dark/brown, 0.3 darker, 3 brighter, tested in game. Expression; Time is in milliseconds."
     },
     "U08": {
      "default": "float3(0,1,0)",
-     "label": "Up axis (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "Up",
+     "status": "named",
+     "tooltip": "UpExpr: float3 up direction of the emitter. Expression; Time is in milliseconds."
     },
     "U09": {
      "default": "float3(0,0,-1)",
-     "label": "Forward axis (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "Direction (DOV)",
+     "status": "verified",
+     "tooltip": "DOVExpr: float3 forward direction of the emitter; particles travel along -DOV (default float3(0,0,-1) emits towards +Z), tested in game. Rotating it works, e.g. float3(cos(Time/400),0,sin(Time/400))."
     },
     "U10": {
      "default": "1",
-     "label": "Factor E (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "Expression U10",
+     "status": "unknown",
+     "tooltip": "One of OpacityExpr, ScaleExpr, WaterTopExpr, LinearVelInWExpr (names from the game). 0, 3, 10, +-50 and cos(Time/500) showed no visible difference on GPU particles in game."
     },
     "U11": {
      "default": "1",
-     "label": "Factor F (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "Expression U11",
+     "status": "unknown",
+     "tooltip": "One of OpacityExpr, ScaleExpr, WaterTopExpr, LinearVelInWExpr (names from the game). 0, 3, 10, +-50 and cos(Time/500) showed no visible difference on GPU particles in game."
     },
     "U12": {
      "default": 1,
-     "label": "Flag (int)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke)."
+     "label": "Direction in local space",
+     "status": "verified",
+     "tooltip": "DOVAndUpAreLocalSpace: 1 = Up and Direction rotate with the item, 0 = world axes, tested in game.",
+     "choices": [
+      [
+       0,
+       "World (0)"
+      ],
+      [
+       1,
+       "Local (1)"
+      ]
+     ]
     },
     "U14": {
      "default": "-1.0",
-     "label": "Hue (expr)",
-     "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke). -1.0 = none; sparklers use the variable Hue."
+     "label": "Hue",
+     "status": "verified",
+     "tooltip": "LinearHue01: hue in [0;1], outside = no hue (-1). Needs UseEmitterHue + UseHueShift on the GPU model. Particles keep the hue they were born with: frac(Time/3000) cycles a rainbow, rand01() gives random colours, tested in game. DecorationColorHSL.x gave plain red in items."
     },
     "U15": {
      "default": "0.5",
-     "label": "Strength (expr)",
+     "label": "Hue lightness",
+     "status": "verified",
+     "tooltip": "HueLightness in [0;1]: <0.5 darker, >0.5 lighter; only while Hue is inside [0;1], tested in game."
+    },
+    "Condition": {
+     "status": "verified",
+     "tooltip": "Expression; the child runs while it is true ('Time < 0' hid the emitter, 'Time >= 0' showed it, tested in game). Nadeo: UISequence == 'Podium'."
+    },
+    "VariableName": {
+     "status": "verified",
+     "tooltip": "Variable (declared in the system's Vars) that this node assigns, tested in game."
+    },
+    "Expression": {
+     "status": "verified",
+     "tooltip": "Value assigned to the variable every update, e.g. cos(Time/250). Functions: min max select lerp pow sqrt sqr clamp sat sin cos tan frac abs sign dot cross len normalize rand(min,max) rand01 smoothstep(a) atan2 ..."
+    },
+    "U01": {
+     "label": "Reset to default if inactive",
      "status": "guess",
-     "tooltip": "Default as in all Nadeo fx systems (Stadium Show: Fogger, Sparkler, TorchSmoke). TorchSmoke uses 0.2."
+     "tooltip": "Name from the game (ResetToDefaultIfInactive), order guessed."
     }
    }
   },
@@ -132,14 +159,30 @@
    "title": "Variable",
    "title_fields": [
     "Name"
-   ]
+   ],
+   "fields": {
+    "Type": {
+     "status": "guess",
+     "tooltip": "2 = float (Nadeo Hue). Nadeo also uses 6 (Freq)."
+    },
+    "U02": {
+     "label": "Default value (float bits)",
+     "status": "guess",
+     "tooltip": "Float stored as integer bits for float variables: 1061645451 = 0.779 (Nadeo Hue default)."
+    },
+    "U10": {
+     "label": "Range (float bits)",
+     "status": "guess",
+     "tooltip": "Float stored as integer bits; Nadeo: 1065353216 = 1.0."
+    }
+   }
   }
  },
  "fields": {
   "InputClassId": {
    "default": 4294967295,
    "status": "guess",
-   "tooltip": "Class id of the input/output object. Nadeo's fx systems use 0xFFFFFFFF (none); 0 is not a valid class."
+   "tooltip": "Expression context class (ExtraContextClassId?). 0xFFFFFFFF = none (Time still works). Nadeo uses 789434368 (0x2F0D8000) for UISequence / DecorationColorHSL; in items DecorationColorHSL.x gave plain red (not available)."
   },
   "OutputClassId": {
    "default": 4294967295,

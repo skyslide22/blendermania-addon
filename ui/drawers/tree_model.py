@@ -6,6 +6,9 @@ from ...properties.PropertyIdentifiers import CollectionProp
 from ...utils.FunctionsV2 import get_item_root
 from ...utils.TreeModels import get_tree_model_issues
 from ..widgets.asset_picker import draw_asset_field
+from ..widgets.foldouts import foldout_toggle
+from ...utils.Constants import UI_FOLDOUT_INDENT
+from ...utils.Functions import get_global_props
 
 
 def _override_row(layout, tree, override_prop: str, value_prop: str) -> None:
@@ -29,30 +32,33 @@ def draw_tree_model_collection(layout, collection: bpy.types.Collection) -> None
     layout.prop(tree, "receive_pssm")
     layout.prop(tree, "plane_compute_mode")
 
-    layout.prop(tree, "enable_propagation")
-    col = layout.column(align=True)
-    col.enabled = tree.enable_propagation
-    draw_asset_field(col, tree, "propagation_base_color", "BITMAP", icon="TEXTURE")
-    draw_asset_field(col, tree, "propagation_normal", "BITMAP", icon="TEXTURE")
-    row = col.row(align=True)
-    row.prop(tree, "propagation_atlas_grid")
-    col.prop(tree, "propagation_cone_half_angle_degree")
-    col.prop(tree, "propagation_emission_spawn_radius")
-    col.prop(tree, "propagation_ground_gen_point_count")
-    col.prop(tree, "propagation_leaf_per_second")
-    col.prop(tree, "propagation_leaf_size")
-    col.label(text="Emission Positions")
-    list_inspector(col, 
-                   tree,
-                   "propagation_emission_positions","propagation_emission_position_index",
-                   rows=3,
-                   show_move=False, 
-                   # show_clipboard=True, 
-                   copy_on_add='SELECTED')
+    # leaf animation (exported as the tree model's propagation): checkbox in the foldout header, settings inside
+    body, _header = foldout_toggle(layout, get_global_props(), "CB_cfg_show_leaf_animation",
+                                   label="Leaf Animation", enable_prop="enable_propagation", enable_owner=tree,
+                                   indent=UI_FOLDOUT_INDENT)
+    if body is not None:
+        col = body.column(align=True)
+        draw_asset_field(col, tree, "propagation_base_color", "BITMAP", icon="TEXTURE")
+        draw_asset_field(col, tree, "propagation_normal", "BITMAP", icon="TEXTURE")
+        row = col.row(align=True)
+        row.prop(tree, "propagation_atlas_grid")
+        col.prop(tree, "propagation_cone_half_angle_degree")
+        col.prop(tree, "propagation_emission_spawn_radius")
+        col.prop(tree, "propagation_ground_gen_point_count")
+        col.prop(tree, "propagation_leaf_per_second")
+        col.prop(tree, "propagation_leaf_size")
+        col.label(text="Emission Positions")
+        list_inspector(col,
+                       tree,
+                       "propagation_emission_positions", "propagation_emission_position_index",
+                       rows=3,
+                       show_move=False,
+                       # show_clipboard=True,
+                       copy_on_add='SELECTED')
 
-    if tree.enable_propagation:
-        from ...FX.preview import draw_tree_preview   # viewport overlay of the falling leaves
-        draw_tree_preview(layout, bpy.context, collection)
+        if tree.enable_propagation:
+            from ...FX.preview import draw_tree_preview   # viewport overlay of the falling leaves
+            draw_tree_preview(body, bpy.context, collection)
 
 
     item = get_item_root(collection, bpy.context.scene)

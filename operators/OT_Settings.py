@@ -500,33 +500,39 @@ def _json_default(o):
         return str(o)
 
 
-def _write_local_placement_templates(templates: list) -> None:
-    data = getDefaultSettingsJSON()
-    data[SETTINGS_ITEM_PLACEMENT_TEMPLATES] = templates
-    text = json.dumps(data, indent=4, sort_keys=True, default=_json_default)  # before open(), a failure must not truncate the file
-    with open(PATH_DEFAULT_SETTINGS_JSON, "w+") as settingsfile:
-        settingsfile.write(text)
-
-
 def reload_local_placement_templates() -> None:
-    """(re)load the local templates from settings.json into the runtime-only window manager collection"""
+    """(re)load the local placement templates (utils/TemplateLibrary: %APPDATA%/Blendermania/templates/placement)
+    into the runtime-only window manager collection. Moves the old settings.json templates there once."""
+    from ..utils import TemplateLibrary as TL
+    try:
+        moved = TL.migrate_settings_json_placement(getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, []))
+        if moved:
+            debug(f"moved {moved} placement template(s) from settings.json to {TL.local_dir(TL.KIND_PLACEMENT)}")
+    except OSError as e:
+        debug(f"moving placement templates failed: {e}")
     local = bpy.context.window_manager.tm_local_placement_templates
     local.clear()
-    for d in getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, []):
-        props_from_dict(local.add(), d)
+    for entry in TL.local_entries(TL.KIND_PLACEMENT):
+        try:
+            data = TL.read(entry)
+        except (OSError, ValueError) as e:
+            debug(f"placement template {entry.path} unreadable: {e}")
+            continue
+        t = local.add()
+        t.name = entry.name
+        props_from_dict(t.config, data or {})
 
 
 def save_local_placement_template(name: str, config) -> None:
-    """store/overwrite template `name` (config: PlacementProperties) in the local settings.json"""
-    local = [t for t in getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, []) if t.get("name") != name]
-    local.append({"name": name, "config": props_to_dict(config)})
-    _write_local_placement_templates(local)
+    """store/overwrite local template `name` (config: PlacementProperties)"""
+    from ..utils import TemplateLibrary as TL
+    TL.save_local(TL.KIND_PLACEMENT, name, props_to_dict(config))
     reload_local_placement_templates()
 
 
 def remove_local_placement_template(name: str) -> None:
-    local = getDefaultSettingsJSON().get(SETTINGS_ITEM_PLACEMENT_TEMPLATES, [])
-    _write_local_placement_templates([t for t in local if t.get("name") != name])
+    from ..utils import TemplateLibrary as TL
+    TL.delete_local(TL.KIND_PLACEMENT, name)
     reload_local_placement_templates()
 
 

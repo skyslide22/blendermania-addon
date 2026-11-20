@@ -1,0 +1,724 @@
+{
+ "format": "tm-fx/1",
+ "game": "TM2020",
+ "gbxnet_commit": "50d37854865457d3280b27e80b4ec13c2fd2f3ee",
+ "vfx": {
+  "$class": "CPlugFxSystem",
+  "props": {
+   "NodeVersion": 10,
+   "Root": {
+    "$struct": "CPlugFxSystem.EffectNode",
+    "props": {
+     "Type": 0,
+     "Name": "Fogger8m",
+     "Children": [
+      {
+       "$struct": "CPlugFxSystem.EffectNode",
+       "props": {
+        "Type": 4,
+        "Name": "Fogger8m",
+        "Emitter": {
+         "$class": "CPlugParticleEmitterModel",
+         "props": {
+          "ParticleEmitterSubModels": [
+           {
+            "$class": "CPlugParticleEmitterSubModel",
+            "props": {
+             "Material": "",
+             "Shader": "",
+             "MeshRef": "",
+             "Solid2Model": ""
+            },
+            "chunks": {
+             "0x090B202D": {
+              "Version": 4,
+              "U01": 7,
+              "U02": 0,
+              "U03": -1,
+              "U04": 400,
+              "U05": false,
+              "U06": 256,
+              "U07": 15,
+              "U08": true,
+              "U10": "Fogger8m",
+              "U11": 0.0
+             },
+             "0x090B202E": {
+              "Version": 0,
+              "U01": {
+               "$class": "CPlugParticleSplashModel",
+               "props": {},
+               "chunks": {
+                "0x090B5000": {
+                 "Version": 5,
+                 "U01": 1600,
+                 "U02": 0.0,
+                 "U03": 0.0,
+                 "U04": 0.0,
+                 "U05": 0,
+                 "U06": 1.0,
+                 "U07": 1.0,
+                 "U08": 1.0,
+                 "U09": false,
+                 "U10": 0.0,
+                 "U11": 0.0,
+                 "U12": 0.0,
+                 "U13": 0.0,
+                 "U14": 0.0,
+                 "U15": 0.0,
+                 "U16": 1.0,
+                 "U17": true,
+                 "U18": 7.0,
+                 "U19": 4.0,
+                 "U20": 0.0,
+                 "U21": 0.0,
+                 "U22": 0.0,
+                 "U23": 85.0,
+                 "U24": 0.0,
+                 "U25": 0.0,
+                 "U27": {
+                  "version": 3,
+                  "flags": 8,
+                  "points": [
+                   [
+                    0.0,
+                    1.0
+                   ],
+                   [
+                    0.20000000298023224,
+                    1.0
+                   ],
+                   [
+                    0.800000011920929,
+                    1.0
+                   ],
+                   [
+                    1.0,
+                    1.0
+                   ]
+                  ]
+                 },
+                 "U28": 0.0,
+                 "U29": 0.0,
+                 "U30": 0.0
+                }
+               },
+               "extra": {
+                "chunks": {
+                 "0x090B5000": {
+                  "U26": null
+                 }
+                }
+               }
+              }
+             },
+             "0x090B202F": {
+              "Version": 3,
+              "U01": 0,
+              "U02": 0.009999999776482582,
+              "U03": 2.0,
+              "U04": [
+               1.0,
+               0.0,
+               0.0,
+               0.0,
+               1.0,
+               0.0,
+               0.0,
+               0.0,
+               1.0,
+               0.0,
+               0.0,
+               0.0
+              ],
+              "U06": {
+               "version": 3,
+               "flags": 8,
+               "points": []
+              }
+             },
+             "0x090B2030": {
+              "Version": 0,
+              "U01": 1.0,
+              "U02": 0.30000001192092896,
+              "U03": 0
+             },
+             "0x090B2031": {
+              "Version": 14,
+              "U01": 0,
+              "U02": 0,
+              "U03": false,
+              "U04": 10000.0,
+              "U05": [
+               1.0,
+               0.0,
+               0.0,
+               0.0,
+               1.0,
+               0.0,
+               0.0,
+               0.0,
+               1.0,
+               0.0,
+               0.0,
+               0.0
+              ],
+              "U06": [
+               0.0,
+               0.0
+              ],
+              "U07": 6,
+              "U08": 1.0,
+              "U09": 1.0,
+              "U10": 2.0,
+              "U11": false,
+              "U12": true,
+              "U13": false,
+              "U14": false,
+              "U15": 0,
+              "U16": {
+               "version": 3,
+               "flags": 0,
+               "points": []
+              },
+              "U17": {
+               "version": 3,
+               "flags": 0,
+               "points": []
+              },
+              "U18": {
+               "version": 3,
+               "flags": 0,
+               "points": []
+              }
+             },
+             "0x090B2032": {
+              "Version": 0,
+              "U01": 0,
+              "U02": 1,
+              "U03": 1,
+              "U04": 0,
+              "U05": false,
+              "U06": 0,
+              "U07": 10000,
+              "U08": true
+             },
+             "0x090B2033": {
+              "Version": 5,
+              "U01": 0.3421440124511719,
+              "U02": 0.05000000074505806,
+              "U03": false,
+              "U04": 1.0,
+              "U05": 1.0,
+              "U06": true,
+              "U08": {
+               "version": 3,
+               "flags": 8,
+               "points": [
+                [
+                 0.0,
+                 1.0
+                ],
+                [
+                 0.20000000298023224,
+                 1.0
+                ],
+                [
+                 0.800000011920929,
+                 1.0
+                ],
+                [
+                 1.0,
+                 1.0
+                ]
+               ]
+              },
+              "U09": false,
+              "U11": {
+               "version": 3,
+               "flags": 8,
+               "points": [
+                [
+                 0.0,
+                 1.0
+                ],
+                [
+                 0.20000000298023224,
+                 1.0
+                ],
+                [
+                 0.800000011920929,
+                 1.0
+                ],
+                [
+                 1.0,
+                 1.0
+                ]
+               ]
+              },
+              "U12": 0.0,
+              "U13": 0.0,
+              "U14": false,
+              "U16": {
+               "$struct": "CPlugParticleEmitterSubModel.InlineColorGradient",
+               "props": {
+                "U01": 0,
+                "U02": 4,
+                "U03": "000000000000803f0000803f0000803f",
+                "U04": "0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f"
+               }
+              },
+              "U17": 0,
+              "U18": false,
+              "U21": 1,
+              "U22": 1.0,
+              "U23": 0.0,
+              "U24": false,
+              "U26": {
+               "version": 3,
+               "flags": 8,
+               "points": [
+                [
+                 0.0,
+                 1.0
+                ],
+                [
+                 0.20000000298023224,
+                 1.0
+                ],
+                [
+                 0.800000011920929,
+                 1.0
+                ],
+                [
+                 1.0,
+                 1.0
+                ]
+               ]
+              },
+              "U27": 1.0,
+              "U28": 1.0,
+              "U29": 0.0,
+              "U30": {
+               "version": 3,
+               "flags": 0,
+               "points": []
+              }
+             },
+             "0x090B2034": {
+              "Version": 3,
+              "U04": {
+               "version": 3,
+               "flags": 8,
+               "points": []
+              },
+              "U05": {
+               "$struct": "CPlugParticleEmitterSubModel.InlineColorGradient",
+               "props": {
+                "U01": 0,
+                "U02": 0,
+                "U03": "000000000000803f0000803f0000803f",
+                "U04": "0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f0000803f"
+               }
+              },
+              "U06": false,
+              "U07": false
+             },
+             "0x090B2035": {
+              "Version": 1
+             },
+             "0x090B2036": {
+              "Version": 0,
+              "U01": false,
+              "U02": 50,
+              "U03": 5
+             },
+             "0x090B2037": {
+              "Version": 1,
+              "U01": 1000,
+              "U02": 3.4028234663852886e+38,
+              "U03": 0.0,
+              "U04": {
+               "version": 3,
+               "flags": 0,
+               "points": []
+              },
+              "U05": {
+               "version": 3,
+               "flags": 0,
+               "points": []
+              },
+              "U06": 3.0,
+              "U07": 1.5,
+              "U08": 0.0,
+              "U09": 0.0,
+              "U10": 1.0,
+              "U11": 1.0,
+              "U12": 1.0,
+              "U13": 5.0,
+              "U14": 0,
+              "U15": {
+               "version": 3,
+               "flags": 0,
+               "points": []
+              },
+              "U16": 0.6000000238418579,
+              "U17": 0.0,
+              "U18": 0.0
+             },
+             "0x090B2038": {
+              "Version": 0,
+              "U01": 1.0,
+              "U02": 0.0
+             },
+             "0x090B2039": {
+              "Version": 0,
+              "U01": -8.0,
+              "U02": 0.0,
+              "U03": false,
+              "U04": 0.0,
+              "U05": 2.0,
+              "U06": 0.0,
+              "U07": false,
+              "U08": 1.0,
+              "U09": 0.5,
+              "U10": 0.009999999776482582,
+              "U11": false
+             },
+             "0x090B203A": {
+              "Version": 1,
+              "U01": {
+               "$class": "CPlugParticleGpuSpawn",
+               "props": {
+                "Spawn": {
+                 "$struct": "CPlugParticleGpuSpawn.ParticleGpuSpawn",
+                 "props": {
+                  "U01": 1,
+                  "U02": 0,
+                  "U03": 5,
+                  "U04": 20.0,
+                  "U05": 0.0,
+                  "U06": true,
+                  "U07": 50.0,
+                  "U08": 1000.0,
+                  "U09": 100.0,
+                  "U10": 0.0,
+                  "U11": 0.0,
+                  "U12": 0.20000000298023224,
+                  "U13": 10.0,
+                  "U14": 0.0,
+                  "U15": 1,
+                  "U16": 0.0,
+                  "U17": 0.0,
+                  "U18": 0.0,
+                  "U19": 0.0
+                 },
+                 "extra": {
+                  "props": {
+                   "Version": 4
+                  }
+                 }
+                }
+               },
+               "chunks": {
+                "0x090C5000": {
+                 "Version": 1
+                }
+               },
+               "extra": {
+                "chunks": {
+                 "0x090C5000": {
+                  "U01": 0
+                 }
+                }
+               }
+              },
+              "U02": {
+               "$class": "CPlugParticleGpuModel",
+               "props": {
+                "LifeMax": 10.0,
+                "LifeVar01": 0.800000011920929,
+                "SizeMax": 2.0,
+                "SizeVar01": 0.5,
+                "SizeEndScale": 4.0,
+                "Weight": 8.0,
+                "Viscosity": 2.0,
+                "Persistence": 0.10000000149011612,
+                "BitmapIsFile": false,
+                "Bitmap": "BMP_FoggerSmoke",
+                "Intensity": 1.0,
+                "IntensityVariation": 0.5,
+                "TextureAtlasDimX": 4,
+                "TextureAtlasDimY": 4,
+                "IntensityPower": 4.0,
+                "IntensityFadeIn": 0.0,
+                "IntensityFadeOut": 0.0,
+                "Rotation": 0.019999999552965164,
+                "RotationVariation": 0.019999999552965164,
+                "UseHueShift": false,
+                "UseEmitterHue": false,
+                "Hue": 0.0,
+                "BitmapOverLife": "",
+                "UseColorOverLife": false,
+                "UseEnergyOverLife": false
+               },
+               "chunks": {
+                "0x090C6000": {
+                 "Version": 6,
+                 "U01": 0.0,
+                 "U02": 0.0,
+                 "U03": false,
+                 "U04": false
+                },
+                "0x090C6001": {
+                 "Version": 3,
+                 "U01": false,
+                 "U02": false,
+                 "U03": false,
+                 "U04": false
+                },
+                "0x090C6002": {
+                 "Version": 22,
+                 "U01": false,
+                 "U02": 1.0,
+                 "U03": true,
+                 "U04": false,
+                 "U05": false,
+                 "U06": false,
+                 "U07": false,
+                 "U08": 1.0,
+                 "U09": 1.0,
+                 "U10": 0.0,
+                 "U11": false,
+                 "U12": "",
+                 "U13": 1,
+                 "U14": false,
+                 "U15": 1.0,
+                 "U16": 1.401298464324817e-45,
+                 "U17": true,
+                 "U18": 8.4822998046875,
+                 "U19": 0.0,
+                 "U20": 0.0,
+                 "U21": 1.2000000476837158,
+                 "U22": "",
+                 "U23": false,
+                 "U24": 0.10000000149011612,
+                 "U25": 0.014999999664723873,
+                 "U26": 1.0,
+                 "U27": 0.0,
+                 "U28": 0.5
+                },
+                "0x090C6003": {
+                 "Version": 2,
+                 "U01": 0.10000000149011612,
+                 "U02": 0.5,
+                 "U03": 0.0
+                }
+               },
+               "extra": {
+                "props": {
+                 "LegacyLifeAverage": 0,
+                 "LegacyLifeVariation": 0,
+                 "LegacySizeAverage": 0,
+                 "LegacySizeVariation": 0,
+                 "LegacyIntensityDecayPower": 0,
+                 "LegacyPersistence": 0
+                }
+               }
+              }
+             },
+             "0x090B203B": {
+              "Version": 1,
+              "U01": 1.0,
+              "U02": 0.0,
+              "U03": 0.0,
+              "U04": 1.0,
+              "U05": 1.0,
+              "U06": 1.0,
+              "U07": 2.0,
+              "U08": 20.0,
+              "U09": 1.0,
+              "U10": 0.10000000149011612,
+              "U11": 5.0
+             }
+            },
+            "extra": {
+             "props": {
+              "SizeBirthRatioXY": 0,
+              "SpritePivotPoint": [
+               0,
+               0
+              ],
+              "ColorGradient": null,
+              "ColorGradientUse": 0,
+              "ColorModulateWithTransparency": false,
+              "MaxParticleCount": 0,
+              "SpawnPeriod": 0,
+              "Life": 0,
+              "LifeVariation": 0,
+              "SizeBirth": 0,
+              "SizeBirthVariation": 0,
+              "WeightBirth": 0,
+              "WeightBirthVariation": 0,
+              "RollSpeedBirth": 0,
+              "RollSpeedBirthVariation": 0,
+              "TransparencyBirth": 0,
+              "TransparencyBirthVariation": 0,
+              "SizeOverLife": null,
+              "TransparencyOverLife": null,
+              "ParticleEmitterSubModel": 0,
+              "MultiStateRenderMode": 0,
+              "SpawnCond": 0,
+              "SpawnMinDist": 0,
+              "UScaleDist": 0,
+              "StandardRenderMode": 0,
+              "VScaleDist": 0,
+              "FluidFrictionBirth": 0,
+              "FluidFrictionBirthVariation": 0,
+              "SizeXOverLife": null,
+              "SizeUseSizeX": false,
+              "SizeBirthUseEmissionZone": false,
+              "CircularTrailVertPerPartCount": 0,
+              "SizeBirthUseIntensity": false,
+              "ColorBirthUseIntensity": false,
+              "TransparencyBirthUseIntensity": false,
+              "SizeBirthEmissionZoneScale": 0,
+              "FluidFrictionBirthIntensityBase": 0,
+              "FluidFrictionBirthUseIntensity": false,
+              "IntensityFilter": null,
+              "MultiState_IsAsyncLink": false,
+              "TextureAtlas": 0,
+              "TextureAtlasDimX": 0,
+              "TextureAtlasDimY": 0,
+              "TextureAtlasFixedIndex": 0,
+              "BeamLengthSpeedScale": 0,
+              "PrecalcEnabled": false,
+              "PrecalcPartCount": 0,
+              "PrecalcSampleRate": 0,
+              "CollisionEnabled": false,
+              "CollisionBounce": 0,
+              "CollisionRadius": 0,
+              "CollisionDamper": 0,
+              "SortSprites": false,
+              "Visual": null
+             },
+             "chunks": {
+              "0x090B202D": {
+               "U09": false
+              },
+              "0x090B202F": {
+               "U05": null
+              },
+              "0x090B2033": {
+               "U07": null,
+               "U10": null,
+               "U15": null,
+               "U19": false,
+               "U20": false,
+               "U25": null
+              },
+              "0x090B2034": {
+               "U02": null,
+               "U03": null
+              },
+              "0x090B2035": {
+               "U01": null
+              }
+             }
+            }
+           }
+          ],
+          "IsSplashMode": false,
+          "ShadowMapTexelSize": 0.10000000149011612,
+          "Radius": 1.0,
+          "VortexCountPerCircle": 50,
+          "Strength": 10.0,
+          "LifeTime": 10000,
+          "Coef": 1.0,
+          "Randomness": 0.20000000298023224,
+          "EmitPeriod": 50,
+          "EnableVortexEmitter": true,
+          "CircleNormal": [
+           1.0,
+           0.0,
+           1.0
+          ],
+          "Lod_cPixelMin": 0.0
+         },
+         "chunks": {
+          "0x090B3000": {},
+          "0x090B3001": {
+           "U01": "Fogger8m"
+          },
+          "0x090B3002": {
+           "Version": 4
+          },
+          "0x090B3003": {
+           "Version": 0,
+           "U01": []
+          },
+          "0x090B3004": {
+           "Version": 6
+          }
+         },
+         "extra": {
+          "chunks": {
+           "0x090B3002": {
+            "U01": null,
+            "U02": null
+           },
+           "0x090B3004": {
+            "U01": null,
+            "U02": null,
+            "U03": false
+           }
+          }
+         }
+        },
+        "Target": "",
+        "U02": "float3(0)",
+        "U03": "float3(0,0,0)",
+        "U04": "1",
+        "U05": "1",
+        "U06": "1",
+        "U07": "1",
+        "U08": "float3(0,1,0)",
+        "U09": "float3(0,0,-1)",
+        "U10": "1",
+        "U11": "1",
+        "U12": 1,
+        "U14": "-1.0",
+        "U15": "0.5"
+       },
+       "extra": {
+        "props": {
+         "U13": 0,
+         "U18": 0,
+         "U23": null
+        }
+       }
+      }
+     ]
+    },
+    "extra": {
+     "props": {
+      "U13": 0,
+      "U18": 0,
+      "U23": null
+     }
+    }
+   },
+   "InputClassId": 4294967295,
+   "OutputClassId": 4294967295,
+   "VariableVersion": 55,
+   "Variables": [],
+   "HasSource": false
+  },
+  "chunks": {
+   "0x0915C000": {
+    "Version": 2,
+    "U01": 0
+   }
+  }
+ }
+}
