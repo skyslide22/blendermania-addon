@@ -204,16 +204,40 @@ def _apply_bitmap_config(bmp, cfg: dict) -> None:
     bmp.grass_uv.trans = cfg.get("GrassIdTexCoordTrans", [0.0, 0.0])
 
 
-def _texture_set_slots(refs: list[str]) -> dict:
-    """tree model refs -> {stem: {"D": path, "D_bitmap": path, ...}} for _D/_N/_R images and bitmaps"""
+# TextureSet slot (read-pak-assets) -> texture_set property
+TEXTURE_SET_SLOTS = {
+    "ColorImage": "color_image", "NormalImage": "normal_image", "RoughnessImage": "roughness_image",
+    "DiffuseBitmap": "color_texture", "NormalBitmap": "normal_texture", "RoughnessBitmap": "roughness_texture",
+}
+_LEGACY_SLOT = {"D": "ColorImage", "N": "NormalImage", "R": "RoughnessImage",
+                "D_bitmap": "DiffuseBitmap", "N_bitmap": "NormalBitmap", "R_bitmap": "RoughnessBitmap"}
+
+
+def _texture_set_slots(refs: list[str]) -> list[dict]:
+    """fallback for an old read-pak-assets without TextureSets: groups the flat ref list by file stem
+    (wrong for sets that mix stems, e.g. ItemFallTreeBranch_D + ItemSpringTreeBranch_N)"""
     sets = defaultdict(dict)
     for ref in refs:
         base = ref.rsplit("/", 1)[-1]
         m = re.match(r"(?i)(.+?)_(D|N|R)\.(dds|tga|texture\.gbx)$", base)
         if m:
             key = m.group(2).upper() + ("_bitmap" if m.group(3).lower() == "texture.gbx" else "")
-            sets[m.group(1)].setdefault(key, ref)
-    return sets
+            sets[m.group(1)].setdefault(_LEGACY_SLOT[key], ref)
+    return list(sets.values())
+
+
+def _tree_texture_sets(tree: dict) -> list[dict]:
+    """the tree model's texture sets as {slot: game path} (slots of TEXTURE_SET_SLOTS, plus "Name")"""
+    if tree.get("TextureSets") is None:
+        return _texture_set_slots(tree.get("Refs") or [])
+    return [{k: v for k, v in ts.items() if v and (k in TEXTURE_SET_SLOTS or k == "Name")}
+            for ts in tree["TextureSets"]]
+
+
+def _stem(path: str) -> str:
+    base = path.rsplit("/", 1)[-1]
+    base = re.sub(r"(?i)\.(texture\.gbx|dds|tga|png|jpg|webp)$", "", base)
+    return re.sub(r"(?i)_(D|N|R)$", "", base)
 
 
 def build(pak_root: Path, out_root: Path, data_json: Path, payload_out: Path) -> dict:
@@ -230,14 +254,15 @@ def build(pak_root: Path, out_root: Path, data_json: Path, payload_out: Path) ->
 
     # images used by bitmaps and tree models -----------------------------------------------------
     bitmaps = [b for b in data["Bitmaps"] if not b.get("Error") and b.get("Image") and b.get("Config")]
-    tree_sets = {}
+    tree_sets = {}     # (env, slot tuple) -> slots; identical sets of several tree models only once
     for tree in data["Trees"]:
-        for stem, slots in _texture_set_slots(tree.get("Refs") or []).items():
-            if "D" in slots or "D_bitmap" in slots:
-                tree_sets.setdefault((stem, _env(tree["Path"])), slots)
+        for slots in _tree_texture_sets(tree):
+            files = tuple(sorted((k, v) for k, v in slots.items() if k in TEXTURE_SET_SLOTS))
+            if any(k in ("ColorImage", "DiffuseBitmap") for k, _ in files):
+                tree_sets.setdefault((_env(tree["Path"]), files), slots)
     needed = {b["Image"] for b in bitmaps}
     for slots in tree_sets.values():
-        needed.update(v for k, v in slots.items() if not k.endswith("_bitmap"))
+        needed.update(v for k, v in slots.items() if k.endswith("Image"))
     needed = sorted(p for p in needed if p.lower().endswith(IMAGE_EXTENSIONS) and (pak_root / p).is_file())
 
     names = _Names()
@@ -289,16 +314,20 @@ def build(pak_root: Path, out_root: Path, data_json: Path, payload_out: Path) ->
         stats["bitmaps"] += 1
 
     # texture sets (as used by the game's tree models) -----------------------------------------
-    slot_props = {"D": "color_image", "N": "normal_image", "R": "roughness_image",
-                  "D_bitmap": "color_texture", "N_bitmap": "normal_texture", "R_bitmap": "roughness_texture"}
-    for (stem, env), slots in sorted(tree_sets.items()):
+    used_ts = {}       # (env, name) -> files: a different set with the same color stem gets its texture name
+    for (env, files), slots in sorted(tree_sets.items()):
+        color = slots.get("ColorImage") or slots.get("DiffuseBitmap")
+        stem = _stem(color)
+        if used_ts.setdefault((env, stem), files) != files and slots.get("Name"):
+            stem = f"{stem}_{slots['Name']}"
         mat = _new_asset(names.get(TYPE_PREFIX["TEXTURESET"] + stem, env), "TEXTURESET",
-                         f"{CATALOG_ROOT}/{env}/TextureSets", env, f"{env} tree texture set {stem}")
+                         f"{CATALOG_ROOT}/{env}/TextureSets", env,
+                         f"{env} tree texture set {slots.get('Name') or stem}")
         ts = mat.tm_asset_properties.texture_set
-        for key, ref in slots.items():
-            target = bitmap_assets.get(ref.lower()) if key.endswith("_bitmap") else image_assets.get(ref)
+        for key, ref in files:
+            target = bitmap_assets.get(ref.lower()) if key.endswith("Bitmap") else image_assets.get(ref)
             if target is not None:
-                setattr(ts, slot_props[key], target)
+                setattr(ts, TEXTURE_SET_SLOTS[key], target)
         color = ts.color_image or ts.color_texture
         _set_type_preview(mat, color.tm_asset_properties.image if color else None, "TEXTURESET")
         from .AssetLibraryFunctions import sync_preview

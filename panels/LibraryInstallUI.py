@@ -1,7 +1,8 @@
 """Install/update UI of the two downloadable asset libraries, shared by Settings > Asset Libraries,
 Textures > Install & Update and the TM Asset tab.
 
-- TM2020 Material Assets Library: needed for (almost) every export, materials + shaders + MaterialLib.txt.
+- TM2020 Material Assets Library: materials + shaders + MaterialLib.txt. Promoted (required look) only with
+  Constants.PROMOTE_MATERIAL_ASSETS_LIBRARY, otherwise the original addon downloads (draw_addon_textures) come first.
 - TM2020 Default Assets: game bitmaps/images/tree texture sets, only needed for custom texture sets,
   vegetation and particle effects that should reuse game textures.
 """
@@ -98,23 +99,69 @@ def draw_custom_assets_location_warning(layout) -> None:
     col.label(text="(e.g. Items/_BlenderAssets/MyAssets/MyAssets.blend)")
 
 
+ADDON_TEXTURES_INFO = (
+    "Addon textures & asset library (original Blendermania downloads)",
+    "",
+    "Install <Environment> Textures:",
+    "-> downloads the game textures used by the ADDON shaders (viewport only)",
+    "-> into Items/_BlenderAssets/Textures, nothing of it is exported",
+    "Install Complete Asset Library:",
+    "-> the addon material asset library (pre-made materials)",
+    "",
+    "The export uses the addon's MaterialLib.txt, no download needed for it.",
+)
+
+
+def draw_addon_textures(layout, tm_props) -> None:
+    """install box of the original addon downloads (game textures + material asset library)"""
+    from .PT_DownloadProgress import render_donwload_progress_bar
+
+    box = layout.box()
+    col = box.column(align=True)
+    row = col.row(align=True)
+    row.label(text="Addon Textures & Asset Library", icon=ICON_TEXTURE)
+    draw_info_button(row, "Addon textures", ADDON_TEXTURES_INFO)
+    if not PROMOTE_MATERIAL_ASSETS_LIBRARY:
+        sub = col.column(align=True)
+        sub.scale_y = 0.8
+        sub.label(text="Game textures + pre-made materials")
+        sub.label(text="Recommended", icon=ICON_INFO)
+    col.separator()
+
+    idle = tm_props.CB_DL_ProgressRunning is False
+    row = col.row(align=True)
+    row.enabled = idle
+    row.scale_y = 1.5
+    row.operator("view3d.tm_installgametextures", text=f"Install {tm_props.LI_DL_TextureEnvi} Textures", icon=ICON_TEXTURE)
+    row = col.row(align=True)
+    row.enabled = idle
+    row.scale_y = 1.5
+    row.operator("view3d.tm_installgameassetslibrary", text="Install Complete Asset Library", icon=ICON_ASSETS)
+    render_donwload_progress_bar(box)
+
+
 def draw_material_library(layout, tm_props, compact: bool = False) -> None:
-    """install / update box of the TM2020 Material Assets Library"""
+    """install / update box of the TM2020 Material Assets Library
+    (required look with PROMOTE_MATERIAL_ASSETS_LIBRARY, otherwise optional/beta)"""
     from ..utils.MaterialAssetsLibrary import get_installed_library_info
     from ..operators.OT_AssetLibrary import draw_update_check
 
+    promoted = PROMOTE_MATERIAL_ASSETS_LIBRARY
     info = get_installed_library_info()
     box = layout.box()
     col = box.column(align=True)
     row = col.row(align=True)
-    row.label(text="Material Library", icon=ICON_MATERIAL)
+    row.label(text="Material Library" if promoted else "Material Library (optional, beta)", icon=ICON_MATERIAL)
     row.operator("view3d.tm_open_url", text="", icon=ICON_WEBSITE).url = MATERIAL_ASSETS_LIB_URL
     draw_info_button(row, "Material Library", MATERIAL_LIBRARY_INFO)
 
     sub = col.column(align=True)
     sub.scale_y = 0.8
-    sub.label(text="Game materials + shaders")
-    sub.label(text="Needed for every export", icon=ICON_INFO)
+    sub.label(text="Game materials + shaders (BigthirstyTM)")
+    if promoted:
+        sub.label(text="Needed for every export", icon=ICON_INFO)
+    else:
+        sub.label(text="Not needed, addon textures are used", icon=ICON_INFO)
 
     col.separator()
     if info:
@@ -125,16 +172,18 @@ def draw_material_library(layout, tm_props, compact: bool = False) -> None:
             row.operator("view3d.tm_open_folder", text="Open Folder", icon=ICON_FOLDER).folder = info["path"]
             row.operator("tm.check_asset_updates", text="Check for Updates", icon="FILE_REFRESH").library = "material"
             draw_update_check(col, "material")
-    else:
+    elif promoted:
         row = col.row()
         row.alert = True
         row.label(text="Not installed (needed!)", icon=ICON_ERROR)
+    else:
+        col.label(text="Not installed (optional)", icon=ICON_INFO)
 
     col.separator()
     row = col.row(align=True)
     row.prop(tm_props, "LI_DL_MaterialAssetsEdition", expand=True)
     row = col.row(align=True)
-    row.scale_y = 1.4
+    row.scale_y = 1.4 if promoted else 1.0
     row.operator("view3d.tm_install_material_assets_library",
                  text="Update / Reinstall Material Library" if info else "Install Material Library", icon=ICON_ASSETS)
 

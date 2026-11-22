@@ -163,6 +163,18 @@ def _private_image(mat, channel, src, colorspace):
     return img
 
 
+def _setup_alpha(mat):
+    """texture alpha visible in Eevee (viewport + render) and Cycles: dithered (alpha clip like the game),
+    transparent shadows. Both settings are ignored by Cycles, which uses the BSDF Alpha directly."""
+    for attr, value in (("surface_render_method", "DITHERED"), ("use_transparent_shadow", True),
+                        ("blend_method", "HASHED"), ("shadow_method", "HASHED")):   # last two: pre-4.2 names
+        if hasattr(mat, attr):
+            try:
+                setattr(mat, attr, value)
+            except (TypeError, AttributeError):
+                pass
+
+
 def _sync_textureset_preview(mat):
     nt = mat.node_tree
     if "GBX_TS_BSDF" not in nt.nodes:
@@ -177,6 +189,7 @@ def _sync_textureset_preview(mat):
     L = nt.links
     L.clear()
     L.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    _setup_alpha(mat)
 
     channels = (
         ("Color", ts.color_image, ts.color_texture, "sRGB", 200),
@@ -192,6 +205,7 @@ def _sync_textureset_preview(mat):
         L.new(coord.outputs["UV"], tex.inputs["Vector"])
         if name == "Color":
             L.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+            L.new(tex.outputs["Alpha"], bsdf.inputs["Alpha"])     # leaf cutouts
         elif name == "Normal":
             L.new(tex.outputs["Color"], nmap.inputs["Color"])
             L.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])

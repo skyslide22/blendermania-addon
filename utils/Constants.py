@@ -247,6 +247,17 @@ WEBSPACE_ASSETS_TM_STADIUM   = GITHUB_ASSETS_BASE_URL + "Assets_Library_TrackMan
 WEBSPACE_ASSETS_MP           = GITHUB_ASSETS_BASE_URL + "Assets_Library_Maniaplanet/Assets_Library_Maniaplanet.zip"
 WEBSPACE_DOTNET_EXECUTABLE   = GITHUB_ASSETS_BASE_URL + BLENDERMANIA_DOTNET+"/"+BLENDERMANIA_DOTNET+".zip"
 
+# Which material source the UI promotes (TM2020):
+#   True  -> the Material Assets Library (BigthirstyTM) is shown first and marked as required
+#   False -> the original addon textures + asset library (WEBSPACE_* above) are shown first, the Material Assets
+#            Library stays available but is marked optional/beta and moved below
+# UI only: an installed Material Assets Library is still used (shaders, texture fallback, MaterialLib.txt).
+PROMOTE_MATERIAL_ASSETS_LIBRARY     = False
+
+# Show "Build from game files" (pak extract -> default assets, Package for Release) in the TM Asset tab.
+# Maintainer-only (building a TM2020 Default Assets release), users install the finished release instead.
+SHOW_DEFAULT_ASSETS_BUILD           = False
+
 # TM2020 Material Assets Library (community library by BigthirstyTM, V2 material workflow)
 # release tags are "v<version>-<edition>", each release has release.json (archives + sha256, file list) and N zip parts
 MATERIAL_ASSETS_LIB_REPOSITORY      = "BigthirstyTM/TM2020-Material-Assets-Library"

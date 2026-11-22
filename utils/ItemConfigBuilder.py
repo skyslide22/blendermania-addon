@@ -486,6 +486,9 @@ def _add_texture_set_assets(mat: bpy.types.Material, mat_config: MaterialConfig,
     mat_config.DiffuseBitmap   = _asset_ref(ts.color_texture, assets)
     mat_config.NormalBitmap    = _asset_ref(ts.normal_texture, assets)
     mat_config.RoughnessBitmap = _asset_ref(ts.roughness_texture, assets)
+    if not (mat_config.ColorImage or mat_config.NormalImage or mat_config.RoughnessImage):
+        # the converter only builds a TextureSet from the images (Veget.Images); bitmaps alone are ignored
+        _drop(mat, "texture set has no Color/Normal/Roughness image (bitmaps alone are not exported)")
 
 def _veget_tree_name(tree_model: bpy.types.Collection) -> str:
     return tree_model.name

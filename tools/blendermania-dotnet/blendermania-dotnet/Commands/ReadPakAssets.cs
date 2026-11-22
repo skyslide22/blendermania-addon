@@ -1,5 +1,7 @@
 using GBX.NET;
 using GBX.NET.Engines.Plug;
+using GBX.NET.Engines.Meta;
+using GBX.NET.Components;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TM_GenericMapping.Items.GbxConversion;
@@ -22,11 +24,27 @@ public class PakBitmap
     public string? Error { get; set; }
 }
 
+/// <summary>One CPlugVegetTreeModel.TextureSet (NPlugVeget::SMaterial), files relative to Root.</summary>
+public class PakTextureSet
+{
+    public string? Name { get; set; }
+    public string? ColorImage { get; set; }
+    public string? NormalImage { get; set; }
+    public string? RoughnessImage { get; set; }
+    public string? DiffuseBitmap { get; set; }    // U01
+    public string? NormalBitmap { get; set; }     // U02
+    public string? RoughnessBitmap { get; set; }  // U03
+}
+
 public class PakRefs
 {
     public string Path { get; set; } = "";
     /// <summary>External files relative to Root.</summary>
     public List<string> Refs { get; set; } = [];
+    /// <summary>Texture sets of the tree model (null if the body couldn't be read that far).</summary>
+    public List<PakTextureSet>? TextureSets { get; set; }
+    public string? PropagationBaseColor { get; set; }
+    public string? PropagationNormal { get; set; }
     public string? Error { get; set; }
 }
 
@@ -115,6 +133,7 @@ public class ReadPakAssets : ICommand
             {
                 entry.Error = ex.Message;
             }
+            ReadTextureSets(root, file, entry);
             result.Trees.Add(entry);
             Progress(++done, total);
         }
@@ -122,6 +141,48 @@ public class ReadPakAssets : ICommand
         File.WriteAllText(input.OutputPath, JsonSerializer.Serialize(result, OutputOptions));
         Console.WriteLine($"SUCCESS: {result.Bitmaps.Count} bitmaps, {result.Trees.Count} tree models -> {input.OutputPath}");
         return Task.FromResult((int)ExitCodes.Success);
+    }
+
+    /// <summary>
+    /// The real texture sets (slot -> file) of a tree model. Materials are the first body member, so they are
+    /// usually read even when a later part of the body fails (IgnoreExceptionsInBody). A set can mix file stems
+    /// (e.g. ItemFallTreeBranch_D + ItemSpringTreeBranch_N), so grouping the flat ref list by name is wrong.
+    /// </summary>
+    static void ReadTextureSets(string root, string file, PakRefs entry)
+    {
+        try
+        {
+            var gbx = Gbx.Parse<CPlugVegetTreeModel>(file, new GbxReadSettings { IgnoreExceptionsInBody = true });
+            int level = gbx.RefTable?.AncestorLevel ?? 0;
+            string? F(GbxRefTableFile? f) => f is null || string.IsNullOrEmpty(f.FilePath) ? null : Rel(root, Resolve(file, level, f.FilePath));
+
+            var tree = gbx.Node;
+            entry.PropagationBaseColor = F(tree.References.PropagationBaseColor.File);
+            entry.PropagationNormal = F(tree.References.PropagationNormal.File);
+            if (tree.Materials is null)
+                return;
+            entry.TextureSets = [];
+            for (int i = 0; i < tree.Materials.Length; i++)
+            {
+                var m = tree.Materials[i];
+                if (m is null)
+                    continue;
+                entry.TextureSets.Add(new PakTextureSet
+                {
+                    Name = tree.TextureNames is { } names && i < names.Length ? names[i].ToString() : null,
+                    ColorImage = F(m.References.ColorImage.File),
+                    NormalImage = F(m.References.NormalImage.File),
+                    RoughnessImage = F(m.References.RoughnessImage.File),
+                    DiffuseBitmap = F(m.References.U01.File),
+                    NormalBitmap = F(m.References.U02.File),
+                    RoughnessBitmap = F(m.References.U03.File),
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            entry.Error ??= "texture sets: " + ex.Message;
+        }
     }
 
     static void Progress(int done, int total)

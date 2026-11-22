@@ -150,43 +150,14 @@ class TM_PT_Textures_Install(Panel):
 
         layout  = self.layout
         tm_props= get_global_props()
-        envi    = tm_props.LI_DL_TextureEnvi
 
-        col = layout.column(align=True)
-        row = col.row(align=True)
-        row.label(text="Addon textures & asset library")
-        from .LibraryInstallUI import draw_info_button
-        draw_info_button(row, "Addon textures", (
-            "Install <Environment> Textures:",
-            "-> downloads the game textures used by the ADDON shaders (viewport only)",
-            "-> into Items/_BlenderAssets/Textures, nothing of it is exported",
-            "Install Complete Asset Library:",
-            "-> the old addon material asset library (pre-made materials)",
-            "",
-            "For TM2020 use the Material Library below (Settings > Asset Libraries)",
-            "-> it brings materials, shaders, textures and the MaterialLib.txt",
-        ))
-
-        dlTexRunning = tm_props.CB_DL_ProgressRunning is False
-
-        row = col.row(align=True)
-        row.enabled = dlTexRunning
-        row.scale_y = 1.5
-        row.operator("view3d.tm_installgametextures", text=f"Install {envi} Textures", icon=ICON_TEXTURE)
-        
-        row = col.row()
-        row.enabled = dlTexRunning
-        row.scale_y = 1.5
-        row.operator("view3d.tm_installgameassetslibrary", text=f"Install Complete Asset Library", icon=ICON_ASSETS)
-
-        if is_game_trackmania2020():
-            self.draw_material_assets_library(layout, tm_props)
-
-        render_donwload_progress_bar(layout)
+        from .LibraryInstallUI import draw_addon_textures, draw_material_library
+        # order follows Constants.PROMOTE_MATERIAL_ASSETS_LIBRARY (promoted source first)
+        show_library = is_game_trackmania2020()
+        if show_library and PROMOTE_MATERIAL_ASSETS_LIBRARY:
+            draw_material_library(layout, tm_props)
+        draw_addon_textures(layout, tm_props)
+        if show_library and not PROMOTE_MATERIAL_ASSETS_LIBRARY:
+            draw_material_library(layout, tm_props)
 
         layout.separator(factor=UI_SPACER_FACTOR)
-
-    def draw_material_assets_library(self, layout, tm_props) -> None:
-        """same box as Settings > Asset Libraries; its textures also fill gaps of the game textures above"""
-        from .LibraryInstallUI import draw_material_library
-        draw_material_library(layout, tm_props)

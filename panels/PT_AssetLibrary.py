@@ -8,6 +8,7 @@ from ..operators.OT_AssetLibrary import TM_OT_CreateMaterialAsset, TM_OT_ExportA
 
 from ..utils.AssetLibraryFunctions import active_asset, all_assets, is_reference_record
 from ..utils.AssetLibraryImporter import last_errors
+from ..utils.Constants import SHOW_DEFAULT_ASSETS_BUILD
 from ..ui.widgets.progress import draw_task_status, get_state, is_running
 from ..ui.widgets.asset_picker import draw_asset_field
 
@@ -70,7 +71,7 @@ class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
         box.label(text="Settings")
         box.prop(scene, "tm_asset_copy_images")
 
-        draw_default_assets(layout, scene, show_build=True)
+        draw_default_assets(layout, scene, show_build=SHOW_DEFAULT_ASSETS_BUILD)
 
 
 class TM_PT_AssetLibrary_Create(GBXPanelBase, Panel):
