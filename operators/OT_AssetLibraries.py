@@ -134,6 +134,32 @@ class TM_OT_CreateAssetLibrary(Operator):
         return {"FINISHED"}
 
 
+def embed_items_hint_hidden() -> bool:
+    """EmbedItems hint of the export panel switched off for this .blend (any scene)"""
+    return any(getattr(s, "tm_hide_embed_items_hint", False) for s in bpy.data.scenes)
+
+
+class TM_OT_ToggleEmbedItemsHint(Operator):
+    bl_idname = "tm.toggle_embed_items_hint"
+    bl_label = "EmbedItems Hint"
+    bl_description = "Show or hide the EmbedItems hint in the export panel for this .blend file"
+    bl_options = {"INTERNAL", "UNDO"}
+
+    hide: BoolProperty(default=True, options={"HIDDEN", "SKIP_SAVE"})
+
+    @classmethod
+    def description(cls, context, properties):
+        if properties.hide:
+            return "Don't show the EmbedItems hint again in this .blend file (the info button brings it back)"
+        return "Show the EmbedItems hint again in this .blend file"
+
+    def execute(self, context):
+        for scene in bpy.data.scenes:
+            scene.tm_hide_embed_items_hint = self.hide
+        _redraw(context)
+        return {"FINISHED"}
+
+
 class TM_OT_RefreshAssetLibraries(Operator):
     bl_idname = "tm.refresh_asset_libraries"
     bl_label = "Refresh"
@@ -153,10 +179,14 @@ classes = (
     TM_OT_EditAssetLibrary,
     TM_OT_CreateAssetLibrary,
     TM_OT_RefreshAssetLibraries,
+    TM_OT_ToggleEmbedItemsHint,
 )
 
 
 def register():
+    bpy.types.Scene.tm_hide_embed_items_hint = BoolProperty(
+        name="Hide EmbedItems Hint", default=False,
+        description="Don't show the EmbedItems hint in the export panel for this .blend file")
     for cls in classes:
         bpy.utils.register_class(cls)
 
@@ -164,3 +194,4 @@ def register():
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    del bpy.types.Scene.tm_hide_embed_items_hint

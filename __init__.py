@@ -27,7 +27,7 @@ bl_info = {
     "author"        : "Achioto, skyslide22, juice & schadocalex",
     "description"   : "Makes creating objects for Trackmania more easy and fun!",
     "blender"       : (5, 2, 3),
-    "version"       : (4, 4, 9),
+    "version"       : (4, 4, 10),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic",

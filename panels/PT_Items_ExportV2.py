@@ -62,6 +62,13 @@ class TM_PT_Items_ExportV2(ViewPanelMixin, Panel):
             "The total map maximums embed size are:",
             f"-> {MAX_EMBED_SIZE_TRACKMANIA2020} kilobytes for trackmania2020",
             f"-> {MAX_EMBED_SIZE_MANIAPLANET} kilobytes for maniaplanet",
+            "",
+            "Items using custom textures (own assets, default assets, Material Library):",
+            "-> the editor embeds only the item, not the files it uses",
+            "-> embed them into the map with EmbedItems, otherwise other players",
+            "----> don't see the textures (shown after export when needed)",
+            "-> 'Don't show again' hides it for this .blend, the (i) next to",
+            "----> 'Items / files' shows it again",
         )
 
 
@@ -267,6 +274,21 @@ def draw_invalid_materials_panel(self:Panel) -> None:
         # col2.prop(prop, "material", text="")
         
 
+def draw_embed_items_hint(layout, file_count: int) -> None:
+    """exported items reference files outside the game packs (textures, Texture.Gbx): the map needs EmbedItems"""
+    hint = layout.box()
+    col = hint.column(align=True)
+    col.scale_y = .8
+    row = col.row(align=True)
+    row.label(text=f"Items use {file_count} custom file(s) (textures, ...)", icon=ICON_INFO)
+    row.operator("tm.toggle_embed_items_hint", text="", icon="X", emboss=False).hide = True
+    col.label(text="The editor doesn't embed them into the map,")
+    col.label(text="use EmbedItems so other players see them")
+    row = hint.row(align=True)
+    row.operator("wm.url_open", text="Get EmbedItems", icon=ICON_WEBSITE).url = URL_EMBED_ITEMS
+    row.operator("tm.toggle_embed_items_hint", text="Don't show again").hide = True
+
+
 def draw_convert_panel(self:Panel) -> None:
     layout = self.layout
     tm_props = get_global_props()
@@ -307,6 +329,12 @@ def draw_convert_panel(self:Panel) -> None:
         row.scale_y = .7
         row.label(text="Items / files:")
         row.label(text=f"{int(items_space)} kB + {int(refs_space)} kB ({len(shared_refs)} files)")
+        from ..operators.OT_AssetLibraries import embed_items_hint_hidden
+        if embed_items_hint_hidden():
+            # hidden for this file: small button brings it back
+            row.operator("tm.toggle_embed_items_hint", text="", icon=ICON_INFO, emboss=False).hide = False
+        else:
+            draw_embed_items_hint(box, len(shared_refs))
 
     #progress bar
     convert_duration_since_start = tm_props.NU_convertDurationSinceStart

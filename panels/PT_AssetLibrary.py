@@ -60,6 +60,8 @@ class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
             "----> e.g. Items/_BlenderAssets/MyAssets/MyAssets.blend",
             "-> export them (Export > Export All) before exporting items that use them",
             "-> link (don't append) them into your item .blend files via the Asset Browser",
+            "-> maps using such items need EmbedItems (github.com/AchimBunke/EmbedItems),",
+            "----> the editor embeds only the item, not the textures it uses",
             "",
             "Default Assets: game textures ready to link (optional, rarely needed),",
             "-> installed in Blendermania > Asset Library",

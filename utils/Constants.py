@@ -229,6 +229,8 @@ URL_GITHUB           = "https://github.com/skyslide22/blendermania-addon"
 URL_CHANGELOG        = "https://github.com/skyslide22/blendermania-addon/releases"
 URL_RELEASES         = "https://api.github.com/repos/skyslide22/blendermania-addon/releases/latest"
 URL_REGEX            = "https://regex101.com/"
+# maps with custom items/textures need them embedded (the editor embeds only the item gbx, not the files it uses)
+URL_EMBED_ITEMS      = "https://github.com/AchimBunke/EmbedItems/releases"
 
 URL_WORKAROUND_PHYSICID = "https://github.com/skyslide22/blendermania-addon/wiki/06.-Converting-Troubleshooting#physicid-workaround-for-customxxx-materials"
 
