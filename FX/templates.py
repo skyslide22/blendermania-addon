@@ -35,7 +35,7 @@ def link_missing_bitmaps(names) -> list:
     blend, available = _default_library_materials()
     if blend is None:
         return [f"default asset library not installed: bitmap(s) {', '.join(missing)} left empty "
-                "(Settings > Asset Libraries)"]
+                "(Blendermania > Asset Library)"]
     wanted = [n for n in missing if n in available]
     if wanted:
         with bpy.data.libraries.load(str(blend), link=True) as (_src, dst):

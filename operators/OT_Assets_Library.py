@@ -35,24 +35,26 @@ def _create_assets_lib() -> None:
     if not is_game_trackmania2020():
         return
 
-    _create_assets_catalog_file(get_game_doc_path_items_assets())
+    from ..utils.AssetLibraries import addon_assets_library_root
+    lib_root = fix_slash(str(addon_assets_library_root()))   # own folder, like the downloaded addon library
+    create_folder_if_necessary(lib_root)
+    _create_assets_catalog_file(lib_root)
     
     fileName = ""
     if is_game_trackmania2020():
         fileName = get_global_props().LI_gameType+"_assets.blend"
-        generate2020Assets()
+        generate2020Assets(lib_root)
 
     # save as new blend file for assets libraray
-    create_folder_if_necessary(get_game_doc_path_items_assets())
-    if not save_blend_file_as(fix_slash(get_game_doc_path_items_assets()+"/"+fileName)):
+    if not save_blend_file_as(fix_slash(lib_root+"/"+fileName)):
         show_report_popup("Can not create new blend file", ["Something went wrong during creation of a new blend file"], "ERROR")
 
     return
 
-def generate2020Assets() -> None:
-    get_or_create_catalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType)
-    get_or_create_catalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium")
-    get_or_create_catalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials")
+def generate2020Assets(lib_root: str) -> None:
+    get_or_create_catalog(lib_root, get_global_props().LI_gameType)
+    get_or_create_catalog(lib_root, get_global_props().LI_gameType+"/Stadium")
+    get_or_create_catalog(lib_root, get_global_props().LI_gameType+"/Stadium/Materials")
 
     for key in MATERIALS_MAP_TM2020:
         matNameNew = "TM_"+key+"_asset" 
@@ -98,7 +100,7 @@ def generate2020Assets() -> None:
 
         catName = MATERIALS_MAP_TM2020[key]["MatLibParams"]["Category"]
         
-        uid = get_or_create_catalog(get_game_doc_path_items_assets(), get_global_props().LI_gameType+"/Stadium/Materials/"+catName)
+        uid = get_or_create_catalog(lib_root, get_global_props().LI_gameType+"/Stadium/Materials/"+catName)
         if uid:
             mat.asset_data.catalog_id = uid
 

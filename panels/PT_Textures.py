@@ -22,7 +22,7 @@ class TM_PT_Textures(ViewPanelMixin, Panel):
     locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
     bl_label = "Textures"
     bl_idname = "TM_PT_Textures"
-    bl_order = 60
+    bl_order = 65
     
     @classmethod
     def view_poll(self, context):

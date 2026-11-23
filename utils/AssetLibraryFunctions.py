@@ -86,10 +86,11 @@ def resolve_image_file(img):
 
 def _relative_inside(root, path):
     """Library-relative posix path if `path` is inside `root` (case-insensitive on Windows)."""
-    rp = os.path.normcase(os.path.realpath(path))
-    rr = os.path.normcase(os.path.realpath(root)) + os.sep
-    if rp.startswith(rr):
-        return Path(os.path.relpath(path, root)).as_posix()
+    # compare AND relativize the resolved paths: Documents/Trackmania is often a link to another drive,
+    # relpath of the unresolved pair raises "path is on mount 'H:', start on mount 'C:'"
+    real_path, real_root = os.path.realpath(path), os.path.realpath(root)
+    if os.path.normcase(real_path).startswith(os.path.normcase(real_root) + os.sep):
+        return Path(os.path.relpath(real_path, real_root)).as_posix()
     return None
 
 
@@ -400,10 +401,10 @@ def _game_items_dir():
 
 def _reference_rel_path(root, src):
     """rel_path of a referenced file: relative to the library ('../..'), absolute if on another drive"""
-    try:
-        return Path(os.path.relpath(src, root)).as_posix()
+    try:   # resolved paths: a linked Items folder must not turn a same-drive reference absolute
+        return Path(os.path.relpath(os.path.realpath(src), os.path.realpath(root))).as_posix()
     except ValueError:
-        return Path(os.path.abspath(src)).as_posix()
+        return Path(os.path.realpath(src)).as_posix()
 
 
 def _make_record(dst, rel, sha, original_name):

@@ -510,7 +510,7 @@ def _report_asset_problems(item_name: str) -> None:
             lay.label(text=f"  - {name}: {reason}", icon="ERROR")
         if len(problems) > 12:
             lay.label(text=f"  ... and {len(problems) - 12} more")
-        lay.label(text="Missing libraries: Settings > Asset Libraries > Check Missing Files")
+        lay.label(text="Missing libraries: Asset Library panel > Check Missing Files")
 
     bpy.context.window_manager.popup_menu(draw, title="Asset problems", icon="ERROR")
 

@@ -117,6 +117,9 @@ from .panels.PT_EditorTrails            import *
 from .panels.PT_Items_Placement         import *
 from .panels.PT_Animation               import *
 from .panels.PT_AssetLibrary             import register as register_asset_library_panels, unregister as unregister_asset_library_panels
+from .panels.PT_AssetLibraries           import TM_PT_AssetLibraries   # view panel, registered with the views
+from .operators                         import OT_AssetLibraries
+from .utils                             import AssetLibraries
 
 from .utils.Placement import register_placement_templates, unregister_placement_templates
 
@@ -180,7 +183,6 @@ classes = (
 
     # settings
     TM_PT_Settings,
-    TM_PT_Settings_AssetLibraries,
     TM_PT_Settings_BlenderRelated,
     TM_PT_Settings_NadeoImporter,
     TM_PT_Settings_Performance,
@@ -465,6 +467,8 @@ def register():
 
     register_asset_properties()
     register_asset_library_operators()
+    AssetLibraries.register()
+    OT_AssetLibraries.register()
 
     register_asset_library_panels()
 
@@ -561,6 +565,8 @@ def unregister():
 
     unregister_placement_templates()
 
+    OT_AssetLibraries.unregister()
+    AssetLibraries.unregister()
     unregister_asset_properties()
     unregister_asset_library_panels()
     unregister_asset_library_operators()

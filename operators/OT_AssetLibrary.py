@@ -244,6 +244,12 @@ class TM_OT_ExportAssetLibrary(ProgressTaskMixin, Operator):
         from ..utils.DefaultAssetsLibrary import DEFAULT_ASSETS_BLEND
         if Path(bpy.data.filepath).name != DEFAULT_ASSETS_BLEND:   # keeps its per-environment catalogs
             sync_all_catalogs(blend_dir())
+        # exported paths / image records changed: save, so items linking this library see them
+        if bpy.data.filepath:
+            try:
+                bpy.ops.wm.save_mainfile()
+            except RuntimeError as e:
+                print(f"Blendermania: saving after the asset export failed: {e}")
 
 class TM_OT_CopyAssetErrors(Operator):
     bl_idname = "tm.copy_asset_errors"

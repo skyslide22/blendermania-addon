@@ -45,9 +45,9 @@ class TM_PT_Settings(Panel):
             "----> Use something like C:/Users/<YOU>/Program Files/Trackmania/Nadeo.ini",
             "2. To get started, install the Nadeoimporter for your game",
             "3. Set your author name, this name will be displayed on ItemExchange (IX)",
-            *(("4. TM2020: install the Material Library (Asset Libraries below), needed for exports",)
+            *(("4. TM2020: install the Material Library (Asset Library panel), needed for exports",)
               if PROMOTE_MATERIAL_ASSETS_LIBRARY else
-              ("4. Install the addon textures for your environment (Asset Libraries / Textures panel)",)),
+              ("4. Install the addon textures for your environment (Asset Library panel)",)),
             "----> Default Assets (game textures) are optional and rarely needed",
         )
 
@@ -140,58 +140,6 @@ class TM_PT_Settings(Panel):
         nadeoini_invalid = draw_nadeoini_required_message(self)
         if nadeoini_invalid:
             return
-
-
-class TM_PT_Settings_AssetLibraries(Panel):
-    """downloads: material library / addon textures (order: PROMOTE_MATERIAL_ASSETS_LIBRARY), default assets (rarely needed)"""
-    locals().update( PANEL_CLASS_COMMON_DEFAULT_PROPS )
-    bl_label = "Asset Libraries (Downloads)"
-    bl_idname = "TM_PT_Settings_AssetLibraries"
-    bl_parent_id = "TM_PT_Settings"
-    bl_options = set()  # open by default, textures/material library are needed before the first export
-
-    @classmethod
-    def poll(self, context):
-        return is_selected_nadeoini_file_name_ok() and is_game_trackmania2020()
-
-    def draw_header_preset(self, context):
-        from .LibraryInstallUI import draw_info_button
-        if PROMOTE_MATERIAL_ASSETS_LIBRARY:
-            first = ("1. Material Library - REQUIRED, used every time",
-                     "-> game materials, shaders and MaterialLib.txt for materials and export",
-                     "-> install it once before your first export")
-        else:
-            first = ("1. Addon Textures & Asset Library - RECOMMENDED",
-                     "-> game textures for the addon shaders + pre-made materials",
-                     "-> Material Library (BigthirstyTM) - OPTIONAL, beta",
-                     "----> game materials + shaders, the addon uses it when installed")
-        draw_info_button(self.layout, "Asset Libraries", (
-            "Downloadable libraries, all installed into <Trackmania>/Items/_BlenderAssets:",
-            "",
-            *first,
-            "",
-            "2. Default Assets - OPTIONAL, rarely used",
-            "-> game textures (bitmaps, images, texture sets)",
-            "-> only for custom texture sets, vegetation trees and particle effects",
-            "-> needs one 'Export All' in its .blend after installing",
-            "",
-            "Use the ? of each library for details.",
-        ))
-
-    def draw(self, context):
-        from .LibraryInstallUI import draw_material_library, draw_default_assets, draw_addon_textures
-        tm_props = get_global_props()
-        if PROMOTE_MATERIAL_ASSETS_LIBRARY:
-            draw_material_library(self.layout, tm_props)
-        else:
-            draw_addon_textures(self.layout, tm_props)
-            self.layout.separator()
-            draw_material_library(self.layout, tm_props)
-        self.layout.separator()
-        draw_default_assets(self.layout, context.scene)
-        self.layout.separator()
-        # shared .blend files: relink libraries/textures to this PC's install, list what is missing
-        self.layout.operator("tm.check_external_data", icon="LIBRARY_DATA_BROKEN")
 
 
 class TM_PT_Settings_BlenderRelated(Panel):

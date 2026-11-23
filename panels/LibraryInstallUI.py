@@ -1,4 +1,4 @@
-"""Install/update UI of the two downloadable asset libraries, shared by Settings > Asset Libraries,
+"""Install/update UI of the two downloadable asset libraries, shared by the Asset Library panel,
 Textures > Install & Update and the TM Asset tab.
 
 - TM2020 Material Assets Library: materials + shaders + MaterialLib.txt. Promoted (required look) only with

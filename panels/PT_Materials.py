@@ -303,7 +303,7 @@ class TM_PT_Materials_Library(ViewPanelMixin, Panel):
         left.label(text="Shader")
         row = right.row(align=True)
         if get_installed_library_path() is None:
-            # installed from Settings > Asset Libraries (or Textures > Install & Update)
+            # installed from the Asset Library panel (or Textures > Install & Update)
             row.alert = PROMOTE_MATERIAL_ASSETS_LIBRARY
             row.label(text="Addon shader (no Material Library)", icon=ICON_INFO)
             op = row.operator("view3d.tm_open_messagebox", text="", icon=ICON_QUESTION)
@@ -311,7 +311,7 @@ class TM_PT_Materials_Library(ViewPanelMixin, Panel):
             op.title = "Material Library not installed"
             op.infos = TM_OT_Settings_OpenMessageBox.get_text(
                 "The TM2020 Material Library is not installed.",
-                "Install it in Settings > Asset Libraries (Downloads) > Material Library.",
+                "Install it in Blendermania > Asset Library > Material Library.",
                 "-> game-like shaders for your materials and the MaterialLib.txt for the export",
                 *(() if PROMOTE_MATERIAL_ASSETS_LIBRARY else
                   ("", "Optional: without it the addon shaders and addon textures are used.",)),

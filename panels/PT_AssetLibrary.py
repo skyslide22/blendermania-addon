@@ -6,9 +6,8 @@ from ..ui.drawers.bitmap import draw_bitmap
 from ..properties.AssetProperties import ASSET_TYPES
 from ..operators.OT_AssetLibrary import TM_OT_CreateMaterialAsset, TM_OT_ExportAssetLibrary, TM_OT_RemoveMaterialAsset, TM_OT_RenameMaterialAsset, TM_OT_ImportImage, TM_OT_CopyAssetErrors, TM_OT_OpenLibraryFolder
 
-from ..utils.AssetLibraryFunctions import active_asset, all_assets, is_reference_record
+from ..utils.AssetLibraryFunctions import active_asset, all_assets, is_reference_record, gbx_rel_path
 from ..utils.AssetLibraryImporter import last_errors
-from ..utils.Constants import SHOW_DEFAULT_ASSETS_BUILD
 from ..ui.widgets.progress import draw_task_status, get_state, is_running
 from ..ui.widgets.asset_picker import draw_asset_field
 
@@ -39,6 +38,12 @@ class GBXPanelBase:
     bl_region_type = "UI"
     bl_category = "TM Asset"
 
+    @classmethod
+    def poll(cls, context):
+        # the whole tab only exists in files declared as asset library (Blendermania > Asset Library)
+        from ..utils.AssetLibraries import is_declared
+        return is_declared()
+
 
 
 class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
@@ -57,11 +62,13 @@ class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
             "-> link (don't append) them into your item .blend files via the Asset Browser",
             "",
             "Default Assets: game textures ready to link (optional, rarely needed),",
-            "-> see the ? of the Default Assets box",
+            "-> installed in Blendermania > Asset Library",
+            "",
+            "This tab is shown because the file is declared as asset library",
+            "-> Blendermania > Asset Library > This File",
         ))
 
     def draw(self, context):
-        from .LibraryInstallUI import draw_default_assets
         layout = self.layout
         scene = context.scene
 
@@ -70,8 +77,6 @@ class TM_PT_AssetLibrary_Main(GBXPanelBase, Panel):
         box = layout.box()
         box.label(text="Settings")
         box.prop(scene, "tm_asset_copy_images")
-
-        draw_default_assets(layout, scene, show_build=SHOW_DEFAULT_ASSETS_BUILD)
 
 
 class TM_PT_AssetLibrary_Create(GBXPanelBase, Panel):
@@ -129,14 +134,44 @@ def draw_common(layout, mat):
         row.label(text="No image assigned", icon="ERROR")
 
     col.operator(TM_OT_ImportImage.bl_idname, icon="IMPORT")
-    col.prop(props, "relative_path")
+    draw_target(col, mat)
     #col.prop(props, "game_path")
+
+
+def asset_target(mat) -> str:
+    """library-relative file the asset stands for: the written gbx (bitmap) or the image file (image)"""
+    props = mat.tm_asset_properties
+    if props.asset_type == "IMAGE":
+        img = props.image
+        if img is None:
+            return ""
+        rel = img.tm_image_asset.rel_path
+        return rel or bpy.path.abspath(img.filepath, library=img.library)
+    try:
+        return gbx_rel_path(mat)
+    except ValueError as e:
+        return str(e)
+
+
+def draw_target(layout, mat) -> None:
+    """read-only for now (renaming the asset updates a derived bitmap target)"""
+    row = layout.row(align=True)
+    split = row.split(factor=0.25, align=True)
+    split.label(text="Target")
+    target = asset_target(mat)
+    sub = split.row(align=True)
+    sub.enabled = False
+    sub.label(text=target or "-", icon="FILE")
+    if mat.tm_asset_properties.exported_path:
+        row.label(text="", icon="CHECKMARK")
 
 class AssetLibrary_TypePanel(GBXPanelBase):
     asset_type = None
     
     @classmethod
     def poll(cls, context):
+        if not super().poll(context):
+            return False
         mat = active_asset(context)
         return mat is not None and mat.tm_asset_properties.asset_type == cls.asset_type
 

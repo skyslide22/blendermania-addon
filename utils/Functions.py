@@ -692,13 +692,22 @@ def install_game_assets_library()->None:
     
     tm_props.CB_DL_ProgressShow = True
 
-    extractTo   = get_game_doc_path_items_assets()
+    from .AssetLibraries import addon_assets_library_root, fix_moved_library_images, migrate_addon_assets_library
+    migrate_addon_assets_library(blocking=True)     # old install directly in _BlenderAssets -> own folder
+    extractTo   = fix_slash(str(addon_assets_library_root()))
     filePath    = f"""{extractTo}/assets.zip"""
     progressbar = "NU_DL_Progress"
 
     def on_success():
         tm_props.CB_DL_ProgressRunning = False
         unzip_file_into(filePath,extractTo)
+        try:
+            os.remove(filePath)
+        except OSError:
+            pass
+        # the blend expects the textures next to it (//Textures), they are one level up in _BlenderAssets/Textures
+        for blend in Path(extractTo).glob("*_assets.blend"):
+            fix_moved_library_images(blend)
         def run(): 
             tm_props.CB_DL_ProgressShow = False
         timer(run, 5)
@@ -763,16 +772,9 @@ def install_blendermania_dotnet()->None:
 
 
 def add_assets_library_to_preferences() -> None:
-    shouldCreate = True
-    for lib in bpy.context.preferences.filepaths.asset_libraries:
-        if lib.path == get_game_doc_path_items_assets():
-            shouldCreate = False
-
-    if shouldCreate:
-        bpy.ops.preferences.asset_library_add(directory=get_game_doc_path_items_assets())
-        for lib in bpy.context.preferences.filepaths.asset_libraries:
-            if lib.path == get_game_doc_path_items_assets():
-                lib.name = get_global_props().LI_gameType
+    """register the addon asset library folder (_BlenderAssets/AddonAssetsLibrary) as '<GameType>'"""
+    from .AssetLibraries import addon_assets_library_root, register_library
+    register_library(addon_assets_library_root(), name=get_global_props().LI_gameType, import_method="APPEND_REUSE")
 
     # bpy.context.screen is None when accessing from another thread
     def run_from_blender() -> None:

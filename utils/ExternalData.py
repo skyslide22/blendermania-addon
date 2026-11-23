@@ -117,6 +117,13 @@ def _find_library(lib) -> str | None:
         found = _default_assets_blend()
         if found:
             return found
+    if re.search(r"/_BlenderAssets/[^/]+_assets\.blend$", old, flags=re.IGNORECASE):
+        # addon asset library from before it got its own folder (AssetLibraries.ADDON_ASSETS_LIB_FOLDER)
+        from .AssetLibraries import addon_assets_library_root
+        root = addon_assets_library_root()
+        candidate = _norm(str(root / os.path.basename(old))) if root else None
+        if candidate and _exists(candidate):
+            return candidate
     return rebase_on_local_items(old)
 
 
@@ -178,7 +185,7 @@ def _hints(result: dict) -> list:
     from .DefaultAssetsLibrary import DEFAULT_ASSETS_BLEND
     hints = []
     if any(DEFAULT_ASSETS_BLEND.lower() in n.lower() for n in result["missing_libraries"]) and not _default_assets_blend():
-        hints.append("Default Assets: install them in Settings > Asset Libraries")
+        hints.append("Default Assets: install them in Blendermania > Asset Library")
     paths = [p.lower() for _, p in result["missing_images"]]
     if any("/materialassetslibrary/" in p for p in paths):
         try:
@@ -187,7 +194,7 @@ def _hints(result: dict) -> list:
         except Exception:
             installed = False
         if not installed:
-            hints.append("Material Library textures: install it in Settings > Asset Libraries")
+            hints.append("Material Library textures: install it in Blendermania > Asset Library")
     items = _local_items()
     if any("/_blenderassets/textures/" in p for p in paths) and not (items and os.path.isdir(items + "/_BlenderAssets/Textures")):
         hints.append("Addon textures: Textures > Install & Update")
