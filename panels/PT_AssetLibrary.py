@@ -10,6 +10,7 @@ from ..utils.AssetLibraryFunctions import active_asset, all_assets, is_reference
 from ..utils.AssetLibraryImporter import last_errors
 from ..ui.widgets.progress import draw_task_status, get_state, is_running
 from ..ui.widgets.asset_picker import draw_asset_field
+from ..ui.drawers.custom_material import draw_custom_material, draw_texture_set
 
 
 def _wrapped_labels(layout, text, width=48):
@@ -99,10 +100,10 @@ class TM_PT_AssetLibrary_Create(GBXPanelBase, Panel):
         col = layout.column(align=True)
         col.prop(scene, "tm_new_asset_name", text="Name")
         # operator props are editable via the redo panel; expose type quickly:
-        row = col.row(align=True)
-        row.scale_y = 1.3
+        grid = col.grid_flow(row_major=True, columns=2, even_columns=True, align=True)
+        grid.scale_y = 1.3
         for ident, label, _ in ASSET_TYPES:
-            o = row.operator(TM_OT_CreateMaterialAsset.bl_idname, text=label)
+            o = grid.operator(TM_OT_CreateMaterialAsset.bl_idname, text=label)
             o.asset_type = ident
             o.asset_name = scene.tm_new_asset_name
 
@@ -206,8 +207,30 @@ class TM_PT_AssetLibrary_Image(AssetLibrary_TypePanel, Panel):
 
     def draw_type(self, layout, props):
         layout.label(text="Image Settings")
-        #layout.prop(props, "img_note")
+        from ..utils.ItemConfigBuilder import image_game_path
+        mat = props.id_data
+        if props.game_path or mat.library is None:
+            layout.prop(props, "game_path")
+        derived = image_game_path(mat)
+        if derived and not props.game_path:
+            row = layout.row()
+            row.enabled = False
+            row.label(text=f"Game path: {derived}", icon="WORLD")
+        if derived:
+            layout.label(text="Custom materials use the game texture (not shipped)", icon="INFO")
 
+
+
+def _draw_container_header(layout, mat):
+    """name + rename of a container asset (texture set / custom material); returns the editable column"""
+    row = layout.row(align=True)
+    row.label(text=mat.name, icon="MATERIAL")
+    row.operator(TM_OT_RenameMaterialAsset.bl_idname, text="", icon="GREASEPENCIL")
+    if mat.library:
+        layout.label(text="Linked (read-only)", icon="LINKED")
+    col = layout.column()
+    col.enabled = mat.library is None
+    return col
 
 
 class TM_PT_AssetLibrary_TextureSet(AssetLibrary_TypePanel, Panel):
@@ -216,32 +239,18 @@ class TM_PT_AssetLibrary_TextureSet(AssetLibrary_TypePanel, Panel):
     asset_type = "TEXTURESET"
 
     def draw(self, context):
-        layout = self.layout
         mat = active_asset(context)
-        row = layout.row(align=True)
-        row.label(text=mat.name, icon="MATERIAL")
-        row.operator(TM_OT_RenameMaterialAsset.bl_idname, text="", icon="GREASEPENCIL")
-        if mat.library:
-            layout.label(text="Linked (read-only)", icon="LINKED")
-        col = layout.column()
-        col.enabled = mat.library is None
-        ts = mat.tm_asset_properties.texture_set
-        row = col.row(align=True)
-        row.prop(ts, "use_gameplay_effect", toggle=True)
-        row = row.row(align=True)
-        row.enabled = ts.use_gameplay_effect
-        row.prop(ts, "gameplay_effect",text="")
-        row = col.row(align=True)
-        row.prop(ts, "use_surface_material", toggle=True)
-        row = row.row(align=True)
-        row.enabled = ts.use_surface_material
-        row.prop(ts, "surface_material", text="")
-        col.label(text="Images")
-        for prop in ("color_image", "normal_image", "roughness_image"):
-            draw_asset_field(col, ts, prop, "IMAGE", icon="IMAGE_DATA")
-        col.label(text="Textures (optional)")
-        for prop in ("color_texture", "normal_texture", "roughness_texture"):
-            draw_asset_field(col, ts, prop, "BITMAP", icon="TEXTURE")
+        draw_texture_set(_draw_container_header(self.layout, mat), mat.tm_asset_properties.texture_set)
+
+
+class TM_PT_AssetLibrary_CustomMaterial(AssetLibrary_TypePanel, Panel):
+    bl_idname = "TM_PT_AssetLibrary_CustomMaterial"
+    bl_label = "Custom Material"
+    asset_type = "CUSTOMMATERIAL"
+
+    def draw(self, context):
+        mat = active_asset(context)
+        draw_custom_material(_draw_container_header(self.layout, mat), mat.tm_asset_properties.custom_material)
 
 
 class TM_PT_AssetLibraryExport(GBXPanelBase, Panel):
@@ -272,6 +281,7 @@ classes = (
     TM_PT_AssetLibrary_Bitmap,
     TM_PT_AssetLibrary_Image,
     TM_PT_AssetLibrary_TextureSet,
+    TM_PT_AssetLibrary_CustomMaterial,
     TM_PT_AssetLibraryExport,
 )
 

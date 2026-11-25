@@ -631,11 +631,12 @@ def updateMaterialSettings(self, context):
         return
 
     currentColor = matToUpdate.diffuse_color
-    if matToUpdate.use_nodes:
-        if "cus_color" in matToUpdate.node_tree.nodes:
-            currentColor = matToUpdate.node_tree.nodes["cus_color"].outputs[0].default_value
-        else:
-            currentColor = matToUpdate.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value
+    if matToUpdate.use_nodes and matToUpdate.node_tree is not None:
+        nodes = matToUpdate.node_tree.nodes
+        if "cus_color" in nodes:
+            currentColor = nodes["cus_color"].outputs[0].default_value
+        elif "Principled BSDF" in nodes:   # texture sets / custom materials have their own node names
+            currentColor = nodes["Principled BSDF"].inputs["Base Color"].default_value
 
     assignments = [
         ("tm_props.ST_materialAddName"      , "matToUpdate.name"),
@@ -673,6 +674,13 @@ def updateMaterialSettings(self, context):
     else:
         tm_props.LI_materialChooseSource = "LINK"
 
+    # Materials V2 type switch follows the selected material
+    asset_props = getattr(matToUpdate, "tm_asset_properties", None)
+    if asset_props is not None and asset_props.is_asset and asset_props.asset_type in ("TEXTURESET", "CUSTOMMATERIAL"):
+        tm_props.LI_materialKind = asset_props.asset_type
+    else:
+        tm_props.LI_materialKind = "LINK"
+
     
     setCurrentMatBackupColor()
     redraw_panels(self,context)
@@ -700,6 +708,9 @@ def setCurrentMatBackupColor() -> None:
 
 def _set_material_preview_color(mat, color) -> None:
     """color preview of the material panel; library shaders (TM2020 Material Assets Library) only get the cus_color tint"""
+    asset_props = getattr(mat, "tm_asset_properties", None)
+    if asset_props is not None and asset_props.is_asset and asset_props.asset_type in ("TEXTURESET", "CUSTOMMATERIAL"):
+        return   # own preview from their textures, no color
     nodes = mat.node_tree.nodes if mat.use_nodes and mat.node_tree else {}
     if getattr(mat, "libraryAsset", ""):
         if "cus_color" in nodes:

@@ -258,6 +258,17 @@ class TM_PT_Materials(Panel):
         
 
 
+def _effective_kind(tm_props, action_is_update: bool) -> str:
+    """type switch value; on update the type of the selected material"""
+    if not action_is_update:
+        return tm_props.LI_materialKind
+    mat = bpy.data.materials.get(tm_props.ST_selectedExistingMaterial)
+    props = getattr(mat, "tm_asset_properties", None) if mat else None
+    if props is not None and props.is_asset and props.asset_type in ("TEXTURESET", "CUSTOMMATERIAL"):
+        return props.asset_type
+    return "LINK"
+
+
 class TM_PT_Materials_Library(ViewPanelMixin, Panel):
     view_id = "materials_v2"
     view_label = "Materials V2"
@@ -329,6 +340,48 @@ class TM_PT_Materials_Library(ViewPanelMixin, Panel):
             col.label(text="No library match, addon shader")
         row.prop(tm_props, "CB_materialUseAssetLibraryShader", text="", toggle=True, icon=ICON_CHECKED)
 
+    def draw_local_material(self, layout, left, right, tm_props, action_is_update: bool) -> None:
+        """texture set / custom material of this .blend: same data and drawer as the asset library types,
+        edited live on the material (no Update needed)"""
+        from ..ui.drawers.custom_material import draw_custom_material, draw_texture_set
+        kind = _effective_kind(tm_props, action_is_update)
+        mat = bpy.data.materials.get(tm_props.ST_selectedExistingMaterial) if action_is_update else None
+
+        if action_is_update:
+            left.label(text="Material")
+            right.prop_search(tm_props, "ST_selectedExistingMaterial", bpy.data, "materials", text="")
+        left.label(text="Name")
+        right.prop(tm_props, "ST_materialAddName", text="")
+
+        layout.separator(factor=UI_SPACER_FACTOR)
+        if not action_is_update:
+            row = layout.row()
+            row.scale_y = 1.5
+            row.enabled = tm_props.ST_materialAddName != ""
+            label = "Texture Set" if kind == "TEXTURESET" else "Custom Material"
+            row.operator("view3d.tm_createlocalmaterial", text=f"Create {label} {tm_props.ST_materialAddName}", icon=ICON_ADD)
+            col = layout.column(align=True)
+            col.scale_y = 0.8
+            col.label(text="Lives only in this .blend, images come from", icon=ICON_INFO)
+            col.label(text="Image assets (asset library / default assets)", icon="BLANK1")
+            return
+
+        if mat is None:
+            return
+        if mat.name != tm_props.ST_materialAddName:
+            row = layout.row()
+            row.enabled = tm_props.ST_materialAddName != ""
+            row.operator("view3d.tm_renamelocalmaterial", text=f"Rename to {tm_props.ST_materialAddName}", icon="GREASEPENCIL")
+        box = layout.box()
+        box.enabled = mat.library is None
+        if mat.asset_data is not None or mat.library is not None:
+            box.label(text="Asset library material", icon="ASSET_MANAGER")
+        props = mat.tm_asset_properties
+        if props.asset_type == "TEXTURESET":
+            draw_texture_set(box, props.texture_set)
+        else:
+            draw_custom_material(box, props.custom_material)
+
     def draw(self, context):
         layout = self.layout
         tm_props = get_global_props()
@@ -344,8 +397,23 @@ class TM_PT_Materials_Library(ViewPanelMixin, Panel):
         left.label(text="Method")
         right.row().prop(tm_props, "LI_materialAction", expand=True)
 
+        if is_game_trackmania2020():
+            # Linked (material library) / Texture Set / Custom; local types follow the selected material on update
+            left.label(text="Type")
+            row_kind = right.row()
+            if action_is_update:
+                kinds = {"LINK": "Linked", "TEXTURESET": "Texture Set", "CUSTOMMATERIAL": "Custom"}
+                row_kind.enabled = False
+                row_kind.label(text=kinds[_effective_kind(tm_props, True)])
+            else:
+                row_kind.prop(tm_props, "LI_materialKind", expand=True)
+
         left.separator(factor=2)
         right.separator(factor=2)
+
+        if is_game_trackmania2020() and _effective_kind(tm_props, action_is_update) != "LINK":
+            self.draw_local_material(layout, left, right, tm_props, action_is_update)
+            return
 
         if action_is_update:
             left.label(text="Material")

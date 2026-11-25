@@ -323,6 +323,11 @@ class PannelsPropertyGroup(bpy.types.PropertyGroup):
     ST_selectedExistingMaterial : StringProperty(name="Material",                 update=updateMaterialSettings)
     #LI_materials                : EnumProperty(name="Material",                   items=getMaterials, update=updateMaterialSettings)
     LI_materialAction           : EnumProperty(name="Material Action",            default=0, items=getMaterialActions())
+    LI_materialKind             : EnumProperty(name="Material Type", default="LINK", items=[
+        ("LINK", "Linked", "Nadeo material from the material library (link, color, physics, gameplay)", "LINKED", 0),
+        ("TEXTURESET", "Texture Set", "Tree model material: Image assets (local, only in this .blend)", "OUTLINER_OB_POINTCLOUD", 1),
+        ("CUSTOMMATERIAL", "Custom", "Own or game textures on a Nadeo shading model (local, only in this .blend)", "SHADING_TEXTURE", 2),
+    ])
     ST_materialAddName          : StringProperty(name="Name",                     default="")
     LI_materialCollection       : EnumProperty(name="Collection",                 items=getMaterialCollectionTypes(), update=gameTypeGotUpdated)
     CB_materialUseAssetLibraryShader: BoolProperty(name="Use Asset Library Shader", default=True, description="Copy the shader of the TM2020 Material Assets Library material with the same link (if installed) instead of building the addon shader")

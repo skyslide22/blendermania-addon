@@ -27,7 +27,7 @@ bl_info = {
     "author"        : "Achioto, skyslide22, juice & schadocalex",
     "description"   : "Makes creating objects for Trackmania more easy and fun!",
     "blender"       : (5, 2, 3),
-    "version"       : (4, 4, 10),
+    "version"       : (4, 4, 11),
     "location"      : "View3D",
     "warning"       : "",
     "category"      : "Generic",
@@ -133,6 +133,7 @@ from .ui.widgets.panels import register_panel_widgets, unregister_panel_widgets
 from .ui.widgets.progress import register as register_progress, unregister as unregister_progress
 from .ui.drawers.bitmap import register as register_bitmap_drawers, unregister as unregister_bitmap_drawers
 from .ui.drawers.tree_model import register as register_tree_model_drawers, unregister as unregister_tree_model_drawers
+from .ui.drawers.custom_material import register as register_custom_material_drawers, unregister as unregister_custom_material_drawers
 
 from .NICE.nice import NICE_register, NICE_unregister
 from . import FX as TM_FX
@@ -338,6 +339,8 @@ classes = (
     TM_OT_Materials_Update,
     TM_OT_Materials_Create_Asset_Lib,
     TM_OT_Materials_ClearBaseMaterial,
+    TM_OT_Materials_CreateLocal,
+    TM_OT_Materials_RenameLocal,
     TM_OT_Materials_RevertCustomColor,
     TM_OT_Materials_CloseInvalidPanel,
     
@@ -462,6 +465,7 @@ def register():
     ExternalData.register()
     register_bitmap_drawers()
     register_tree_model_drawers()
+    register_custom_material_drawers()
     # templates
     register_placement_templates()
 
@@ -562,6 +566,7 @@ def unregister():
     ObjectAnimation.unregister()
     unregister_bitmap_drawers()
     unregister_tree_model_drawers()
+    unregister_custom_material_drawers()
 
     unregister_placement_templates()
 

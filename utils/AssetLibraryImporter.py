@@ -2,7 +2,7 @@ import threading
 from pathlib import Path
 
 import bpy
-from ..properties.AssetProperties import bitmap_to_config
+from ..properties.AssetProperties import CONTAINER_ASSET_TYPES, bitmap_to_config
 from ..utils.Dotnet import run_convert_asset
 
 from .AssetLibraryFunctions import gbx_rel_path, resolve_image_file
@@ -33,7 +33,7 @@ class AssetConvert(threading.Thread):
         self._init_error = ""
 
         img = props.image
-        if self.asset_type == "TEXTURESET":
+        if self.asset_type in CONTAINER_ASSET_TYPES:
             pass                                        # container only: nothing to resolve
         elif img is None or not img.tm_image_asset.is_managed:
             self._init_error = "no image assigned"
@@ -52,7 +52,7 @@ class AssetConvert(threading.Thread):
         self.message = ""
 
     def validate(self) -> str:
-        if self.asset_type == "TEXTURESET":
+        if self.asset_type in CONTAINER_ASSET_TYPES:
             return ""
         if self._init_error:
             return self._init_error
@@ -69,8 +69,8 @@ class AssetConvert(threading.Thread):
             self.message = error
             return
 
-        if self.asset_type in ("IMAGE", "TEXTURESET"):
-            # IMAGE: the dds is already in the store. TEXTURESET: pure reference container.
+        if self.asset_type == "IMAGE" or self.asset_type in CONTAINER_ASSET_TYPES:
+            # IMAGE: the dds is already in the store. TEXTURESET/CUSTOMMATERIAL: pure reference containers.
             if self.asset_type == "IMAGE":
                 self.exported_path = self.image_path
             return

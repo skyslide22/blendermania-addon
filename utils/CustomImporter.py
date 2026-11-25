@@ -318,7 +318,9 @@ class ItemConvert(threading.Thread):
         roots = [p for p in (self.gbx_item_filepath, self.gbx_mesh_filepath, self.gbx_shape_filepath,
                              self.gbx_trigger_filepath) if is_file_existing(p)]
         try:
-            return referenced_files_sizes(roots)
+            sizes = referenced_files_sizes(roots)
+            sizes.update(custom_material_texture_sizes(self.cfg_filepath, self.gbx_item_filepath, sizes))
+            return sizes
         except Exception as err:  # never fail a convert because of the size estimate
             debug(f"referenced files size failed: {err}")
             return {}
@@ -483,6 +485,43 @@ def plan_item(item: ExportedItem) -> dict | None:
         debug(f"plan failed for {item.name}: {res.message}")
         return None
     return json.loads(res.stdout)  # stdout only, never res.message
+
+CUSTOM_MATERIAL_IMAGE_FIELDS = ("ColorImage", "NormalImage", "RoughnessImage", "SelfIllumImage", "EnergyImage")
+
+
+def custom_material_texture_sizes(cfg_filepath: str, item_filepath: str, known: dict[str, float]) -> dict[str, float]:
+    """own .dds files of custom materials (ImgFile assets), embedded into maps with the item.
+    They are plain path strings in the material (UserTextures), not in the GBX reference table, so the reference
+    scan misses them; read from the item config instead. Game textures (GameTexture) ship with the game."""
+    import os
+    from .EmbedSize import compressed_size_kb
+    try:
+        with open(cfg_filepath, encoding="utf-8") as f:
+            cfg = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    assets = {a.get("Id"): a for a in cfg.get("Assets") or []}
+    known_keys = {os.path.normcase(os.path.abspath(p)) for p in known}
+    item_dir = os.path.dirname(os.path.abspath(item_filepath))
+    result: dict[str, float] = {}
+    for mat in cfg.get("Materials") or []:
+        if mat.get("Type") != "Custom":
+            continue
+        for field in CUSTOM_MATERIAL_IMAGE_FIELDS:
+            asset = assets.get(mat.get(field))
+            if not asset or asset.get("Type") != "ImgFile" or not asset.get("Path"):
+                continue
+            path = asset["Path"]
+            if not os.path.isabs(path):
+                path = os.path.join(item_dir, path)
+            path = os.path.normpath(path)
+            key = os.path.normcase(path)
+            if key in known_keys or not os.path.isfile(path):
+                continue
+            known_keys.add(key)
+            result[path] = compressed_size_kb(path)
+    return result
+
 
 def generate_and_save_item_config(item: ExportedItem) -> None:
     """generate item config and save it to json file next to the fbx"""

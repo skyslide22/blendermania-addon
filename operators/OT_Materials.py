@@ -34,6 +34,67 @@ class TM_OT_Materials_Update(Operator):
         context.region.tag_redraw()
         return {"FINISHED"}
 
+class TM_OT_Materials_CreateLocal(Operator):
+    """Texture set / custom material only in this .blend (no file on disk, not marked as Blender asset).
+    Same data as the asset library types, so the export treats both alike"""
+    bl_idname = "view3d.tm_createlocalmaterial"
+    bl_label = "Create Local Material"
+    bl_description = "Create a texture set / custom material in this .blend (images still come from Image assets)"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        from ..utils.AssetLibraryFunctions import sync_preview
+        tm_props = get_global_props()
+        kind = tm_props.LI_materialKind
+        if kind not in ("TEXTURESET", "CUSTOMMATERIAL"):
+            return {"CANCELLED"}
+        name = safe_name(tm_props.ST_materialAddName)
+        if not name:
+            self.report({"ERROR"}, "Enter a name")
+            return {"CANCELLED"}
+        if not name.startswith("TM_"):
+            name = "TM_" + name
+        if name in bpy.data.materials:
+            self.report({"ERROR"}, f"Material {name} already exists")
+            return {"CANCELLED"}
+
+        mat = bpy.data.materials.new(name)
+        mat.gameType = tm_props.LI_gameType
+        props = mat.tm_asset_properties
+        props.is_asset = True
+        props.asset_type = kind
+        sync_preview(mat)
+
+        # continue editing it right here
+        tm_props.LI_materialAction = "UPDATE"
+        tm_props.ST_selectedExistingMaterial = mat.name
+        self.report({"INFO"}, f"Created {mat.name}")
+        if context.region:
+            context.region.tag_redraw()
+        return {"FINISHED"}
+
+
+class TM_OT_Materials_RenameLocal(Operator):
+    bl_idname = "view3d.tm_renamelocalmaterial"
+    bl_label = "Rename Material"
+    bl_description = "Rename the selected texture set / custom material"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        tm_props = get_global_props()
+        mat = bpy.data.materials.get(tm_props.ST_selectedExistingMaterial)
+        name = safe_name(tm_props.ST_materialAddName)
+        if mat is None or not name:
+            return {"CANCELLED"}
+        if not name.startswith("TM_"):
+            name = "TM_" + name
+        mat.name = name
+        tm_props.ST_selectedExistingMaterial = mat.name
+        if context.region:
+            context.region.tag_redraw()
+        return {"FINISHED"}
+
+
 class TM_OT_Materials_ClearBaseMaterial(Operator):
     bl_idname = "view3d.tm_clearbasetexture"
     bl_label = "clear basematerial"

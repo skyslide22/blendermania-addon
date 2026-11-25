@@ -75,6 +75,8 @@ def draw_preview(l, ctx):
     if fx is not None:
         row.prop(fx, "show", text="Particles", toggle=True, icon='PARTICLES')
         row.prop(fx, "show_trees", text="Leaves", toggle=True, icon='OUTLINER_OB_FORCE_FIELD')
+    if hasattr(s, "tm_preview_uv_anims"):
+        row.prop(s, "tm_preview_uv_anims", text="UV", toggle=True, icon='UV')
 
     col = l.column(align=True)
     playing = _is_playing(s, ctx)

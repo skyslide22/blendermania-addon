@@ -215,6 +215,18 @@ class LightType(int, Enum):
 class AssetType(str, Enum):
     ImgFile = "ImgFile"
     Bitmap = "Bitmap"
+    GameTexture = "GameTexture"   # path inside the game data (custom materials), nothing is shipped
+
+class MaterialConfigType(str, Enum):
+    Link = "Link"
+    Custom = "Custom"
+    TextureSet = "TextureSet"
+
+class ETexAddress(str, Enum):
+    Wrap = "Wrap"
+    Mirror = "Mirror"
+    Clamp = "Clamp"
+    Border = "Border"
 
 class EPlaneComputeMode(str, Enum):
     BoundingBoxBorder = "BoundingBoxBorder"
@@ -379,8 +391,22 @@ class PlacementConfig:
 
 
 @dataclass
+class UvAnimConfig:
+    Layer: str = "SelfIllum"
+    Type: str = "TransLinear"
+    Period: float = 1.0
+    InputVal: str = "GameTime"
+    SpeedU: float = 0.0
+    SpeedV: float = 0.0
+    FrameCount: int = 0
+    FramesX: int = 0
+    FramesY: int = 0
+
+
+@dataclass
 class MaterialConfig:
     Name: str = ""
+    Type: MaterialConfigType | None = None   # None = converter default (Link)
     Link: str = ""
     Color: Color | None = None
     PhysicsId: MaterialId | None = None
@@ -393,13 +419,19 @@ class MaterialConfig:
     DiffuseBitmap: str | None = None
     NormalBitmap: str | None = None
     RoughnessBitmap: str | None = None
+    SelfIllumImage: str | None = None   # Custom: self illumination / energy texture (asset ids)
+    EnergyImage: str | None = None
+    SelfIllumScale: float | None = None
+    TilingU: ETexAddress | None = None
+    TilingV: ETexAddress | None = None
+    UvAnims: list[UvAnimConfig] | None = None
 
 
 @dataclass
 class AssetConfig:
     Id: str = ""
     Path: str = ""
-    Type: AssetType = AssetType.ImgFile   # ImgFile | Bitmap
+    Type: AssetType = AssetType.ImgFile   # ImgFile | Bitmap | GameTexture
 
 
 @dataclass

@@ -459,9 +459,9 @@ def is_material_exportable(mat) -> bool:
     if mat is None:
         return False
 
-    # texture set assets are described by their assets, not by link/baseTexture
+    # texture set / custom material assets are described by their assets, not by link/baseTexture
     props = getattr(mat, "tm_asset_properties", None)
-    if props is not None and props.is_asset and props.asset_type == "TEXTURESET":
+    if props is not None and props.is_asset and props.asset_type in ("TEXTURESET", "CUSTOMMATERIAL"):
         return True
 
     # if not, material has not been modified with the addon
@@ -481,13 +481,18 @@ def save_mat_props_json(mat) -> None:
     # material not created with this addon, no need to save it
     if mat is None or mat.name.startswith(("TM_", "MP_")) is False:
         return
+    # texture sets / custom materials keep their data in tm_asset_properties (own preview nodes, no BSDF/cus_color)
+    props = getattr(mat, "tm_asset_properties", None)
+    if props is not None and props.is_asset and props.asset_type in ("TEXTURESET", "CUSTOMMATERIAL"):
+        return
 
     mat.surfaceColor = mat.diffuse_color[:3]
-    if mat.use_nodes:
-        if "cus_color" in mat.node_tree.nodes:
-            mat.surfaceColor = mat.node_tree.nodes["cus_color"].outputs[0].default_value[:3]
-        else:
-            mat.surfaceColor = mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value[:3]
+    if mat.use_nodes and mat.node_tree is not None:
+        nodes = mat.node_tree.nodes
+        if "cus_color" in nodes:
+            mat.surfaceColor = nodes["cus_color"].outputs[0].default_value[:3]
+        elif "Principled BSDF" in nodes:
+            mat.surfaceColor = nodes["Principled BSDF"].inputs["Base Color"].default_value[:3]
 
     #tm_props
     for prop_name in MATERIAL_CUSTOM_PROPERTIES:

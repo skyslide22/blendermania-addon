@@ -360,6 +360,7 @@ def _get_material_configs(objs: list[bpy.types.Object], assets: dict[str, AssetC
         mat_color               = mat.diffuse_color     # extract diffuse collor by default
 
 
+        mat_use_gamplay_effect = False
         if mat_is_asset and mat.tm_asset_properties.asset_type == "TEXTURESET":
             ts = mat.tm_asset_properties.texture_set
             mat_physic_id = ts.surface_material
@@ -411,7 +412,10 @@ def _get_material_configs(objs: list[bpy.types.Object], assets: dict[str, AssetC
             mat_config.BaseTexture = mat_basetexture
             mat_config.PhysicsId = mat_physic_id
 
-        _add_texture_set_assets(mat, mat_config, assets)
+        if mat_is_asset and mat.tm_asset_properties.asset_type == "CUSTOMMATERIAL":
+            mat_config = _get_custom_material_config(mat, assets)
+        else:
+            _add_texture_set_assets(mat, mat_config, assets)
         material_configs.append(mat_config)
 
     return material_configs
@@ -486,9 +490,76 @@ def _add_texture_set_assets(mat: bpy.types.Material, mat_config: MaterialConfig,
     mat_config.DiffuseBitmap   = _asset_ref(ts.color_texture, assets)
     mat_config.NormalBitmap    = _asset_ref(ts.normal_texture, assets)
     mat_config.RoughnessBitmap = _asset_ref(ts.roughness_texture, assets)
+    mat_config.Type = MaterialConfigType.TextureSet
     if not (mat_config.ColorImage or mat_config.NormalImage or mat_config.RoughnessImage):
         # the converter only builds a TextureSet from the images (Veget.Images); bitmaps alone are ignored
         _drop(mat, "texture set has no Color/Normal/Roughness image (bitmaps alone are not exported)")
+
+def image_game_path(asset_mat: bpy.types.Material | None) -> str:
+    """path of an Image asset inside the game data ("" = unknown): the asset's game_path, else derived for images
+    of the default assets library (stored there under their game path)"""
+    if asset_mat is None:
+        return ""
+    props = asset_mat.tm_asset_properties
+    if props.asset_type != "IMAGE":
+        return ""
+    if props.game_path.strip():
+        return props.game_path.strip()
+    from .DefaultAssetsLibrary import DEFAULT_ASSETS_BLEND
+    lib = asset_mat.library
+    lib_file = os.path.basename(bpy.path.abspath(lib.filepath)) if lib else os.path.basename(bpy.data.filepath)
+    img = props.image
+    if lib_file.lower() == DEFAULT_ASSETS_BLEND.lower() and img is not None and img.tm_image_asset.rel_path:
+        return img.tm_image_asset.rel_path
+    return ""
+
+
+def _custom_texture_ref(asset_mat: bpy.types.Material | None, assets: dict[str, AssetConfig]) -> str | None:
+    """asset id of a custom material texture: a game texture when the image is a game image (nothing is shipped,
+    works in shared maps), else the dds file (ImgFile, must lie below Items)"""
+    if asset_mat is None:
+        return None
+    game_path = image_game_path(asset_mat)
+    if not game_path:
+        ref = _asset_ref(asset_mat, assets)
+        asset = assets.get(ref) if ref else None
+        if asset is not None and asset.Type == AssetType.ImgFile:
+            if not asset.Path.lower().endswith(".dds"):
+                _drop(asset_mat, "custom material textures must be .dds files (full mip chain)")
+            elif "/items/" not in asset.Path.replace("\\", "/").lower():
+                _drop(asset_mat, "custom material textures must lie below the Trackmania Items folder")
+        return ref
+    asset_id = f"{asset_mat.name}#game"
+    assets.setdefault(asset_id, AssetConfig(Id=asset_id, Path=game_path.replace("/", "\\"), Type=AssetType.GameTexture))
+    return asset_id
+
+
+def _get_custom_material_config(mat: bpy.types.Material, assets: dict[str, AssetConfig]) -> MaterialConfig:
+    from ..properties.AssetProperties import CUSTOM_MATERIAL_SLOTS, SELFILLUM_SCALE_MODELS, UV_ANIM_MODELS
+    cm = mat.tm_asset_properties.custom_material
+    cfg = MaterialConfig(Name=mat.name, Type=MaterialConfigType.Custom, Link="", Model=cm.model)
+    cfg.PhysicsId = cm.surface_material                 # always written: there is no "no physics"
+    cfg.GameplayId = cm.gameplay_effect
+    slots = CUSTOM_MATERIAL_SLOTS.get(cm.model, ())
+    fields = {"color_image": "ColorImage", "normal_image": "NormalImage", "roughness_image": "RoughnessImage",
+              "selfillum_image": "SelfIllumImage", "energy_image": "EnergyImage"}
+    for prop, field in fields.items():
+        if prop in slots:
+            setattr(cfg, field, _custom_texture_ref(getattr(cm, prop), assets))
+    if not any(getattr(cfg, f) for f in fields.values()):
+        _drop(mat, f"custom material ({cm.model}) has no texture")
+    if cm.model in SELFILLUM_SCALE_MODELS:
+        cfg.SelfIllumScale = cm.selfillum_scale
+    if cm.use_tiling:
+        cfg.TilingU = cm.tiling_u
+        cfg.TilingV = cm.tiling_v
+    if len(cm.uv_anims) and cm.model in UV_ANIM_MODELS:   # other models don't animate (kept in the .blend)
+        cfg.UvAnims = [UvAnimConfig(Layer=a.layer, Type=a.anim_type, Period=a.period, InputVal=a.input_val,
+                                    SpeedU=a.speed_u, SpeedV=a.speed_v, FrameCount=a.frame_count,
+                                    FramesX=a.frames_x, FramesY=a.frames_y)
+                       for a in cm.uv_anims][:2]   # the game importer uses at most 2
+    return cfg
+
 
 def _veget_tree_name(tree_model: bpy.types.Collection) -> str:
     return tree_model.name

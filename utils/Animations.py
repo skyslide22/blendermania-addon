@@ -238,7 +238,15 @@ def current_time_ms(scene):
 
 def any_preview_active(scene) -> bool:
     fx = getattr(scene, "tm_fx_preview", None)
-    return bool(scene.tm_preview_enabled or (fx is not None and (fx.show or fx.show_trees)))
+    return bool(scene.tm_preview_enabled or getattr(scene, "tm_preview_uv_anims", False)
+                or (fx is not None and (fx.show or fx.show_trees)))
+
+
+def apply_uv_anims(scene) -> None:
+    """custom material UV animations follow the clock (materials, so no rest state like moving parts)"""
+    if getattr(scene, "tm_preview_uv_anims", False):
+        from .UvAnimPreview import set_time
+        set_time(scene)
 
 
 def redraw_viewports():
@@ -274,6 +282,7 @@ def apply_preview(scene):
 def tm_preview_handler(scene, depsgraph=None):
     if scene.tm_preview_use_timeline:
         apply_preview(scene)
+        apply_uv_anims(scene)
 
 @persistent
 def tm_detect_edits(scene, depsgraph):
@@ -329,17 +338,24 @@ def _u_enabled(self, ctx):
 def _u_time(self, ctx):
     if not self.tm_preview_use_timeline:
         apply_preview(self)
+        apply_uv_anims(self)
         redraw_viewports()
 
 def _u_mode(self, ctx):
     if self.tm_preview_use_timeline:
         self.tm_preview_playing = False   # the timeline plays now (Space)
     apply_preview(self)
+    apply_uv_anims(self)
     redraw_viewports()
 
 def _u_playing(self, ctx):
     if self.tm_preview_playing and not self.tm_preview_use_timeline:
         _start_tick()
+
+def _u_uv_anims(self, ctx):
+    from .UvAnimPreview import set_time
+    set_time(self)                        # off: time 0 = offset 0
+    on_preview_toggled(self)
 
 def on_preview_toggled(scene):
     """an overlay preview (particles / trees) was switched on: keep a running clock going"""
@@ -361,7 +377,7 @@ def disable_animation_preview(scene=None):
     else:
         restore_rest()
 
-_PROPS = ("enabled", "use_timeline", "time", "speed", "playing", "show_range")
+_PROPS = ("enabled", "use_timeline", "time", "speed", "playing", "show_range", "uv_anims")
 
 def register_animation_preview():
     S = bpy.types.Scene
@@ -376,6 +392,9 @@ def register_animation_preview():
     S.tm_preview_speed = FloatProperty(name="Speed", default=1.0, min=0.0, soft_max=4.0)
     S.tm_preview_playing = BoolProperty(name="Play", default=False, update=_u_playing)
     S.tm_preview_show_range = BoolProperty(name="Show Range", default=False)
+    S.tm_preview_uv_anims = BoolProperty(name="UV Anims", default=False, update=_u_uv_anims,
+                                         description="Preview the UV animations of custom materials (TIAdd glow) "
+                                                     "in Material Preview / Rendered shading")
     H = bpy.app.handlers
     H.frame_change_post.append(tm_preview_handler)
     H.depsgraph_update_post.append(tm_detect_edits)

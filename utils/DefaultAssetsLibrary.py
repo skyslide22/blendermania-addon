@@ -129,9 +129,10 @@ class _Names:
 
 
 # type identification in the Asset Browser and in pointer field dropdowns: name prefix, tag, thumbnail bar color
-TYPE_PREFIX = {"BITMAP": "BMP_", "IMAGE": "IMG_", "TEXTURESET": "TS_"}
-TYPE_LABEL = {"BITMAP": "Bitmap", "IMAGE": "Image", "TEXTURESET": "TextureSet"}
-TYPE_COLOR = {"BITMAP": (0.15, 0.45, 1.0), "IMAGE": (0.2, 0.8, 0.3), "TEXTURESET": (1.0, 0.55, 0.1)}
+TYPE_PREFIX = {"BITMAP": "BMP_", "IMAGE": "IMG_", "TEXTURESET": "TS_", "CUSTOMMATERIAL": "CM_"}
+TYPE_LABEL = {"BITMAP": "Bitmap", "IMAGE": "Image", "TEXTURESET": "TextureSet", "CUSTOMMATERIAL": "Custom Material"}
+TYPE_COLOR = {"BITMAP": (0.15, 0.45, 1.0), "IMAGE": (0.2, 0.8, 0.3), "TEXTURESET": (1.0, 0.55, 0.1),
+              "CUSTOMMATERIAL": (0.75, 0.3, 0.9)}
 PREVIEW_SIZE = 128
 
 
@@ -143,6 +144,8 @@ def _new_asset(name: str, asset_type: str, catalog: str, env: str, game_path: st
     props.asset_type = asset_type
     if image is not None:
         props.image = image
+    if asset_type == "IMAGE":
+        props.game_path = game_path      # custom materials reference the game's own file (nothing shipped)
     sync_preview(mat)
     mat.asset_mark()
     data = mat.asset_data

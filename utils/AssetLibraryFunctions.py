@@ -142,15 +142,18 @@ def _channel_image(image_asset, texture_asset):
 
 def _private_image(mat, channel, src, colorspace):
     """Per-material copy of src, so its color space never changes the shared image
-    (and thereby other assets' previews)."""
+    (and thereby other assets' previews).
+
+    Never frees an image here: the material preview (icon) render runs in a job thread and may still bind the
+    old image's GPU texture -> removing it, reloading it or re-setting its color space crashes Blender
+    (texture_bind access violation when switching custom material models quickly). Replaced/unused copies are
+    only renamed away and dropped as orphans (0 users, not saved)."""
     key = f"GBX_TS_{mat.name}_{channel}"
     img = bpy.data.images.get(key)
     if src is None:
-        if img is not None and img.users == 0:
-            bpy.data.images.remove(img)
         return None
     if img is not None and img.filepath != src.filepath:
-        bpy.data.images.remove(img)
+        img.name = f"{key}.old"                   # orphaned once no node uses it
         img = None
     if img is None:
         img = src.copy()
@@ -158,7 +161,8 @@ def _private_image(mat, channel, src, colorspace):
         img.tm_image_asset.is_managed = False     # not a store record
         img.use_fake_user = False
     try:
-        img.colorspace_settings.name = colorspace
+        if img.colorspace_settings.name != colorspace:   # any set frees the GPU texture, even the same value
+            img.colorspace_settings.name = colorspace
     except (TypeError, RuntimeError):
         pass
     return img
@@ -212,6 +216,96 @@ def _sync_textureset_preview(mat):
             L.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
         else:
             L.new(tex.outputs["Color"], bsdf.inputs["Roughness"])
+
+
+def _set_render_method(mat, method):
+    """BLENDED / DITHERED (Eevee Next) with the pre-4.2 blend_method fallback"""
+    for attr, value in (("surface_render_method", method),
+                        ("blend_method", "BLEND" if method == "BLENDED" else "HASHED")):
+        if hasattr(mat, attr):
+            try:
+                setattr(mat, attr, value)
+            except (TypeError, AttributeError):
+                pass
+
+
+def _sync_custommaterial_preview(mat):
+    """rough look of the Nadeo shading model: color/normal, alpha test/blend, self illumination, additive glow"""
+    from ..properties.AssetProperties import CUSTOM_MATERIAL_SLOTS, SELFILLUM_SCALE_MODELS, UV_ANIM_MODELS
+    from . import UvAnimPreview
+    cm = mat.tm_asset_properties.custom_material
+    slots = CUSTOM_MATERIAL_SLOTS.get(cm.model, ())
+
+    def image(prop, colorspace):
+        asset = getattr(cm, prop) if prop in slots else None
+        return _private_image(mat, f"CM_{prop}", _channel_image(asset, None), colorspace)
+
+    color, normal = image("color_image", "sRGB"), image("normal_image", "Non-Color")
+    glow = image("selfillum_image", "sRGB") or image("energy_image", "sRGB")
+
+    nt = mat.node_tree
+    nt.nodes.clear()
+    L = nt.links
+    coord = _node(nt, "ShaderNodeTexCoord", "GBX_CM_TexCoord", (-900, 0))
+    out = _node(nt, "ShaderNodeOutputMaterial", "GBX_CM_Output", (600, 0))
+
+    def tex(name, img, y, vector=None):
+        t = _node(nt, "ShaderNodeTexImage", f"GBX_CM_{name}", (-500, y))
+        t.image = img
+        if cm.use_tiling and cm.tiling_u == "Clamp" and cm.tiling_v == "Clamp":
+            t.extension = "EXTEND"
+        L.new(vector or coord.outputs["UV"], t.inputs["Vector"])
+        return t
+
+    def uv_anim_vector():
+        """moved UVs of the animated glow texture (time from the preview clock via a scene attribute)"""
+        return UvAnimPreview.build_uv_anim_vector(nt, cm, coord.outputs["UV"], mat.name)
+
+    if cm.model == "TIAdd":
+        # additive: color added to what's behind, black = invisible
+        emission = _node(nt, "ShaderNodeEmission", "GBX_CM_Emission", (0, 0))
+        emission.inputs["Strength"].default_value = cm.selfillum_scale if cm.model in SELFILLUM_SCALE_MODELS else 1.0
+        transparent = _node(nt, "ShaderNodeBsdfTransparent", "GBX_CM_Transparent", (0, 150))
+        add = _node(nt, "ShaderNodeAddShader", "GBX_CM_Add", (300, 0))
+        if glow is not None:
+            vector = uv_anim_vector() if cm.model in UV_ANIM_MODELS else None
+            L.new(tex("Glow", glow, 0, vector).outputs["Color"], emission.inputs["Color"])
+        L.new(transparent.outputs["BSDF"], add.inputs[0])
+        L.new(emission.outputs["Emission"], add.inputs[1])
+        L.new(add.outputs["Shader"], out.inputs["Surface"])
+        _set_render_method(mat, "BLENDED")
+        _finish_custom_preview(mat)
+        return
+
+    bsdf = _node(nt, "ShaderNodeBsdfPrincipled", "GBX_CM_BSDF", (200, 0))
+    L.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    if color is not None:
+        t = tex("Color", color, 300)
+        L.new(t.outputs["Color"], bsdf.inputs["Base Color"])
+        if cm.model in ("TDOSN", "TDOBSN"):
+            L.new(t.outputs["Alpha"], bsdf.inputs["Alpha"])
+    if normal is not None:
+        nmap = _node(nt, "ShaderNodeNormalMap", "GBX_CM_NormalMap", (-150, -150))
+        L.new(tex("Normal", normal, 0).outputs["Color"], nmap.inputs["Color"])
+        L.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+    if glow is not None:
+        vector = uv_anim_vector() if cm.model in UV_ANIM_MODELS else None
+        L.new(tex("Glow", glow, -300, vector).outputs["Color"], bsdf.inputs["Emission Color"])
+        bsdf.inputs["Emission Strength"].default_value = cm.selfillum_scale if cm.model in SELFILLUM_SCALE_MODELS else 1.0
+    if cm.model == "TDOBSN":
+        _set_render_method(mat, "BLENDED")
+    else:
+        _setup_alpha(mat)
+    _finish_custom_preview(mat)
+
+
+def _finish_custom_preview(mat):
+    """Solid viewport: 'Texture' color shows the active image node, 'Material' color the neutral display color"""
+    nodes = mat.node_tree.nodes
+    active = nodes.get("GBX_CM_Color") or nodes.get("GBX_CM_Glow")
+    if active is not None:
+        nodes.active = active
+    mat.diffuse_color = (1.0, 1.0, 1.0, 1.0)
 
 
 def sync_preview(mat):
@@ -282,6 +376,7 @@ PREVIEW_BUILDERS = {
     "BITMAP": _sync_image_preview,
     "IMAGE": _sync_image_preview,
     "TEXTURESET": _sync_textureset_preview,
+    "CUSTOMMATERIAL": _sync_custommaterial_preview,
 }
 
 
@@ -543,7 +638,7 @@ def collect_export_data(assets, config_fns, verify=True):
 
     for mat in assets:
         p = mat.tm_asset_properties
-        if p.asset_type == "TEXTURESET":          # container only: no image, no files
+        if p.asset_type in ("TEXTURESET", "CUSTOMMATERIAL"):   # containers only: no image, no files
             fn = config_fns.get(p.asset_type)
             out_assets.append({"name": mat.name, "type": p.asset_type, "image_id": "",
                                "gbx_out": "", "gbx_game_path": "",
@@ -619,6 +714,7 @@ CATALOGS = {
     "BITMAP": "Textures/Bitmaps",
     "IMAGE": "Textures/Images",
     "TEXTURESET": "Textures/TextureSets",
+    "CUSTOMMATERIAL": "Materials/CustomMaterials",
 }
 
 HEADER = (

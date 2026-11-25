@@ -37,7 +37,8 @@ def _assign(op, owner, prop: str, mat) -> bool:
     """set the field after checking the asset type (assigning from python bypasses the field's poll)"""
     props = getattr(mat, "tm_asset_properties", None)
     if props is None or not props.is_asset or props.asset_type != op.asset_type:
-        label = {"BITMAP": "a Bitmap", "IMAGE": "an Image", "TEXTURESET": "a TextureSet"}
+        label = {"BITMAP": "a Bitmap", "IMAGE": "an Image", "TEXTURESET": "a TextureSet",
+                 "CUSTOMMATERIAL": "a Custom Material"}
         kind = label.get(props.asset_type, props.asset_type) if props is not None and props.is_asset else "no addon asset"
         op.report({"ERROR"}, f"'{mat.name}' is {kind}, this field needs {label.get(op.asset_type, op.asset_type)}")
         return False

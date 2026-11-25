@@ -16,13 +16,18 @@ from ..properties.PropertyFunctions import enum_items
 from ..utils.ItemsExportV2Models import LegacyGameplayId, MaterialId
 from ..utils.AssetLibraryFunctions import DEFAULT_REL_BITMAP_DIR, heal_image_paths, image_poll, on_image_changed, on_render_prop_changed, poll_asset
 from .PropertyIdentifiers import AssetProp
+from ..utils.UvAnimPreview import on_anim_prop_changed
 
 
 ASSET_TYPES = [
     ("BITMAP", "Bitmap", "Bitmap Asset"),
     ("IMAGE", "Image", "Image Asset"),
     ("TEXTURESET", "TextureSet", "Material for Tree Models"),
+    ("CUSTOMMATERIAL", "Custom Material", "Own or game textures on a Nadeo shading model"),
 ]
+
+# asset types that only reference other assets: no image, no file, nothing to convert
+CONTAINER_ASSET_TYPES = {"TEXTURESET", "CUSTOMMATERIAL"}
 
 USAGE_NAMES = [
     "Color", "Light", "Height2DuDv", "Render", "Height2DuDvLumi", "Height2NxNyNz",
@@ -124,6 +129,92 @@ class AssetTextureSetProperties(PropertyGroup):
     roughness_texture: PointerProperty(type=bpy.types.Material, name="Roughness Texture", poll=poll_asset("BITMAP"), update=on_render_prop_changed)
 
 
+# Shading models of Custom materials verified in game (TM_GenericMapping CustomMaterialUtils / ItemConfig.md)
+
+# texture slots (property names) used by each model, in display order
+CUSTOM_MATERIAL_MODELS = [
+    ("TDSN", "TDSN", "Opaque: Color + Normal"),
+    ("TDOSN", "TDOSN", "Alpha test (alpha 0 = hole): Color with alpha + Normal"),
+    ("TDOBSN", "TDOBSN", "Alpha blend: Color with alpha + Normal"),
+    ("TDSNE", "TDSNE", "Dark by day, energy glow at night: Color + Normal + Energy"),
+    ("TDSNI", "TDSNI", "Self-illumination (Self Illum Scale): Color + Normal + Self Illum"),
+    ("TDSNI_Night", "TDSNI_Night", "Self-illumination at night only (Self Illum Scale): Color + Normal + Self Illum"),
+    ("TIAdd", "TIAdd", "Additive glow (black = invisible, Self Illum Scale): Self Illum only"),
+]
+CUSTOM_MATERIAL_SLOTS = {
+    "TDSN": ("color_image", "normal_image", "roughness_image"),
+    "TDOSN": ("color_image", "normal_image", "roughness_image"),
+    "TDOBSN": ("color_image", "normal_image", "roughness_image"),
+    "TDSNE": ("color_image", "normal_image", "roughness_image", "energy_image"),
+    "TDSNI": ("color_image", "normal_image", "roughness_image", "selfillum_image"),
+    "TDSNI_Night": ("color_image", "normal_image", "roughness_image", "selfillum_image"),
+    "TIAdd": ("selfillum_image",),
+}
+
+# models whose UV animations work in game (TM_GenericMapping ItemConfig.md: only TIAdd + layer SelfIllum, static items)
+UV_ANIM_MODELS = {"TIAdd"}
+# models with the SelfIllumScale constant (glow strength)
+SELFILLUM_SCALE_MODELS = {"TDSNI", "TDSNI_Night", "TIAdd"}
+
+TEX_ADDRESS_ITEMS = [
+    ("Wrap", "Wrap", "Repeat the texture"),
+    ("Clamp", "Clamp", "Stretch the edge pixels outside 0..1"),
+    ("Mirror", "Mirror", "Repeat mirrored (not tested in game)"),
+]
+
+UV_ANIM_TYPES = [
+    ("TransLinear", "Scroll", "Scrolls the texture (Speed U/V per period)"),
+    ("TransSubTexture", "Flip-book", "Plays the frames of an atlas (Frame Count, Frames X/Y)"),
+]
+
+UV_ANIM_INPUTS = [
+    ("GameTime", "Game Time", ""),
+    ("RaceTime", "Race Time", ""),
+]
+
+
+class AssetUvAnimProperties(PropertyGroup):
+    layer: StringProperty(name="Layer", default="SelfIllum",
+                          description="Texture layer to animate (in game only SelfIllum on TIAdd animated)", update=on_anim_prop_changed)
+    anim_type: EnumProperty(name="Type", items=UV_ANIM_TYPES, default="TransLinear", update=on_anim_prop_changed)
+    period: FloatProperty(name="Period", default=1.0, min=0.001, unit="TIME_ABSOLUTE",
+                          description="Seconds per animation cycle", update=on_anim_prop_changed)
+    input_val: EnumProperty(name="Time", items=UV_ANIM_INPUTS, default="GameTime")
+    speed_u: FloatProperty(name="Speed U", default=0.0, description="Scroll per period along U", update=on_anim_prop_changed)
+    speed_v: FloatProperty(name="Speed V", default=0.0, description="Scroll per period along V", update=on_anim_prop_changed)
+    frame_count: IntProperty(name="Frame Count", default=0, min=0, update=on_anim_prop_changed)
+    frames_x: IntProperty(name="Frames X", default=0, min=0, max=65535, update=on_anim_prop_changed)
+    frames_y: IntProperty(name="Frames Y", default=0, min=0, max=65535, update=on_anim_prop_changed)
+
+
+class AssetCustomMaterialProperties(PropertyGroup):
+    """Own or game textures on a Nadeo shading model. Container like a texture set: writes no file."""
+
+    model: EnumProperty(name="Model", items=CUSTOM_MATERIAL_MODELS, default="TDSN", update=on_render_prop_changed)
+    # physics and gameplay are always written: the game has no "no physics"
+    surface_material: EnumProperty(name="Physics", description="Surface material (physics)",
+                                   items=enum_items(MaterialId), default=MaterialId.Concrete.value)
+    gameplay_effect: EnumProperty(name="Gameplay", description="Gameplay effect",
+                                  items=enum_items(LegacyGameplayId), default=LegacyGameplayId.None_.value)
+
+    color_image: PointerProperty(type=bpy.types.Material, name="Color", poll=poll_asset("IMAGE"), update=on_render_prop_changed)
+    normal_image: PointerProperty(type=bpy.types.Material, name="Normal", poll=poll_asset("IMAGE"), update=on_render_prop_changed)
+    roughness_image: PointerProperty(type=bpy.types.Material, name="Roughness", poll=poll_asset("IMAGE"), update=on_render_prop_changed,
+                                     description="Written, but showed no visible effect in game")
+    selfillum_image: PointerProperty(type=bpy.types.Material, name="Self Illum", poll=poll_asset("IMAGE"), update=on_render_prop_changed)
+    energy_image: PointerProperty(type=bpy.types.Material, name="Energy", poll=poll_asset("IMAGE"), update=on_render_prop_changed)
+
+    selfillum_scale: FloatProperty(name="Self Illum Scale", default=1.0, min=0.0, soft_max=10.0,
+                                   description="Glow strength (TDSNI, TDSNI_Night, TIAdd)", update=on_render_prop_changed)
+    use_tiling: BoolProperty(name="Tiling", default=False, description="Write texture addressing (default: game default)",
+                             update=on_render_prop_changed)
+    tiling_u: EnumProperty(name="U", items=TEX_ADDRESS_ITEMS, default="Wrap", update=on_render_prop_changed)
+    tiling_v: EnumProperty(name="V", items=TEX_ADDRESS_ITEMS, default="Wrap", update=on_render_prop_changed)
+
+    uv_anims: CollectionProperty(type=AssetUvAnimProperties)
+    uv_anims_index: IntProperty(default=0)
+
+
 class AssetImageProperties(PropertyGroup):
     """Record stored on bpy.types.Image as img.tm_image_asset."""
     is_managed: BoolProperty(default=False)
@@ -156,6 +247,14 @@ class AssetProperties(PropertyGroup):
     bitmap: PointerProperty(type=AssetBitmapProperties)
     imageFile: PointerProperty(type=AssetImgFileProperties)
     texture_set: PointerProperty(type=AssetTextureSetProperties)
+    custom_material: PointerProperty(type=AssetCustomMaterialProperties)
+
+    game_path: StringProperty(
+        name="Game Path",
+        description="Path of this image inside the game data (e.g. Stadium/Media/Texture/Image/RoadIce_D.dds). "
+                    "Custom materials reference it there instead of shipping the file",
+        default="",
+    )
 
 
 # --------------------------------------------------------------------------
@@ -274,6 +373,8 @@ classes = (
     AssetBitmapProperties,
     AssetImgFileProperties,
     AssetTextureSetProperties,
+    AssetUvAnimProperties,
+    AssetCustomMaterialProperties,
     AssetImageProperties,
     AssetProperties,
 )

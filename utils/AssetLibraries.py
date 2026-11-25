@@ -85,7 +85,10 @@ def set_declared(value: bool) -> None:
 
 
 def _has_local_assets() -> bool:
-    return any(m.library is None and m.tm_asset_properties.is_asset for m in bpy.data.materials)
+    # local texture sets / custom materials (Materials V2, not marked as Blender asset) don't make a library
+    return any(m.library is None and m.tm_asset_properties.is_asset
+               and (m.asset_data is not None or m.tm_asset_properties.asset_type not in ("TEXTURESET", "CUSTOMMATERIAL"))
+               for m in bpy.data.materials)
 
 
 # -----------------------------
