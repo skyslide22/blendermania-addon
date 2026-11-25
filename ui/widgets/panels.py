@@ -1,7 +1,9 @@
 import bpy
 from bpy.props import StringProperty, CollectionProperty
 
-ADDON_ID ="blendermania-addon"
+# root package of the addon ("blendermania-addon", "blendermania-addon-master", "bl_ext.<repo>.blendermania", ...):
+# AddonPreferences.bl_idname and preferences.addons[] key must match the installed module name
+ADDON_ID = __package__.rsplit(".ui.widgets", 1)[0]
 
 class TM_HiddenView(bpy.types.PropertyGroup):
     view_id: StringProperty()

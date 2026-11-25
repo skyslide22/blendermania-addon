@@ -592,7 +592,8 @@ def has_valid_LODs(obj: bpy.types.Object) -> bool:
 
 def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
     location: list[float] = [0,0,0]
-    offset: list[float] = []
+    # items without mesh/origin/instance (only lights or particle fx) keep their position
+    offset: list[float] = [0.0, 0.0, 0.0]
 
     origin = next(
         (obj for obj in objects
@@ -605,12 +606,15 @@ def get_offset_from_item_origin(objects: list[bpy.types.Object]) -> list[float]:
     main = origin or fallback
 
     if main is not None:
+        # world position: main.location is relative to the parent for parented objects (item exported off-center).
+        # Rebuilt from local values, matrix_world can be stale while the export moves the item around.
+        world = fresh_world_matrix(main).translation
         offset = [
-            main.location[0] - location[0],
-            main.location[1] - location[1],
-            main.location[2] - location[2],
+            world[0] - location[0],
+            world[1] - location[1],
+            world[2] - location[2],
         ]
-    
+
             
     return offset
 

@@ -327,9 +327,9 @@ def create_folder_if_necessary(path) -> None:
 
 
 def in_new_thread(func):
-    """decorator, runs func in new thread"""
+    """decorator, runs func in a new daemon thread (a non-daemon thread would block Blender from quitting)"""
     def wrapper(*args, **kwargs):
-        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
         thread.start()
     return wrapper
 

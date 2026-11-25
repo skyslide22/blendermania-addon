@@ -436,16 +436,21 @@ def run_convert_fx_to_json(gbx_path: str, output_path: str) -> DotnetExecResult:
 def _run_dotnet(command: str, payload: str) -> DotnetExecResult:
     dotnet_exe = get_blendermania_dotnet_path()
 
-    process = subprocess.Popen(args=[
-        dotnet_exe,
-        command,
-        payload.strip('"'),
-    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
+    try:
+        process = subprocess.Popen(args=[
+            dotnet_exe,
+            command,
+            payload.strip('"'),
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except OSError as err:   # exe missing / blocked by antivirus / payload too long for the command line
+        msg = f"Could not start {dotnet_exe}: {err}\nReinstall the addon or the Blendermania dotnet tool (Settings)."
+        return DotnetExecResult(message=msg, success=False, stdout="", stderr=msg)
+
     out, err = process.communicate()
 
-    out_msg = out.decode("utf-8").strip()
-    err_msg = err.decode("utf-8").strip()
+    # console output is not always utf-8 (localized Windows/.NET error texts)
+    out_msg = out.decode("utf-8", errors="replace").strip()
+    err_msg = err.decode("utf-8", errors="replace").strip()
 
     messages = out_msg + ("\n" + err_msg if len(err_msg) > 0 else "")
 

@@ -117,8 +117,15 @@ class ItemConvert(threading.Thread):
         
         # trackmania 2020 convert process
         if self.game_is_trackmania2020:
-            self.convert_item_gbx()
-            
+            try:
+                self.convert_item_gbx()
+            except Exception as err:
+                # e.g. blendermania-dotnet.exe missing: without this the thread dies and the item counts as converted
+                self.convert_has_failed       = True
+                self.convert_message_item_gbx = f"{type(err).__name__}: {err}"
+                self.convert_returncode_item_gbx = 1
+                self.add_progress_step("Convert to .Item.gbx failed", (self.convert_message_item_gbx,))
+
         
         # maniaplanet convert process
         # if self.game_is_maniaplanet:
@@ -455,7 +462,11 @@ def start_batch_convert(items: list[ExportedItem]):
         item.game = GAMETYPE_TRACKMANIA2020 if is_game_trackmania2020() else GAMETYPE_MANIAPLANET
         item.target_type = ItemModel.Prefab if tm_props.LI_exportTargetType == ItemModel.Prefab else ItemModel.MeshModeler
         item.material_lib_path = get_global_props().ST_materialLibPath
-        generate_and_save_item_config(item)
+        try:
+            generate_and_save_item_config(item)
+        except OSError as err:   # config file locked (editor, antivirus, sync tool) or folder not writable
+            _queue_failed_item(item, f"Could not write the item config: {err}")
+            continue
 
         thread = threading.Thread(target=convert_fbx, args=[item])
         _CONVERT_THREADS.append(thread)
@@ -532,26 +543,37 @@ def generate_and_save_item_config(item: ExportedItem) -> None:
 
 
 def _report_asset_problems(item_name: str) -> None:
-    """assets (bitmaps/images of texture sets, trees, particle fx) the config could not resolve"""
-    from .ItemConfigBuilder import DROPPED_ASSETS
-    if not DROPPED_ASSETS:
+    """assets (bitmaps/images of texture sets, trees, particle fx) the config could not resolve,
+    and values the config generation had to leave out (unknown ids, references to objects that are not exported)"""
+    from .ItemConfigBuilder import DROPPED_ASSETS, CONFIG_WARNINGS
+    if not DROPPED_ASSETS and not CONFIG_WARNINGS:
         return
     problems = list(DROPPED_ASSETS)
+    warnings = list(CONFIG_WARNINGS)
     for name, reason in problems:
         debug(f"asset problem in {item_name}: {name}: {reason}")
+    for name, reason in warnings:
+        debug(f"config warning in {item_name}: {name}: {reason}")
     if bpy.app.background:
         return
 
     def draw(self, context):
         lay = self.layout
-        lay.label(text=f"<{item_name}>: {len(problems)} asset(s) can't be used in game:")
-        for name, reason in problems[:12]:
-            lay.label(text=f"  - {name}: {reason}", icon="ERROR")
-        if len(problems) > 12:
-            lay.label(text=f"  ... and {len(problems) - 12} more")
-        lay.label(text="Missing libraries: Asset Library panel > Check Missing Files")
+        if problems:
+            lay.label(text=f"<{item_name}>: {len(problems)} asset(s) can't be used in game:")
+            for name, reason in problems[:12]:
+                lay.label(text=f"  - {name}: {reason}", icon="ERROR")
+            if len(problems) > 12:
+                lay.label(text=f"  ... and {len(problems) - 12} more")
+            lay.label(text="Missing libraries: Asset Library panel > Check Missing Files")
+        if warnings:
+            lay.label(text=f"<{item_name}>: {len(warnings)} setting(s) were left out of the export:")
+            for name, reason in warnings[:12]:
+                lay.label(text=f"  - {name}: {reason}", icon="ERROR")
+            if len(warnings) > 12:
+                lay.label(text=f"  ... and {len(warnings) - 12} more")
 
-    bpy.context.window_manager.popup_menu(draw, title="Asset problems", icon="ERROR")
+    bpy.context.window_manager.popup_menu(draw, title="Asset problems" if problems else "Export warnings", icon="ERROR")
 
 def _save_item_config(config: ItemConfig, filepath: str) -> None:
     """save item config to json file"""
@@ -807,7 +829,7 @@ def _write_convert_report(results: list["ConvertResult"]) -> None:
     <script>
     window.focusBlenderAndCloseErrorReport = async function() {{
         try {{
-            await fetch("http://localhost:42069/focus_blender");
+            await fetch("http://localhost:42069/focus_blender", {{ mode: "no-cors" }});  // opaque response, the server sends no CORS header
             window.close();
         }} catch {{
             alert("error: blender server is not running");
@@ -828,6 +850,22 @@ def _write_convert_report(results: list["ConvertResult"]) -> None:
                 "Try to run Blender once as administrator",
             ],
         )
+
+def _queue_failed_item(item: ExportedItem, message: str) -> None:
+    """report an item as failed without starting a convert (shows up in the panel and the convert report)"""
+    result = ConvertResult()
+    result.name_raw = get_path_filename(item.fbx_path, remove_extension=True)
+    result.relative_fbx_filepath = fix_slash("Items/" + item.fbx_path.split("/Work/Items/")[-1])
+    result.item_error_message = message
+    result.item_returncode = 1
+    result.mesh_returncode = 0
+    result.convert_has_failed = True
+    result.convert_steps = [ConvertStep("Convert failed", (message,))]
+    result.config = getattr(item, "config", None)
+    update = {"name": result.name_raw, "icon": "FILE_FONT", "failed": True, "converted": True, "convert_duration": 0,
+              "embed_size": 0.0, "embed_refs_size": 0.0, "embed_refs": ""}
+    _CONVERT_QUEUE.put((_CONVERT_STEP_UPDATE, item.assigned_index, update, result, next(iter(item.objects), None)))
+
 
 def convert_fbx(item: ExportedItem) -> None:
 
@@ -875,7 +913,7 @@ def convert_fbx(item: ExportedItem) -> None:
         "embed_refs": "\n".join(f"{kb:.3f}|{path}" for path, kb in result.embed_refs.items()),
     }
 
-    _CONVERT_QUEUE.put( (_CONVERT_STEP_UPDATE, item.assigned_index, update, result, next(iter(item.objects))) )
+    _CONVERT_QUEUE.put( (_CONVERT_STEP_UPDATE, item.assigned_index, update, result, next(iter(item.objects), None)) )
 
 
 

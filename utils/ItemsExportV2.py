@@ -110,7 +110,12 @@ def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False)
     processed_materials:list[bpy.types.Material] = []
     
     export_work_path = get_export_path()
-    
+
+    # the list is stored in the scene (and the .blend): results of earlier exports must not block this one
+    get_invalid_materials_props().clear()
+    tm_props.CB_showInvalidMatsPanel = False
+    invalid_seen: set = set()
+
     if ".." in export_work_path:
         raise ValueError(
             "\n\nExport path must be absolute! (can not start with '/' or '..')"
@@ -176,6 +181,17 @@ def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False)
         # meshes inside instanced collections are exported by the fbx exporter too
         template_objs = get_instanced_template_objects(objs)
 
+        # instanced copies are always written into the fbx (can't be deselected), the converter fails on lights without config
+        bad_instanced_lights = [o.name for o in template_objs
+                                if o.type == EXPORTABLE_OBJECT_LIGHT and o.data.type not in (LIGHT_TYPE_POINT, LIGHT_TYPE_SPOT)]
+        if bad_instanced_lights:
+            show_report_popup("Unsupported lights", (
+                f"<{coll.name}> skipped: instanced collections contain lights other than point/spot:",
+                *(f"  - {n}" for n in bad_instanced_lights[:12]),
+                "Delete them or change their type to Point or Spot.",
+            ), icon="ERROR")
+            continue
+
         for obj in list(objs) + template_objs:
             for slot in obj.material_slots:
                 mat = slot.material
@@ -183,7 +199,8 @@ def export_collections(colls: list[bpy.types.Collection], plan_only: bool=False)
                     if is_material_exportable(mat):
                         save_mat_props_json(mat)
                         processed_materials.append(mat)
-                    else:
+                    elif mat not in invalid_seen:
+                        invalid_seen.add(mat)
                         imat = invalid_mats.add()
                         imat.material = mat
         
@@ -359,11 +376,25 @@ def _export_item_FBX(item: ExportedItem) -> None:
     if is_game_maniaplanet():
         exportArgs["apply_scale_options"] = "FBX_SCALE_UNITS"
 
-    deselect_all_objects()
+    # use_selection: everything selected ends up in the fbx. bpy.ops.object.select_all skips hidden objects,
+    # selected hidden objects of other items would be exported into this one -> deselect explicitly
+    for obj in bpy.context.view_layer.objects:
+        obj.select_set(False)
+
+    unsupported_lights = []
     for obj in item.objects:
+        if obj.type == EXPORTABLE_OBJECT_LIGHT and obj.data.type not in (LIGHT_TYPE_POINT, LIGHT_TYPE_SPOT):
+            unsupported_lights.append(obj.name)   # no config is written for them, the converter would fail
+            continue
         if not getattr(obj, ObjectProp.IGNORE, False) and not getattr(obj, ObjectProp.ICON_ONLY, False) and \
         not obj.name.lower().startswith("delete"):
             select_obj(obj)
+
+    if unsupported_lights:
+        show_report_popup("Unsupported lights", (
+            f"<{item.name_raw or item.name}>: only point and spot lights are supported, not exported:",
+            *(f"  - {n}" for n in unsupported_lights[:12]),
+        ))
 
     bpy.ops.export_scene.fbx(**exportArgs) #one argument is optional, so give a modified dict and **unpack
 
@@ -398,23 +429,40 @@ def _duplicate_scaled(item: ExportedItem) -> list[ExportedItem]:
         scale_factor = getattr(item.collection, CollectionProp.SCALE_FACTOR, 1)
         if scale_from > scale_to:
             scale_from, scale_to = scale_to, scale_from
-        reverse_range = reversed(range(scale_from, scale_to+1))
-        scale_step      = 1 / scale_factor
-        current_scale = 1
-        for scale in reverse_range:
-            scales.append([scale, current_scale])
-            current_scale -= scale_step
+        scale_factor = max(int(scale_factor), 1)
+        # computed per step (no accumulated float error), largest index = scale 1
+        for step, index in enumerate(reversed(range(scale_from, scale_to+1))):
+            scales.append([index, round(1 - step / scale_factor, 6)])
 
     if is_values:
-        scale_values = getattr(item.collection, CollectionProp.SCALE_VALUES, "1")
+        scale_values = getattr(item.collection, CollectionProp.SCALE_VALUES, [])
         for i, scale in enumerate(reversed(scale_values)):
-            scales.append([i + 1, scale.value / 100])
+            scales.append([i + 1, round(scale.value / 100, 6)])
+
+    # a scale of 0 or below can't be exported: skip those steps, but never silently
+    invalid = [s for s in scales if s[1] <= 0]
+    scales = [s for s in scales if s[1] > 0]
+    coll_name = item.name_raw or item.name
+    if not scales:
+        try:
+            os.remove(item.fbx_path)
+        except OSError:
+            pass
+        reason = "no scale values set" if is_values and not invalid else "all scales are 0 or below"
+        show_report_popup("Invalid scale settings", (
+            f"<{coll_name}> skipped: {reason}.",
+            "Linear: the factor must be larger than the number of steps (From..To). Values: use values above 0 %.",
+        ), icon="ERROR")
+        return []
+    if invalid:
+        show_report_popup("Scale warnings", (
+            f"<{coll_name}>: {len(invalid)} scale step(s) are 0 or below and were not exported:",
+            *(f"  - #{idx}: {s * 100:g} %" for idx, s in invalid[:8]),
+            "Linear: increase the factor or reduce From..To. Values: use values above 0 %.",
+        ))
 
     for scaleT in scales:
         scale = scaleT[1]
-        if scale <= 0:
-            return []
-
         index = scaleT[0]
         new_item = copy(item)
         new_item.scale = scale

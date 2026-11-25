@@ -258,7 +258,7 @@ PROMOTE_MATERIAL_ASSETS_LIBRARY     = False
 
 # Show "Build from game files" (pak extract -> default assets, Package for Release) in the TM Asset tab.
 # Maintainer-only (building a TM2020 Default Assets release), users install the finished release instead.
-SHOW_DEFAULT_ASSETS_BUILD           = False
+SHOW_DEFAULT_ASSETS_BUILD           = True
 
 # TM2020 Material Assets Library (community library by BigthirstyTM, V2 material workflow)
 # release tags are "v<version>-<edition>", each release has release.json (archives + sha256, file list) and N zip parts

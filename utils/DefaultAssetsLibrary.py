@@ -263,14 +263,14 @@ def build(pak_root: Path, out_root: Path, data_json: Path, payload_out: Path) ->
             files = tuple(sorted((k, v) for k, v in slots.items() if k in TEXTURE_SET_SLOTS))
             if any(k in ("ColorImage", "DiffuseBitmap") for k, _ in files):
                 tree_sets.setdefault((_env(tree["Path"]), files), slots)
-    needed = {b["Image"] for b in bitmaps}
-    for slots in tree_sets.values():
-        needed.update(v for k, v in slots.items() if k.endswith("Image"))
-    needed = sorted(p for p in needed if p.lower().endswith(IMAGE_EXTENSIONS) and (pak_root / p).is_file())
+    # every image of the extract, not only those of bitmaps/trees: custom materials can use any game image by its
+    # game path (GameTexture, nothing embedded)
+    needed = sorted(p.relative_to(pak_root).as_posix() for p in pak_root.rglob("*")
+                    if p.suffix.lower() in IMAGE_EXTENSIONS and p.is_file())
 
     names = _Names()
-    images = {}        # game path -> image record
-    image_assets = {}  # game path -> IMAGE asset material
+    images = {}        # game path (lowercase: refs may differ in case from the file) -> image record
+    image_assets = {}  # game path (lowercase) -> IMAGE asset material
     stats = {"images": 0, "bitmaps": 0, "texture_sets": 0}
     for i, game_path in enumerate(needed):
         if i % 20 == 0:
@@ -284,9 +284,9 @@ def build(pak_root: Path, out_root: Path, data_json: Path, payload_out: Path) ->
             shutil.copy2(src, dst)
         img = _make_record(dst, rel, sha, src.name)
         img.filepath = _blender_path(rel)
-        images[game_path] = img
+        images[game_path.lower()] = img
         env = _env(game_path)
-        image_assets[game_path] = mat = _new_asset(names.get(TYPE_PREFIX["IMAGE"] + src.stem, env), "IMAGE",
+        image_assets[game_path.lower()] = mat =_new_asset(names.get(TYPE_PREFIX["IMAGE"] + src.stem, env), "IMAGE",
                                                    f"{CATALOG_ROOT}/{env}/Images", env, game_path, img)
         _set_type_preview(mat, img, "IMAGE")
         stats["images"] += 1
@@ -296,7 +296,7 @@ def build(pak_root: Path, out_root: Path, data_json: Path, payload_out: Path) ->
     for i, b in enumerate(bitmaps):
         if i % 20 == 0:
             _progress(0.6 + i / max(1, len(bitmaps)) * 0.3, f"Bitmaps {i}/{len(bitmaps)}")
-        img = images.get(b["Image"])
+        img = images.get(b["Image"].lower())
         if img is None:
             continue
         game_path = re.sub(r"(?i)\.texture\.gbx$", BITMAP_EXT, b["Path"])
@@ -328,7 +328,7 @@ def build(pak_root: Path, out_root: Path, data_json: Path, payload_out: Path) ->
                          f"{env} tree texture set {slots.get('Name') or stem}")
         ts = mat.tm_asset_properties.texture_set
         for key, ref in files:
-            target = bitmap_assets.get(ref.lower()) if key.endswith("Bitmap") else image_assets.get(ref)
+            target = bitmap_assets.get(ref.lower()) if key.endswith("Bitmap") else image_assets.get(ref.lower())
             if target is not None:
                 setattr(ts, TEXTURE_SET_SLOTS[key], target)
         color = ts.color_image or ts.color_texture
@@ -622,9 +622,13 @@ def start_package(dest_dir: str, version: str) -> _BuildState:
         info = json.loads((out_root / "library.json").read_text(encoding="utf-8"))
         info["version"] = version
         (out_root / "library.json").write_text(json.dumps(info, indent=2), encoding="utf-8")  # installed copy carries it
+        release_dir = (dest / f"{DEFAULT_ASSETS_RELEASE_TAG_PREFIX}{version}").resolve()
         files = []
         for f in out_root.rglob("*"):
             rel = f.relative_to(out_root).as_posix()
+            # release folders written into the library folder (the file dialog opens there) are not library content
+            if rel.split("/", 1)[0].startswith(DEFAULT_ASSETS_RELEASE_TAG_PREFIX) or f.resolve().is_relative_to(release_dir):
+                continue
             # Texture.Gbx are not shipped: the user creates them with "Export Asset Library" in the library blend
             if f.is_file() and not rel.endswith(".blend1") and not rel.lower().endswith(".texture.gbx"):
                 files.append(rel)
@@ -632,7 +636,7 @@ def start_package(dest_dir: str, version: str) -> _BuildState:
         manifest["edition"] = RELEASE_EDITION
         clean_blend = work / DEFAULT_ASSETS_BLEND             # copy without machine specific absolute paths
         _run_stage(_build, _blender_args("strip", out_root / DEFAULT_ASSETS_BLEND, clean_blend), 0.0, 0.05, "Cleaning blend")
-        _build.result = write_release(files, out_root, dest / f"{DEFAULT_ASSETS_RELEASE_TAG_PREFIX}{version}",
+        _build.result = write_release(files, out_root, release_dir,
                                       f"TM2020-DefaultAssets-{version}", manifest,
                                       report=_build.report, cancelled=lambda: _build.cancel,
                                       overrides={DEFAULT_ASSETS_BLEND: clean_blend})

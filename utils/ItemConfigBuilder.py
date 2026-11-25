@@ -31,6 +31,7 @@ from ..properties.PropertyIdentifiers import CollectionProp, LightProp, ObjectPr
 # -----------------------------
 def generate_item_config(item: ExportedItem) -> ItemConfig:
     DROPPED_ASSETS.clear()
+    CONFIG_WARNINGS.clear()
     cfg = ItemConfig()
     tm_props = get_global_props()
 
@@ -51,7 +52,8 @@ def generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.Variants = get_variant_configs(collection)
     cfg.Scale = item.scale
     # objects living in instanced collections share the flat Materials/Lights/Meshes lists (object names are unique in blender)
-    all_objs = list(item.objects) + get_instanced_template_objects(item.objects)
+    # an object can be part of the item AND of a collection it instances: list it once (duplicate keys break the converter)
+    all_objs = list(dict.fromkeys(list(item.objects) + get_instanced_template_objects(item.objects)))
     assets: dict[str, AssetConfig] = {}
     cfg.Materials = _get_material_configs(all_objs, assets)
     cfg.VegetTrees = _get_veget_tree_configs(collection, all_objs, assets)
@@ -60,7 +62,7 @@ def generate_item_config(item: ExportedItem) -> ItemConfig:
     cfg.Meshes = _get_mesh_configs(all_objs, collection, variants)
     cfg.Instances = _get_instance_configs(item.objects, variants)
     cfg.InstanceCollections = _get_instance_collection_configs(item.objects)
-    cfg.MovingGroups = _get_moving_group_configs(collection, get_instanced_collections(item.objects))
+    cfg.MovingGroups = _get_moving_group_configs(collection, get_instanced_collections(item.objects), all_objs)
     _apply_plan_lightmap_overrides(cfg.Meshes, collection)
     cfg.ScaleOptions = _get_scale_config(collection)
 
@@ -187,8 +189,11 @@ def _get_instance_collection_configs(objs) -> list[InstanceCollectionConfig]:
     return [
         InstanceCollectionConfig(
             Name=col.name,
-            Meshes=sorted(o.name for o in col.all_objects if o.type == EXPORTABLE_OBJECT_MESH),
-            Lights=sorted(o.name for o in col.all_objects if o.type == EXPORTABLE_OBJECT_LIGHT),
+            # same objects as get_instanced_template_objects (helper collections like attachments excluded), every listed
+            # node needs a mesh/light config
+            Meshes=sorted(o.name for o in get_template_objects(col) if o.type == EXPORTABLE_OBJECT_MESH),
+            Lights=sorted(o.name for o in get_template_objects(col) if o.type == EXPORTABLE_OBJECT_LIGHT
+                          and o.data.type in (LIGHT_TYPE_POINT, LIGHT_TYPE_SPOT)),
             Instances=sorted(o.name for o in col.all_objects if is_collection_instance(o)),
         )
         for col in get_instanced_collections(objs)
@@ -301,7 +306,8 @@ def _get_light_configs(objs: list[bpy.types.Object], variants: VariantResolver) 
         light_cfg.Type = light.type
         light_cfg.Variant = variants.of_object(obj)
 
-        light_cfg.Color = f"{int(light.color[0]*255):02x}{int(light.color[1]*255):02x}{int(light.color[2]*255):02x}"
+        # light colors can exceed 1.0 in blender (HDR), the config needs exactly 6 hex digits
+        light_cfg.Color = "".join(f"{min(max(int(c * 255), 0), 255):02x}" for c in light.color[:3])
         light_cfg.Intensity = light.energy
         light_cfg.NightOnly = getattr(light, LightProp.LIGHT_NIGHT_ONLY, False)
         light_cfg.Distance = light.shadow_soft_size
@@ -402,15 +408,15 @@ def _get_material_configs(objs: list[bpy.types.Object], assets: dict[str, AssetC
             if use_custom_color_attr:
                 mat_config.Color = mat_custom_color
             if mat_use_physicid:
-                mat_config.PhysicsId = mat_physic_id
+                mat_config.PhysicsId = _valid_enum_value(MaterialId, mat_physic_id, mat.name, "PhysicsId")
             if mat.useGameplayId:
-                mat_config.GameplayId = mat.gameplayId
+                mat_config.GameplayId = _valid_enum_value(LegacyGameplayId, mat.gameplayId, mat.name, "GameplayId")
             if mat_is_asset and mat_use_gamplay_effect:
-                mat_config.GameplayId = mat_gameplay_effect
+                mat_config.GameplayId = _valid_enum_value(LegacyGameplayId, mat_gameplay_effect, mat.name, "GameplayId")
         elif mat_game_is_maniaplanet:
             mat_config.Model = mat.model
             mat_config.BaseTexture = mat_basetexture
-            mat_config.PhysicsId = mat_physic_id
+            mat_config.PhysicsId = _valid_enum_value(MaterialId, mat_physic_id, mat.name, "PhysicsId")
 
         if mat_is_asset and mat.tm_asset_properties.asset_type == "CUSTOMMATERIAL":
             mat_config = _get_custom_material_config(mat, assets)
@@ -430,6 +436,26 @@ def _is_asset_library_material(mat: bpy.types.Material) -> bool:
 
 # assets that could not be resolved by the last generate_item_config(): (asset name, reason), shown after export
 DROPPED_ASSETS: list[tuple[str, str]] = []
+# values the config generation had to leave out (unknown ids, references to objects that are not exported): (name, reason)
+CONFIG_WARNINGS: list[tuple[str, str]] = []
+
+
+def _warn(name: str, reason: str) -> None:
+    entry = (name, reason)
+    if entry not in CONFIG_WARNINGS:
+        CONFIG_WARNINGS.append(entry)
+
+
+def _valid_enum_value(enum_cls, value, owner: str, field: str) -> str | None:
+    """value of a free text id field, normalized to the enum spelling the converter accepts; None (+ warning) if unknown"""
+    value = str(value or "").strip()
+    if not value:
+        return None
+    for member in enum_cls:
+        if member.value.lower() == value.lower():
+            return member.value
+    _warn(owner, f"unknown {field} '{value}', left out")
+    return None
 
 
 def _drop(asset_mat: bpy.types.Material, reason: str) -> None:
@@ -673,15 +699,25 @@ def _get_mesh_configs(objs: list[bpy.types.Object], collection: bpy.types.Collec
 def _get_sub_anims(anims) -> list[SubAnimFunc]:
     return [SubAnimFunc(Ease=AnimEase(p.ease), Reverse=bool(p.reverse), Duration=max(0, p.duration)) for p in anims]
 
-def _get_moving_group_config(col: bpy.types.Collection) -> MovingGroupConfig:
+def _get_moving_group_config(col: bpy.types.Collection, group_names=None, exported_names=None) -> MovingGroupConfig:
+    """group_names: moving groups exported with this item, exported_names: objects written into the fbx
+    (None: no check). References to anything else would point to nothing in the converter."""
     cfg = MovingGroupConfig()
     cfg.MovingGroupId = col.name
     relative_moving_group = getattr(col, CollectionProp.RELATIVE_MOVING_GROUP, None)
     if relative_moving_group:
-        cfg.ParentMovingGroupId = relative_moving_group.name
+        if relative_moving_group == col:
+            _warn(col.name, "relative moving group is the group itself, left out")
+        elif group_names is not None and relative_moving_group.name not in group_names:
+            _warn(col.name, f"relative moving group <{relative_moving_group.name}> is not an exported moving group of this item, left out")
+        else:
+            cfg.ParentMovingGroupId = relative_moving_group.name
     anchor = getattr(col, CollectionProp.MOVING_ANCHOR, None)
     if anchor:
-        cfg.RotationAnchorNode = anchor.name
+        if exported_names is not None and anchor.name not in exported_names:
+            _warn(col.name, f"anchor <{anchor.name}> is not exported (ignored, icon only or outside the item), left out")
+        else:
+            cfg.RotationAnchorNode = anchor.name
 
     cfg.KinematicModel = KinematicModelConfig(
         CastStaticShadow=getattr(col, CollectionProp.KINEMATIC_CAST_SHADOW),
@@ -717,8 +753,19 @@ def _get_moving_group_config(col: bpy.types.Collection) -> MovingGroupConfig:
     cfg.KinematicMovement = movement
     return cfg
 
-def _get_moving_group_configs(collection: bpy.types.Collection, instanced_collections=()) -> list[MovingGroupConfig]:
+def _get_moving_group_configs(collection: bpy.types.Collection, instanced_collections=(), objs=None) -> list[MovingGroupConfig]:
     groups = get_item_moving_groups(collection)
     known = {c.name for c in groups}
     groups += [c for c in get_instanced_moving_groups(list(instanced_collections)) if c.name not in known]
-    return [_get_moving_group_config(col) for col in groups if is_moving_group_collection(col)]
+    groups = [col for col in groups if is_moving_group_collection(col)]
+    group_names = {col.name for col in groups}
+    exported_names = None
+    if objs is not None:
+        # same rule as the fbx selection (ItemsExportV2._export_item_FBX)
+        exported_names = {o.name for o in objs
+                          if not getattr(o, ObjectProp.IGNORE, False) and not getattr(o, ObjectProp.ICON_ONLY, False)
+                          and not o.name.lower().startswith("delete")}
+        # everything inside instanced collections is written by the fbx exporter as instance copies (empties too)
+        for inst_col in instanced_collections:
+            exported_names.update(o.name for o in inst_col.all_objects)
+    return [_get_moving_group_config(col, group_names, exported_names) for col in groups]

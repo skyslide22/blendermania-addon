@@ -78,25 +78,41 @@ public class ConvertFbxToGbx : ICommand
         var result = fbxGbxConverter.ConvertToGbxAndSaveItem(fbxGbxConversionInput, compileOptions);
         if (result.IsFailure)
         {
-            string msg = result.ErrorCode switch
-            {
-                ErrorCodes.FbxGbxConverter.FbxParsingError => "Failed to parse FBX file.",
-                ErrorCodes.FbxGbxConverter.InvalidItemOutputPath => "Invalid item output path.",
-                ErrorCodes.FbxGbxConverter.MissingMaterialConfig => "Missing material configuration.",
-                ErrorCodes.FbxGbxConverter.MissingLightConfig => "Missing light configuration.",
-                ErrorCodes.FbxGbxConverter.MissingMeshConfig => "Missing mesh configuration.",
-                ErrorCodes.FbxGbxConverter.MultipleSocketsNotSupported => "Multiple sockets are not supported.",
-                ErrorCodes.FbxGbxConverter.MissingStaticMeshGroup => "Missing static mesh group for lights.",
-                ErrorCodes.FbxGbxConverter.MissingLodDistanceConfig => "Missing LOD distance configuration.",
-                _ => result.ErrorCode ?? "Unknown error",
-            };
-            Console.WriteLine($"Error: {msg}");
+            Console.WriteLine($"Error: {FormatFailure(result)}");
             return (int)ExitCodes.GBXError;
         }
 
         return (int)ExitCodes.Success;
     }
         
+
+    /// <summary>
+    /// Text for a failed conversion: a readable text for known error codes (the code itself otherwise),
+    /// plus the details the converter attached to the failure (Data), e.g. which objects to change in Blender.
+    /// </summary>
+    static string FormatFailure(IToolResult failure)
+    {
+        string msg = failure.ErrorCode switch
+        {
+            ErrorCodes.FbxGbxConverter.FbxParsingError => "Failed to parse FBX file.",
+            ErrorCodes.FbxGbxConverter.InvalidItemOutputPath => "Invalid item output path.",
+            ErrorCodes.FbxGbxConverter.MissingMaterialConfig => "Missing material configuration.",
+            ErrorCodes.FbxGbxConverter.MissingLightConfig => "Missing light configuration.",
+            ErrorCodes.FbxGbxConverter.MissingMeshConfig => "Missing mesh configuration.",
+            ErrorCodes.FbxGbxConverter.MultipleSocketsNotSupported => "Multiple sockets are not supported.",
+            ErrorCodes.FbxGbxConverter.MissingStaticMeshGroup => "Missing static mesh group for lights.",
+            ErrorCodes.FbxGbxConverter.MissingLodDistanceConfig => "Missing LOD distance configuration.",
+            _ => failure.ErrorCode ?? "Unknown error",
+        };
+
+        string? detail = failure.Data switch
+        {
+            string text when !string.IsNullOrWhiteSpace(text) => text,
+            Exception ex => ex.Message,
+            _ => null,
+        };
+        return detail is null ? msg : $"{msg}{Environment.NewLine}{detail}";
+    }
 
     async Task<int> RunPlanning()
     {
@@ -126,19 +142,7 @@ public class ConvertFbxToGbx : ICommand
         var planResult = fbxGbxConverter.PlanConversion(fbxGbxConversionInput, compileOptions);
         if (planResult.IsFailure)
         {
-            string msg = planResult.ErrorCode switch
-            {
-                ErrorCodes.FbxGbxConverter.FbxParsingError => "Failed to parse FBX file.",
-                ErrorCodes.FbxGbxConverter.InvalidItemOutputPath => "Invalid item output path.",
-                ErrorCodes.FbxGbxConverter.MissingMaterialConfig => "Missing material configuration.",
-                ErrorCodes.FbxGbxConverter.MissingLightConfig => "Missing light configuration.",
-                ErrorCodes.FbxGbxConverter.MissingMeshConfig => "Missing mesh configuration.",
-                ErrorCodes.FbxGbxConverter.MultipleSocketsNotSupported => "Multiple sockets are not supported.",
-                ErrorCodes.FbxGbxConverter.MissingStaticMeshGroup => "Missing static mesh group for lights.",
-                ErrorCodes.FbxGbxConverter.MissingLodDistanceConfig => "Missing LOD distance configuration.",
-                _ => planResult.ErrorCode ?? "Unknown error",
-            };
-            Console.WriteLine($"Error: {msg}");
+            Console.WriteLine($"Error: {FormatFailure(planResult)}");
             return (int)ExitCodes.GBXError;
         }
 
